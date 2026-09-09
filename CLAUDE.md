@@ -202,7 +202,7 @@ G1 artık `NotYetBuiltView` değil. Akış: F1'de path üretilir ve **1. adımı
 - **E1'in saati ilk kez burada işe yarar.** "Sorduğumuz her şeyin karşılığı olmalı" kuralının son halkası.
 - **`completed_at` yalnızca tam dinlendiğinde yazılır** ve yazma beklenmez (`markFirstStepCompleted`, ateşle-unut). Bu sütun profildeki ilerlemeyi besleyecek; dolduramadığı bir adımı dolmuş göstermek kullanıcının kendi kaydını yalanlamak olurdu.
 
-> **Bekleyen migration:** `supabase/migrations/20260909120000_allow_step_completion.sql` uygulanmadan `completed_at` yazımı 403 döner (ölçüldü). Yetki bilerek **sütun bazlı** — tabloya tam update vermek, istemcinin sunucunun ürettiği `block_ids`/`slot_copy`yi değiştirebilmesi demekti. Uygulanana kadar oturum çalışır, yalnızca ilerleme kaydı düşer.
+> **Uygulandı (2026-09-09):** `supabase/migrations/20260909120000_allow_step_completion.sql` uzak projede duruyor; `completed_at` artık `complete-step` üzerinden sunucuda yazılıyor (canlı doğrulandı). Yetki bilerek **sütun bazlı** — tabloya tam update vermek, istemcinin sunucunun ürettiği `block_ids`/`slot_copy`yi değiştirebilmesi demekti. Uygulanana kadar oturum çalışır, yalnızca ilerleme kaydı düşer.
 
 `Config/Info.plist` bu yüzden var: `INFOPLIST_KEY_UIBackgroundModes` diye bir build ayarı yok, Xcode'un üreteci o anahtarı tanımıyor. Dosya yalnızca `UIBackgroundModes` taşır; kalan anahtarların tamamı hâlâ `GENERATE_INFOPLIST_FILE` ile üretiliyor.
 
@@ -256,6 +256,46 @@ Serbest metin alanlarında **otomatik düzeltme kapalı** (`OnboardingTextInput`
 **Henüz yok:** test hedefi (Xcode'dan eklenmeli; kontrast doğrulama testi, `BannedPhrases` lint'i ve `CrisisClassifier` vaka tablosu oraya gider), String Catalog, ses motoru, ağ katmanı, **sunucu tarafı kriz sınıflandırıcısı**.
 
 Test hedefi olmadığı için `CrisisClassifier` şimdilik elle doğrulanıyor: dosya UIKit/SwiftUI'a bağımlı değil, `swift CrisisClassifier.swift <vaka-dosyası>` ile doğrudan koşturulabilir. Bu geçici — vaka tablosu test hedefi eklenince oraya taşınmalı.
+
+### Onboarding sonrası oturum: "Yolum" sekmesi çalışıyor
+
+`MyApp/Features/Path/`. Onboarding sonrası günlük adım G1 ile **aynı motoru**
+kullanıyor: `SessionRunner` (sahne saati, duraklatma, yarıda bırakma),
+`SessionScript` (sahneleri kuran saf kurallar), `SessionStageView` (ekran),
+`SessionAudioPlayer` (manifest zaman çizelgesi). İkinci bir oturum ekranı
+yazmak, ilkinin düzeltilmiş hatalarını miras almadan yeni hatalar üretiyordu.
+
+- **Kişisel soru yalnızca `personalized` patikada.** `AdaptiveQuestionView` hem
+  G2'de hem "Yolum"da aynı bileşen; hazır patikada ekran soruyu **hiç
+  çizmiyor** ve sunucu da cevabı kabul etmiyor. İki katman da aynı sınırı
+  koruyor çünkü tek katman koruyan bir kural, kural değil.
+- **Streak/seri yok, kaçırılan gün için tek kelime yok.** Ekranda iz, adımlar ve
+  sıradaki adımın butonu var; ölçüm günleri halkalı düğüm (yıldız değil).
+- **Kesinti oturumu bitirmiyor.** Telefon görüşmesi, kulaklığın çıkması ve
+  uygulamanın kapanması kaldığı yeri saniyesiyle saklıyor; dönüşte cümlenin
+  ortasından devam ediyor (`scheduleSegment`). Kesinti bitince ses
+  **kendiliğinden** başlamıyor — kullanıcı sürdürüyor.
+- **Ağ hataları path'i ikinci kez ürettirmiyor.** `RetryPolicy` aynı idempotency
+  anahtarıyla en fazla üç deneme yapıyor; tükenirse sunucudaki aktif path
+  okunuyor (`generatePathWithReconciliation`). -1005 mobilde sıradan bir olay ve
+  yeni bir anahtar ikinci bir LLM + TTS faturası demekti.
+
+### Sunucu durumu — 2026-09-09 canlı doğrulama
+
+Beş Edge Function dağıtık (`generate-path` v6, `generate-audio` v5,
+`process-audio-jobs`, `render-shared-audio`, `complete-step`), migrasyonlar
+uygulanmış ve migrasyon defteri onarılmış durumda. Anonim kullanıcıyla ölçüldü:
+TR path 3 sn'de 21 adım (`kind=personalized`, soru üretiliyor), `complete-step`
+cevabı şifreleyip yalnızca 2. adımı kişiselleştirip kuyruğa alıyor, EN path
+`breath.awareness.en.v1` bloğunu ve İngilizce metni kullanıyor, kriz cevabı
+`status=crisis` döndürüp adımı tamamlamıyor ve sonraki adımı kuyruğa **almıyor**.
+
+> **Tek engel: ElevenLabs anahtarı geçersiz.** Supabase'te duran
+> `ELEVENLABS_API_KEY` sağlayıcı tarafından reddediliyor
+> (`tts_request_failed_400_invalid_api_key`, ölçüldü). Dört ses örneği, sabit
+> blok sesleri ve G1'de duyulan gerçek ses buna bağlı; kodda başka bir eksik yok.
+> Ayrıca `fal-webhook` adlı fonksiyon hâlâ dağıtık ama kaynağı depoda yok
+> (fal.ai kaldırıldı) — silinmesi ürün sahibinin kararı.
 
 ## Doküman haritası — kod yazmadan önce oku
 
