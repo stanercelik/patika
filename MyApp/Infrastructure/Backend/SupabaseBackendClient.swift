@@ -242,10 +242,14 @@ private struct GeneratePathPayload: Encodable {
     let measurementResponses: [String: Double]
     let sessionMinutes: Int
     let tone: String
+    let voicePreference: String
 
     init(draft: OnboardingDraft, variant: MeasurementVariant) {
         clientCrisisSignal = draft.crisisDetected
-        locale = Locale.current.identifier
+        // Ürünün taşıdığı iki dilden biri; ham cihaz tanımlayıcısı değil.
+        // Sunucu bu değeri TTS dil koduna çeviriyor ve tanımadığı bir kod
+        // telaffuzu sessizce bozuyordu.
+        locale = AppLocale.current.identifier
         name = draft.displayName
         gender = draft.gender?.rawValue
         ageRange = draft.ageRange?.rawValue
@@ -260,6 +264,7 @@ private struct GeneratePathPayload: Encodable {
         measurementResponses = draft.measurementResponses
         sessionMinutes = draft.sessionLength.minutes
         tone = draft.resolvedTonePreference.rawValue
+        voicePreference = draft.resolvedVoicePreference.rawValue
     }
 }
 

@@ -46,6 +46,10 @@ struct OnboardingDraft: Equatable, Sendable {
     /// Kullanıcı cevaplamadan akış ilerlemiyor; profil kurulurken `resolvedTone`
     /// devreye giriyor.
     var tonePreference: TonePreference?
+    /// E4 — rehber sesin kimliği. Önceden seçili **gelmez**: iki sesten birini
+    /// varsayılan yapmak, kullanıcının dinlemeden geçmesine ve on dakika
+    /// seçmediği bir sesle baş başa kalmasına yol açardı.
+    var voicePreference: VoicePreference?
     var reminderHour: Int = 22
     var reminderMinute: Int = 30
     var sessionLength: SessionLength = .standard
@@ -58,6 +62,10 @@ struct OnboardingDraft: Equatable, Sendable {
     /// E3 cevaplanmadan profil kurulmaz; yine de model non-optional bir ton
     /// bekliyor — sessizce en sakin kademeye düşüyoruz.
     var resolvedTonePreference: TonePreference { tonePreference ?? .calmAndShort }
+
+    /// Seçim yapılmadıysa kadın sesi. Sıra tesadüf değil: önizlemede önce o
+    /// çalıyor ve "hiçbirini seçmeden geçtim" durumu duyduğu ilk sesle eşleşiyor.
+    var resolvedVoicePreference: VoicePreference { voicePreference ?? .feminine }
 
     /// Hitapta kullanılacak ad; yoksa nil ve metinler isimsiz sürümüne düşer.
     ///

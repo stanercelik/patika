@@ -233,6 +233,24 @@ Serbest metin alanlarında **otomatik düzeltme kapalı** (`OnboardingTextInput`
 
 **A1 ekran sayısı — çözülen çelişki:** PRD §7.1 "3 karşılama ekranı" diyor, PRD-Ek Onboarding §2.1 ise tek animasyonlu ekran tarif edip kaydırmalı özellik karuselini açıkça yasaklıyor. **Ek uygulandı** (daha detaylı ve gerekçeli spec). PRD §7.1'in güncellenmesi gerekiyor.
 
+**Blok kütüphanesi artık sunucuda.** `supabase/migrations/20260909130000_*` tabloyu, `...130100_seed_blocks_tr.sql` on Türkçe bloğu kuruyor. `script` üç tipten oluşur: `fixed` (insan yazımı, önceden render, oturumun ~%70'i), `silence` (TTS'e hiç gitmez, istemcide zamanlanır), `slot` (LLM'in dokunabildiği tek yer).
+
+- **Sessizlik saniye değil nefes döngüsü sayar** (`breaths`) — saniyeyle yazılan sessizlik 10 saniyelik döngünün ortasında bitip sesi nefes verme evresine sokuyordu.
+- **Bloğun kendi nefes ritmi olabilir** (`breath_pattern`). Kutu nefesi 4-4-4-4; arka plan varsayılan 4/0.5/5.5 ile solurken bunu anlatmak kullanıcıyı iki ritim arasında bırakıyordu. Blok kendi ritmini getiriyorsa arka plan o süre boyunca ona geçer.
+- ⚠️ **Seed metinleri klinik gözden geçirmeden geçmedi** (`reviewed_at` null, bilerek). PRD-Ek Path Üretimi §2.3 bunu süreç kuralı sayıyor. Yayından önce `select * from public.unreviewed_blocks` **boş dönmeli**.
+
+**TTS artık aracısız ElevenLabs v3.** `_shared/tts.ts`. fal.ai kuyruğu, webhook fonksiyonu ve imza doğrulaması **tamamen kaldırıldı**: doğrudan çağrı senkron, ses gövdede dönüyor.
+
+- **AB uç noktası varsayılan** (`api.eu.residency.elevenlabs.io`). TTS'e giden metin kullanıcının kendi cümlesini içeriyor → GDPR Madde 9 sağlık verisi. Aracı üzerinden gitmek zincire ikinci bir veri işleyici ekliyordu.
+- **Model `eleven_v3`**: multilingual_v2 ile aynı fiyat, daha iyi ve `language_code` destekliyor (v2 desteklemiyor).
+- **Kişisel ses slot başına** üretilir, adım başına tek dosya değil — slotlar sabit blok parçalarıyla iç içe çalıyor. Komşu metinler `previous_text`/`next_text` ile gönderiliyor (request stitching): parça sınırlarındaki ton sıçraması böyle engelleniyor.
+- **Blok sesi ayrı ve paylaşılan** (`block_audio` tablosu + açık `block_audio` kovası): kişisel veri içermiyor, bir kez render ediliyor, imzasız ve CDN'lenebilir. Kullanıcının cümlesi oraya hiç girmiyor.
+- **Ses etiketleri (`[whispers]` gibi) varsayılan kapalı.** ElevenLabs kendi dokümanında etiket etkinliğinin sese göre değiştiğini söylüyor ve `[meditative]` belgelenmiş bir etiket değil — model belgelenmemiş etiketi **sesli okuyabilir**, yani meditasyonun ortasında duyulacak bir hata. Etiket blok başına opsiyonel alan (`blocks.audio_tag`); tempo asıl olarak noktalamayla (üç nokta duraklama üretir) ve bizim kendi sessizlik enjeksiyonumuzla kuruluyor.
+
+**E4 — rehber sesi.** PRD'de yok, sonradan eklendi (ürün sahibi kararı, 2026-09-09). "Nasıl bir ses istersin" diye sıfat saydırmıyor; iki örneği dinletip seçtiriyor — sıfatın nasıl duyulduğunu kullanıcı bilmiyor. Önceden seçim yok. Örnekler uygulama paketinde (`scripts/render-voice-previews.sh` üretir), sunucudakiyle **birebir aynı ayarlarla** render edilir.
+
+**Dil: `AppLocale`.** Varsayılan İngilizce, cihaz dili ya da bölgesi Türkçe/TR ise Türkçe. **Yalnızca sesin ve blok metinlerinin dilini** belirler — arayüz metinleri hâlâ `Copy.swift` içinde sabit Türkçe, arayüz yerelleştirmesi String Catalog ile ayrı iş.
+
 **Anahtarlar ve gizlilik.** `AppConfiguration.live` içindeki iki değer bilinçli olarak istemcide: Supabase **publishable** anahtarı ve PostHog **project token**'ı. İkisi de kimlik doğrulaması değil, hangi projeye konuşulduğunun adresi; güvenlik sınırı RLS ve kimlik doğrulamalı Edge Function'lar. Gerçek sırlar (`SUPABASE_SECRET_KEY`, `GEMINI_API_KEY`, `FAL_KEY`) yalnızca sunucuda, `supabase secrets set` ile durur ve depoda hiç geçmez. `.gitignore` bunu koruyor.
 
 **Henüz yok:** test hedefi (Xcode'dan eklenmeli; kontrast doğrulama testi, `BannedPhrases` lint'i ve `CrisisClassifier` vaka tablosu oraya gider), String Catalog, ses motoru, ağ katmanı, **sunucu tarafı kriz sınıflandırıcısı**.
@@ -247,6 +265,7 @@ Test hedefi olmadığı için `CrisisClassifier` şimdilik elle doğrulanıyor: 
 | `docs/PRD-Ek-Onboarding.md` | 31 ekranlık onboarding akışı, ekran ekran metinler, funnel hedefleri, segmentasyon |
 | `docs/PRD-Ek-Ton-ve-Nudge.md` | Tüm kullanıcıya görünen metinlerin tonu, mikrometin kütüphanesi, bildirim kuralları, erişilebilirlik |
 | `docs/PRD-Ek-Gorsel-Sistem-ve-Promptlar.md` | MeshGradient + Metal shader kodu, 10 kategori paleti, nefes animasyonu, Rive brief'leri, görsel prompt'ları |
+| `docs/PRD-Ek-Oturum-Motoru-ve-JIT.md` | **Oturum çalarken zorunlu.** Blok `script` şeması (fixed/silence/slot), doğal akış kuralları K1–K6, ses seviyesi ve AB veri ikametgâhı, sesle senkron arka plan (`voiceEnergy`), kademeli üretimin düzeltilmiş modeli, adım sonu sorusu |
 | `docs/PRD-Ek-Profil-Sayfasi.md` | "Ben" sekmesi tasarımı. Ahead/Fabulous/Ladder/Yazio profil ekranlarından ne alındığı ve **ne alınmadığı**, önerilen yerleşim, önce gereken veri katmanı. **Taslak — onay bekliyor.** |
 | `docs/PRD-Ek-Path-Uretimi-ve-AI.md` | **Backend/AI çalışırken zorunlu.** Path üretim hattı adım adım, blok kütüphanesi ve slot şeması, LLM/TTS sağlayıcı karşılaştırmaları, kişiselleştirme kademeleri, JIT üretim, üç uçtan uca vaka (söylenen cümleler + kuruş kuruş maliyet), kohort ekonomisi, gizlilik sınırları |
 

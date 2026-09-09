@@ -106,6 +106,8 @@ struct OnboardingContainerView: View {
             SessionLengthView(flow: flow)
         case .e3Tone:
             TonePreferenceView(flow: flow)
+        case .e4Voice:
+            VoiceChoiceView(flow: flow)
         case .f1Generation:
             GenerationView(flow: flow)
         case .f2Roadmap:

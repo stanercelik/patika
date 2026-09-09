@@ -80,13 +80,19 @@ Deno.serve(async (req) => {
         locale: input.locale,
         gender: input.gender,
         age_range: input.ageRange,
+        // `generate-audio` sesi buradan okuyor. Profilde durması bilinçli:
+        // ses tercihi path'e değil kullanıcıya ait, ikinci bir path açıldığında
+        // yeniden sorulmamalı.
+        voice_preference: input.voicePreference,
       }),
       adminClient.from("problem_statements").insert({
         user_id: user.id,
         raw_text_ciphertext: null,
         generation_summary: plan.summary,
       }),
-      adminClient.from("measurements").insert({
+      // Baseline mükerrer yazılmasın: aynı kullanıcı için ikinci bir path
+      // üretimi ilk ölçümü değiştirmemeli (tekil dizin 20260909130000).
+      adminClient.from("measurements").upsert({
         user_id: user.id,
         variant: input.measurementVariant,
         measurement_day: 0,
@@ -94,7 +100,7 @@ Deno.serve(async (req) => {
         emotion_score: scores.emotion,
         behavior_score: scores.behavior,
         self_efficacy_score: scores.selfEfficacy,
-      }),
+      }, { onConflict: "user_id,measurement_day", ignoreDuplicates: true }),
       adminClient.from("generation_jobs").insert({
         user_id: user.id,
         path_id: path.id,

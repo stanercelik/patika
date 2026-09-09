@@ -369,6 +369,18 @@ enum Copy {
         /// D1'in pasif CTA metni. Kova listelerinde "Birini seçelim" kullanılıyor;
         /// şiddet ölçeğinde seçilecek bir liste yok, dokunulacak bir yer var.
         static let pickPointCTA: LocalizedStringResource = "Ölçekten bir yer seç"
+
+        // MARK: E4 — Rehber sesi
+
+        /// Ses seçimi. Sıfat sorulmuyor, örnek dinletiliyor.
+        static let voiceHeadline: LocalizedStringResource = "Hangi ses sana daha iyi geliyor?"
+        static let voiceHint: LocalizedStringResource = "Dinlemek için dokun. Sonradan değiştirebilirsin."
+        static let voiceChooseCTA: LocalizedStringResource = "Bir ses seç"
+        static let voicePreviewHint: LocalizedStringResource = "Örneği çalar ve bu sesi seçer"
+        /// Önizleme dosyası pakette yoksa. Gizlenmiyor — sessiz kalan bir düğme
+        /// arızalı görünüyor.
+        static let voicePreviewUnavailable: LocalizedStringResource =
+            "Örnekler şu an dinlenemiyor. Seçimini yine yapabilirsin, ilk oturumda duyacaksın."
     }
 
     /// G1 — ilk oturum (PRD-Ek Onboarding §8). Sakin kademe: bu ekranda
@@ -399,7 +411,7 @@ enum Copy {
         /// "Yolunda 20 adım daha var. Yarın 22:30'da buradayız."
         static func completedBody(remaining: Int, time: String) -> LocalizedStringResource {
             "Yolunda \(remaining) adım daha var. Yarın \(time)'da buradayız."
-        }
+    }
 
         /// Yarıda bırakanda kalan adım sayısı **yazılmıyor**: bitirmemiş birine
         /// "20 adım daha var" demek, kalan yolu bir borç gibi okutuyor.

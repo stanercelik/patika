@@ -26,3 +26,6 @@ DerivedData/
 !.env.example
 supabase/.temp/
 supabase/.branches/
+
+# Ses örnekleri ikili dosya; scripts/render-voice-previews.sh ile üretilir.
+MyApp/Resources/*.mp3

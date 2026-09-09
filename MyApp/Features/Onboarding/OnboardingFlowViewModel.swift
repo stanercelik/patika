@@ -40,6 +40,9 @@ enum OnboardingStep: Equatable {
     case e1Reminder
     case e2SessionLength
     case e3Tone
+    /// E4 — rehber sesi. PRD'de yok, sonradan eklendi (ürün sahibi kararı,
+    /// 2026-09-09): ses kimliği kullanıcının en uzun temas ettiği yer.
+    case e4Voice
     // F — Üretim ve teslim. PRD'de 4 ekran; F2 ile F3 **birleştirildi**
     // (ürün sahibi kararı, 2026-09-09), yani 3 ekran.
     case f1Generation
@@ -79,9 +82,10 @@ enum OnboardingStep: Equatable {
         case .dMeasurement(let index):
             Double(index) / Double(MeasurementPoint.baseline.questionCount)
         // E kendi ölçeğiyle yeniden başlar — üç ekranlık kısa bir bölüm.
-        case .e1Reminder: 1.0 / 3.0
-        case .e2SessionLength: 2.0 / 3.0
-        case .e3Tone: 1.0
+        case .e1Reminder: 1.0 / 4.0
+        case .e2SessionLength: 2.0 / 4.0
+        case .e3Tone: 3.0 / 4.0
+        case .e4Voice: 1.0
         case .a1Welcome, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
              .c4HonestExpectation, .d0MeasurementIntro, .f1Generation, .f2Roadmap,
              .g1FirstSession, .g2SessionComplete, .h1Account, .crisis: nil
@@ -425,6 +429,14 @@ final class OnboardingFlowViewModel {
 
     func commitTonePreference(_ tone: TonePreference) {
         draft.tonePreference = tone
+        advance(to: .e4Voice)
+    }
+
+    /// E4 — rehber sesi. Ton (E3) metnin nasıl **yazıldığını**, ses kimliği
+    /// nasıl **okunduğunu** belirliyor; ikisi ayrı karar ve ikisi de gerçekten
+    /// ürünün davranışını değiştiriyor.
+    func commitVoicePreference(_ voice: VoicePreference) {
+        draft.voicePreference = voice
         advance(to: .f1Generation)
     }
 

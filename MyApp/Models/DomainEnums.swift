@@ -577,6 +577,81 @@ enum SessionLength: Int, CaseIterable, Codable, Sendable, Identifiable {
     }
 }
 
+/// E4 — rehber sesin kimliği (ürün sahibi kararı, 2026-09-09).
+///
+/// ## Neden soruluyor
+///
+/// Meditasyonu dinleyen kişi bir sesle on dakika baş başa kalıyor. Ses kimliği
+/// üzerinde hiçbir söz hakkı olmaması, ürünün en uzun temas ettiği yerde
+/// kullanıcıyı seyirci bırakıyor.
+///
+/// ## Soru, sesin **kendisi** dinletilerek sorulur
+///
+/// "Nasıl bir ses istersin" diye sıfat saydırmak (sıcak mı, nötr mü, robotik mi)
+/// kullanıcıya cevaplayamayacağı bir soru sormaktır: sıfatın karşılığının nasıl
+/// duyulduğunu bilmiyor. İki örnek dinletip seçtirmek aynı kararı bir saniyede
+/// ve doğru bilgiyle aldırıyor.
+///
+/// ## Sağlayıcının `voice_id`si burada yok
+///
+/// Bu enum ürünün kararını taşıyor ("kadın sesi"); hangi sağlayıcının hangi
+/// kimliği kullandığı sunucunun bilgisi. Sağlayıcı değişince kullanıcı
+/// satırlarının değişmesi gerekmemeli.
+enum VoicePreference: String, Codable, Sendable, CaseIterable, Identifiable {
+    case feminine, masculine
+
+    var id: String { rawValue }
+
+    var label: LocalizedStringResource {
+        switch self {
+        case .feminine: "Kadın sesi"
+        case .masculine: "Erkek sesi"
+        }
+    }
+
+    /// Önizleme dosyasının uygulama paketindeki adı. Dile göre değişir —
+    /// aynı ses iki dilde farklı duyuluyor ve kullanıcı kendi dilinde
+    /// duymadığı bir sesi seçemez.
+    func previewAssetName(locale: AppLocale) -> String {
+        "voice-preview-\(rawValue)-\(locale.rawValue)"
+    }
+
+    var icon: String {
+        switch self {
+        case .feminine: "waveform"
+        case .masculine: "waveform"
+        }
+    }
+}
+
+/// Ürünün taşıdığı diller (v1: TR + EN).
+///
+/// **Yalnızca sesin ve blok metinlerinin dilini** belirler. Arayüz metinleri
+/// hâlâ `Copy.swift` içinde sabit Türkçe; arayüz yerelleştirmesi String Catalog
+/// ile ayrı bir iş (CLAUDE.md "henüz yok" listesi).
+///
+/// Varsayılan İngilizce, cihaz Türkçeye ya da Türkiye bölgesine ayarlıysa
+/// Türkçe (ürün sahibi kararı, 2026-09-09).
+enum AppLocale: String, Codable, Sendable, CaseIterable {
+    case turkish = "tr"
+    case english = "en"
+
+    static var current: AppLocale {
+        let locale = Locale.current
+        if locale.language.languageCode?.identifier == "tr" { return .turkish }
+        if locale.region?.identifier == "TR" { return .turkish }
+        return .english
+    }
+
+    /// Sunucuya gönderilen tam tanımlayıcı.
+    var identifier: String {
+        switch self {
+        case .turkish: "tr-TR"
+        case .english: "en-US"
+        }
+    }
+}
+
 enum TonePreference: String, Codable, Sendable, CaseIterable, Identifiable {
     case calmAndShort, moreGuiding, infoOnly
 

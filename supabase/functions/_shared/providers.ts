@@ -84,33 +84,9 @@ export async function generateWithGemini(input: GeneratePathRequest): Promise<Pa
   }
 }
 
-export async function submitFalTTS(text: string, webhookUrl: string): Promise<string> {
-  if (Deno.env.get("PATIKA_TTS_LIVE_ENABLED") !== "true") throw new Error("provider_configuration_required");
-  const key = Deno.env.get("FAL_KEY");
-  if (!key) throw new Error("fal_configuration_missing");
-  const response = await fetch(`https://queue.fal.run/fal-ai/elevenlabs/tts/multilingual-v2?fal_webhook=${encodeURIComponent(webhookUrl)}`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Key ${key}`,
-      "Content-Type": "application/json",
-      "X-Fal-Store-IO": "0",
-    },
-    body: JSON.stringify({
-      text,
-      voice: Deno.env.get("FAL_VOICE") ?? "Rachel",
-      stability: 0.55,
-      similarity_boost: 0.75,
-      style: 0,
-      speed: 0.92,
-      language_code: "tr",
-      apply_text_normalization: "auto",
-    }),
-  });
-  if (!response.ok) throw new Error("fal_request_failed");
-  const body = await response.json();
-  if (typeof body.request_id !== "string") throw new Error("invalid_provider_response");
-  return body.request_id;
-}
+// TTS artık burada değil: `_shared/tts.ts`, aracısız ElevenLabs v3.
+// fal.ai kuyruğu ve webhook imza doğrulaması kaldırıldı — doğrudan çağrı
+// senkron ve zincirde bir veri işleyici daha az (PRD-Ek Oturum Motoru §3.3).
 
 const planJsonSchema = {
   type: "object",

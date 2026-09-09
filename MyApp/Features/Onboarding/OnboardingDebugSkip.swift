@@ -25,6 +25,7 @@ extension OnboardingDraft {
         draft.previousAttempts = [.otherApps, .youtube]
         draft.currentMood = .heavy
         draft.tonePreference = .calmAndShort
+        draft.voicePreference = .feminine
         draft.reminderHour = ProblemTiming.bedtime.suggestedReminderHour
         draft.sessionLength = .standard
 
@@ -87,6 +88,7 @@ extension OnboardingStep {
         case "d0": self = .d0MeasurementIntro
         case "d1": self = .dMeasurement(1)
         case "e1": self = .e1Reminder
+        case "e4": self = .e4Voice
         case "f1": self = .f1Generation
         case "f2": self = .f2Roadmap
         case "g1": self = .g1FirstSession

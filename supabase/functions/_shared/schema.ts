@@ -16,6 +16,7 @@ export type GeneratePathRequest = {
   measurementResponses: Record<string, number>;
   sessionMinutes: 5 | 10 | 15;
   tone: string;
+  voicePreference: "feminine" | "masculine";
 };
 
 export type PathStepDTO = {
@@ -86,6 +87,9 @@ export function parseGeneratePathRequest(value: unknown): GeneratePathRequest {
     measurementResponses,
     sessionMinutes,
     tone: boundedString(body.tone, 1, 50),
+    // Tanınmayan bir değer kadın sesine düşer; ses tercihinin geçersizliği
+    // path üretimini durduracak bir hata değil.
+    voicePreference: body.voicePreference === "masculine" ? "masculine" : "feminine",
   };
 }
 
