@@ -192,7 +192,7 @@ G1 artık `NotYetBuiltView` değil. Akış: F1'de path üretilir ve **1. adımı
 - **Kişiselleştirme çerçevede, teknik sabit.** Açılış / geçiş / kapanış sunucunun `slot_copy`sinden (`BlockLibrary.Slot`), teknik ise istemcideki `BlockLibrary`den gelir — kimlikler sunucudaki `approvedBlockIds` ile birebir aynı. Tekniği ağdan çekmek çevrimdışı oturumu imkânsız kılardı.
 - **Kullanıcının kendi cümlesi ikinci sahnedir** — akışın aha momenti. B1 atlandıysa sahne hiç kurulmaz; uydurma bir cümle yansıtmak kişiselleştirme iddiasını en görünür yerde çürütürdü.
 - **E2'nin cevabı burada karşılığını bulur:** teknik sahnelerin süresi seçilen dakikaya ölçeklenir (tam nefes döngüsüne yuvarlanarak). Açılış ve kapanış ölçeklenmez.
-- **Ses eksik olabilir ve bu hata değil.** `SessionAudioPlayer` `AVAudioEngine` + iki `AVAudioPlayerNode` → `AVAudioMixerNode` üzerine kurulu (bugün tek dosya çalıyor ama hibrit mimarinin grafı yerinde), `.playback` + `UIBackgroundModes: audio` + `MPNowPlayingInfoCenter`/`MPRemoteCommandCenter`. **TTS sağlayıcısı sunucuda yapılandırılmadığı sürece** (`PATIKA_TTS_LIVE_ENABLED`, `FAL_KEY`) `generate-audio` 503 döner, ekran sessiz sürüme düşer ve oturum yine tamdır.
+- **Ses eksik olabilir ve bu hata değil.** `SessionAudioPlayer` `AVAudioEngine` + iki `AVAudioPlayerNode` → `AVAudioMixerNode` üzerine kurulu (manifest zaman çizelgesini sırayla çalıyor; sessizlik istemcide zamanlanıyor), `.playback` + `UIBackgroundModes: audio` + `MPNowPlayingInfoCenter`/`MPRemoteCommandCenter`. **TTS sağlayıcısı sunucuda yapılandırılmadığı sürece** (`PATIKA_TTS_LIVE_ENABLED`, `ELEVENLABS_API_KEY`) `generate-audio` 503 döner, ekran sessiz sürüme düşer ve oturum yine tamdır.
 - Ses hazırsa **yalnızca açılışı** seslendirir ve açılış sahnesi ses bitene kadar beklet: duyulan cümleyle ekrandaki cümlenin ayrışması en kötü yerde oluyordu.
 - Kalan süre **sayıyla gösterilmez**; geri sayan bir sayı oturumu bitmesi beklenen bir şeye çevirir. Yerinde ince bir iz var.
 
@@ -241,7 +241,7 @@ Serbest metin alanlarında **otomatik düzeltme kapalı** (`OnboardingTextInput`
 
 **TTS artık aracısız ElevenLabs v3.** `_shared/tts.ts`. fal.ai kuyruğu, webhook fonksiyonu ve imza doğrulaması **tamamen kaldırıldı**: doğrudan çağrı senkron, ses gövdede dönüyor.
 
-- **AB uç noktası varsayılan** (`api.eu.residency.elevenlabs.io`). TTS'e giden metin kullanıcının kendi cümlesini içeriyor → GDPR Madde 9 sağlık verisi. Aracı üzerinden gitmek zincire ikinci bir veri işleyici ekliyordu.
+- **Standart uç nokta** (`api.elevenlabs.io`). Tasarım AB uç noktasını varsayıyordu ama **veri ikametgâhı ElevenLabs'te Enterprise özelliği** (ölçüldü, 2026-09-09) ve ürün kullandığın kadar öde modelinde ilerliyor (ürün sahibi kararı). TTS'e giden metin kullanıcının kendi cümlesini içeriyor → GDPR Madde 9 sağlık verisi; standart uç noktada bu veri AB dışına çıkıyor, yani **DPA + SCC ve gizlilik metninde açık bir satır zorunlu**. `ELEVENLABS_BASE_URL` ile AB'ye dönmek tek secret'lık iş. Aracı yine yok — zincirde tek işleyici var, değişen yalnızca bölge.
 - **Model `eleven_v3`**: multilingual_v2 ile aynı fiyat, daha iyi ve `language_code` destekliyor (v2 desteklemiyor).
 - **Kişisel ses slot başına** üretilir, adım başına tek dosya değil — slotlar sabit blok parçalarıyla iç içe çalıyor. Komşu metinler `previous_text`/`next_text` ile gönderiliyor (request stitching): parça sınırlarındaki ton sıçraması böyle engelleniyor.
 - **Blok sesi ayrı ve paylaşılan** (`block_audio` tablosu + açık `block_audio` kovası): kişisel veri içermiyor, bir kez render ediliyor, imzasız ve CDN'lenebilir. Kullanıcının cümlesi oraya hiç girmiyor.
@@ -251,7 +251,7 @@ Serbest metin alanlarında **otomatik düzeltme kapalı** (`OnboardingTextInput`
 
 **Dil: `AppLocale`.** Varsayılan İngilizce, cihaz dili ya da bölgesi Türkçe/TR ise Türkçe. **Yalnızca sesin ve blok metinlerinin dilini** belirler — arayüz metinleri hâlâ `Copy.swift` içinde sabit Türkçe, arayüz yerelleştirmesi String Catalog ile ayrı iş.
 
-**Anahtarlar ve gizlilik.** `AppConfiguration.live` içindeki iki değer bilinçli olarak istemcide: Supabase **publishable** anahtarı ve PostHog **project token**'ı. İkisi de kimlik doğrulaması değil, hangi projeye konuşulduğunun adresi; güvenlik sınırı RLS ve kimlik doğrulamalı Edge Function'lar. Gerçek sırlar (`SUPABASE_SECRET_KEY`, `GEMINI_API_KEY`, `FAL_KEY`) yalnızca sunucuda, `supabase secrets set` ile durur ve depoda hiç geçmez. `.gitignore` bunu koruyor.
+**Anahtarlar ve gizlilik.** `AppConfiguration.live` içindeki iki değer bilinçli olarak istemcide: Supabase **publishable** anahtarı ve PostHog **project token**'ı. İkisi de kimlik doğrulaması değil, hangi projeye konuşulduğunun adresi; güvenlik sınırı RLS ve kimlik doğrulamalı Edge Function'lar. Gerçek sırlar (`SUPABASE_SECRET_KEY`, `GEMINI_API_KEY`, `ELEVENLABS_API_KEY`) yalnızca sunucuda, `supabase secrets set` ile durur ve depoda hiç geçmez. `.gitignore` bunu koruyor.
 
 **Henüz yok:** test hedefi (Xcode'dan eklenmeli; kontrast doğrulama testi, `BannedPhrases` lint'i ve `CrisisClassifier` vaka tablosu oraya gider), String Catalog, ses motoru, ağ katmanı, **sunucu tarafı kriz sınıflandırıcısı**.
 
@@ -294,8 +294,7 @@ cevabı şifreleyip yalnızca 2. adımı kişiselleştirip kuyruğa alıyor, EN 
 > `ELEVENLABS_API_KEY` sağlayıcı tarafından reddediliyor
 > (`tts_request_failed_400_invalid_api_key`, ölçüldü). Dört ses örneği, sabit
 > blok sesleri ve G1'de duyulan gerçek ses buna bağlı; kodda başka bir eksik yok.
-> Ayrıca `fal-webhook` adlı fonksiyon hâlâ dağıtık ama kaynağı depoda yok
-> (fal.ai kaldırıldı) — silinmesi ürün sahibinin kararı.
+> `fal-webhook` fonksiyonu silindi (2026-09-09); fal.ai zincirden tamamen çıktı.
 
 ## Doküman haritası — kod yazmadan önce oku
 
@@ -305,7 +304,7 @@ cevabı şifreleyip yalnızca 2. adımı kişiselleştirip kuyruğa alıyor, EN 
 | `docs/PRD-Ek-Onboarding.md` | 31 ekranlık onboarding akışı, ekran ekran metinler, funnel hedefleri, segmentasyon |
 | `docs/PRD-Ek-Ton-ve-Nudge.md` | Tüm kullanıcıya görünen metinlerin tonu, mikrometin kütüphanesi, bildirim kuralları, erişilebilirlik |
 | `docs/PRD-Ek-Gorsel-Sistem-ve-Promptlar.md` | MeshGradient + Metal shader kodu, 10 kategori paleti, nefes animasyonu, Rive brief'leri, görsel prompt'ları |
-| `docs/PRD-Ek-Oturum-Motoru-ve-JIT.md` | **Oturum çalarken zorunlu.** Blok `script` şeması (fixed/silence/slot), doğal akış kuralları K1–K6, ses seviyesi ve AB veri ikametgâhı, sesle senkron arka plan (`voiceEnergy`), kademeli üretimin düzeltilmiş modeli, adım sonu sorusu |
+| `docs/PRD-Ek-Oturum-Motoru-ve-JIT.md` | **Oturum çalarken zorunlu.** Blok `script` şeması (fixed/silence/slot), doğal akış kuralları K1–K6, ses seviyesi ve veri ikametgâhı kararı, sesle senkron arka plan (`voiceEnergy`), kademeli üretimin düzeltilmiş modeli, adım sonu sorusu |
 | `docs/PRD-Ek-Profil-Sayfasi.md` | "Ben" sekmesi tasarımı. Ahead/Fabulous/Ladder/Yazio profil ekranlarından ne alındığı ve **ne alınmadığı**, önerilen yerleşim, önce gereken veri katmanı. **Taslak — onay bekliyor.** |
 | `docs/PRD-Ek-Path-Uretimi-ve-AI.md` | **Backend/AI çalışırken zorunlu.** Path üretim hattı adım adım, blok kütüphanesi ve slot şeması, LLM/TTS sağlayıcı karşılaştırmaları, kişiselleştirme kademeleri, JIT üretim, üç uçtan uca vaka (söylenen cümleler + kuruş kuruş maliyet), kohort ekonomisi, gizlilik sınırları |
 

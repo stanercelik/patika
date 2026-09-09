@@ -136,8 +136,10 @@ Pratik sonuçları:
 
 > **Karar:** TTS'e **doğrudan** sağlayıcıya gidilir, aracı üzerinden değil.
 > Zincirden bir halka çıkarmak hem hukuki yüzeyi hem hata yüzeyini yarıya indiriyor.
-> Sağlayıcı AB uç noktası sunuyorsa o kullanılır (ElevenLabs:
-> `api.eu.residency.elevenlabs.io`).
+> ElevenLabs'in AB uç noktası (`api.eu.residency.elevenlabs.io`) **Enterprise
+> özelliği**; ürün kullandığın kadar öde modelinde ilerlediği için standart uç
+> nokta kullanılıyor (ürün sahibi kararı, 2026-09-09). Aktarım DPA/SCC ve
+> gizlilik metnine bağlı; `ELEVENLABS_BASE_URL` ile geri dönmek tek satır.
 
 Sağlayıcı seçimi (kalite ve maliyet) hâlâ açık — üst doküman §5.4'teki Türkçe kör
 testi yapılmadı. Bu yüzden **çağrı bir arayüzün arkasında durur** ve sağlayıcı
@@ -317,7 +319,7 @@ Boş bir "henüz veri yok" grafiği veya erken bir yön oku, ölçmediğimiz bir
 | 3 | İstemci: blok indirme + cache, `SessionScript` derleyici | 1 |
 | 4 | İstemci: yeni zaman çizelgesi (K1–K6), ses/metin senkronu | 3 |
 | 5 | Zarf takipçisi + arka plana `voiceEnergy` | 4 |
-| 6 | TTS sağlayıcı arayüzü, doğrudan çağrı, AB uç noktası | — |
+| 6 | TTS sağlayıcı arayüzü, doğrudan çağrı, standart uç nokta | — |
 | 7 | `generate-step` Edge Function (N ≥ 2 slotları + soru) | 1, 2 |
 | 8 | G2'de soru ekranı + kriz taraması | 2, 7 |
 | 9 | Gün 7 ölçümü + okuma + profil | 2 |

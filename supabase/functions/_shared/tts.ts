@@ -11,11 +11,21 @@
 // gövdede dönüyor. Webhook imza doğrulaması, yarış durumları ve "üretiliyor"
 // yoklaması olmadan aynı iş yapılıyor.
 //
-// ## AB uç noktası
+// ## Uç nokta: standart (ABD) — AB ikametgahı ertelendi
 //
-// `api.eu.residency.elevenlabs.io` — istek AB'den hiç çıkmıyor. Varsayılan bu;
-// hesap bu uç noktayı desteklemiyorsa `ELEVENLABS_BASE_URL` ile geçilebilir,
-// ama o zaman aktarım için ayrı bir hukuki dayanak gerekir.
+// Tasarım AB uç noktasını (`api.eu.residency.elevenlabs.io`) varsayıyordu.
+// **Ölçüldü (2026-09-09): veri ikametgahı ElevenLabs'te Enterprise özelliği** ve
+// ürün sahibi kararı kullandığın kadar öde modeliyle ilerlemek. Bu yüzden
+// varsayılan standart uç nokta.
+//
+// Bunun bedeli açıkça yazılsın: TTS'e giden metin kullanıcının kendi cümlesini
+// içeriyor ve bu GDPR Madde 9 anlamında sağlık verisi. Standart uç noktada bu
+// veri AB dışına çıkıyor; aktarım için ayrı bir hukuki dayanak (ElevenLabs DPA +
+// SCC) ve gizlilik metninde açık bir satır gerekiyor. Zincirde hâlâ tek işleyici
+// var — aracı kaldırıldı, değişen yalnızca bölge.
+//
+// `ELEVENLABS_BASE_URL` ile AB uç noktasına dönmek tek secret'lık iş; plan
+// yükseldiğinde kod değişmiyor.
 
 export type VoicePreference = "feminine" | "masculine";
 export type SpeechProsody = "neutral" | "soft" | "whisper";
@@ -41,7 +51,7 @@ export type SpeechResult = {
   durationMs: number;
 };
 
-const DEFAULT_BASE_URL = "https://api.eu.residency.elevenlabs.io";
+const DEFAULT_BASE_URL = "https://api.elevenlabs.io";
 // v3: v2 multilingual ile aynı fiyat, belirgin şekilde daha iyi ve
 // `language_code` destekliyor (multilingual_v2 desteklemiyor).
 export const DEFAULT_TTS_MODEL = "eleven_v3";

@@ -553,7 +553,7 @@ kalır. Tek istisna: 1. adımın sesi öncelik kuyruğunda üretilir.
 ### 5.7 Üretim ayarları (ElevenLabs örneği)
 
 ```jsonc
-// POST /v1/text-to-speech/{voice_id}   ·   AB uç noktası: api.eu.residency.elevenlabs.io
+// POST /v1/text-to-speech/{voice_id}   ·   standart uç nokta: api.elevenlabs.io
 {
   "text": "...",
   "model_id": "eleven_multilingual_v2",
@@ -576,10 +576,24 @@ kalır. Tek istisna: 1. adımın sesi öncelik kuyruğunda üretilir.
 
 ### 5.8 Veri ikametgâhı
 
-ElevenLabs bölgesel uç nokta sunuyor: `api.eu.residency.elevenlabs.io`. **AB uç noktası
-kullanılmalı** — TTS'e giden metin kullanıcının kendi cümlesini içeriyor, GDPR Madde 9
-özel kategori veri. Aynı gereklilik seçilecek her sağlayıcı için geçerli; AB bölgesi
-sunmayan bir sağlayıcı bu ürün için eleme sebebidir.
+ElevenLabs bölgesel uç nokta sunuyor (`api.eu.residency.elevenlabs.io`) ama **veri
+ikametgâhı Enterprise özelliği** — ölçüldü, 2026-09-09: ücretsiz/standart planlarda bu
+uç nokta anahtarı doğrudan reddediyor.
+
+**Karar (ürün sahibi, 2026-09-09): kullandığın kadar öde modeliyle standart uç nokta.**
+Enterprise sözleşmesi bu aşamada ürünün önüne konmuyor; AB ikametgâhı **eleme sebebi
+olmaktan çıkarıldı**, ertelenmiş bir gereksinim oldu.
+
+Bedeli açıkça yazılsın, çünkü ortadan kalkmadı:
+
+- TTS'e giden metin kullanıcının kendi cümlesini içeriyor → GDPR Madde 9 özel kategori
+  veri ve standart uç noktada bu veri AB dışına çıkıyor.
+- Bu yüzden **ElevenLabs DPA + SCC imzalı olmalı** ve gizlilik metninde ABD'ye aktarım
+  açıkça yazılmalı. Sessizce yapılırsa karar teknik bir tercih değil, ihlal olur.
+- Sabit blok sesleri ve ses örnekleri kişisel veri içermiyor; bu satır yalnızca
+  **kişisel** parçalar için geçerli.
+- Geri dönüş tek satırlık: `ELEVENLABS_BASE_URL` AB uç noktasına çevrildiğinde kod
+  değişmiyor. Enterprise'a geçilirse ilk yapılacak iş bu.
 
 ---
 
@@ -1195,7 +1209,7 @@ Sonraki sürümlerde yalnızca değişen blok yeniden render edilir (`id` sabit,
 - Ham metin ve ölçüm verisi **asla** analitik araçlara (PostHog/Amplitude) gitmez.
 - Path kaydında ham metin **tutulmaz**; `personalization_context` özettir.
 - Ses dosyaları kullanıcıya özel imzalı URL ile; tahmin edilebilir yol yok.
-- TTS ve LLM çağrıları AB uç noktalarından (§5.5).
+- LLM çağrıları AB uç noktalarından; TTS standart uç noktada ve aktarım DPA/SCC'ye bağlı (§5.8).
 
 ### 12.2 Ham metnin gittiği tam liste
 
@@ -1297,7 +1311,7 @@ Sıra, her adımın bir öncekini doğrulayacak şekilde:
 | 9 | Uyarlama kural tabanlı | Açıklanabilirlik ve test edilebilirlik | Sessiz uyarlama denetlenemez |
 | 10 | Ölçüm, kova ve uzunluk AI'sız | Bunlar sözleşme, takdir değil | Kova C taahhüdü anlamsızlaşır |
 | 11 | `revise` verdiğinde yeniden üretim yok | Maliyet ve gecikme ikiye katlanır; yedek yeterince iyi | COGS artar |
-| 12 | AB uç noktaları zorunlu | Özel kategori veri (GDPR M9) | Yasal risk |
+| 12 | AB uç noktası TTS'te ertelendi (2026-09-09) | Veri ikametgâhı Enterprise özelliği; ürün kullandığın kadar öde modelinde | Aktarım DPA/SCC ve gizlilik metnine bağlı kalır |
 | 13 | Tek LLM sağlayıcısı, iki kademe | LLM path COGS'unun %2–8'i; parçalamak ikinci SDK/DPA/hata yüzeyi getiriyor | Karmaşıklık artar, tasarruf ~$0.003 |
 | 14 | Üretim çağrısı sağlayıcı arayüzü arkasında | Fiyat değil **risk**: sağlayıcının güvenlik politikası ruh sağlığı içeriğine sertleşebilir | Kilitlenme |
 | 15 | Kişiselleştirme kademesi **C** (teknik gövdesi hariç her şey) | D ile duyulabilir fark yok, maliyet 2× | Algılanan kişiselleştirme düşer |
