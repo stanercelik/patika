@@ -58,13 +58,8 @@ struct SOSButton: View {
 // PRD §7 ve PRD-Ek-Onboarding'e göre ayrı dosyalarda yazılacak.
 
 struct MyPathTab: View {
-    @Environment(PaletteController.self) private var palette
-
     var body: some View {
-        ZStack {
-            BreathingMeshBackground(palette: palette.current, safeY: 0.12)
-            ScreenPlaceholder(title: "Yolum", message: Copy.Empty.noPath)
-        }
+        MyPathView()
     }
 }
 
@@ -139,5 +134,6 @@ struct SOSPlaceholderView: View {
 #Preview {
     RootView()
         .environment(PaletteController())
+        .environment(AppServices.live())
         .preferredColorScheme(.dark)
 }

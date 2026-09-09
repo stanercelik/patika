@@ -25,7 +25,6 @@ import SwiftUI
 /// üretildi, oturum dinlendi ve şimdi o saatin ne işe yaradığını görüyor.
 struct SessionCompleteView: View {
     let flow: OnboardingFlowViewModel
-    @State private var answer = ""
     @State private var isSubmitting = false
     @State private var showsError = false
 
@@ -49,44 +48,19 @@ struct SessionCompleteView: View {
                     : Copy.Session.leftEarlyBody(time: flow.reminderTimeText)
             )
 
+            // Soru **yalnızca kişiselleştirilmiş patikada** var; kararı akış
+            // veriyor, görünüm hesaplamıyor.
             if let question = flow.firstStepQuestion {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(verbatim: question)
-                        .font(.title3.weight(Theme.Weight.title))
-                        .foregroundStyle(Theme.textPrimary.color)
-                    Text(Copy.Session.reflectionHint)
-                        .font(.footnote.weight(Theme.Weight.body))
-                        .foregroundStyle(Theme.textSecondary.color)
-                    OnboardingTextInput(
-                        text: $answer,
-                        placeholder: Copy.Session.reflectionPlaceholder,
-                        lineRange: 3...6
-                    )
-                    if showsError {
-                        Text(Copy.Session.reflectionError)
-                            .font(.footnote.weight(Theme.Weight.body))
-                            .foregroundStyle(Theme.textSecondary.color)
-                    }
-                }
-            }
-
-            Spacer()
-
-            if flow.firstStepQuestion != nil {
-                VStack(spacing: 10) {
-                    PrimaryButton(title: Copy.Session.reflectionSave, isEnabled: canSave && !isSubmitting) {
-                        submit(answer: answer, skipped: false)
-                    }
-                    Button(Copy.Session.reflectionSkip) {
-                        submit(answer: nil, skipped: true)
-                    }
-                    .buttonStyle(.calm)
-                    .foregroundStyle(Theme.textSecondary.color)
-                    .frame(minHeight: 44)
-                    .disabled(isSubmitting)
-                }
-                .padding(.bottom, 12)
+                AdaptiveQuestionView(
+                    question: question,
+                    isSubmitting: isSubmitting,
+                    showsError: showsError,
+                    onSave: { submit(answer: $0, skipped: false) },
+                    onSkip: { submit(answer: nil, skipped: true) }
+                )
+                Spacer()
             } else {
+                Spacer()
                 PrimaryButton(title: Copy.Session.completedCTA, isEnabled: !isSubmitting) {
                     submit(answer: nil, skipped: true)
                 }
@@ -95,10 +69,6 @@ struct SessionCompleteView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(.horizontal, Theme.Spacing.screenMargin)
-    }
-
-    private var canSave: Bool {
-        answer.trimmingCharacters(in: .whitespacesAndNewlines).count >= 2
     }
 
     private func submit(answer: String?, skipped: Bool) {

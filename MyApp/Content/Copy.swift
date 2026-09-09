@@ -437,6 +437,30 @@ enum Copy {
             """
     }
 
+    /// "Yolum" sekmesi — onboarding sonrası günlük adım.
+    ///
+    /// Ton kademesi 🟠 Sakin: harita, ölçüm ve oturumla aynı. Kutlama yok,
+    /// "streak" yok, kaçırılan gün için tek kelime yok — kaçırılan gün hiçbir
+    /// şeyi geri almıyor (Değiştirilemez kurallar: gamification yasağı).
+    enum Path {
+        static let loading: LocalizedStringResource = "Yolun açılıyor."
+        /// Adım satırının başlığı. Sayaç değil, adımın kendi adı yanında duran
+        /// sade bir işaret.
+        static func stepLabel(day: Int) -> LocalizedStringResource { "\(day). adım" }
+        /// Sıradaki adım hazır. "Devam et" değil — ürünün kendi kelimesi.
+        static let continueCTA: LocalizedStringResource = "Kaldığın yerden"
+        static let startCTA: LocalizedStringResource = "Yola çık"
+        /// Yolun sonu. Kutlama değil, bilgi: sonuç ekranı ayrı bir iş.
+        static let finishedHeadline: LocalizedStringResource = "Yolun tamamlandı."
+        static let finishedBody: LocalizedStringResource =
+            "Ölçümünü ve bundan sonrasını birlikte bakacağız."
+        static let loadError: LocalizedStringResource =
+            "Yolun kaybolmadı, senin yüzünden değil. Bağlantını kontrol edip yeniden deneyebilirsin."
+        static let retry: LocalizedStringResource = "Yeniden dene"
+        /// Adım bitti, ekran kapanıyor.
+        static let doneCTA: LocalizedStringResource = "Kapat"
+    }
+
     /// Her ölçüm ekranının altında sabit (PRD §8.1).
     static let clinicalDisclaimer: LocalizedStringResource =
         "Bu bir klinik değerlendirme değildir."
