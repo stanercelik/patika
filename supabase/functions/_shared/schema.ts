@@ -19,14 +19,18 @@ export type GeneratePathRequest = {
   voicePreference: "feminine" | "masculine";
 };
 
+export type PathKind = "personalized" | "prepared";
+
 export type PathStepDTO = {
   day: number;
   title: string;
   blockIds: string[];
   slotCopy: Record<string, string>;
+  question: string | null;
 };
 
 export type PathPlanDTO = {
+  kind: PathKind;
   title: string;
   templateId: string;
   lengthDays: 7 | 14 | 21 | 28;
@@ -39,6 +43,16 @@ export const approvedBlockIds = [
   "body.grounding.v1",
   "reflection.notice.v1",
 ] as const;
+
+export const approvedEnglishBlockIds = [
+  "breath.awareness.en.v1",
+  "body.grounding.en.v1",
+  "reflection.notice.en.v1",
+] as const;
+
+export function approvedBlockIdsFor(locale: string): readonly string[] {
+  return locale.toLowerCase().startsWith("tr") ? approvedBlockIds : approvedEnglishBlockIds;
+}
 
 const allowedCategories = new Set([
   "anxiety", "sleep", "burnout", "focus", "anger", "selfcrit", "social",
@@ -101,10 +115,13 @@ function nullableEnum(value: unknown, allowed: string[]): string | null {
 }
 
 export function validatePlan(plan: PathPlanDTO): PathPlanDTO {
+  if (plan.kind !== "personalized" && plan.kind !== "prepared") {
+    throw new Error("invalid_provider_response");
+  }
   if (![7, 14, 21, 28].includes(plan.lengthDays) || plan.steps.length !== plan.lengthDays) {
     throw new Error("invalid_provider_response");
   }
-  const approved = new Set<string>(approvedBlockIds);
+  const approved = new Set<string>([...approvedBlockIds, ...approvedEnglishBlockIds]);
   plan.steps.forEach((step, index) => {
     if (step.day !== index + 1 || step.title.length < 1 || step.title.length > 120) {
       throw new Error("invalid_provider_response");
@@ -116,6 +133,12 @@ export function validatePlan(plan: PathPlanDTO): PathPlanDTO {
       if (!["step_opening", "technique_bridge", "mid_bridge", "step_closing"].includes(slot) || copy.length > 520) {
         throw new Error("invalid_provider_response");
       }
+    }
+    if (step.question !== null && (step.question.length < 1 || step.question.length > 120)) {
+      throw new Error("invalid_provider_response");
+    }
+    if (plan.kind === "prepared" && (step.question !== null || Object.keys(step.slotCopy).length > 0)) {
+      throw new Error("invalid_provider_response");
     }
   });
   return plan;

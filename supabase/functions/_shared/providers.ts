@@ -1,4 +1,10 @@
-import { approvedBlockIds, type GeneratePathRequest, type PathPlanDTO, validatePlan } from "./schema.ts";
+import {
+  approvedBlockIds,
+  approvedBlockIdsFor,
+  type GeneratePathRequest,
+  type PathPlanDTO,
+  validatePlan,
+} from "./schema.ts";
 
 const crisisPatterns = [
   /intihar/i, /kendimi oldur/i, /kendimi öldür/i, /yasamak istemiyorum/i,
@@ -17,7 +23,8 @@ export function ruleBasedCrisisCheck(input: GeneratePathRequest): CrisisResult {
 
 export function fallbackPlan(input: GeneratePathRequest): PathPlanDTO {
   const primary = input.categories[0] ?? "unnamed";
-  const titleByCategory: Record<string, string> = {
+  const isTurkish = input.locale.toLowerCase().startsWith("tr");
+  const titleByCategoryTR: Record<string, string> = {
     sleep: "Akşamı yavaşlatma yolu",
     anxiety: "Gerginliği fark etme yolu",
     burnout: "Yükü sadeleştirme yolu",
@@ -29,22 +36,76 @@ export function fallbackPlan(input: GeneratePathRequest): PathPlanDTO {
     exam: "Baskı altında durma yolu",
     unnamed: "Durup fark etme yolu",
   };
-  const opening = input.problemText
-    ? "Yazdığın duruma bugün kısa ve sakin bir yerden yaklaşacağız."
-    : "Bugün kısa ve sakin bir başlangıç yapacağız.";
+  const titleByCategoryEN: Record<string, string> = {
+    sleep: "A path for slowing down at night",
+    anxiety: "A path for noticing tension",
+    burnout: "A path for making the load smaller",
+    focus: "A path for gathering attention",
+    social: "A path for noticing your boundaries",
+    selfcrit: "A path for hearing your own voice",
+    grief: "A path for making room for loss",
+    anger: "A path for creating space before reacting",
+    exam: "A path for staying with pressure",
+    unnamed: "A path for pausing and noticing",
+  };
+  const opening = isTurkish
+    ? (input.problemText
+      ? "Yazdığın duruma bugün kısa ve sakin bir yerden yaklaşacağız."
+      : "Bugün kısa ve sakin bir başlangıç yapacağız.")
+    : (input.problemText
+      ? "Today, we will approach what you described from a quiet, manageable place."
+      : "Today, we will begin quietly and keep it manageable.");
+  const blockIds = approvedBlockIdsFor(input.locale);
   const steps = Array.from({ length: 21 }, (_, index) => ({
     day: index + 1,
-    title: index < 3 ? "Nefesi fark etmek" : index < 7 ? "Bedene dönmek" : index < 14 ? "Örüntüyü görmek" : "Küçük bir adım seçmek",
-    blockIds: [approvedBlockIds[index % approvedBlockIds.length]],
-    slotCopy: index === 0 ? { step_opening: opening } : {},
+    title: isTurkish
+      ? (index < 3 ? "Nefesi fark etmek" : index < 7 ? "Bedene dönmek" : index < 14 ? "Örüntüyü görmek" : "Küçük bir adım seçmek")
+      : (index < 3 ? "Noticing the breath" : index < 7 ? "Returning to the body" : index < 14 ? "Seeing the pattern" : "Choosing one small step"),
+    blockIds: [blockIds[index % blockIds.length]],
+    slotCopy: index === 0 ? { step_opening: opening } : {} as Record<string, string>,
+    question: index === 20 ? null : fallbackQuestion(input.locale, primary),
   }));
   return validatePlan({
-    title: titleByCategory[primary] ?? titleByCategory.unnamed,
+    kind: "personalized",
+    title: isTurkish
+      ? (titleByCategoryTR[primary] ?? titleByCategoryTR.unnamed)
+      : (titleByCategoryEN[primary] ?? titleByCategoryEN.unnamed),
     templateId: `${primary}.three_weeks.v1`,
     lengthDays: 21,
     summary: `${primary}; ${input.duration ?? "unspecified"}; ${input.timing ?? "unspecified"}`.slice(0, 400),
     steps,
   });
+}
+
+function fallbackQuestion(locale: string, category: string): string {
+  if (!locale.toLowerCase().startsWith("tr")) {
+    const english: Record<string, string> = {
+      sleep: "When did your mind feel busiest today?",
+      focus: "When was it hardest to bring your attention back today?",
+      burnout: "Which part of the day felt heaviest?",
+      exam: "When did the pressure feel closest today?",
+      social: "Which moment asked the most of you today?",
+      anger: "What happened just before the intensity rose today?",
+      selfcrit: "When was your inner voice hardest on you today?",
+      grief: "Which moment felt most present today?",
+      anxiety: "When did the tension feel strongest today?",
+      unnamed: "What did you notice most clearly today?",
+    };
+    return english[category] ?? english.unnamed;
+  }
+  const turkish: Record<string, string> = {
+    sleep: "Bugün zihnin en çok hangi anda hızlandı?",
+    focus: "Bugün dikkatini geri getirmek en çok ne zaman zorlaştı?",
+    burnout: "Günün hangi kısmı daha ağır geldi?",
+    exam: "Bugün baskı en çok ne zaman yakındı?",
+    social: "Bugün en çok hangi an seni zorladı?",
+    anger: "Bugün yoğunluk yükselmeden hemen önce ne oldu?",
+    selfcrit: "Bugün iç sesin en çok ne zaman sertleşti?",
+    grief: "Bugün en belirgin gelen an hangisiydi?",
+    anxiety: "Bugün gerginlik en çok ne zaman yükseldi?",
+    unnamed: "Bugün en net neyi fark ettin?",
+  };
+  return turkish[category] ?? turkish.unnamed;
 }
 
 export async function generateWithGemini(input: GeneratePathRequest): Promise<PathPlanDTO | null> {
@@ -91,8 +152,9 @@ export async function generateWithGemini(input: GeneratePathRequest): Promise<Pa
 const planJsonSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "templateId", "lengthDays", "summary", "steps"],
+  required: ["kind", "title", "templateId", "lengthDays", "summary", "steps"],
   properties: {
+    kind: { type: "string", enum: ["personalized"] },
     title: { type: "string", maxLength: 120 },
     templateId: { type: "string", maxLength: 100 },
     lengthDays: { type: "integer", enum: [7, 14, 21, 28] },
@@ -104,12 +166,13 @@ const planJsonSchema = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["day", "title", "blockIds", "slotCopy"],
+        required: ["day", "title", "blockIds", "slotCopy", "question"],
         properties: {
           day: { type: "integer", minimum: 1, maximum: 28 },
           title: { type: "string", maxLength: 120 },
           blockIds: { type: "array", minItems: 1, maxItems: 12, items: { type: "string", enum: approvedBlockIds } },
           slotCopy: { type: "object", additionalProperties: { type: "string", maxLength: 520 } },
+          question: { anyOf: [{ type: "string", minLength: 1, maxLength: 120 }, { type: "null" }] },
         },
       },
     },
