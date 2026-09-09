@@ -3,6 +3,7 @@ import { corsHeaders, json } from "../_shared/cors.ts";
 import { fallbackPlan, generateWithGemini, ruleBasedCrisisCheck } from "../_shared/providers.ts";
 import { normalize } from "../_shared/measurement.ts";
 import { parseGeneratePathRequest, type PathPlanDTO } from "../_shared/schema.ts";
+import { encryptSensitiveText } from "../_shared/encryption.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -47,6 +48,7 @@ Deno.serve(async (req) => {
         user_id: user.id,
         length_days: plan.lengthDays,
         status: "active",
+        kind: plan.kind,
         template_id: plan.templateId,
         title: plan.title,
         personalization_context: {
@@ -69,11 +71,15 @@ Deno.serve(async (req) => {
         title: step.title,
         block_ids: step.blockIds,
         slot_copy: step.slotCopy,
+        step_question: step.question,
       })),
     );
     if (stepsError) throw new Error("database_write_failed");
 
     const scores = calculateScores(input.measurementResponses);
+    const rawProblemCiphertext = input.problemText || input.avoidanceText
+      ? await encryptSensitiveText(JSON.stringify({ problem: input.problemText, avoidance: input.avoidanceText }))
+      : null;
     const writes = await Promise.all([
       adminClient.from("profiles").upsert({
         user_id: user.id,
@@ -87,7 +93,7 @@ Deno.serve(async (req) => {
       }),
       adminClient.from("problem_statements").insert({
         user_id: user.id,
-        raw_text_ciphertext: null,
+        raw_text_ciphertext: rawProblemCiphertext,
         generation_summary: plan.summary,
       }),
       // Baseline mükerrer yazılmasın: aynı kullanıcı için ikinci bir path
@@ -112,7 +118,7 @@ Deno.serve(async (req) => {
       }),
     ]);
     if (writes.some(({ error }) => error)) throw new Error("database_write_failed");
-    return json({ status: "ready", pathId: path.id, title: plan.title, steps: plan.steps });
+    return json({ status: "ready", pathId: path.id, kind: plan.kind, title: plan.title, steps: plan.steps });
   } catch (error) {
     const code = error instanceof Error ? error.message : "server_error";
     if (code === "unauthorized") return json({ code }, 401);
@@ -123,15 +129,16 @@ Deno.serve(async (req) => {
 
 async function pathResponse(adminClient: any, userId: string, pathId: string): Promise<Response> {
   const [{ data: path }, { data: steps }] = await Promise.all([
-    adminClient.from("program_paths").select("id,title").eq("id", pathId).eq("user_id", userId).single(),
-    adminClient.from("path_steps").select("day,title,block_ids,slot_copy").eq("path_id", pathId).eq("user_id", userId).order("day"),
+    adminClient.from("program_paths").select("id,kind,title").eq("id", pathId).eq("user_id", userId).single(),
+    adminClient.from("path_steps").select("day,title,block_ids,slot_copy,step_question").eq("path_id", pathId).eq("user_id", userId).order("day"),
   ]);
   if (!path) return json({ code: "not_found" }, 404);
   return json({
     status: "ready",
     pathId: path.id,
+    kind: path.kind,
     title: path.title,
-    steps: (steps ?? []).map((step: any) => ({ day: step.day, title: step.title, blockIds: step.block_ids, slotCopy: step.slot_copy })),
+    steps: (steps ?? []).map((step: any) => ({ day: step.day, title: step.title, blockIds: step.block_ids, slotCopy: step.slot_copy, question: step.step_question })),
   });
 }
 

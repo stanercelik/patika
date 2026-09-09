@@ -1,5 +1,4 @@
 import {
-  approvedBlockIds,
   approvedBlockIdsFor,
   type GeneratePathRequest,
   type PathPlanDTO,
@@ -14,9 +13,13 @@ const crisisPatterns = [
 
 export type CrisisResult = { signal: boolean; source: "rule" | "gemini" | "none" };
 
+export function crisisSignalForText(text: string): boolean {
+  return crisisPatterns.some((pattern) => pattern.test(text));
+}
+
 export function ruleBasedCrisisCheck(input: GeneratePathRequest): CrisisResult {
   const text = `${input.problemText}\n${input.avoidanceText ?? ""}`;
-  return crisisPatterns.some((pattern) => pattern.test(text))
+  return crisisSignalForText(text)
     ? { signal: true, source: "rule" }
     : { signal: false, source: "none" };
 }
@@ -62,7 +65,15 @@ export function fallbackPlan(input: GeneratePathRequest): PathPlanDTO {
       ? (index < 3 ? "Nefesi fark etmek" : index < 7 ? "Bedene dönmek" : index < 14 ? "Örüntüyü görmek" : "Küçük bir adım seçmek")
       : (index < 3 ? "Noticing the breath" : index < 7 ? "Returning to the body" : index < 14 ? "Seeing the pattern" : "Choosing one small step"),
     blockIds: [blockIds[index % blockIds.length]],
-    slotCopy: index === 0 ? { step_opening: opening } : {} as Record<string, string>,
+    slotCopy: {
+      step_opening: index === 0
+        ? opening
+        : (isTurkish ? "Bugün bir önceki adımdan kalan yerden, acele etmeden devam edeceğiz." : "Today, we will continue gently from where the last step ended."),
+      technique_bridge: isTurkish
+        ? "Şimdi dikkati zorlamadan bu adıma getirebilirsin."
+        : "You can bring your attention to this step without forcing it.",
+      step_closing: isTurkish ? "Bugünlük burada durabiliriz." : "We can stop here for today.",
+    },
     question: index === 20 ? null : fallbackQuestion(input.locale, primary),
   }));
   return validatePlan({
@@ -123,10 +134,10 @@ export async function generateWithGemini(input: GeneratePathRequest): Promise<Pa
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: "Select only approved block IDs. Do not diagnose, promise outcomes, recommend medication, or add therapeutic exposure. Return JSON only." }] },
-        contents: [{ role: "user", parts: [{ text: JSON.stringify({ safeSummary: fallback.summary, categories: input.categories, duration: input.duration, timing: input.timing, sessionMinutes: input.sessionMinutes, tone: input.tone, approvedBlockIds }) }] }],
+        contents: [{ role: "user", parts: [{ text: JSON.stringify({ safeSummary: fallback.summary, categories: input.categories, duration: input.duration, timing: input.timing, sessionMinutes: input.sessionMinutes, tone: input.tone, approvedBlockIds: approvedBlockIdsFor(input.locale) }) }] }],
         generationConfig: {
           responseMimeType: "application/json",
-          responseJsonSchema: planJsonSchema,
+          responseJsonSchema: planJsonSchemaFor(input.locale),
           temperature: 0.2,
         },
       }),
@@ -149,7 +160,8 @@ export async function generateWithGemini(input: GeneratePathRequest): Promise<Pa
 // fal.ai kuyruğu ve webhook imza doğrulaması kaldırıldı — doğrudan çağrı
 // senkron ve zincirde bir veri işleyici daha az (PRD-Ek Oturum Motoru §3.3).
 
-const planJsonSchema = {
+function planJsonSchemaFor(locale: string) {
+  return {
   type: "object",
   additionalProperties: false,
   required: ["kind", "title", "templateId", "lengthDays", "summary", "steps"],
@@ -170,11 +182,12 @@ const planJsonSchema = {
         properties: {
           day: { type: "integer", minimum: 1, maximum: 28 },
           title: { type: "string", maxLength: 120 },
-          blockIds: { type: "array", minItems: 1, maxItems: 12, items: { type: "string", enum: approvedBlockIds } },
+          blockIds: { type: "array", minItems: 1, maxItems: 12, items: { type: "string", enum: approvedBlockIdsFor(locale) } },
           slotCopy: { type: "object", additionalProperties: { type: "string", maxLength: 520 } },
           question: { anyOf: [{ type: "string", minLength: 1, maxLength: 120 }, { type: "null" }] },
         },
       },
     },
   },
-};
+  };
+}

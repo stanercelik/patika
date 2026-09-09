@@ -30,11 +30,14 @@ TEXT_EN="We are going to stay here for a few minutes. There is nothing you need 
 render() {
   local voice_id="$1" pref="$2" lang="$3" text="$4"
   local out="$OUT_DIR/voice-preview-$pref-$lang.mp3"
+  local response
+  response="$(mktemp)"
+  trap 'rm -f "$response"' RETURN
   echo "→ $pref / $lang"
-  curl -sS -X POST "$BASE_URL/v1/text-to-speech/$voice_id?output_format=mp3_44100_128" \
+  curl -sS -X POST "$BASE_URL/v1/text-to-speech/$voice_id/with-timestamps?output_format=mp3_44100_128" \
     -H "xi-api-key: $ELEVENLABS_API_KEY" \
     -H "Content-Type: application/json" \
-    -H "Accept: audio/mpeg" \
+    -H "Accept: application/json" \
     --fail-with-body \
     -d "$(python3 -c "
 import json,sys
@@ -50,12 +53,19 @@ print(json.dumps({
   },
   'apply_text_normalization': 'auto',
 }))" "$text" "$MODEL" "$lang")" \
-    -o "$out"
+    -o "$response"
+  python3 - "$response" "$out" <<'PY'
+import base64,json,sys
+with open(sys.argv[1], encoding="utf-8") as source:
+    payload=json.load(source)
+with open(sys.argv[2], "wb") as target:
+    target.write(base64.b64decode(payload["audio_base64"]))
+PY
   echo "  $(du -h "$out" | cut -f1) → $out"
 }
 
-render "$VOICE_FEMININE"  feminine  tr "$TEXT_TR"
-render "$VOICE_FEMININE"  feminine  en "$TEXT_EN"
+render "$VOICE_FEMININE" feminine tr "$TEXT_TR"
+render "$VOICE_FEMININE" feminine en "$TEXT_EN"
 render "$VOICE_MASCULINE" masculine tr "$TEXT_TR"
 render "$VOICE_MASCULINE" masculine en "$TEXT_EN"
 

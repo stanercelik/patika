@@ -137,12 +137,22 @@ export function validatePlan(plan: PathPlanDTO): PathPlanDTO {
     if (step.question !== null && (step.question.length < 1 || step.question.length > 120)) {
       throw new Error("invalid_provider_response");
     }
+    const question = step.question;
+    if (question !== null && unsafeQuestionPatterns.some((pattern) => pattern.test(question))) {
+      throw new Error("invalid_provider_response");
+    }
     if (plan.kind === "prepared" && (step.question !== null || Object.keys(step.slotCopy).length > 0)) {
       throw new Error("invalid_provider_response");
     }
   });
   return plan;
 }
+
+const unsafeQuestionPatterns = [
+  /\bterapi\b/i, /\btedavi/i, /\bila[çc]/i, /travma.{0,20}(ayrınt|detay)/i,
+  /\btherapy\b/i, /\btreatment\b/i, /\bmedication\b/i, /trauma.{0,20}detail/i,
+  /neden böyle/i, /why are you like this/i,
+];
 
 function boundedString(value: unknown, minimum: number, maximum: number): string {
   if (typeof value !== "string") throw new Error("invalid_request");
