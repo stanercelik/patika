@@ -4,25 +4,13 @@ import SwiftUI
 ///
 /// ## İz dili
 ///
-/// F1 ve F2 ile aynı görsel dil: yukarıdan aşağı inen tek bir iz, üzerinde
-/// düğümler. Ürünün tek metaforu "sonu olan bir yol" ve her ekranda aynı
-/// çizgiyle anlatılıyor.
+/// F2 ile aynı görsel dil: sağa ve sola sakinçe kıvrılan tek bir iz, üzerinde
+/// durum düğümleri. Satırlar aynı sınır noktasında birleştiği için yol uzun
+/// kişisel başlıklarda ve Dynamic Type'ta kopmadan devam ediyor.
 ///
-/// ## İz burada **tek parça** çiziliyor
-///
-/// F2'de her satır kendi çizgi parçasını taşır; burada çizgi listenin arkasında
-/// tek bir dikdörtgen ve uçları gradyanla soluyor. Gerekçe: liste kaydırıldığı
-/// için çizginin ekran kenarında bıçakla kesilmiş gibi bitmesi, yolun orada
-/// bittiğini söylüyordu. Solarak kesilen bir iz "devam ediyor ama görmüyorsun"
-/// diyor — kaydırma davranışıyla aynı şey.
-///
-/// ## Bir satır açılınca diğerleri küçülür
-///
-/// Ekranda aynı anda tek bir şey büyük duruyor. Açılan satır kart hâline gelip
-/// eylemini gösterirken kalanlar hem soluyor hem hafifçe küçülüyor — hangi
-/// satırın konuştuğu tartışmasız kalıyor. Hareketin tamamı tek bir yay
-/// (`Theme.Motion.pathExpand`) üzerinden gidiyor: iki ayrı animasyon eğrisi,
-/// aynı anda çalışınca kayma hissi üretiyordu.
+/// Sıradaki adım daha büyük, nefes ritminde bir düğüm ve açılabilen kartla
+/// belirginleşiyor. Gelecek adımların gerçek başlıkları görünür kalıyor; kilit
+/// işareti ve kesikli iz henüz açılamadıklarını birlikte anlatıyor.
 ///
 /// ## Sayaç yok, streak yok
 ///
@@ -32,13 +20,18 @@ struct MyPathView: View {
     @Environment(PaletteController.self) private var palette
     @Environment(AppServices.self) private var services
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var viewModel: MyPathViewModel?
     @State private var runningStep: PathStepRecord?
 
     var body: some View {
         ZStack {
-            BreathingMeshBackground(palette: palette.current, safeY: 0.12)
+            BreathingMeshBackground(
+                palette: palette.current,
+                safeY: 0.12,
+                boostsFrameRate: true
+            )
                 .ignoresSafeArea()
             content
         }
@@ -97,103 +90,98 @@ struct MyPathView: View {
                 .padding(.bottom, 22)
                 .padding(.horizontal, Theme.Spacing.screenMargin)
 
-            ScrollView {
-                trail
-                    .padding(.horizontal, Theme.Spacing.screenMargin)
-                    .padding(.top, 6)
-                    // Son satır sekme çubuğunun altında kalmasın.
-                    .padding(.bottom, 120)
-            }
-            .scrollIndicators(.hidden)
-            // İzin uçları **kesilmiyor, soluyor**. Bıçakla kesilmiş bir çizgi
-            // yolun orada bittiğini söylüyordu; solan bir iz "devam ediyor ama
-            // görmüyorsun" diyor — kaydırmanın kendisiyle aynı şey.
-            .mask {
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: 0),
-                        .init(color: .black, location: 0.045),
-                        .init(color: .black, location: 0.86),
-                        .init(color: .clear, location: 1),
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            }
-        }
-    }
-
-    /// Adımlar ve arkalarındaki tek parça iz.
-    private var trail: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(viewModel?.steps ?? []) { step in
-                if let viewModel {
-                    PathStepRow(
-                        step: step,
-                        viewModel: viewModel,
-                        onStart: { runningStep = step }
+            ScrollViewReader { proxy in
+                ScrollView {
+                    trail
+                        .padding(.horizontal, Theme.Spacing.screenMargin)
+                        .padding(.top, 6)
+                        // Son satır sekme çubuğunun altında kalmasın.
+                        .padding(.bottom, 120)
+                }
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
+                // İlk açılışta kullanıcı tamamladığı satırları yeniden geçmek
+                // zorunda kalmaz; sıradaki düğüm görünür alanın merkezine gelir.
+                .task(id: path.nextStep?.id) {
+                    guard let nextID = path.nextStep?.id else { return }
+                    await Task.yield()
+                    proxy.scrollTo(
+                        nextID,
+                        anchor: dynamicTypeSize.isAccessibilitySize ? .top : .center
                     )
                 }
-            }
-        }
-        .background(alignment: .topLeading) { rail }
-    }
-
-    /// Uçları solarak biten iz. Maske uzunluğu içeriğe göre değil sabit:
-    /// oranla verilince kısa path'lerde iz neredeyse tamamen soluyordu.
-    private var rail: some View {
-        GeometryReader { geo in
-            let fade = min(72, geo.size.height * 0.22)
-            let ratio = fade / max(geo.size.height, 1)
-            Rectangle()
-                .fill(Theme.textPrimary.color.opacity(0.16))
-                .frame(width: Theme.Line.trail)
-                .mask(
+                // İzin uçları **kesilmiyor, soluyor**. Bıçakla kesilmiş bir
+                // çizgi yolun orada bittiğini söylüyordu; solan iz devam eden
+                // içeriği anlatıyor.
+                .mask {
                     LinearGradient(
                         stops: [
                             .init(color: .clear, location: 0),
-                            .init(color: .black, location: ratio),
-                            .init(color: .black, location: 1 - ratio),
+                            .init(color: .black, location: 0.045),
+                            .init(color: .black, location: 0.86),
                             .init(color: .clear, location: 1),
                         ],
                         startPoint: .top,
                         endPoint: .bottom
                     )
-                )
+                }
+            }
         }
-        .frame(width: PathStepRow.railWidth)
-        .accessibilityHidden(true)
+    }
+
+    /// Adımlar ve kıvrımlı ortak iz.
+    private var trail: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array((viewModel?.steps ?? []).enumerated()), id: \.element.id) { index, step in
+                if let viewModel {
+                    PathStepRow(
+                        index: index,
+                        totalCount: viewModel.steps.count,
+                        step: step,
+                        viewModel: viewModel,
+                        onStart: { runningStep = step }
+                    )
+                    .id(step.id)
+                }
+            }
+        }
     }
 }
 
 /// İz üzerindeki tek adım. Kapalıyken bir satır, açıkken bir kart.
 private struct PathStepRow: View {
+    let index: Int
+    let totalCount: Int
     let step: PathStepRecord
     let viewModel: MyPathViewModel
     var onStart: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ScaledMetric(relativeTo: .body) private var nodeCenterOffset: CGFloat = 11
-
-    static let railWidth: CGFloat = 22
-    private static let contentSpacing: CGFloat = 14
 
     private var isExpanded: Bool { viewModel.isExpanded(step) }
     private var isLocked: Bool { viewModel.isLocked(step) }
     private var isCompleted: Bool { viewModel.isCompleted(step) }
-    private var isNext: Bool { step.id == viewModel.nextStep?.id }
 
     var body: some View {
-        Button {
-            withAnimation(reduceMotion ? Theme.Motion.crossFade : Theme.Motion.pathExpand) {
-                viewModel.toggle(step)
+        JourneyMapRow(
+            index: index,
+            totalCount: totalCount,
+            node: viewModel.node(for: step),
+            showsLock: isLocked,
+            isProminent: isExpanded
+        ) {
+            Button {
+                withAnimation(reduceMotion ? Theme.Motion.crossFade : Theme.Motion.pathExpand) {
+                    viewModel.toggle(step)
+                }
+            } label: {
+                body(for: step)
             }
-        } label: {
-            body(for: step)
+            .buttonStyle(.calm)
+            .disabled(isLocked)
+            .accessibilityElement(children: .combine)
+            .accessibilityHint(isLocked ? Text(Copy.Path.lockedAccessibility) : Text(""))
         }
-        .buttonStyle(.calm)
-        .accessibilityElement(children: .combine)
-        .accessibilityHint(isLocked ? Text(Copy.Path.lockedAccessibility) : Text(""))
     }
 
     private func body(for step: PathStepRecord) -> some View {
@@ -215,14 +203,7 @@ private struct PathStepRow: View {
                         )
                 }
         }
-        .padding(.leading, Self.railWidth + Self.contentSpacing)
         .padding(.trailing, isExpanded ? 0 : 4)
-        .padding(.bottom, isExpanded ? 22 : 20)
-        // Açık olan büyür, kalanlar hafifçe küçülüp soluyor. Ölçek sola
-        // sabitlendi: merkeze göre küçülen satır izden kopuyordu.
-        .scaleEffect(scale, anchor: .leading)
-        .opacity(opacity)
-        .overlay(alignment: .topLeading) { node }
     }
 
     private var header: some View {
@@ -308,19 +289,6 @@ private struct PathStepRow: View {
         }
     }
 
-    /// Düğüm, satırın **ilk metin satırının** optik ortasına oturur. Açık
-    /// satırda kartın iç boşluğu kadar aşağı kayıyor: yoksa düğüm kartın üst
-    /// köşesine yapışıp etiketten kopuyordu.
-    private var node: some View {
-        TrailNodeDot(node: viewModel.node(for: step))
-            .frame(width: Self.railWidth)
-            .offset(
-                y: nodeCenterOffset
-                    + (isExpanded ? 16 : 0)
-                    - TrailNodeDot.size(for: viewModel.node(for: step)) / 2
-            )
-    }
-
     // MARK: - Türetilen görünüm değerleri
 
     private var titleFont: Font {
@@ -335,17 +303,6 @@ private struct PathStepRow: View {
         return isLocked ? 0.62 : 0.92
     }
 
-    private var scale: Double {
-        guard !reduceMotion else { return 1 }
-        return isExpanded ? 1 : 0.98
-    }
-
-    private var opacity: Double {
-        if isExpanded { return 1 }
-        // Bir şey açıkken kalanlar geri çekiliyor; hiçbiri açık değilse liste
-        // kendi doğal kontrastında duruyor.
-        return viewModel.expandedStepID == nil ? 1 : 0.72
-    }
 }
 
 /// `fullScreenCover(item:)` kimlik istiyor; adımın kendi kimliği zaten var.

@@ -32,6 +32,9 @@ struct RoadmapView: View {
     @State private var tour: Task<Void, Never>?
 
     private var rows: [PathPlan.Row] { PathPlan.rows(for: flow.pathLength) }
+    private var generatedSteps: [GeneratedPathStep] {
+        flow.generatedPath?.steps.sorted { $0.day < $1.day } ?? []
+    }
 
     /// Kaydırma konumu. `ScrollViewReader` + `scrollTo(id:)` yerine bu:
     /// bir kimliğe kaydırmak öğeyi görünür alanın kenarına yaslıyor ve dönüşte
@@ -66,16 +69,10 @@ struct RoadmapView: View {
                         .padding(.top, 18)
                         .padding(.bottom, 26)
 
-                    ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
-                        TrailRow(
-                            node: node(for: row),
-                            showsLineAbove: index > 0,
-                            showsLineBelow: index < rows.count - 1
-                        ) {
-                            rowContent(row)
-                                .padding(.bottom, 22)
-                        }
-                        .listReveal(6 + index)
+                    if generatedSteps.isEmpty {
+                        fallbackMap
+                    } else {
+                        generatedMap
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -103,6 +100,74 @@ struct RoadmapView: View {
             .padding(.horizontal, Theme.Spacing.screenMargin)
             .padding(.bottom, 10)
         }
+    }
+
+    private var generatedMap: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(generatedSteps.enumerated()), id: \.element.day) { index, step in
+                let isFirst = index == 0
+                let isMeasurement = flow.pathLength.measurementDays.contains(step.day) && step.day > 1
+                JourneyMapRow(
+                    index: index,
+                    totalCount: generatedSteps.count,
+                    node: isFirst ? .active : (isMeasurement ? .milestone : .pending),
+                    showsLock: !isFirst,
+                    isProminent: false
+                ) {
+                    generatedStepContent(step, isMeasurement: isMeasurement)
+                }
+                .id("generated-\(step.day)")
+            }
+        }
+    }
+
+    private var fallbackMap: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                JourneyMapRow(
+                    index: index,
+                    totalCount: rows.count,
+                    node: node(for: row),
+                    showsLock: false,
+                    isProminent: false
+                ) {
+                    rowContent(row)
+                }
+                .id(row.id)
+            }
+        }
+    }
+
+    private func generatedStepContent(
+        _ step: GeneratedPathStep,
+        isMeasurement: Bool
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 6) {
+                Text(Copy.Path.stepLabel(day: step.day))
+                    .font(.caption.weight(Theme.Weight.emphasis))
+                if step.day > 1 {
+                    Image(systemName: "lock")
+                        .font(.caption2.weight(Theme.Weight.emphasis))
+                        .accessibilityHidden(true)
+                }
+            }
+            .foregroundStyle(Theme.textPrimary.color.opacity(0.50))
+
+            Text(verbatim: step.title)
+                .font(.body.weight(Theme.Weight.action))
+                .foregroundStyle(Theme.textPrimary.color.opacity(step.day == 1 ? 1 : 0.72))
+                .fixedSize(horizontal: false, vertical: true)
+
+            if isMeasurement {
+                Text(Copy.Path.measurementNote)
+                    .font(.caption2.weight(Theme.Weight.emphasis))
+                    .foregroundStyle(Theme.textPrimary.color.opacity(0.62))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(step.day > 1 ? Text(Copy.Path.lockedAccessibility) : Text(""))
     }
 
     // MARK: - Haritayı bir kez gezdir

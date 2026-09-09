@@ -79,6 +79,7 @@ final class MyPathViewModel {
     /// o kart ve kullanıcının kendi dokunuşuyla kaybolması, aradığı şeyi
     /// aramaya geri döndürüyordu.
     func toggle(_ step: PathStepRecord) {
+        guard !isLocked(step) else { return }
         if expandedStepID == step.id {
             guard step.id != nextStep?.id else { return }
             expandedStepID = nil
@@ -96,9 +97,11 @@ final class MyPathViewModel {
     /// de okunuyor — ne aldığını görmek ürünün vaadi; kapalı olan yalnızca
     /// bugün dinlenebilmesi.
     func isLocked(_ step: PathStepRecord) -> Bool {
-        guard step.completedAt == nil else { return false }
-        guard let next = nextStep else { return true }
-        return step.day > next.day
+        JourneyStepAccess.isLocked(
+            day: step.day,
+            isCompleted: step.completedAt != nil,
+            nextDay: nextStep?.day
+        )
     }
 
     func isCompleted(_ step: PathStepRecord) -> Bool { step.completedAt != nil }

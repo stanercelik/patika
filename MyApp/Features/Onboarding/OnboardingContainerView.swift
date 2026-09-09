@@ -29,7 +29,7 @@ struct OnboardingContainerView: View {
                 safeY: flow.step.backgroundSafeY,
                 breathAmplitude: breathAmplitude,
                 voiceEnergy: flow.sessionVoiceEnergy,
-                boostsFrameRate: palette.isTransitioning
+                boostsFrameRate: palette.isTransitioning || flow.step == .f2Roadmap
             )
 
             VStack(spacing: 0) {
@@ -198,7 +198,7 @@ struct OnboardingPreviewHost<Content: View>: View {
             BreathingMeshBackground(
                 palette: palette.current,
                 safeY: step.backgroundSafeY,
-                boostsFrameRate: palette.isTransitioning
+                boostsFrameRate: palette.isTransitioning || step == .f2Roadmap
             )
             VStack(spacing: 0) {
                 OnboardingHeader(

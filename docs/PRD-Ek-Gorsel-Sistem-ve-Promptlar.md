@@ -784,6 +784,7 @@ Rozetin ortasında path'in öncesi/sonrası yüzdesi için metin slotu
 | 24 | **C1/C2 raster görselleri 282/292 pt sahnede gösterilir** | Küçük ve metinden kopuk görsel | Büyük sahne görseli dekor olmaktan çıkarır; erişilebilir Dynamic Type'ta 194 pt'ye iner ve metin önceliğini korur |
 | 25 | **C1 görseli durum + süre aynalamasından sonra gelir** | İlk cümleden hemen sonra göstermek | Kullanıcı önce kendi durumunu ve ne kadar sürdüğünü birlikte okur; görsel bu iki parçayı bağlar, kalan kişisel cümleler ardından gelir |
 | 26 | **C4 raster yerine iki fazlı native süreç grafiği kullanır** | Soyut ufuk illüstrasyonu | Önce dalgalanıp aşağıda biten diğer uygulamalar, sonra 8. güne kadar sakin ve ardından ivmelenen Patika doğrudan okunur. Sayısal Y ekseni yoktur; grafik sonuç vaadi değildir |
+| 27 | **F2 ve onboarding sonrası Yolum ortak kıvrımlı `JourneyMapRow` kullanır** | Düz liste / raster harita | Gerçek kişisel adımlar aynı rotada görünür; sıradaki adım belirgin, gelecek başlıklar kilitli ama okunabilir kalır. Native Shape çizimi raster varlık istemez ve 60 Hz hareket bütçesini korur |
 
 ---
 
@@ -1070,19 +1071,25 @@ yarışmasın diye.
 
 ## 14. F BÖLÜMÜ — İZ DİLİ
 
-F1 (üretim) ve F2 (yol haritası) aynı bileşeni kullanır: `TrailRow`. Yukarıdan
-aşağı inen tek bir iz ve üzerinde düğümler — A1'deki yol animasyonunun ve
-`PathProgressBar`ın devamı. Ürünün tek metaforu "sonu olan bir yol" ve her ekranda
-aynı çizgiyle anlatılıyor; F için yeni bir görsel fikir icat edilmedi.
+F1 (üretim), F2 (yol haritası) ve onboarding sonrası "Yolum" aynı rota
+metaforunu kullanır. F1 kısa bekleyiş için kompakt `TrailRow` olarak kalır; F2 ve
+"Yolum" gerçek kişisel içeriği taşıyan ortak `JourneyMapRow` ile sağa-sola
+kıvrılır. Düğüm bir kolondayken metin karşı kolonda kalır. Erişilebilir Dynamic
+Type'ta kıvrım düz sol raya dönüşür ve metin tam genişliği kullanır.
+
+Gelecek adımların başlığı saklanmaz: kullanıcı yolun yönünü görür, fakat kesikli
+iz ve kilit simgesi bu adımların henüz açılamayacağını birlikte anlatır. "Yolum"
+başlıkları ve teknikleri yalnızca gerçek `ActivePath`/`PathStepRecord` verisinden
+gelir; harita rastgele veya dekoratif adım metni üretmez.
 
 ### 14.1 Düğüm tipleri
 
 | Tip | Biçim | Nerede |
 |---|---|---|
-| `pending` | Boş halka, 10 pt | Henüz gelinmemiş adım |
-| `active` | Nefes döngüsüyle soluyan dolu nokta, 13 pt | F1'de o an çalışan aşama |
-| `done` | Dolu nokta, 13 pt | F1'de tamamlanan aşama |
-| `milestone` | Halkalı dolu nokta, 16 pt | F2'de ölçüm günleri |
+| `pending` | F1'de küçük boş halka; haritada kilitli 34 pt halka | Henüz gelinmemiş adım |
+| `active` | Nefes döngüsüyle soluyan dolu nokta; haritada 50 pt odak | O an çalışan / sıradaki aşama |
+| `done` | Dolu nokta; haritada onay işaretli 36 pt düğüm | Tamamlanan aşama |
+| `milestone` | Haritada çift halkalı 42 pt düğüm | Ölçüm günleri |
 
 **Ölçüm günü yıldızla işaretlenmiyor.** PRD-Ek Onboarding §7.2'nin taslağında ⭐
 var; emoji hiçbir yerde kullanılmıyor (Görsel Sistem §5) ve renkli bir yıldız tek
@@ -1115,3 +1122,13 @@ basılı tutulunca büyüyor (Ton eki §2.2).
 **Erişilebilirlik:** VoiceOver ve Switch Control basılı tutma jesti üretemez;
 buton yardımcı teknolojiden gelen etkinleştirmede beklemeden çalışır. Reduce
 Motion'da büyüme yerine mürekkep soldan sağa dolar — bekleme kalır, hareket gider.
+
+### 14.4 Harita hareketi ve performans
+
+Rota satır başına native `Shape` + `trim` ile bir kez çizilir; scroll sırasında
+tercih/state yazan geometri ölçümü yapılmaz. Satırların gecikmesi üstten alta
+kademeli fakat toplam görünüş hareketi 800 ms altındadır. Aktif düğüm ve bu iki
+harita ekranındaki mesh normal koşullarda 60 Hz zaman çizelgesi ister. Düşük güç,
+termal baskı, arka plan ve Reduce Motion güvenlik düşüşleri mevcut sistem
+kurallarını korur. Reduce Motion'da rota doğrudan tamamlanmış, aktif düğüm statik
+gösterilir; dekoratif çizgi ve düğümler VoiceOver'dan gizlidir.

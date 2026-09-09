@@ -116,6 +116,12 @@ enum Theme {
         /// Toplam oturma süresi ~0.42 sn, 800 ms bütçesinin içinde.
         static let pathExpand: Animation = .spring(response: 0.42, dampingFraction: 0.86)
 
+        /// F2 ve "Yolum"daki kıvrımlı rotanın bir satırlık çizim süresi.
+        /// `trim` GPU-dostu bir shape animasyonu; satırlar kısa aralıklarla
+        /// başlar ve toplam hareket 800 ms durum bütçesini aşmaz.
+        static let journeyRouteDraw: Double = 0.44
+        static let journeyNodeStagger: Double = 0.045
+
         /// Liste hâlindeki öğeler için çok daha kısa aralık. C'nin 1.5 saniyesi
         /// okunacak cümleler içindi; yedi satırlık bir yol haritasında aynı ritim
         /// son satırı 14. saniyede gösterirdi. Burada beliriş bir okuma temposu

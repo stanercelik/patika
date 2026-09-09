@@ -55,7 +55,7 @@ Hedef **file-system synchronized group** kullanır (`PBXFileSystemSynchronizedRo
 | `MyApp/DesignSystem/` | `RGB`, `Palette` (10 kategori + harmanlama + gece modu), `BreathCycle`, `BreathingMeshBackground`, `Shaders.metal`, `Theme`, `PaletteController` |
 | `MyApp/Models/` | `DomainEnums` (kategori, kimlik, path, ölçüm, sonuç kovaları, tercihler), `PersistentModels` (SwiftData), `MeasurementLibrary` (D1–D8 maddeleri + A/B/C varyantları), `PathPlan` (F2 yol haritası satırları) |
 | `MyApp/Content/` | `Copy` (mikrometin), `Tone` (kişilik kademeleri + yasak ifadeler) |
-| `MyApp/DesignSystem/Components/` | `DisplayText`/`BodyText`, `PrimaryButton`, `OnboardingHeader` (+geri butonu), `PathProgressBar`, `OnboardingQuestionLayout`, `OnboardingStatementLayout`, `ChoiceRow`, `MoodScale`, `IntensityScale`, `OnboardingTextInput`, `OnboardingIllustration`, `ComparisonColumns`, `ExpectationCurveChart`, `TrailRow`, `HoldToStartButton` |
+| `MyApp/DesignSystem/Components/` | `DisplayText`/`BodyText`, `PrimaryButton`, `OnboardingHeader` (+geri butonu), `PathProgressBar`, `OnboardingQuestionLayout`, `OnboardingStatementLayout`, `ChoiceRow`, `MoodScale`, `IntensityScale`, `OnboardingTextInput`, `OnboardingIllustration`, `ComparisonColumns`, `ExpectationCurveChart`, `TrailRow`, `JourneyMapRow`, `HoldToStartButton` |
 | `MyApp/Features/<Özellik>/` | MVVM ekranları. Onboarding'de kimlik bloğu ve A, B, C, D, E, F bölümleri hazır |
 | `assets/illustrations/` | Üretilecek görsellerin kaynak dosyaları + kurulum talimatı (uygulamaya giren kopyalar `Assets.xcassets/Onboarding/`) |
 
@@ -136,7 +136,7 @@ E3'ten sonra akış `f1Generation`a düşer; orası henüz `NotYetBuiltView`.
 
 **F2 ile F3 birleştirildi** (ürün sahibi kararı, 2026-09-09). PRD ikisini ayırıyordu: F2 özet kart, F3 kaydırınca açılan "gerçek" harita. İkisi de aynı şeyi gösteriyordu; "kaydırınca haritaya geç" adımı kullanıcıya zaten gördüğü bir şeyi tekrar açtırıyordu. Harita doğrudan F2'de, ölçüm noktaları üstünde işaretli.
 
-- **F1 ve F2 aynı görsel dili konuşur:** `TrailRow` — yukarıdan aşağı inen tek bir iz, üzerinde düğümler. A1'in yol animasyonu ve `PathProgressBar` ile aynı metafor; F için yeni bir görsel fikir icat edilmedi. Ölçüm günleri **yıldızla değil halkalı düğümle** işaretlenir (PRD taslağında ⭐ var; emoji yasağı ve tek mürekkep kuralı).
+- **F1 ve F2 aynı rota metaforunu farklı ölçekte kullanır.** F1'in kompakt üretim izi `TrailRow`; F2'nin okunabilen haritası ve onboarding sonrası "Yolum" ekranı ortak `JourneyMapRow`dur. Harita sağa-sola kıvrılır, metin düğümün karşı kolonunda kalır ve erişilebilir Dynamic Type'ta düz sol raya döner. Ölçüm günleri **yıldızla değil halkalı düğümle** işaretlenir (PRD taslağında yıldız var; emoji yasağı ve tek mürekkep kuralı).
 - **F1'in butonu yok.** Kullanıcının yapacağı bir şey yok; boş bir CTA bekleyişi kullanıcının sorunu gibi gösterirdi. Ekran işi bitince kendi geçer — onboarding'de dokunuş beklemeyen tek ekran. Yüzde göstergesi ve dönen çark da yok; hareket eden tek şey nefes döngüsüyle solan aktif düğüm.
 - **F1'in zamanlayıcısı geçici.** Ağ katmanı yok, aşamalar `GenerationViewModel`de zamanlayıcıyla ilerliyor. Süreler bilerek gerçekçi (toplam ~11 sn): 2 saniyede biten bir sahte bekleme, gerçek üretim eklendiğinde ekranı bambaşka hissettirirdi. Gerçek üretimde `advance` sunucu olaylarına bağlanır, ekran değişmez.
 - **F1 ve F2'de geri yok.** F1'de üretim çalışıyor, F2'de path üretilmiş durumda; geri dönüp E3'ün tonunu değiştirmek elde duran path'i sessizce yanlış hâle getirirdi.
@@ -271,6 +271,14 @@ yazmak, ilkinin düzeltilmiş hatalarını miras almadan yeni hatalar üretiyord
   koruyor çünkü tek katman koruyan bir kural, kural değil.
 - **Streak/seri yok, kaçırılan gün için tek kelime yok.** Ekranda iz, adımlar ve
   sıradaki adımın butonu var; ölçüm günleri halkalı düğüm (yıldız değil).
+- **Harita kişisel path'in kendisidir.** Başlıklar ve teknikler gerçek
+  `ActivePath`/`PathStepRecord` verisinden gelir; arayüz örnek veya rastgele adım
+  yazmaz. Gelecek adımların başlıkları görünür fakat kilitli ve etkileşimsizdir;
+  kesikli iz + kilit simgesi durumu rengin tek başına anlatmasını engeller.
+- **F2 ve "Yolum" ortak `JourneyMapRow` kullanır.** Normal boyutta rota iki
+  kolonda zikzak çizer; AX Dynamic Type'ta metne yer açmak için düz sol raya
+  dönüşür. İlk görünüş çizimi 800 ms altında, aktif düğüm 60 Hz zaman çizelgesi
+  üstünde nefes ritmindedir; Reduce Motion'da rota ve düğüm statiktir.
 - **Kesinti oturumu bitirmiyor.** Telefon görüşmesi, kulaklığın çıkması ve
   uygulamanın kapanması kaldığı yeri saniyesiyle saklıyor; dönüşte cümlenin
   ortasından devam ediyor (`scheduleSegment`). Kesinti bitince ses
