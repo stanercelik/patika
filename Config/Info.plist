@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Uretilen Info.plist'in tabani. Diger anahtarlarin tamami hala
+	  GENERATE_INFOPLIST_FILE ile build ayarlarindan uretiliyor; burada yalnizca
+	  uretecin desteklemedigi anahtar duruyor.
+
+	  UIBackgroundModes: oturum sesi uygulama arka plana gidince de devam etmeli
+	  (PRD SS13.3). INFOPLIST_KEY_UIBackgroundModes diye bir build ayari yok —
+	  Xcode'un ureteci bu anahtari tanimiyor.
+	-->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
+</dict>
+</plist>

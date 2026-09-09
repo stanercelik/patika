@@ -89,6 +89,22 @@ enum Theme {
         /// olursa takılmış gibi durur.
         static let revealFade: Double = 0.70
 
+        /// F2'nin kendiliğinden aşağı inip geri çıkması (ürün sahibi kararı,
+        /// 2026-09-09). Harita ekrana sığmıyor ve alt satırların varlığı yalnızca
+        /// kaydıran kullanıcıya görünüyordu; ekran kendi kendine bir kez aşağı
+        /// inip geri çıkınca "burada daha var" bilgisi kaydırma gerektirmeden
+        /// veriliyor.
+        ///
+        /// **800 ms kuralının bilinçli istisnası.** O kural durum geçişleri için:
+        /// bir dokunuşun karşılığı 800 ms'den uzun sürerse arayüz ağır hissedilir.
+        /// Buradaki hareket bir geçiş değil, içeriğin gösterilmesi — ve hızlısı
+        /// okunmuyor, savrulma gibi duruyordu. Kullanıcı ekrana dokunduğu anda
+        /// iptal ediliyor ve Reduce Motion'da hiç çalışmıyor.
+        static let roadmapTourLeadIn: Double = 1.10
+        static let roadmapTourDown: Double = 1.50
+        static let roadmapTourHold: Double = 0.55
+        static let roadmapTourUp: Double = 1.20
+
         /// Liste hâlindeki öğeler için çok daha kısa aralık. C'nin 1.5 saniyesi
         /// okunacak cümleler içindi; yedi satırlık bir yol haritasında aynı ritim
         /// son satırı 14. saniyede gösterirdi. Burada beliriş bir okuma temposu

@@ -140,7 +140,7 @@ E3'ten sonra akış `f1Generation`a düşer; orası henüz `NotYetBuiltView`.
 - **F1'in butonu yok.** Kullanıcının yapacağı bir şey yok; boş bir CTA bekleyişi kullanıcının sorunu gibi gösterirdi. Ekran işi bitince kendi geçer — onboarding'de dokunuş beklemeyen tek ekran. Yüzde göstergesi ve dönen çark da yok; hareket eden tek şey nefes döngüsüyle solan aktif düğüm.
 - **F1'in zamanlayıcısı geçici.** Ağ katmanı yok, aşamalar `GenerationViewModel`de zamanlayıcıyla ilerliyor. Süreler bilerek gerçekçi (toplam ~11 sn): 2 saniyede biten bir sahte bekleme, gerçek üretim eklendiğinde ekranı bambaşka hissettirirdi. Gerçek üretimde `advance` sunucu olaylarına bağlanır, ekran değişmez.
 - **F1 ve F2'de geri yok.** F1'de üretim çalışıyor, F2'de path üretilmiş durumda; geri dönüp E3'ün tonunu değiştirmek elde duran path'i sessizce yanlış hâle getirirdi.
-- **"Yola çık" basılı tutulur** (`HoldToStartButton`, 1.4 sn): buton %14 büyür, haptik nabız hızlanıp şiddetlenir, bırakılırsa yayla geri iner. Haptik yine tek kademe — `.soft`, değişen yalnızca `intensity` ve sıklık. Aynı kalıp SOS butonunda da var (Ton eki §2.2). VoiceOver/Switch Control jesti üretemediği için buton yardımcı teknolojiden gelen etkinleştirmede beklemeden çalışır; Reduce Motion'da büyüme yerine mürekkep dolar.
+- **"Yola çık" basılı tutulur** (`HoldToStartButton`, 1.4 sn): buton bir kapsülden başlayıp **tüm ekranı kaplayan** bir alana büyür (ürün sahibi kararı, 2026-09-09), haptik nabız hızlanıp şiddetlenir, bırakılırsa yayla geri iner. Dolgu paletin en parlak noktasının kırık beyazla karışımından gradyanlı: ton kategoriden geliyor, luminans metin renginden — arka planın akrabası ama ondan ayrık ve siyah buton metni büyüme boyunca okunur. Tamamlanınca dolgu geri inmez; F2→G1 geçişi o ışığın altında olur. Önceki %14'lük büyüme bekleme süresinin nerede olduğunu göstermiyordu. Haptik yine tek kademe — `.soft`, değişen yalnızca `intensity` ve sıklık. Aynı kalıp SOS butonunda da var (Ton eki §2.2). VoiceOver/Switch Control jesti üretemediği için buton yardımcı teknolojiden gelen etkinleştirmede beklemeden çalışır; Reduce Motion'da büyüme yerine mürekkep dolar.
 - **Path başlığı ve uzunluğu geçici.** Gerçeği path üretiminden gelecek (PRD §9.1); `ProblemCategory.provisionalPathTitle` çevrimdışı ve hata durumları için yedek olarak kalır. Faz açıklamaları da öyle (`PathPhase.roadmapDescription`) — üretim onları kullanıcının cevaplarından kişiselleştirecek.
 - **F2'de paywall yok** ve bu bilinçli bir risk (PRD-Ek Onboarding §7.3). Buraya ödeme koymak "işe yaradığını gördükten sonra öde" iddiasını ilk beş dakikada çürütürdü.
 - Liste öğeleri `listReveal` kullanır (0.11 sn aralık), C'nin `sequentialReveal`ı (1.5 sn) değil: yedi satırlık harita, okuma temposuyla belirse son satır 14. saniyede görünürdü.
@@ -184,7 +184,40 @@ Genel tavır sistem varsayılanından bir kademe kalındır (ürün sahibi karar
 
 `ProgramPath` adı bilinçlidir — SwiftUI'ın `Path` tipiyle çakışmaması için.
 
-**Onboarding durumu:** A bölümü (A1 kanca + A2 kategori seçimi), **B bölümü (B1–B6 problem keşfi)**, **C bölümü (C1–C4 yansıtma)**, **D bölümü (D0 giriş + D1–D8 baseline ölçüm)** **E bölümü (E1–E3 tercihler)** ve **F bölümü (F1 üretim + F2 yol haritası)** çalışıyor; canlı palet geçişi, ruh hâline göre renk kayması, kategoriye göre placeholder rotasyonu, B5'in koşullu terapi notu, C3'ün koşullu atlanması, cümle cümle beliren C metinleri, C3'ün iki sütunu, C4'ün kompakt grafiği, D bölümünün sekiz sorusu, isimli hitap, E1'in önerilen saati, F1'in işaretlenen izi ve F2'nin yol haritası simülatörde doğrulandı. A2'de 10 seçeneğin tamamı varsayılan metin boyutunda kaydırmasız görünür; `ScrollView` yalnızca büyük Dynamic Type boyutlarında devreye girer. A1'de kelime markası yok — marka kimliği yol animasyonunun kendisi olacak. G ve H bölümleri (5 ekran) yazılmadı; `OnboardingStep.g1FirstSession` şu an `NotYetBuiltView` gösteriyor. **F4 (fiyat şeffaflığı) yersiz kaldı** — aşağıya bak.
+### G bölümü: ilk oturum gerçekten çalışıyor
+
+G1 artık `NotYetBuiltView` değil. Akış: F1'de path üretilir ve **1. adımın sesi** JIT olarak sunucudan istenir (`OnboardingFlowViewModel.prepareFirstStepAudio`, PRD-Ek Path Üretimi §6); F2'de "Yola çık" basılı tutulur; G1 o adımı oynatır.
+
+- **Sahneler nefes döngüsüyle zamanlanır**, saniyeyle değil (`SessionCue.breaths` × `BreathCycle.period`). Arka plan zaten o döngüyle soluyor; metnin döngü ortasında değişmesi nefesi bölüyordu.
+- **Kişiselleştirme çerçevede, teknik sabit.** Açılış / geçiş / kapanış sunucunun `slot_copy`sinden (`BlockLibrary.Slot`), teknik ise istemcideki `BlockLibrary`den gelir — kimlikler sunucudaki `approvedBlockIds` ile birebir aynı. Tekniği ağdan çekmek çevrimdışı oturumu imkânsız kılardı.
+- **Kullanıcının kendi cümlesi ikinci sahnedir** — akışın aha momenti. B1 atlandıysa sahne hiç kurulmaz; uydurma bir cümle yansıtmak kişiselleştirme iddiasını en görünür yerde çürütürdü.
+- **E2'nin cevabı burada karşılığını bulur:** teknik sahnelerin süresi seçilen dakikaya ölçeklenir (tam nefes döngüsüne yuvarlanarak). Açılış ve kapanış ölçeklenmez.
+- **Ses eksik olabilir ve bu hata değil.** `SessionAudioPlayer` `AVAudioEngine` + iki `AVAudioPlayerNode` → `AVAudioMixerNode` üzerine kurulu (bugün tek dosya çalıyor ama hibrit mimarinin grafı yerinde), `.playback` + `UIBackgroundModes: audio` + `MPNowPlayingInfoCenter`/`MPRemoteCommandCenter`. **TTS sağlayıcısı sunucuda yapılandırılmadığı sürece** (`PATIKA_TTS_LIVE_ENABLED`, `FAL_KEY`) `generate-audio` 503 döner, ekran sessiz sürüme düşer ve oturum yine tamdır.
+- Ses hazırsa **yalnızca açılışı** seslendirir ve açılış sahnesi ses bitene kadar beklet: duyulan cümleyle ekrandaki cümlenin ayrışması en kötü yerde oluyordu.
+- Kalan süre **sayıyla gösterilmez**; geri sayan bir sayı oturumu bitmesi beklenen bir şeye çevirir. Yerinde ince bir iz var.
+
+**G2 — oturum sonu.** Kutlama şiddeti 1/5 (PRD-Ek Onboarding §8): konfeti yok, rozet yok, "harika iş" yok. Ekranda tek cümle, tek bilgi, tek buton.
+
+- **İki hâli var ve ikisi aynı şeyi söylemiyor.** Sonuna kadar dinlendiyse "İlk adım tamam."; "Burada duralım" ile çıkıldıysa **"tamam" denmez** — ölçtüğünü iddia eden bir üründe olmayan bir şeyi olmuş göstermek ilk yalan olurdu. Yarıda bırakanda kalan adım sayısı da yazılmaz: bitirmemiş birine "20 adım daha var" demek kalan yolu borç gibi okutur.
+- **E1'in saati ilk kez burada işe yarar.** "Sorduğumuz her şeyin karşılığı olmalı" kuralının son halkası.
+- **`completed_at` yalnızca tam dinlendiğinde yazılır** ve yazma beklenmez (`markFirstStepCompleted`, ateşle-unut). Bu sütun profildeki ilerlemeyi besleyecek; dolduramadığı bir adımı dolmuş göstermek kullanıcının kendi kaydını yalanlamak olurdu.
+
+> **Bekleyen migration:** `supabase/migrations/20260909120000_allow_step_completion.sql` uygulanmadan `completed_at` yazımı 403 döner (ölçüldü). Yetki bilerek **sütun bazlı** — tabloya tam update vermek, istemcinin sunucunun ürettiği `block_ids`/`slot_copy`yi değiştirebilmesi demekti. Uygulanana kadar oturum çalışır, yalnızca ilerleme kaydı düşer.
+
+`Config/Info.plist` bu yüzden var: `INFOPLIST_KEY_UIBackgroundModes` diye bir build ayarı yok, Xcode'un üreteci o anahtarı tanımıyor. Dosya yalnızca `UIBackgroundModes` taşır; kalan anahtarların tamamı hâlâ `GENERATE_INFOPLIST_FILE` ile üretiliyor.
+
+### Geliştirme: onboarding ileri sarılabilir (yalnızca DEBUG)
+
+`OnboardingDebugSkip.swift` en dışta `#if DEBUG`; Release derlemesinde hiç yok.
+
+- Kabuğun sağ üstündeki ileri sarma düğmesi taslağı örnek cevaplarla doldurup seçilen adıma atlar.
+- `-patika-debug-session-speed 40` oturumu 40 kat hızlandırır (sahnelerin sırası ve oranları aynı kalır, yalnızca saat hızlanır). On dakikalık bir oturumu her denemede baştan dinlemek G1/G2 üzerinde çalışmayı durduruyordu.
+- `-patika-debug-step f1|f2|g1|g2|h1|d1|e1|...` başlatma argümanı **her çalıştırmada** o ekranda açar. Xcode şemasına yazılabilir; simülatörde: `xcrun simctl launch booted devplaceholder.X9RQKIJ8.MyApp -patika-debug-step g1`.
+- Örnek ölçüm cevapları `MeasurementLibrary`den türetilir, elle yazılmaz — madde listesi değişince sessizce eksik cevap üretmesin.
+
+> **Simülatör tuzağı:** `simctl uninstall` sonrası `cfprefsd` eski `UserDefaults` değerlerini yeni kuruluma servis etmeye devam ediyor; onboarding tamamlanmış görünüp uygulama doğrudan `RootView` açılıyor. Gerçekten sıfırdan denemek için `xcrun simctl erase <udid>` gerekiyor.
+
+**Onboarding durumu:** A bölümü (A1 kanca + A2 kategori seçimi), **B bölümü (B1–B6 problem keşfi)**, **C bölümü (C1–C4 yansıtma)**, **D bölümü (D0 giriş + D1–D8 baseline ölçüm)** **E bölümü (E1–E3 tercihler)** ve **F bölümü (F1 üretim + F2 yol haritası)** çalışıyor; canlı palet geçişi, ruh hâline göre renk kayması, kategoriye göre placeholder rotasyonu, B5'in koşullu terapi notu, C3'ün koşullu atlanması, cümle cümle beliren C metinleri, C3'ün iki sütunu, C4'ün kompakt grafiği, D bölümünün sekiz sorusu, isimli hitap, E1'in önerilen saati, F1'in işaretlenen izi ve F2'nin yol haritası simülatörde doğrulandı. A2'de 10 seçeneğin tamamı varsayılan metin boyutunda kaydırmasız görünür; `ScrollView` yalnızca büyük Dynamic Type boyutlarında devreye girer. A1'de kelime markası yok — marka kimliği yol animasyonunun kendisi olacak. H bölümünün kalanı (H2, H3) yazılmadı; `OnboardingStep.g1FirstSession` ve `g2SessionComplete` çalışıyor (yukarıya bak); H bölümünde yalnızca H1 var, H2 (bildirim ön hazırlığı) ve H3 yazılmadı. **F4 (fiyat şeffaflığı) yersiz kaldı** — aşağıya bak.
 
 B bölümünün ürün kuralları enum'lara gömüldü: `ProblemTiming.suggestedReminderHour` (B3 → E1 varsayılan saati), `PreviousAttempt.showsLibraryComparison` (C3'ün koşulu), `PreviousAttempt.requiresTherapyAwareTone` (terapi tonu), `PreviousAttempt.isExclusive` ("Hiçbir şey" çelişkisi), `MoodLevel.suggestsGentlerStart`. Ekranlar bu kararları `if` ile hesaplamaz.
 
@@ -200,6 +233,8 @@ Serbest metin alanlarında **otomatik düzeltme kapalı** (`OnboardingTextInput`
 
 **A1 ekran sayısı — çözülen çelişki:** PRD §7.1 "3 karşılama ekranı" diyor, PRD-Ek Onboarding §2.1 ise tek animasyonlu ekran tarif edip kaydırmalı özellik karuselini açıkça yasaklıyor. **Ek uygulandı** (daha detaylı ve gerekçeli spec). PRD §7.1'in güncellenmesi gerekiyor.
 
+**Anahtarlar ve gizlilik.** `AppConfiguration.live` içindeki iki değer bilinçli olarak istemcide: Supabase **publishable** anahtarı ve PostHog **project token**'ı. İkisi de kimlik doğrulaması değil, hangi projeye konuşulduğunun adresi; güvenlik sınırı RLS ve kimlik doğrulamalı Edge Function'lar. Gerçek sırlar (`SUPABASE_SECRET_KEY`, `GEMINI_API_KEY`, `FAL_KEY`) yalnızca sunucuda, `supabase secrets set` ile durur ve depoda hiç geçmez. `.gitignore` bunu koruyor.
+
 **Henüz yok:** test hedefi (Xcode'dan eklenmeli; kontrast doğrulama testi, `BannedPhrases` lint'i ve `CrisisClassifier` vaka tablosu oraya gider), String Catalog, ses motoru, ağ katmanı, **sunucu tarafı kriz sınıflandırıcısı**.
 
 Test hedefi olmadığı için `CrisisClassifier` şimdilik elle doğrulanıyor: dosya UIKit/SwiftUI'a bağımlı değil, `swift CrisisClassifier.swift <vaka-dosyası>` ile doğrudan koşturulabilir. Bu geçici — vaka tablosu test hedefi eklenince oraya taşınmalı.
@@ -212,6 +247,7 @@ Test hedefi olmadığı için `CrisisClassifier` şimdilik elle doğrulanıyor: 
 | `docs/PRD-Ek-Onboarding.md` | 31 ekranlık onboarding akışı, ekran ekran metinler, funnel hedefleri, segmentasyon |
 | `docs/PRD-Ek-Ton-ve-Nudge.md` | Tüm kullanıcıya görünen metinlerin tonu, mikrometin kütüphanesi, bildirim kuralları, erişilebilirlik |
 | `docs/PRD-Ek-Gorsel-Sistem-ve-Promptlar.md` | MeshGradient + Metal shader kodu, 10 kategori paleti, nefes animasyonu, Rive brief'leri, görsel prompt'ları |
+| `docs/PRD-Ek-Profil-Sayfasi.md` | "Ben" sekmesi tasarımı. Ahead/Fabulous/Ladder/Yazio profil ekranlarından ne alındığı ve **ne alınmadığı**, önerilen yerleşim, önce gereken veri katmanı. **Taslak — onay bekliyor.** |
 | `docs/PRD-Ek-Path-Uretimi-ve-AI.md` | **Backend/AI çalışırken zorunlu.** Path üretim hattı adım adım, blok kütüphanesi ve slot şeması, LLM/TTS sağlayıcı karşılaştırmaları, kişiselleştirme kademeleri, JIT üretim, üç uçtan uca vaka (söylenen cümleler + kuruş kuruş maliyet), kohort ekonomisi, gizlilik sınırları |
 
 Her dokümanın sonunda bir **karar günlüğü** var: bir tasarım kararını değiştirmeyi düşünüyorsan önce oradaki gerekçeyi oku. Bu kararların çoğu estetik değil, etik veya ticari.
@@ -238,6 +274,25 @@ Kullanıcı girdisi → sınıflandırma → **kriz kontrolü (bloklayıcı)** �
 Oturumun ~%70'i önceden render edilmiş blok sesi; sadece açılış ve kişiselleştirilmiş 2–3 dakika taze TTS. Sessizlik TTS ile üretilmez, istemcide `scheduleBuffer` ile enjekte edilir. Naif yaklaşım path başına €3–10, hibrit €0.75–1.15. `AVAudioEngine` + iki `AVAudioPlayerNode` → `AVAudioMixerNode`; `.playback` kategorisi + `UIBackgroundModes: audio`; `MPNowPlayingInfoCenter`/`MPRemoteCommandCenter`. Ses modeli/voice ID **sabittir** — değiştirmek tüm kütüphaneyi yeniden render ettirir.
 
 Bunun doğrudan sonucu: **hazır blokları kaliteli, taze slotları hızlı modelle üretmek yapılamaz** — iki model arasındaki dikiş duyulur ve tam da aha momentinde duyulur. v1 tercihi `eleven_multilingual_v2`; gecikme bizde sorun değil (üretim F1'de asenkron), o yüzden flash/turbo ailesinin kalite ödünü karşılıksız kalır. Ayrıntı ve ses ayarları path üretimi ekinde §5.
+
+### Ölçüm skorlaması yazıldı — `MeasurementScoring`
+
+`MyApp/Models/MeasurementScoring.swift`. Deterministik, model yok: PRD-Ek Path Üretimi'ndeki sekiz adımın üçünde AI olmaması bilinçli — "Kova C'de satış yok" taahhüdü, kovayı bir modelin belirlediği üründe anlamsız olurdu.
+
+- **Yön: 0…100 ve düşük iyidir.** Skor bir başarı puanı değil, zorlanma ölçüsü. `MeasurementItem.higherMeansBetter` olan maddelerde eksen çevriliyor — bu bayrağı ilk kez okuyan yer burası.
+- **Cevap tavanı maddeden okunur, elle yazılmaz** (`maximumRawValue`). Bu, gerçek bir hatayı ortaya çıkardı: sunucudaki `calculateScores` tavanı "intensity ise 10, değilse 4" diye tahmin ediyordu, oysa davranış maddelerinin çoğu **dört kovalı (0–3)**. En kötü cevabı veren kullanıcı 100 yerine 75 puan alıyordu — zorlanma sistematik olarak düşük ölçülüyordu. Sunucu `_shared/measurement.ts` ile düzeltildi; **dağıtılması gerekiyor** (`supabase functions deploy generate-path`).
+- **Cevapsız madde sıfır sayılmaz**, atlanır ve kalan katmanların ağırlığı normalize edilir. Sıfır saymak eksik ölçümü yapay olarak iyi gösterirdi.
+- **Baseline ilk iki ölçümün ortalaması** (PRD §8). Tek nokta varsa karşılaştırma yine yapılır ama `baselineIsProvisional` ile işaretlenir — ortalamaya dönüş etkisi kullanıcıya sonuç diye satılamaz.
+- **Yön eşiği aracın kendi çözünürlüğü.** Gürültü tahmini üretecek veri yok (Faz 0 yok), o yüzden uydurma bir sabit yerine "katmanda ölçülebilen en küçük değişim" eşik alınıyor (duygu 5 puan, öz-yeterlik 12.5 puan). **Geçici**: Faz 0'da art arda iki günün oynaklığı görülünce gerçek gürültü tabanı yazılmalı.
+- **Kova ataması muhafazakâr.** Eşikler `OutcomeBucket` dokümantasyonundan (Faz 0'da kalibre edilecek tahminler). İki yerde bilinçli olarak sıkı taraf seçiliyor: (1) herhangi bir katmanda kötüleşme varsa diğerleri ne kadar iyileşirse iyileşsin Kova C; (2) kural metnindeki %5–10 boşluğu C'ye yuvarlanıyor — Kova C satış yapılmayan kova olduğu için belirsizliğin bedelini şirket ödüyor, kullanıcı değil.
+
+Vaka tablosu `Tests/MeasurementScoringTests/main.swift`. Test hedefi olmadığı için elle koşuluyor — **`swift` betik kipi çok dosyayla çalışmıyor**, derlemek gerekiyor:
+
+```bash
+swiftc -o /tmp/mstest MyApp/Content/Tone.swift MyApp/Models/DomainEnums.swift   MyApp/Models/MeasurementLibrary.swift MyApp/Models/MeasurementScoring.swift   Tests/MeasurementScoringTests/main.swift && /tmp/mstest
+```
+
+> **Sürüklenme riski duruyor.** İstemci ve sunucu aynı hesabı iki ayrı yerde yapıyor; madde kütüphanesi istemcide (Türkçe metinleriyle), sunucuda yalnızca tavan/yön tablosu var. Bir madde eklendiğinde iki taraf da güncellenmeli. Kalıcı çözüm skorlamanın tek yerde kalması; o karar ölçüm servisi sunucuya taşınırken verilecek.
 
 ### Ölçüm sistemi
 Klinik ölçek (GAD-7, PHQ-9) **kullanılmaz** — lisans + tıbbi cihaz düzenlemesi riski. Kendi ölçeğimiz üç katmanlı: duygu şiddeti %30, **davranış %40** (en sağlam, en zor manipüle edilir), öz-yeterlik %30. Dört ölçüm noktası (baseline / gün 7 / gün 14 / son), her noktada **madde rotasyonu** (A/B/C varyantları — aynı skorlama, farklı ifade). Skorlar asla mutlak yorumlanmaz, sadece kullanıcının kendi geçmişiyle karşılaştırılır. Baseline tek nokta değil, ilk 2 günün ortalaması (ortalamaya dönüş etkisi).

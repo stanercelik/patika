@@ -1,6 +1,7 @@
 import { authenticate } from "../_shared/auth.ts";
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { fallbackPlan, generateWithGemini, ruleBasedCrisisCheck } from "../_shared/providers.ts";
+import { normalize } from "../_shared/measurement.ts";
 import { parseGeneratePathRequest, type PathPlanDTO } from "../_shared/schema.ts";
 
 Deno.serve(async (req) => {
@@ -128,12 +129,15 @@ async function pathResponse(adminClient: any, userId: string, pathId: string): P
   });
 }
 
+// Skorlama deterministik: PRD-Ek Path Uretimi'ndeki sekiz adimin ucunde model
+// yok ve bu bilincli — "Kova C'de satis yok" taahhudu, kovayi bir modelin
+// belirledigi uründe anlamsiz olurdu.
+//
+// Tavanlar ve yön `_shared/measurement.ts`ten geliyor; burada elle yazilmiyor.
 function calculateScores(responses: Record<string, number>) {
   const groups = { emotion: [] as number[], behavior: [] as number[], selfEfficacy: [] as number[] };
   for (const [key, raw] of Object.entries(responses)) {
-    const maximum = key === "emotion.intensity" ? 10 : 4;
-    let normalized = Math.min(100, Math.max(0, raw / maximum * 100));
-    if (key.startsWith("selfEfficacy.") || key === "behavior.breaksTaken") normalized = 100 - normalized;
+    const normalized = normalize(key, raw);
     if (key.startsWith("emotion.")) groups.emotion.push(normalized);
     else if (key.startsWith("selfEfficacy.")) groups.selfEfficacy.push(normalized);
     else groups.behavior.push(normalized);

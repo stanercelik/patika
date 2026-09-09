@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Basılı tutularak tetiklenen birincil buton — F2'nin "Yola çık"ı.
 ///
@@ -12,6 +13,24 @@ import SwiftUI
 /// Bekleme bir engel değil, bir **an**: buton parmağın altında büyürken haptik
 /// nabız hızlanıyor. Kullanıcı kararı tutarak veriyor, dokunarak değil.
 ///
+/// ## Buton ekranı kaplar (ürün sahibi kararı, 2026-09-09)
+///
+/// Basılı tutuldukça buton bir kapsülden başlayıp **tüm ekranı dolduran** bir
+/// alana büyür ve dolgusu paletin kendi rengiyle gradyanlıdır. İki iş birden
+/// yapıyor:
+///
+/// - **Geri sayım görünür oluyor.** Önceki hâlde buton yalnızca %14 büyüyordu;
+///   bekleme süresinin nerede olduğunu yalnızca haptik söylüyordu ve parmağını
+///   erken çeken kullanıcı bir şey olmadığını sanıyordu.
+/// - **Geçişin örtüsü oluyor.** Dolgu tamamlandığında ekran zaten kaplı; F2'den
+///   G1'e geçiş bu ışığın altında oluyor, iki ekran arasında boşluk görünmüyor.
+///
+/// Gradyan arka planın **akrabası ama aynısı değil**: paletin en parlak noktası
+/// kırık beyazla karıştırılıyor, yani ton kategoriden geliyor ama luminans yukarı
+/// çıkıyor. Koyu arka planın üstünde açık bir alan olarak ayrılıyor ve siyah
+/// buton metni büyüme boyunca okunur kalıyor — kontrast kilidinin (Görsel Sistem
+/// eki §3.4) buradaki karşılığı bu.
+///
 /// ## Haptik tek kademe kalır
 ///
 /// Ton eki §7: haptik tek seviyedir, `.soft`. Titreşim hissi stil değiştirerek
@@ -23,7 +42,7 @@ import SwiftUI
 /// VoiceOver ve Switch Control kullanıcısı "basılı tutma" jestini üretemez.
 /// Buton bu yüzden normal bir `Button` gibi de etkinleşir: yardımcı teknolojiden
 /// gelen etkinleştirme beklemeden çalışır. Reduce Motion'da büyüme yok, yerine
-/// dolgu ilerler — bekleme yine var, hareket yok.
+/// dolgu soldan sağa ilerler — bekleme yine var, ekranı yutan hareket yok.
 struct HoldToStartButton: View {
     let title: LocalizedStringResource
     /// Butonun altında duran tek satırlık kullanım ipucu. Jest görünmez olduğu
@@ -34,20 +53,31 @@ struct HoldToStartButton: View {
     /// Tetiklenme için gereken süre. 1.4 sn: kazayla tutulacak kadar kısa değil,
     /// beklerken sıkıcı olacak kadar uzun değil.
     private let holdDuration: TimeInterval = 1.4
-    /// Büyüme oranı. Daha fazlası butonu ekran kenarlarına taşırıyor.
-    private let maximumScale: CGFloat = 1.14
 
+    @Environment(PaletteController.self) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var progress: Double = 0
     @State private var isHolding = false
+    @State private var isCompleted = false
     @State private var holdTask: Task<Void, Never>?
+    /// Butonun ekrandaki yeri — büyüyen dolgunun ekran merkezine doğru
+    /// kaymasını hesaplamak için gerekiyor. Buton altta duruyor; olduğu yerde
+    /// büyüseydi üst köşeleri boş kalırdı.
+    @State private var buttonFrame: CGRect = .zero
 
     var body: some View {
         VStack(spacing: 10) {
             label
-                .scaleEffect(reduceMotion ? 1 : 1 + (maximumScale - 1) * progress)
-                .animation(.easeOut(duration: 0.28), value: progress == 0)
+                .background {
+                    GeometryReader { geo in
+                        Color.clear
+                            .onAppear { buttonFrame = geo.frame(in: .global) }
+                            .onChange(of: geo.frame(in: .global)) { _, new in
+                                buttonFrame = new
+                            }
+                    }
+                }
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { _ in beginHold() }
@@ -62,7 +92,7 @@ struct HoldToStartButton: View {
 
             Text(hint)
                 .font(.footnote.weight(Theme.Weight.emphasis))
-                .foregroundStyle(Theme.textPrimary.color.opacity(0.55))
+                .foregroundStyle(Theme.textPrimary.color.opacity(hintOpacity))
                 .accessibilityHidden(true)
         }
         .onDisappear { holdTask?.cancel() }
@@ -72,30 +102,111 @@ struct HoldToStartButton: View {
         Text(title)
             .font(.body.weight(Theme.Weight.action))
             .foregroundStyle(Color.black)
+            // Metin dolgu büyürken sahnede kalır ama sonda çekilir: ekranı
+            // kaplamış bir ışığın ortasındaki "Yola çık" yazısı, geçilmiş bir
+            // eşiği hâlâ bir buton gibi gösteriyordu.
+            .opacity(labelOpacity)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
-            .background {
-                ZStack {
-                    Capsule().fill(Theme.textPrimary.color)
-                    // Reduce Motion'da büyümenin yerini alan sinyal: mürekkep
-                    // soldan sağa doluyor, buton yerinde duruyor.
-                    if reduceMotion {
-                        GeometryReader { geo in
-                            Capsule()
-                                .fill(Color.black.opacity(0.14))
-                                .frame(width: geo.size.width * progress)
-                        }
-                    }
+            .background(alignment: .center) { fill }
+            .contentShape(Capsule())
+    }
+
+    /// Kapsülden ekranı kaplayan alana büyüyen dolgu.
+    ///
+    /// Parent kırpmıyor, bu yüzden şekil butonun çerçevesinin dışına taşabiliyor
+    /// ve ayrı bir tam ekran katmanına (overlay / fullScreenCover) gerek kalmıyor —
+    /// öyle olsaydı dolgu ile buton iki ayrı animasyon olurdu ve senkronu kayardı.
+    @ViewBuilder
+    private var fill: some View {
+        if reduceMotion {
+            ZStack {
+                Capsule().fill(gradient)
+                // Reduce Motion'da büyümenin yerini alan sinyal: mürekkep
+                // soldan sağa doluyor, buton yerinde duruyor.
+                GeometryReader { geo in
+                    Capsule()
+                        .fill(Color.black.opacity(0.14))
+                        .frame(width: geo.size.width * progress)
                 }
             }
             .clipShape(Capsule())
-            .contentShape(Capsule())
+        } else {
+            GeometryReader { geo in
+                let rest = geo.size
+                let expanded = expandedDiameter
+                let width = rest.width + (expanded - rest.width) * eased
+                let height = rest.height + (expanded - rest.height) * eased
+
+                RoundedRectangle(cornerRadius: height / 2, style: .continuous)
+                    .fill(gradient)
+                    .frame(width: width, height: height)
+                    .offset(y: centerOffset * eased)
+                    .position(x: rest.width / 2, y: rest.height / 2)
+            }
+        }
+    }
+
+    /// Paletin en parlak noktası kırık beyaza karıştırılıyor: ton kategoriden,
+    /// luminans metin renginden. Arka planla akraba, arka plandan ayrık.
+    private var gradient: LinearGradient {
+        let base = Theme.textPrimary
+        let accent = palette.current.spots.max(by: { $0.relativeLuminance < $1.relativeLuminance })
+            ?? Theme.textPrimary
+        return LinearGradient(
+            colors: [
+                base.mixed(with: accent, amount: 0.14).color,
+                base.mixed(with: accent, amount: 0.58).color,
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    // MARK: - Geometri
+
+    /// Ekranı her yönden kapatan çap. Buton ekranın altında olduğu için
+    /// köşegen yetmiyor: dolgu ekran merkezine kayarken bile en uzak köşeye
+    /// ulaşmak zorunda.
+    private var expandedDiameter: CGFloat {
+        let screen = HoldToStartButton.screenSize
+        return hypot(screen.width, screen.height) * 1.25
+    }
+
+    /// Butonun merkezinden ekranın merkezine olan dikey mesafe.
+    private var centerOffset: CGFloat {
+        guard buttonFrame != .zero else { return 0 }
+        return HoldToStartButton.screenSize.height / 2 - buttonFrame.midY
+    }
+
+    /// Büyüme baştan yavaş, sonda hızlı: doğrusal büyüme ilk yarısında ekranı
+    /// çoktan kaplıyor ve kalan bekleme boşa geçiyordu.
+    private var eased: CGFloat {
+        let p = CGFloat(progress)
+        return p * p
+    }
+
+    private var labelOpacity: Double {
+        guard !reduceMotion else { return 1 }
+        return progress < 0.72 ? 1 : max(0, 1 - (progress - 0.72) / 0.28)
+    }
+
+    private var hintOpacity: Double {
+        0.55 * max(0, 1 - progress * 2.2)
+    }
+
+    @MainActor
+    private static var screenSize: CGSize {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.screen.bounds.size
+            ?? CGSize(width: 430, height: 932)
     }
 
     // MARK: - Jest
 
     private func beginHold() {
-        guard !isHolding else { return }
+        guard !isHolding, !isCompleted else { return }
         isHolding = true
 
         holdTask = Task { @MainActor in
@@ -124,7 +235,7 @@ struct HoldToStartButton: View {
     private func cancelHold() {
         holdTask?.cancel()
         holdTask = nil
-        guard isHolding else { return }
+        guard isHolding, !isCompleted else { return }
         isHolding = false
 
         // Bırakınca aynı yoldan geri iner: büyüme ne kadar sürdüyse küçülme de
@@ -135,19 +246,26 @@ struct HoldToStartButton: View {
     }
 
     private func complete() {
+        guard !isCompleted else { return }
+        isCompleted = true
         holdTask?.cancel()
         holdTask = nil
         isHolding = false
         Theme.softHaptic(intensity: 1.0)
-        withAnimation(.spring(response: 0.30, dampingFraction: 0.72)) {
-            progress = 0
+        // Dolgu **geri inmiyor**: ekran kaplı hâlde kalıyor ve F2→G1 geçişi bu
+        // ışığın altında oluyor. Geri indirmek, kaplanan ekranı bir anda geri
+        // verip iki ekran arasında boşluk gösterirdi.
+        withAnimation(.easeOut(duration: 0.18)) {
+            progress = 1
         }
         action()
     }
 }
 
 #Preview {
-    ZStack {
+    @Previewable @State var palette = PaletteController()
+
+    return ZStack {
         BreathingMeshBackground(palette: Palette.all["sleep"]!, safeY: 0.80)
         VStack {
             Spacer()
@@ -159,5 +277,7 @@ struct HoldToStartButton: View {
             .padding(.bottom, 24)
         }
     }
+    .environment(palette)
     .preferredColorScheme(.dark)
+    .task { palette.select([.sleep]) }
 }

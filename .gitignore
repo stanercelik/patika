@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+**/xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Ortam degiskenleri — gercek anahtarlar asla depoya girmez.
+# Supabase secret'lari `supabase secrets set ...` ile sunucuda durur:
+# SUPABASE_SECRET_KEY, GEMINI_API_KEY, FAL_KEY, PATIKA_TTS_LIVE_ENABLED.
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/

@@ -47,6 +47,15 @@ struct OnboardingContainerView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        #if DEBUG
+        // Akışı ileri sarma — yalnızca DEBUG. Kabukta duruyor ki her adımdan
+        // erişilebilsin; ekranların hiçbiri bunu bilmiyor.
+        .overlay(alignment: .topTrailing) {
+            OnboardingDebugSkipButton(flow: flow)
+                .padding(.trailing, 4)
+        }
+        .task { flow.applyDebugLaunchStepIfNeeded() }
+        #endif
         .animation(Theme.Motion.crossFade, value: flow.step)
     }
 
@@ -103,6 +112,8 @@ struct OnboardingContainerView: View {
             RoadmapView(flow: flow)
         case .g1FirstSession:
             FirstSessionView(flow: flow)
+        case .g2SessionComplete:
+            SessionCompleteView(flow: flow)
         case .h1Account:
             AccountLinkView(flow: flow)
         case .crisis:

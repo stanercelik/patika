@@ -1,3 +1,4 @@
+import { maximumFor } from "./measurement.ts";
 export type GeneratePathRequest = {
   clientCrisisSignal: boolean;
   locale: string;
@@ -60,7 +61,7 @@ export function parseGeneratePathRequest(value: unknown): GeneratePathRequest {
   if (!responses || typeof responses !== "object" || Array.isArray(responses)) throw new Error("invalid_request");
   const measurementResponses: Record<string, number> = {};
   for (const [key, raw] of Object.entries(responses)) {
-    const maximum = key === "emotion.intensity" ? 10 : 4;
+    const maximum = maximumFor(key);
     if (!/^[a-z0-9._-]{1,80}$/i.test(key) || typeof raw !== "number" || raw < 0 || raw > maximum) {
       throw new Error("invalid_request");
     }

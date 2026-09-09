@@ -371,6 +371,55 @@ enum Copy {
         static let pickPointCTA: LocalizedStringResource = "Ölçekten bir yer seç"
     }
 
+    /// G1 — ilk oturum (PRD-Ek Onboarding §8). Sakin kademe: bu ekranda
+    /// kutlama, alkış ve "harika gidiyorsun" yok. Kullanıcı bir şey yapmıyor,
+    /// bir yerde duruyor.
+    enum Session {
+        static let preparing: LocalizedStringResource = "Başlıyoruz."
+        /// Sesin gelmesi bekleniyor. Gizlenmiyor ama özür de dilenmiyor.
+        static let audioPreparing: LocalizedStringResource = "Ses hazırlanıyor..."
+        /// Kullanıcının kendi cümlesinden hemen önce okunan çerçeve.
+        static let ownWordsFraming: LocalizedStringResource = "Kendi cümlelerinle şöyle demiştin:"
+        static let pause: LocalizedStringResource = "Duraklat"
+        static let resume: LocalizedStringResource = "Devam"
+        /// Oturumdan çıkış. "İptal" değil, "vazgeç" değil.
+        static let leave: LocalizedStringResource = "Burada duralım"
+
+        // MARK: G2 — Oturum sonu (PRD-Ek Onboarding §8)
+        //
+        // Kutlama şiddeti 1/5. Konfeti yok, rozet yok, "harika iş" yok.
+        // Söylenen şey yapılan şey: bir adım atıldı, yolun geri kalanı duruyor.
+
+        static let completedHeadline: LocalizedStringResource = "İlk adım tamam."
+        /// Yarıda bırakıldığında. **"Tamam" denmiyor** — olmayan bir şeyi
+        /// olmuş göstermek, ölçtüğünü iddia eden bir üründe ilk yalan olurdu.
+        /// Ama suçlama da yok: yarıda bırakmak bir hata değil.
+        static let leftEarlyHeadline: LocalizedStringResource = "Bugünlük burada bıraktık."
+
+        /// "Yolunda 20 adım daha var. Yarın 22:30'da buradayız."
+        static func completedBody(remaining: Int, time: String) -> LocalizedStringResource {
+            "Yolunda \(remaining) adım daha var. Yarın \(time)'da buradayız."
+        }
+
+        /// Yarıda bırakanda kalan adım sayısı **yazılmıyor**: bitirmemiş birine
+        /// "20 adım daha var" demek, kalan yolu bir borç gibi okutuyor.
+        static func leftEarlyBody(time: String) -> LocalizedStringResource {
+            "Kaldığın yer duruyor. Yarın \(time)'da buradayız."
+        }
+
+        static let completedCTA: LocalizedStringResource = "Devam"
+
+        /// Sunucudan içerik gelmediğinde. Jenerik ama dürüst — uydurma bir
+        /// kişiselleştirme cümlesi yazmaktansa sade bir açılış.
+        static let fallbackStepTitle: LocalizedStringResource = "İlk adım"
+        static let fallbackOpening: LocalizedStringResource = """
+            Şimdilik yapman gereken bir şey yok. Birkaç dakika burada duracağız.
+            """
+        static let fallbackClosing: LocalizedStringResource = """
+            Burada bırakıyoruz. Gözlerini açtığında acele etme.
+            """
+    }
+
     /// Her ölçüm ekranının altında sabit (PRD §8.1).
     static let clinicalDisclaimer: LocalizedStringResource =
         "Bu bir klinik değerlendirme değildir."

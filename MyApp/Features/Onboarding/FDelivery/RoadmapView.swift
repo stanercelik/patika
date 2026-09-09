@@ -25,7 +25,19 @@ import SwiftUI
 struct RoadmapView: View {
     let flow: OnboardingFlowViewModel
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Kendiliğinden inip çıkma görevi. Kullanıcı ekrana dokunduğu anda iptal
+    /// ediliyor: yürüyen bir kaydırmayı parmakla yakalamaya çalışmak, arayüzün
+    /// kullanıcıyla güreşmesi demek.
+    @State private var tour: Task<Void, Never>?
+
     private var rows: [PathPlan.Row] { PathPlan.rows(for: flow.pathLength) }
+
+    /// Kaydırma konumu. `ScrollViewReader` + `scrollTo(id:)` yerine bu:
+    /// bir kimliğe kaydırmak öğeyi görünür alanın kenarına yaslıyor ve dönüşte
+    /// listenin üst boşluğu kadar aşağıda kalıyordu. Kenara kaydırmak (`.top` /
+    /// `.bottom`) tam olarak içeriğin ucuna gidiyor.
+    @State private var scrollPosition = ScrollPosition()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -73,6 +85,14 @@ struct RoadmapView: View {
             }
             .scrollIndicators(.hidden)
             .scrollBounceBehavior(.basedOnSize)
+            // Dokunmak turu bitirir. `simultaneousGesture` çünkü kaydırmanın
+            // kendisi de çalışmaya devam etmeli — jest yakalanmıyor, dinleniyor.
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0).onChanged { _ in endTour() }
+            )
+            .scrollPosition($scrollPosition)
+            .task { await runTour() }
+            .onDisappear { endTour() }
 
             HoldToStartButton(
                 title: Copy.Button.start,
@@ -83,6 +103,48 @@ struct RoadmapView: View {
             .padding(.horizontal, Theme.Spacing.screenMargin)
             .padding(.bottom, 10)
         }
+    }
+
+    // MARK: - Haritayı bir kez gezdir
+    //
+    // Ürün sahibi kararı, 2026-09-09. Harita ekrana sığmıyor; alt satırların
+    // varlığını yalnızca kendiliğinden kaydıran kullanıcı görüyordu ve "21 günün
+    // tamamı burada" mesajı akışın zirvesinde kayboluyordu. Ekran bir kez aşağı
+    // inip geri çıkıyor — kaydırma çubuğu ya da "aşağı kaydır" oku yerine izin
+    // kendisi gösteriliyor.
+    //
+    // Tur **bilgilendirir, yönlendirmez**: CTA baştan beri basılabilir ve
+    // dokunmak turu bitirir.
+
+    private func runTour() async {
+        // Reduce Motion'da hiç çalışmaz. Kendiliğinden hareket eden bir ekran,
+        // bu ayarı açan kullanıcının tam olarak kapattığı şey (Ton eki §7).
+        guard !reduceMotion else { return }
+
+        tour = Task { @MainActor in
+            // Satırlar `listReveal` ile hâlâ beliriyorken kaydırmaya başlamak,
+            // iki hareketi üst üste bindiriyordu.
+            try? await Task.sleep(for: .seconds(Theme.Motion.roadmapTourLeadIn))
+            guard !Task.isCancelled else { return }
+
+            withAnimation(.easeInOut(duration: Theme.Motion.roadmapTourDown)) {
+                scrollPosition.scrollTo(edge: .bottom)
+            }
+            try? await Task.sleep(
+                for: .seconds(Theme.Motion.roadmapTourDown + Theme.Motion.roadmapTourHold)
+            )
+            guard !Task.isCancelled else { return }
+
+            withAnimation(.easeInOut(duration: Theme.Motion.roadmapTourUp)) {
+                scrollPosition.scrollTo(edge: .top)
+            }
+        }
+        await tour?.value
+    }
+
+    private func endTour() {
+        tour?.cancel()
+        tour = nil
     }
 
     // MARK: - Path kartı

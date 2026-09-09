@@ -98,6 +98,15 @@ struct OnboardingDraft: Equatable, Sendable {
         timing?.suggestedReminderHour ?? reminderHour
     }
 
+    /// Hatırlatma saatinin okunabilir hâli — "22:30".
+    ///
+    /// `DateFormatter` kullanılmıyor: burada biçimlendirilecek bir tarih yok,
+    /// iki tam sayı var. Saat 12'li/24'lü ayrımı için sistem biçimine geçmek
+    /// gerekirse tek yer burası.
+    var reminderTimeText: String {
+        String(format: "%02d:%02d", reminderHour, reminderMinute)
+    }
+
     /// B1 atlandıysa path üretimi jenerik şablona düşer (§10 kaçış tablosu).
     var hasOwnWords: Bool {
         !problemText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty

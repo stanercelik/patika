@@ -5,6 +5,13 @@ enum AppFailure: String, Sendable {
     case returningAuthentication
     case accountLink
     case pathGeneration
+    /// Ses üretimi ya da indirmesi. Oturumu durdurmaz — sessiz sürüme düşülür —
+    /// ama sessizce yutulmaz: TTS sağlayıcısı yapılandırılmadığı sürece bu
+    /// sayacın dolu olması beklenen durum.
+    case audioGeneration
+    /// Adım tamamlanma kaydı sunucuya yazılamadı. Oturumu etkilemez; profildeki
+    /// ilerleme eksik kalır.
+    case stepCompletion
     case profileSync
 }
 

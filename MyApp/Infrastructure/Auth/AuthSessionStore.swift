@@ -12,7 +12,13 @@ final class AuthSessionStore {
 
     init(client: any AuthClient) {
         self.client = client
-        Task { session = await client.restoredSession() }
+        Task {
+            let restored = await client.restoredSession()
+            // Geri yükleme asenkron: bu arada A1'de anonim oturum açılmış
+            // olabilir. Koşulsuz atama, yeni açılmış oturumu eski (ya da nil)
+            // olanla eziyordu.
+            if session == nil { session = restored }
+        }
     }
 
     func ensureAnonymousSession() async -> Bool {
@@ -32,12 +38,35 @@ final class AuthSessionStore {
         return await perform { try await client.link(provider: provider, session: session) }
     }
 
+    /// İstek anında geçerli olan erişim jetonu.
+    ///
+    /// Üç kurtarma katmanı var ve üçü de **anonim oturuma özgü**: anonim kullanıcı
+    /// kimlik bilgisi taşımadığı için oturumu kaybetmek onboarding'in ortasında
+    /// akışı kilitliyordu — F1'de "bir şeyler ters gitti" ekranının en olası
+    /// sebebi buydu.
+    ///
+    /// 1. Oturum hiç yoksa (uygulama silinip yeniden kurulmuş, keychain boş,
+    ///    A1 sırasında ağ yokmuş) yeni bir anonim oturum açılır.
+    /// 2. Jeton dolmuşsa yenilenir.
+    /// 3. Yenileme reddedilirse (refresh token döndürülmüş ya da kullanıcı
+    ///    sunucudan silinmiş) anonim oturum **yeniden** açılır. Bu yalnızca
+    ///    anonim oturumda güvenli: bağlantılı bir hesapta sessizce yeni kullanıcı
+    ///    yaratmak kullanıcının verisini görünmez kılardı, o yüzden orada hata
+    ///    yukarı taşınır.
     func validAccessToken() async throws -> String {
-        guard var session else { throw AuthClientError.invalidResponse }
-        if session.expiresAt.timeIntervalSinceNow <= 90 {
-            session = try await client.refreshedSession(session)
-            self.session = session
+        if session == nil {
+            _ = await perform { try await client.signInAnonymously() }
         }
+        guard var session else { throw AuthClientError.invalidResponse }
+        guard session.expiresAt.timeIntervalSinceNow <= 90 else { return session.accessToken }
+
+        do {
+            session = try await client.refreshedSession(session)
+        } catch {
+            guard session.isAnonymous else { throw error }
+            session = try await client.signInAnonymously()
+        }
+        self.session = session
         return session.accessToken
     }
 

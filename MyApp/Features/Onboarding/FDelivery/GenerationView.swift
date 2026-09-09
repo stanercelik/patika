@@ -59,6 +59,16 @@ struct GenerationView: View {
                     viewModel.retry()
                 }
                 .padding(.top, 12)
+
+                #if DEBUG
+                if let detail = viewModel.failureDetail {
+                    Text(verbatim: detail)
+                        .font(.caption2.monospaced())
+                        .foregroundStyle(Theme.textPrimary.color.opacity(0.45))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 10)
+                }
+                #endif
             }
 
             Spacer(minLength: 0)

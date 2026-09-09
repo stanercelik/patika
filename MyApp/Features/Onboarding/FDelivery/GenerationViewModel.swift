@@ -26,6 +26,10 @@ final class GenerationViewModel {
     /// Tamamlanan aşama sayısı. `stages.count`a ulaşınca ekran teslime geçer.
     private(set) var completedStages = 0
     private(set) var hasFailed = false
+    /// Hatanın teknik açıklaması. Kullanıcıya **gösterilmez** (`Copy.Error`
+    /// yeterli); DEBUG derlemede ekranda ve konsolda görünür, çünkü "bir şeyler
+    /// ters gitti" hata ayıklanabilir bir bilgi değil.
+    private(set) var failureDetail: String?
 
     let stages: [LocalizedStringResource] = Copy.Loading.steps
 
@@ -48,6 +52,7 @@ final class GenerationViewModel {
     func start() {
         guard task == nil else { return }
         hasFailed = false
+        failureDetail = nil
         task = Task { @MainActor in
             completedStages = 1
             do {
@@ -57,6 +62,9 @@ final class GenerationViewModel {
                 case .crisis:
                     flow.flagCrisis()
                 case .ready:
+                    // Ses üretimi burada başlar ve beklenmez (JIT, PRD-Ek Path
+                    // Üretimi §6): kullanıcı haritayı okurken ses üretiliyor.
+                    flow.prepareFirstStepAudio()
                     completedStages = stages.count
                     try? await Task.sleep(for: .seconds(0.45))
                     guard !Task.isCancelled else { return }
@@ -64,14 +72,20 @@ final class GenerationViewModel {
                 }
             } catch {
                 guard !Task.isCancelled else { return }
+                // İz son ulaştığı yerde kalır. Sıfıra dönmek, yapılmış işin
+                // kaybolduğunu söylerdi — oysa "yazdıkların kaybolmadı" diyoruz.
                 hasFailed = true
+                failureDetail = (error as? LocalizedError)?.errorDescription
+                    ?? String(describing: error)
                 task = nil
+                #if DEBUG
+                print("[patika] path üretimi başarısız: \(failureDetail ?? "?")")
+                #endif
             }
         }
     }
 
     func retry() {
-        completedStages = 0
         start()
     }
 
