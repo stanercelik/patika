@@ -210,7 +210,13 @@ final class FirstSessionViewModel {
                             index = 0
                             elapsedInSegment = 0
                         }
-                        await audio.play(playback: playback, title: stepTitle) {}
+                        // Uygulama oturumun ortasında kapandıysa oradan devam
+                        // eder; baştan başlamak kesintiyi ikinci kez yaşatıyordu.
+                        await audio.play(
+                            playback: playback,
+                            title: stepTitle,
+                            startingAt: SessionAudioPlayer.resumeOffset(for: playback.manifest.stepID)
+                        ) {}
                         return
                     }
                     if status == .failed || status == .pending { return }
