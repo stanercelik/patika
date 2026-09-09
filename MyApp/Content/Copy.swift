@@ -420,6 +420,11 @@ enum Copy {
         }
 
         static let completedCTA: LocalizedStringResource = "Devam"
+        static let reflectionHint: LocalizedStringResource = "Bunu yazmak sonraki adımın sana daha uygun hazırlanmasına yardımcı olur."
+        static let reflectionPlaceholder: LocalizedStringResource = "Kısaca yazabilirsin"
+        static let reflectionSave: LocalizedStringResource = "Bende kalsın"
+        static let reflectionSkip: LocalizedStringResource = "Şimdilik değil"
+        static let reflectionError: LocalizedStringResource = "Yazdığın kaybolmadı. Bağlantıyı kontrol edip yeniden deneyebilirsin."
 
         /// Sunucudan içerik gelmediğinde. Jenerik ama dürüst — uydurma bir
         /// kişiselleştirme cümlesi yazmaktansa sade bir açılış.

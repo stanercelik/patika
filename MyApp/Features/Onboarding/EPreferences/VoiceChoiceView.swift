@@ -133,9 +133,9 @@ final class VoiceChoiceViewModel {
     private var player: AVAudioPlayer?
     private var stopObserver: NSObjectProtocol?
 
-    init(flow: OnboardingFlowViewModel, locale: AppLocale = .current) {
+    init(flow: OnboardingFlowViewModel, locale: AppLocale? = nil) {
         self.flow = flow
-        self.locale = locale
+        self.locale = locale ?? .current
         self.selection = flow.draft.voicePreference
     }
 

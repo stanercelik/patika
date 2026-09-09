@@ -28,6 +28,7 @@ struct OnboardingContainerView: View {
                 palette: palette.current,
                 safeY: flow.step.backgroundSafeY,
                 breathAmplitude: breathAmplitude,
+                voiceEnergy: flow.sessionVoiceEnergy,
                 boostsFrameRate: palette.isTransitioning
             )
 

@@ -44,6 +44,9 @@ struct FirstSessionView: View {
         .padding(.horizontal, Theme.Spacing.screenMargin)
         .task { viewModel.start() }
         .onDisappear { viewModel.teardown() }
+        .onChange(of: viewModel.audio.audioEnergy) { _, energy in
+            flow.updateSessionVoiceEnergy(energy)
+        }
         // Oturum bitince (ya da "Burada duralım" denince) akış G2'ye geçer.
         // Kararı ViewModel veriyor, görünüm yalnızca haberi taşıyor.
         .onChange(of: viewModel.phase) { _, phase in

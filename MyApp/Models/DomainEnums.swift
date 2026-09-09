@@ -594,7 +594,7 @@ enum SessionLength: Int, CaseIterable, Codable, Sendable, Identifiable {
 ///
 /// ## Sağlayıcının `voice_id`si burada yok
 ///
-/// Bu enum ürünün kararını taşıyor ("kadın sesi"); hangi sağlayıcının hangi
+/// Bu enum ürünün teknik ses yuvasını taşır; hangi sağlayıcının hangi
 /// kimliği kullandığı sunucunun bilgisi. Sağlayıcı değişince kullanıcı
 /// satırlarının değişmesi gerekmemeli.
 enum VoicePreference: String, Codable, Sendable, CaseIterable, Identifiable {
@@ -604,8 +604,8 @@ enum VoicePreference: String, Codable, Sendable, CaseIterable, Identifiable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .feminine: "Kadın sesi"
-        case .masculine: "Erkek sesi"
+        case .feminine: "Ses A"
+        case .masculine: "Ses B"
         }
     }
 

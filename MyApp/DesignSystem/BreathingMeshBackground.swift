@@ -11,6 +11,9 @@ struct BreathingMeshBackground: View {
     var safeY: Float = 0.5
     /// Ekran grubuna göre nefes genliği — `BreathAmplitude`.
     var breathAmplitude: Double = BreathAmplitude.ambient
+    /// Yalnızca oturum sesinin 50 ms RMS zarfı. Konum etkisi 0.03, parlaklık
+    /// etkisi %4 ile sınırlıdır; temel hareket ses olmasa da sürer.
+    var voiceEnergy: Double = 0
     /// Karartma gücü, 0.35–0.55. Dynamic Type büyüdükçe artırılmalı (§5).
     var scrimStrength: Float = 0.45
     /// Palet/ruh hâli geçişi sürerken kare hızı geçici olarak yükselir.
@@ -29,11 +32,12 @@ struct BreathingMeshBackground: View {
                 TimelineView(.animation(minimumInterval: frameInterval, paused: isStatic)) { timeline in
                     let t = isStatic ? 0 : timeline.date.timeIntervalSinceReferenceDate * palette.speed
                     let breath = BreathCycle.value(at: t, amplitude: breathAmplitude)
+                    let reactivity = reduceMotion ? 0 : min(max(voiceEnergy, 0), 1)
 
                     MeshGradient(
                         width: 3,
                         height: 3,
-                        points: meshPoints(t: t, breath: breath),
+                        points: meshPoints(t: t, breath: breath, voiceEnergy: reactivity),
                         colors: meshColors(),
                         background: palette.background.color,
                         // İkisi de açıkça yazılır (karar #7): iOS 18'de opt-in,
@@ -50,6 +54,7 @@ struct BreathingMeshBackground: View {
                             .float(scrimStrength)
                         )
                     )
+                    .brightness(reactivity * 0.04)
                 }
                 .drawingGroup()  // tek Metal geçişinde birleştir
             }
@@ -101,8 +106,9 @@ struct BreathingMeshBackground: View {
     /// Genlikler buradan yükseltilecekse dikkat: nokta ne kadar uzağa giderse
     /// mesh o kadar bükülür ve gradyanın yumuşaklığı bozulur. 0.13 civarı pratik
     /// tavan.
-    private func meshPoints(t: TimeInterval, breath: Double) -> [SIMD2<Float>] {
+    private func meshPoints(t: TimeInterval, breath: Double, voiceEnergy: Double) -> [SIMD2<Float>] {
         let b = Float(breath)
+        let voiceLift = Float(min(voiceEnergy * 0.03, 0.03))
 
         // Ağırlıklar 0.62/0.38: baskın bir salınım ve onu sürekli kaydıran daha
         // hızlı ikinci bir salınım. İkisi eşit olsaydı hareket "iki ayrı şey"
@@ -124,7 +130,7 @@ struct BreathingMeshBackground: View {
 
             SIMD2(0.0, 0.5 + w4 * 0.09),
             // Merkez: iki eksende gezinir, üstüne nefes döngüsü biner.
-            SIMD2(0.5 + w1 * 0.115, 0.46 + w2 * 0.10 + b * 0.05),
+            SIMD2(0.5 + w1 * 0.115 + voiceLift * 0.35, 0.46 + w2 * 0.10 + b * 0.05 - voiceLift),
             SIMD2(1.0, 0.5 + w5 * 0.085),
 
             SIMD2(0.0, 1.0),

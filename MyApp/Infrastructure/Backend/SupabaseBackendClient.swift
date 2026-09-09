@@ -34,7 +34,7 @@ struct SupabaseBackendClient: BackendClient {
         guard payload.status == "ready", let id = payload.pathId, let title = payload.title,
               let steps = payload.steps, !steps.isEmpty
         else { throw BackendError.invalidResponse }
-        return .ready(GeneratedPath(id: id, title: title, steps: steps))
+        return .ready(GeneratedPath(id: id, kind: payload.kind ?? .personalized, title: title, steps: steps))
     }
 
     func hasCompletedOnboarding(accessToken: String) async throws -> Bool {
@@ -73,13 +73,13 @@ struct SupabaseBackendClient: BackendClient {
 
     func pathStep(pathId: UUID, day: Int, accessToken: String) async throws -> PathStepRecord {
         let query = "/rest/v1/path_steps"
-            + "?select=id,day,title,block_ids,slot_copy,audio_status"
+            + "?select=\(Self.stepColumns)"
             + "&path_id=eq.\(pathId.uuidString.lowercased())&day=eq.\(day)&limit=1"
         var request = authenticatedRequest(path: query, method: "GET", accessToken: accessToken)
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         let (data, response) = try await session.data(for: request)
         try validate(response, data)
-        guard let step = try JSONDecoder().decode([PathStepRecord].self, from: data).first else {
+        guard let step = try Self.decoder.decode([PathStepRecord].self, from: data).first else {
             throw BackendError.invalidResponse
         }
         return step
@@ -175,6 +175,128 @@ struct SupabaseBackendClient: BackendClient {
         return URL(string: "/storage/v1" + signed.signedURL, relativeTo: configuration.supabaseURL)?.absoluteURL
     }
 
+    func sessionPlayback(pathStepId: UUID, accessToken: String) async throws -> SessionPlayback? {
+        let query = "/rest/v1/session_manifests"
+            + "?select=manifest&path_step_id=eq.\(pathStepId.uuidString.lowercased())"
+            + "&order=version.desc&limit=1"
+        var request = authenticatedRequest(path: query, method: "GET", accessToken: accessToken)
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        let (data, response) = try await session.data(for: request)
+        try validate(response, data)
+        guard let manifest = try JSONDecoder().decode([ManifestRow].self, from: data).first?.manifest else {
+            return nil
+        }
+
+        var URLs: [UUID: URL] = [:]
+        for event in manifest.events {
+            guard case .speech(let speech) = event, URLs[speech.assetID] == nil else { continue }
+            switch speech.source {
+            case .block:
+                URLs[speech.assetID] = configuration.supabaseURL
+                    .appending(path: "/storage/v1/object/public/block_audio")
+                    .appending(path: speech.storagePath)
+            case .personal:
+                URLs[speech.assetID] = try await signedStorageURL(
+                    bucket: "private_audio",
+                    path: speech.storagePath,
+                    accessToken: accessToken
+                )
+            }
+        }
+        return SessionPlayback(manifest: manifest, assetURLs: URLs)
+    }
+
+    func completeStep(
+        pathStepId: UUID,
+        answer: String?,
+        skipped: Bool,
+        accessToken: String
+    ) async throws -> StepCompletionOutcome {
+        var request = authenticatedRequest(path: "/functions/v1/complete-step", method: "POST", accessToken: accessToken)
+        request.timeoutInterval = 30
+        request.httpBody = try JSONEncoder().encode(CompleteStepPayload(
+            pathStepId: pathStepId.uuidString.lowercased(),
+            answer: answer,
+            skipped: skipped
+        ))
+        let (data, response) = try await session.data(for: request)
+        try validate(response, data)
+        let payload = try JSONDecoder().decode(CompleteStepResponse.self, from: data)
+        if payload.crisis == true || payload.status == "crisis" { return .crisis }
+        guard payload.status == "completed" else { throw BackendError.invalidResponse }
+        return .completed(nextQueued: payload.nextStepStatus == "queued")
+    }
+
+    /// Aktif path ve adımları tek okumada.
+    ///
+    /// İki istek: path satırı ve adımlar. PostgREST gömme (`path_steps(...)`)
+    /// yapabiliyordu ama iki tabloyu tek satırda birleştirmek adımların
+    /// sıralamasını sunucu tarafına bırakıyordu; burada sıra istemcide,
+    /// `day` üzerinden kesin.
+    func activePath(accessToken: String) async throws -> ActivePath? {
+        let pathQuery = "/rest/v1/program_paths"
+            + "?select=id,kind,title&status=eq.active&order=created_at.desc&limit=1"
+        var pathRequest = authenticatedRequest(path: pathQuery, method: "GET", accessToken: accessToken)
+        pathRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        let (pathData, pathResponse) = try await session.data(for: pathRequest)
+        try validate(pathResponse, pathData)
+        guard let row = try Self.decoder.decode([ProgramPathRow].self, from: pathData).first else {
+            return nil
+        }
+
+        let stepQuery = "/rest/v1/path_steps"
+            + "?select=\(Self.stepColumns)"
+            + "&path_id=eq.\(row.id.uuidString.lowercased())&order=day.asc"
+        var stepRequest = authenticatedRequest(path: stepQuery, method: "GET", accessToken: accessToken)
+        stepRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        let (stepData, stepResponse) = try await session.data(for: stepRequest)
+        try validate(stepResponse, stepData)
+        let steps = try Self.decoder.decode([PathStepRecord].self, from: stepData)
+        return ActivePath(
+            id: row.id,
+            kind: row.kind ?? .personalized,
+            title: row.title,
+            steps: steps
+        )
+    }
+
+    private static let stepColumns =
+        "id,day,title,block_ids,slot_copy,audio_status,step_question,completed_at"
+
+    /// Postgres `timestamptz` bazen kesirli saniye taşıyor, bazen taşımıyor.
+    /// Tek biçime bağlı bir çözücü `completed_at`i sessizce düşürüyordu.
+    private static let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            let withFraction = ISO8601DateFormatter()
+            withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = withFraction.date(from: raw) { return date }
+            if let date = ISO8601DateFormatter().date(from: raw) { return date }
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "unsupported_timestamp"
+            ))
+        }
+        return decoder
+    }()
+
+    private func signedStorageURL(bucket: String, path: String, accessToken: String) async throws -> URL {
+        var signRequest = authenticatedRequest(
+            path: "/storage/v1/object/sign/\(bucket)/\(path)",
+            method: "POST",
+            accessToken: accessToken
+        )
+        signRequest.httpBody = try JSONEncoder().encode(["expiresIn": 3600])
+        let (signData, signResponse) = try await session.data(for: signRequest)
+        try validate(signResponse, signData)
+        let signed = try JSONDecoder().decode(SignedURLResponse.self, from: signData)
+        guard let URL = URL(string: "/storage/v1" + signed.signedURL, relativeTo: configuration.supabaseURL)?.absoluteURL else {
+            throw BackendError.invalidResponse
+        }
+        return URL
+    }
+
     private func authenticatedRequest(path: String, method: String, accessToken: String) -> URLRequest {
         var request = URLRequest(url: URL(string: path, relativeTo: configuration.supabaseURL)!.absoluteURL)
         request.httpMethod = method
@@ -200,6 +322,12 @@ struct SupabaseBackendClient: BackendClient {
 
 private struct PathIdentifier: Decodable {
     let id: UUID
+}
+
+private struct ProgramPathRow: Decodable {
+    let id: UUID
+    let kind: ProgramPathKind?
+    let title: String
 }
 
 private struct AudioStatusRow: Decodable {
@@ -271,6 +399,23 @@ private struct GeneratePathPayload: Encodable {
 private struct GeneratePathResponse: Decodable {
     let status: String
     let pathId: UUID?
+    let kind: ProgramPathKind?
     let title: String?
     let steps: [GeneratedPathStep]?
+}
+
+private struct ManifestRow: Decodable {
+    let manifest: SessionManifest
+}
+
+private struct CompleteStepPayload: Encodable {
+    let pathStepId: String
+    let answer: String?
+    let skipped: Bool
+}
+
+private struct CompleteStepResponse: Decodable {
+    let status: String
+    let nextStepStatus: String?
+    let crisis: Bool?
 }

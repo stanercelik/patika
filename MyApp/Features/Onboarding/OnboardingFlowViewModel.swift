@@ -171,6 +171,9 @@ final class OnboardingFlowViewModel {
     private(set) var firstStepId: UUID?
     /// G1 sonuna kadar dinlendi mi? G2'nin metnini bu belirliyor.
     private(set) var didCompleteFirstSession = false
+    /// Oturumdaki ses zarfı. Yalnızca dekoratif mesh bunu okur; analitiğe ve
+    /// kalıcı depoya gitmez.
+    private(set) var sessionVoiceEnergy: Double = 0
 
     init(
         palette: PaletteController,
@@ -490,7 +493,7 @@ final class OnboardingFlowViewModel {
                 )
                 firstStepId = step.id
                 guard step.audioStatus == .pending else { return }
-                _ = try await services.backend.requestAudio(
+                _ = try await services.backend.requestAudioWithRetry(
                     pathStepId: step.id,
                     accessToken: token,
                     idempotencyKey: UUID()
@@ -504,7 +507,7 @@ final class OnboardingFlowViewModel {
     func generatePath(idempotencyKey: UUID) async throws -> PathGenerationResult {
         let token = try await services.auth.validAccessToken()
         do {
-            let result = try await services.backend.generatePath(
+            let result = try await services.backend.generatePathWithReconciliation(
                 from: draft,
                 measurementVariant: measurementVariant,
                 accessToken: token,
@@ -542,11 +545,46 @@ final class OnboardingFlowViewModel {
     /// kaydını yalanlamak olurdu. Akış yine G2'ye gider — yarıda bırakmak bir
     /// hata değil ve cezası yok.
     func finishFirstSession(completed: Bool) {
+        sessionVoiceEnergy = 0
         didCompleteFirstSession = completed
-        if completed { markFirstStepCompleted() }
         // Geri dönülmez: oturum arkada kaldı.
         history.removeAll()
         step = .g2SessionComplete
+    }
+
+    var firstStepQuestion: String? {
+        guard didCompleteFirstSession, generatedPath?.kind == .personalized else { return nil }
+        return firstStep?.question
+    }
+
+    func completeFirstStep(answer: String?, skipped: Bool) async -> Bool {
+        guard didCompleteFirstSession, let stepId = firstStepId else { return true }
+        if let answer, CrisisClassifier.evaluate(answer).hasSignal {
+            flagCrisis()
+            return false
+        }
+        do {
+            let token = try await services.auth.validAccessToken()
+            switch try await services.backend.completeStep(
+                pathStepId: stepId,
+                answer: answer,
+                skipped: skipped,
+                accessToken: token
+            ) {
+            case .completed:
+                return true
+            case .crisis:
+                flagCrisis()
+                return false
+            }
+        } catch {
+            services.observability.capture(.stepCompletion)
+            return false
+        }
+    }
+
+    func updateSessionVoiceEnergy(_ value: Double) {
+        sessionVoiceEnergy = min(max(value, 0), 1)
     }
 
     /// G2'nin "Devam"ı.
@@ -558,24 +596,6 @@ final class OnboardingFlowViewModel {
     var remainingSteps: Int { max(0, pathLength.days - 1) }
 
     var reminderTimeText: String { draft.reminderTimeText }
-
-    /// Yazma **beklenmez**: G2 ağ cevabını bekleyip kullanıcıyı bekletmemeli.
-    /// Başarısız olursa ilerleme kaydı eksik kalır; oturumun kendisi etkilenmez.
-    private func markFirstStepCompleted() {
-        guard let stepId = firstStepId else { return }
-        Task { [services] in
-            do {
-                let token = try await services.auth.validAccessToken()
-                try await services.backend.markStepCompleted(
-                    pathStepId: stepId,
-                    at: .now,
-                    accessToken: token
-                )
-            } catch {
-                services.observability.capture(.stepCompletion)
-            }
-        }
-    }
 
     func linkAccount(_ provider: AuthProvider) async -> Bool {
         guard await services.auth.link(provider: provider) else {

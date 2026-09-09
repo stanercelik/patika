@@ -61,6 +61,15 @@ enum CrisisClassifier {
         // Plan / araç
         "ilaclarin hepsini",
         "yuksek yerden atla",
+        // English — the app defaults to English outside Turkish devices.
+        "suicide",
+        "kill myself",
+        "end my life",
+        "do not want to live",
+        "don't want to live",
+        "wish i were dead",
+        "hurt myself",
+        "self harm",
     ]
 
     static func evaluate(_ text: String) -> Result {

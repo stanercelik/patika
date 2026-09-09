@@ -141,6 +141,7 @@ final class FirstSessionViewModel {
         ticker?.cancel()
         audioTask?.cancel()
         audio.stop()
+        flow.updateSessionVoiceEnergy(0)
     }
 
     // MARK: - Zamanlayıcı
@@ -161,12 +162,8 @@ final class FirstSessionViewModel {
         }
     }
 
-    /// Açılış sahnesi sesi bekler: seslendirme sürerken metnin değişmesi,
-    /// kullanıcının duyduğu cümleyle ekrandakini ayırıyordu.
     private var currentSegmentDuration: TimeInterval {
-        guard let segment = currentSegment else { return 0 }
-        guard segment.kind == .opening, audio.isPlaying else { return segment.duration }
-        return max(segment.duration, audio.duration + 1.5)
+        currentSegment?.duration ?? 0
     }
 
     private func advance() {
@@ -203,11 +200,17 @@ final class FirstSessionViewModel {
                         accessToken: token
                     )
                     if status == .ready {
-                        guard let url = try await services.backend.signedAudioURL(
+                        guard let playback = try await services.backend.sessionPlayback(
                             pathStepId: stepId,
                             accessToken: token
                         ) else { return }
-                        await audio.play(url: url, title: stepTitle) {}
+                        let manifestSegments = Self.buildSegments(from: playback.manifest)
+                        if !manifestSegments.isEmpty {
+                            segments = manifestSegments
+                            index = 0
+                            elapsedInSegment = 0
+                        }
+                        await audio.play(playback: playback, title: stepTitle) {}
                         return
                     }
                     if status == .failed || status == .pending { return }
@@ -267,7 +270,8 @@ final class FirstSessionViewModel {
                 day: record.day,
                 title: record.title,
                 blockIds: record.blockIds,
-                slotCopy: record.slotCopy
+                slotCopy: record.slotCopy,
+                question: record.question
             )
         } catch {
             flow.services.observability.capture(.pathGeneration)
@@ -385,5 +389,37 @@ final class FirstSessionViewModel {
         }
 
         return opening + technique + closing
+    }
+
+    static func buildSegments(from manifest: SessionManifest) -> [SessionSegment] {
+        var lastText = ""
+        return manifest.events.enumerated().map { index, event in
+            switch event {
+            case .speech(let speech):
+                lastText = speech.text
+                let kind: SessionSegment.Kind = speech.source == .personal ? .bridge : .technique
+                return SessionSegment(
+                    id: "speech.\(speech.assetID.uuidString)",
+                    text: speech.text,
+                    kind: kind,
+                    duration: TimeInterval(speech.durationMilliseconds) / 1_000
+                )
+            case .gap(let milliseconds):
+                return SessionSegment(
+                    id: "gap.\(index)",
+                    text: lastText,
+                    kind: .bridge,
+                    duration: TimeInterval(milliseconds) / 1_000
+                )
+            case .silence(let silence):
+                if let displayText = silence.displayText { lastText = displayText }
+                return SessionSegment(
+                    id: "silence.\(index)",
+                    text: lastText,
+                    kind: .technique,
+                    duration: TimeInterval(silence.breaths) * BreathCycle.period
+                )
+            }
+        }
     }
 }

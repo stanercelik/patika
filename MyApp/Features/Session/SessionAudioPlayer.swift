@@ -3,95 +3,88 @@ import Foundation
 import MediaPlayer
 import Observation
 
-/// Oturum sesinin çalar tarafı — PRD §13 hibrit ses mimarisi.
-///
-/// ## Neden `AVAudioPlayer` değil `AVAudioEngine`
-///
-/// Bugün çalınan tek bir dosya var (1. adımın taze TTS açılışı) ve o kadarı için
-/// `AVAudioPlayer` yeterdi. Mimari yine de motor üzerine kuruluyor çünkü hedef
-/// yapı **iki kaynağı aynı anda** çalmak: oturumun ~%70'i önceden render edilmiş
-/// blok sesi, ~%30'u taze TTS (PRD §13.3). O yapıya sonradan geçmek, çalar
-/// tarafını baştan yazmak demek olurdu.
-///
-/// İki `AVAudioPlayerNode` tek bir `AVAudioMixerNode`a bağlı: `voice` taze
-/// seslendirme, `bed` önceden render edilmiş bloklar. `bed` şu an kullanılmıyor
-/// ama graf yerinde duruyor — sessizlik de TTS ile değil, istemcide zamanlamayla
-/// üretilecek (PRD §13.3), yani doğru yer burası.
-///
-/// ## Ses kimliği sabittir
-///
-/// Model ve voice ID sunucuda sabit (`providers.ts`). Değiştirmek tüm blok
-/// kütüphanesini yeniden render ettirir; bu yüzden istemci tarafında hiçbir ses
-/// parametresi yok.
 @Observable
 @MainActor
 final class SessionAudioPlayer {
     enum State: Equatable {
-        case idle
-        case loading
-        case playing
-        case paused
-        case finished
-        /// Ses yok ve **bu bir hata durumu değil**: TTS sağlayıcısı henüz
-        /// yapılandırılmamış olabilir. Oturum sessiz sürümde devam eder.
+        case idle, loading, playing, paused, finished
         case unavailable(reason: String)
     }
 
     private(set) var state: State = .idle
     private(set) var duration: TimeInterval = 0
+    private(set) var elapsed: TimeInterval = 0
+    private(set) var audioEnergy: Double = 0
 
     private let engine = AVAudioEngine()
     private let voice = AVAudioPlayerNode()
-    private let bed = AVAudioPlayerNode()
     private let mixer = AVAudioMixerNode()
-
     private var isGraphBuilt = false
+    private var files: [AVAudioFile] = []
+    private var completionTask: Task<Void, Never>?
+    private var envelope = SessionEnvelope()
     private var onFinish: (@MainActor () -> Void)?
-    private var nowPlayingTitle: String = ""
+    private var nowPlayingTitle = ""
 
     var isPlaying: Bool { state == .playing }
-    var hasAudio: Bool {
-        switch state {
-        case .playing, .paused, .finished: true
-        default: false
-        }
-    }
 
-    // MARK: - Yükleme
-
-    /// Uzak sesi indirir, grafa bağlar ve çalar.
-    ///
-    /// Hata **fırlatılmaz**: sesin gelmemesi oturumu durduran bir şey değil.
-    /// Çağıran taraf `state`e bakar; `.unavailable` sessiz sürüm demektir.
-    func play(url: URL, title: String, onFinish: @escaping @MainActor () -> Void) async {
+    func play(
+        playback: SessionPlayback,
+        title: String,
+        onFinish: @escaping @MainActor () -> Void
+    ) async {
+        stop(resetState: false)
         self.onFinish = onFinish
-        self.nowPlayingTitle = title
+        nowPlayingTitle = title
         state = .loading
 
         do {
-            let file = try await downloadedFile(from: url)
+            let timeline = SessionTimeline(manifest: playback.manifest)
+            var loaded: [UUID: AVAudioFile] = [:]
+            for event in playback.manifest.events {
+                guard case .speech(let speech) = event,
+                      loaded[speech.assetID] == nil,
+                      let URL = playback.assetURLs[speech.assetID]
+                else { continue }
+                loaded[speech.assetID] = try await downloadedFile(from: URL, assetID: speech.assetID)
+            }
+            guard let format = loaded.values.first?.processingFormat else {
+                throw BackendError.unavailable(status: -1, code: "audio_assets_missing")
+            }
+
             try configureSession()
-            buildGraph(format: file.processingFormat)
-            duration = Double(file.length) / file.processingFormat.sampleRate
+            buildGraph(format: format)
+            files = Array(loaded.values)
+            duration = timeline.duration
+            elapsed = 0
+
+            for entry in timeline.entries {
+                guard case .speech(let speech) = entry.event,
+                      let file = loaded[speech.assetID]
+                else { continue }
+                let start = AVAudioFramePosition((entry.start * format.sampleRate).rounded())
+                voice.scheduleFile(
+                    file,
+                    at: AVAudioTime(sampleTime: start, atRate: format.sampleRate),
+                    completionCallbackType: .dataConsumed
+                ) { _ in }
+            }
 
             if !engine.isRunning { try engine.start() }
-            voice.scheduleFile(file, at: nil) { [weak self] in
-                Task { @MainActor in self?.finish() }
-            }
+            voice.volume = 0.86
             voice.play()
             state = .playing
+            startCompletionClock()
             updateNowPlaying(rate: 1)
             configureRemoteCommands()
         } catch {
-            state = .unavailable(reason: (error as? LocalizedError)?.errorDescription
-                ?? String(describing: error))
+            state = .unavailable(reason: (error as? LocalizedError)?.errorDescription ?? String(describing: error))
         }
     }
 
     func pause() {
         guard state == .playing else { return }
         voice.pause()
-        bed.pause()
         engine.pause()
         state = .paused
         updateNowPlaying(rate: 0)
@@ -101,30 +94,28 @@ final class SessionAudioPlayer {
         guard state == .paused else { return }
         try? engine.start()
         voice.play()
-        bed.play()
         state = .playing
         updateNowPlaying(rate: 1)
     }
 
-    /// Oturumdan çıkılırken. Ses oturumu da bırakılır — meditasyon bitince
-    /// telefonun sesi uygulamanın elinde kalmamalı.
-    func stop() {
+    func stop() { stop(resetState: true) }
+
+    private func stop(resetState: Bool) {
+        completionTask?.cancel()
         voice.stop()
-        bed.stop()
         if engine.isRunning { engine.stop() }
+        files.removeAll()
+        elapsed = 0
+        audioEnergy = 0
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
         MPRemoteCommandCenter.shared().playCommand.removeTarget(nil)
         MPRemoteCommandCenter.shared().pauseCommand.removeTarget(nil)
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        if state != .finished { state = .idle }
+        if resetState, state != .finished { state = .idle }
     }
-
-    // MARK: - Kurulum
 
     private func configureSession() throws {
         let session = AVAudioSession.sharedInstance()
-        // `.playback`: sessize alma anahtarı meditasyonu susturmamalı ve
-        // uygulama arka plana gidince ses devam etmeli (PRD §13.3).
         try session.setCategory(.playback, mode: .spokenAudio, options: [])
         try session.setActive(true)
     }
@@ -132,49 +123,65 @@ final class SessionAudioPlayer {
     private func buildGraph(format: AVAudioFormat) {
         guard !isGraphBuilt else { return }
         engine.attach(voice)
-        engine.attach(bed)
         engine.attach(mixer)
         engine.connect(voice, to: mixer, format: format)
-        engine.connect(bed, to: mixer, format: format)
         engine.connect(mixer, to: engine.mainMixerNode, format: format)
+        mixer.outputVolume = 0.85
+        mixer.installTap(onBus: 0, bufferSize: 2_205, format: format) { [weak self] buffer, _ in
+            guard let samples = buffer.floatChannelData?.pointee else { return }
+            let count = Int(buffer.frameLength)
+            guard count > 0 else { return }
+            var sum: Float = 0
+            for index in 0..<count { sum += samples[index] * samples[index] }
+            let rms = sqrt(Double(sum) / Double(count))
+            let normalized = min(max(rms * 8, 0), 1)
+            Task { @MainActor [weak self] in self?.receiveEnergy(normalized) }
+        }
         engine.prepare()
         isGraphBuilt = true
     }
 
-    private func downloadedFile(from url: URL) async throws -> AVAudioFile {
-        let (temporaryURL, response) = try await URLSession.shared.download(from: url)
-        guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
-            throw BackendError.unavailable(
-                status: (response as? HTTPURLResponse)?.statusCode ?? -1,
-                code: "audio_download_failed"
-            )
+    private func receiveEnergy(_ target: Double) {
+        audioEnergy = envelope.advance(toward: target, delta: 0.05)
+    }
+
+    private func startCompletionClock() {
+        completionTask?.cancel()
+        completionTask = Task { @MainActor [weak self] in
+            while let self, self.elapsed < self.duration {
+                try? await Task.sleep(for: .milliseconds(50))
+                guard !Task.isCancelled else { return }
+                if self.state == .playing { self.elapsed += 0.05 }
+            }
+            guard let self, !Task.isCancelled else { return }
+            self.state = .finished
+            self.updateNowPlaying(rate: 0)
+            self.onFinish?()
         }
-        // İndirilen geçici dosya bu fonksiyon dönünce siliniyor; `AVAudioFile`
-        // dosyayı açık tuttuğu için kalıcı bir yere taşınması gerekiyor.
-        let destination = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
-            .appendingPathExtension(url.pathExtension.isEmpty ? "mp3" : url.pathExtension)
+    }
+
+    private func downloadedFile(from URL: URL, assetID: UUID) async throws -> AVAudioFile {
+        let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("PatikaAudio", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let destination = directory.appendingPathComponent(assetID.uuidString.lowercased()).appendingPathExtension("mp3")
+        if FileManager.default.fileExists(atPath: destination.path) { return try AVAudioFile(forReading: destination) }
+
+        let (temporaryURL, response) = try await URLSession.shared.download(from: URL)
+        guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
+            throw BackendError.unavailable(status: (response as? HTTPURLResponse)?.statusCode ?? -1, code: "audio_download_failed")
+        }
         try? FileManager.default.removeItem(at: destination)
         try FileManager.default.moveItem(at: temporaryURL, to: destination)
         return try AVAudioFile(forReading: destination)
     }
 
-    private func finish() {
-        guard state == .playing else { return }
-        state = .finished
-        updateNowPlaying(rate: 0)
-        onFinish?()
-    }
-
-    // MARK: - Kilit ekranı
-
     private func updateNowPlaying(rate: Double) {
-        // Başlık path adıdır, **sorun adı değil**: kilit ekranına bakan biri
-        // kullanıcının neyle uğraştığını öğrenmemeli (PRD §13.5 gizlilik).
         MPNowPlayingInfoCenter.default().nowPlayingInfo = [
             MPMediaItemPropertyTitle: nowPlayingTitle,
             MPMediaItemPropertyArtist: "Patika",
             MPMediaItemPropertyPlaybackDuration: duration,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: elapsed,
             MPNowPlayingInfoPropertyPlaybackRate: rate,
         ]
     }
@@ -191,8 +198,6 @@ final class SessionAudioPlayer {
             Task { @MainActor in self?.pause() }
             return .success
         }
-        // İleri/geri sarma yok: meditasyonun ortasından atlamak oturumun
-        // yapısını bozuyor ve kilit ekranında kazayla basılıyor.
         center.skipForwardCommand.isEnabled = false
         center.skipBackwardCommand.isEnabled = false
     }
