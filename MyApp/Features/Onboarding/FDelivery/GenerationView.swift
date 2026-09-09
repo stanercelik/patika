@@ -19,7 +19,7 @@ struct GenerationView: View {
 
     init(flow: OnboardingFlowViewModel) {
         self._viewModel = State(
-            initialValue: GenerationViewModel(onFinished: { flow.finishGeneration() })
+            initialValue: GenerationViewModel(flow: flow)
         )
     }
 
@@ -48,6 +48,18 @@ struct GenerationView: View {
                 }
             }
             .animation(Theme.Motion.crossFade, value: viewModel.completedStages)
+
+            if viewModel.hasFailed {
+                Text(Copy.Error.pathGenerationFailed)
+                    .font(.footnote.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textSecondary.color)
+                    .padding(.top, 18)
+
+                SecondaryTextButton(title: Copy.Button.retry) {
+                    viewModel.retry()
+                }
+                .padding(.top, 12)
+            }
 
             Spacer(minLength: 0)
         }

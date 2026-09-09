@@ -11,6 +11,8 @@ final class WelcomeViewModel {
     let headline: LocalizedStringResource = Copy.Onboarding.welcomeHeadline
     let body: LocalizedStringResource = Copy.Onboarding.welcomeBody
     let ctaTitle: LocalizedStringResource = Copy.Onboarding.welcomeCTA
+    private(set) var isWorking = false
+    var showsReturningAuth = false
 
     private let flow: OnboardingFlowViewModel
 
@@ -18,7 +20,14 @@ final class WelcomeViewModel {
         self.flow = flow
     }
 
-    func startTapped() {
-        flow.finishWelcome()
+    func startTapped() async {
+        guard !isWorking else { return }
+        isWorking = true
+        _ = await flow.finishWelcome()
+        isWorking = false
+    }
+
+    func returningTapped() {
+        showsReturningAuth = true
     }
 }

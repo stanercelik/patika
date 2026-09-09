@@ -25,18 +25,16 @@ import Observation
 final class GenerationViewModel {
     /// Tamamlanan aşama sayısı. `stages.count`a ulaşınca ekran teslime geçer.
     private(set) var completedStages = 0
+    private(set) var hasFailed = false
 
     let stages: [LocalizedStringResource] = Copy.Loading.steps
 
-    /// Aşama başına bekleme. Eşit değil: son aşama (ses üretimi) gerçekte de en
-    /// uzun süren adım.
-    private let durations: [TimeInterval] = [2.2, 2.6, 2.8, 3.4]
-
-    private let onFinished: () -> Void
+    private let flow: OnboardingFlowViewModel
+    private let idempotencyKey = UUID()
     private var task: Task<Void, Never>?
 
-    init(onFinished: @escaping () -> Void) {
-        self.onFinished = onFinished
+    init(flow: OnboardingFlowViewModel) {
+        self.flow = flow
     }
 
     func state(of index: Int) -> TrailNode {
@@ -49,18 +47,32 @@ final class GenerationViewModel {
 
     func start() {
         guard task == nil else { return }
+        hasFailed = false
         task = Task { @MainActor in
-            for index in stages.indices {
-                try? await Task.sleep(for: .seconds(durations[min(index, durations.count - 1)]))
+            completedStages = 1
+            do {
+                let result = try await flow.generatePath(idempotencyKey: idempotencyKey)
                 guard !Task.isCancelled else { return }
-                completedStages = index + 1
+                switch result {
+                case .crisis:
+                    flow.flagCrisis()
+                case .ready:
+                    completedStages = stages.count
+                    try? await Task.sleep(for: .seconds(0.45))
+                    guard !Task.isCancelled else { return }
+                    flow.finishGeneration()
+                }
+            } catch {
+                guard !Task.isCancelled else { return }
+                hasFailed = true
+                task = nil
             }
-            // Son satır işaretlendikten sonra kısa bir duruş: ekran biter bitmez
-            // kaymak, tamamlanmayı görmeye zaman bırakmıyor.
-            try? await Task.sleep(for: .seconds(0.7))
-            guard !Task.isCancelled else { return }
-            onFinished()
         }
+    }
+
+    func retry() {
+        completedStages = 0
+        start()
     }
 
     func cancel() {

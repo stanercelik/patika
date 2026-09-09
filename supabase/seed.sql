@@ -1,0 +1,2 @@
+-- Patika v1 blok kutuphanesi klinik/icerik incelemesi tamamlanmadan seed edilmez.
+-- Edge Function guvenli fallback'i yalnizca kodda onaylanmis block ID'lerini kullanir.

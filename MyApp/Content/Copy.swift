@@ -7,6 +7,30 @@ import Foundation
 /// yönetilmesi — bir kelime değişikliği için mağaza incelemesi beklenemez.
 enum Copy {
 
+    enum Auth {
+        static let returningLink: LocalizedStringResource = "Zaten hesabım var"
+        static let returningTitle: LocalizedStringResource = "Hesabına dön"
+        static let returningBody: LocalizedStringResource =
+            "Apple veya Google ile devam edebilirsin."
+        static let apple: LocalizedStringResource = "Apple ile devam et"
+        static let google: LocalizedStringResource = "Google ile devam et"
+        static let notNow: LocalizedStringResource = "Şimdilik değil"
+        static let linkTitle: LocalizedStringResource = "İlerlemeni kaydedelim mi?"
+        static let linkBody: LocalizedStringResource = """
+            Yolun ve ölçümlerin bu hesapta durur. Apple veya Google hesabını bağlarsan başka bir cihazdan geri dönebilirsin.
+            """
+        static let skipLink: LocalizedStringResource = "Şimdilik geç"
+        static let failed: LocalizedStringResource =
+            "Bağlantı kurulamadı. Bu senin yüzünden değil; cihazındaki ilerleme olduğu gibi duruyor."
+        static let sessionMissing: LocalizedStringResource =
+            "Oturum bulunamadı. Cihazındaki ilerleme kaybolmadı; yeniden deneyebilirsin."
+        static let identityAlreadyLinked: LocalizedStringResource =
+            "Bu hesap başka bir Patika yoluna bağlı. Buradaki ilerleme kaybolmadı."
+        static let noSavedPath: LocalizedStringResource =
+            "Bu hesapta tamamlanmış bir Patika yolu bulamadık. Buradaki ilerleme kaybolmadı."
+        static let working: LocalizedStringResource = "Bağlantı kuruluyor"
+    }
+
     /// Buton metinleri standart değil, ürüne özeldir (Ton eki §3.4).
     enum Button {
         /// "Başla" değil — metafor tutarlılığı.
@@ -93,6 +117,10 @@ enum Copy {
             21 gün sonra neyin değiştiğini birlikte görelim.
             """
         static let welcomeCTA: LocalizedStringResource = "Başlayalım"
+        static let firstSessionHeadline: LocalizedStringResource = "İlk adımın."
+        static let firstSessionBody: LocalizedStringResource =
+            "Şimdi birlikte kısa bir duruş yapacağız."
+        static let firstSessionComplete: LocalizedStringResource = "İlk adımı tamamla"
 
         // MARK: Kimlik — akışın girişi (PRD'de yok, ürün sahibi kararı)
 

@@ -12,9 +12,13 @@ struct OnboardingContainerView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var flow: OnboardingFlowViewModel
 
-    init(palette: PaletteController, onFinished: @escaping () -> Void) {
+    init(palette: PaletteController, services: AppServices, onFinished: @escaping () -> Void) {
         self._flow = State(
-            initialValue: OnboardingFlowViewModel(palette: palette, onFinished: onFinished)
+            initialValue: OnboardingFlowViewModel(
+                palette: palette,
+                services: services,
+                onFinished: onFinished
+            )
         )
     }
 
@@ -98,7 +102,9 @@ struct OnboardingContainerView: View {
         case .f2Roadmap:
             RoadmapView(flow: flow)
         case .g1FirstSession:
-            NotYetBuiltView(step: "G1 — İlk oturum")
+            FirstSessionView(flow: flow)
+        case .h1Account:
+            AccountLinkView(flow: flow)
         case .crisis:
             CrisisView()
         }

@@ -46,6 +46,8 @@ enum OnboardingStep: Equatable {
     case f2Roadmap
     // G — İlk değer / aha momenti · henüz yazılmadı
     case g1FirstSession
+    // H — hesap baglama. Bildirim izni sonraki uygulama diliminde eklenecek.
+    case h1Account
     // Kriz sinyali: akış buraya düşer ve devam etmez.
     case crisis
 
@@ -81,7 +83,7 @@ enum OnboardingStep: Equatable {
         case .e3Tone: 1.0
         case .a1Welcome, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
              .c4HonestExpectation, .d0MeasurementIntro, .f1Generation, .f2Roadmap,
-             .g1FirstSession, .crisis: nil
+             .g1FirstSession, .h1Account, .crisis: nil
         }
     }
 
@@ -93,7 +95,7 @@ enum OnboardingStep: Equatable {
     /// gerekirdi, ikisi de kullanıcıya açıklanamaz.
     var canGoBack: Bool {
         switch self {
-        case .a1Welcome, .f1Generation, .f2Roadmap, .g1FirstSession, .crisis: false
+        case .a1Welcome, .f1Generation, .f2Roadmap, .g1FirstSession, .h1Account, .crisis: false
         default: true
         }
     }
@@ -142,13 +144,19 @@ final class OnboardingFlowViewModel {
 
     /// Palet, kategori seçimiyle canlı değişir (Görsel Sistem eki §6.4).
     private let palette: PaletteController
+    private let services: AppServices
     /// Onboarding bittiğinde çağrılır.
     private let onFinished: () -> Void
 
     private var history: [OnboardingStep] = []
 
-    init(palette: PaletteController, onFinished: @escaping () -> Void = {}) {
+    init(
+        palette: PaletteController,
+        services: AppServices,
+        onFinished: @escaping () -> Void = {}
+    ) {
         self.palette = palette
+        self.services = services
         self.onFinished = onFinished
     }
 
@@ -168,8 +176,14 @@ final class OnboardingFlowViewModel {
 
     /// A1'de "Başlayalım" da "atla" da aynı yere gider — A2 atlanamaz, çünkü
     /// path tipi oradan belirlenir (PRD-Ek Onboarding §10 kaçış tablosu).
-    func finishWelcome() {
+    func finishWelcome() async -> Bool {
+        guard await services.auth.ensureAnonymousSession() else {
+            services.observability.capture(.anonymousAuthentication)
+            return false
+        }
+        services.observability.capture(.onboardingStarted)
         advance(to: .identityName)
+        return true
     }
 
     // MARK: - Kimlik
@@ -413,6 +427,26 @@ final class OnboardingFlowViewModel {
         advance(to: .f2Roadmap)
     }
 
+    func generatePath(idempotencyKey: UUID) async throws -> PathGenerationResult {
+        let token = try await services.auth.validAccessToken()
+        do {
+            let result = try await services.backend.generatePath(
+                from: draft,
+                measurementVariant: measurementVariant,
+                accessToken: token,
+                idempotencyKey: idempotencyKey
+            )
+            services.observability.capture(.pathGenerationFinished(
+                result: result == .crisis ? .crisis : .ready
+            ))
+            return result
+        } catch {
+            services.observability.capture(.pathGenerationFinished(result: .failed))
+            services.observability.capture(.pathGeneration)
+            throw error
+        }
+    }
+
     /// F2'nin "Yola çık"ı — basılı tutularak tetiklenir. Buradan sonrası G1:
     /// kullanıcı kayıt olmadan ilk oturumunu dinliyor (PRD-Ek Onboarding §8).
     ///
@@ -421,6 +455,21 @@ final class OnboardingFlowViewModel {
     func startFirstSession() {
         history.removeAll()
         step = .g1FirstSession
+    }
+
+    func finishFirstSession() {
+        advance(to: .h1Account)
+    }
+
+    func linkAccount(_ provider: AuthProvider) async -> Bool {
+        guard await services.auth.link(provider: provider) else {
+            services.observability.capture(.accountLinkFinished(provider: provider, succeeded: false))
+            services.observability.capture(.accountLink)
+            return false
+        }
+        services.observability.capture(.accountLinkFinished(provider: provider, succeeded: true))
+        await completeOnboarding()
+        return true
     }
 
     // MARK: - Güvenlik
@@ -432,7 +481,14 @@ final class OnboardingFlowViewModel {
         step = .crisis
     }
 
-    func completeOnboarding() {
+    func completeOnboarding() async {
+        if let token = try? await services.auth.validAccessToken() {
+            do {
+                try await services.backend.markOnboardingCompleted(accessToken: token)
+            } catch {
+                services.observability.capture(.profileSync)
+            }
+        }
         onFinished()
     }
 }
@@ -446,7 +502,7 @@ extension OnboardingFlowViewModel {
         draft: OnboardingDraft,
         palette: PaletteController
     ) -> OnboardingFlowViewModel {
-        let flow = OnboardingFlowViewModel(palette: palette)
+        let flow = OnboardingFlowViewModel(palette: palette, services: .live())
         flow.step = step
         flow.draft = draft
         return flow
