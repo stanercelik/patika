@@ -19,7 +19,10 @@ struct SupabaseBackendClient: BackendClient {
             url: configuration.supabaseURL.appending(path: "/functions/v1/generate-path")
         )
         request.httpMethod = "POST"
-        request.timeoutInterval = 30
+        // Path üretimi uzun bir iş: model 21 adımı yazıyor. 30 sn'de kesilen
+        // istek sunucuda tamamlanmaya devam ediyor, istemci ise hata gösterip
+        // kullanıcıyı aynı üretimi ikinci kez tetiklemeye itiyordu.
+        request.timeoutInterval = 90
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(configuration.supabasePublishableKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")

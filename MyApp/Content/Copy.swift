@@ -459,6 +459,19 @@ enum Copy {
         static let retry: LocalizedStringResource = "Yeniden dene"
         /// Adım bitti, ekran kapanıyor.
         static let doneCTA: LocalizedStringResource = "Kapat"
+        /// Sırası gelmemiş adım. **Ceza dili yok**: kapalı olan şey adımın
+        /// kendisi değil, bugün dinlenebilmesi.
+        static let lockedHint: LocalizedStringResource = "Sırası gelince açılacak."
+        static let lockedAccessibility: LocalizedStringResource = "Henüz açılmadı"
+        /// Tamamlanmış adım yeniden dinlenebilir — bitmiş bir şeyi tekrar
+        /// açmak bir şeyi geri almaz.
+        static let replayCTA: LocalizedStringResource = "Yeniden dinle"
+        static let completedNote: LocalizedStringResource = "Tamamlandı"
+        static let measurementNote: LocalizedStringResource = "Ölçüm günü"
+        /// Ölçüm gününün kartında, adımdan sonra ne olacağını önceden söyleyen
+        /// satır. Sürpriz bir anket, ölçümü bir tuzağa çevirirdi.
+        static let measurementNotice: LocalizedStringResource =
+            "Bu adımdan sonra kısa bir ölçüm var. İlk günkü cevaplarınla karşılaştırılacak."
     }
 
     /// Her ölçüm ekranının altında sabit (PRD §8.1).

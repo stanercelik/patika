@@ -63,9 +63,8 @@ struct TrailRow<Content: View>: View {
                 segment(isVisible: showsLineBelow)
             }
 
-            nodeShape
-                .frame(width: nodeSize, height: nodeSize)
-                .offset(y: nodeCenterOffset - nodeSize / 2)
+            TrailNodeDot(node: node)
+                .offset(y: nodeCenterOffset - TrailNodeDot.size(for: node) / 2)
         }
         .frame(width: railWidth)
         .accessibilityHidden(true)
@@ -78,7 +77,20 @@ struct TrailRow<Content: View>: View {
             .frame(maxWidth: .infinity)
     }
 
-    private var nodeSize: CGFloat {
+}
+
+/// İz üzerindeki düğümün kendisi.
+///
+/// `TrailRow`dan ayrı bir tip: "Yolum" sekmesi izi satır satır değil **tek
+/// parça** çiziyor (uçları solarak kesilsin diye) ama düğümler aynı olmak
+/// zorunda — iki ekranın aynı yolu iki farklı noktayla anlatması, metaforu
+/// ikiye bölerdi.
+struct TrailNodeDot: View {
+    let node: TrailNode
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    static func size(for node: TrailNode) -> CGFloat {
         switch node {
         case .milestone: 16
         case .active, .done: 13
@@ -86,12 +98,17 @@ struct TrailRow<Content: View>: View {
         }
     }
 
+    var body: some View {
+        shape
+            .frame(width: Self.size(for: node), height: Self.size(for: node))
+    }
+
     @ViewBuilder
-    private var nodeShape: some View {
+    private var shape: some View {
         switch node {
         case .pending:
             Circle()
-                .strokeBorder(Theme.textPrimary.color.opacity(0.30), lineWidth: lineWidth)
+                .strokeBorder(Theme.textPrimary.color.opacity(0.30), lineWidth: Theme.Line.border)
 
         case .active:
             // Nefes döngüsüyle aynı ritimde soluk alır: bekleyiş boyunca ekranda
@@ -104,7 +121,7 @@ struct TrailRow<Content: View>: View {
         case .milestone:
             ZStack {
                 Circle()
-                    .strokeBorder(Theme.textPrimary.color.opacity(0.45), lineWidth: lineWidth)
+                    .strokeBorder(Theme.textPrimary.color.opacity(0.45), lineWidth: Theme.Line.border)
                 Circle()
                     .fill(Theme.textPrimary.color.opacity(0.95))
                     .padding(5)

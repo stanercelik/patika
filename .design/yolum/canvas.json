@@ -1,0 +1,36 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Bugün hazır" },
+    { "file": "Devam.dc.html", "x": 470, "y": 0, "w": 390, "h": 844, "title": "Yarıda kalmış" },
+    { "file": "BugunTamam.dc.html", "x": 940, "y": 0, "w": 390, "h": 844, "title": "Bugünlük tamam" },
+    { "file": "OlcumGunu.dc.html", "x": 1410, "y": 0, "w": 390, "h": 844, "title": "Ölçüm günü" },
+    { "file": "YolTamam.dc.html", "x": 0, "y": 964, "w": 390, "h": 844, "title": "Yol tamamlandı" },
+    { "file": "BosVeHata.dc.html", "x": 470, "y": 964, "w": 820, "h": 844, "title": "Boş ve hata" },
+    { "file": "AX5.dc.html", "x": 1370, "y": 964, "w": 390, "h": 1180, "title": "AX5 · kaydırma açılmış" },
+    { "file": "Anatomi.dc.html", "x": 0, "y": 2264, "w": 980, "h": 1240, "title": "Anatomi ve kurallar" }
+  ],
+  "annotations": [
+    {
+      "id": "omurga",
+      "x": 0,
+      "y": -190,
+      "w": 430,
+      "text": "Omurga: üstte bugünün adımı, altında aynı iz devam ediyor.\n\nKart yolun üstündeki bir düğüm — ayrı bir kutu değil. Ray kartın solundan kesintisiz geçiyor, yani \"bugün\" yolun bir parçası, yolun önündeki bir pano değil."
+    },
+    {
+      "id": "gelecek",
+      "x": 1410,
+      "y": -190,
+      "w": 390,
+      "text": "Gelecek adımların başlıkları da okunuyor.\n\nKilit ikonu yok: ne aldığını görmek ürünün temel vaadi, merak tuzağı değil."
+    },
+    {
+      "id": "anatomi-not",
+      "x": 1060,
+      "y": 2264,
+      "w": 400,
+      "text": "Bu sayfa koda geçerken açacağım şema.\n\nEn altta bir açık soru var — \"Bugün\" etiketi mi, \"Sıradaki adım\" mı. Cevabını almadan kodu yazmıyorum."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

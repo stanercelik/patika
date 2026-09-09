@@ -31,14 +31,22 @@ Deno.serve(async (req) => {
 
     let plan: PathPlanDTO;
     let provider = "fallback";
+    // Üretimin neden yedeğe düştüğü **sessizce** yutulmamalı: yedek plan
+    // çalışan bir ürün gibi görünüyor ama her kullanıcıya aynı yolu veriyor,
+    // yani kişiselleştirme iddiası sessizce çürüyor. Sebep kısa bir kod olarak
+    // taşınıyor; kullanıcı metni ya da sağlayıcı gövdesi loglanmıyor.
+    let providerError: string | null = null;
     try {
       const generated = await generateWithGemini(input);
       plan = generated ?? fallbackPlan(input);
       provider = generated ? "gemini" : "fallback";
+      if (!generated) providerError = "ai_disabled";
     } catch (error) {
       if (error instanceof Error && error.message === "gemini_refusal") {
         return json({ status: "crisis" });
       }
+      providerError = error instanceof Error ? error.message.slice(0, 300) : "unknown";
+      console.error("path_generation_fallback", providerError);
       plan = fallbackPlan(input);
     }
 
@@ -118,7 +126,17 @@ Deno.serve(async (req) => {
       }),
     ]);
     if (writes.some(({ error }) => error)) throw new Error("database_write_failed");
-    return json({ status: "ready", pathId: path.id, kind: plan.kind, title: plan.title, steps: plan.steps });
+    return json({
+      status: "ready",
+      pathId: path.id,
+      kind: plan.kind,
+      title: plan.title,
+      steps: plan.steps,
+      provider,
+      ...(Deno.env.get("PATIKA_AI_DEBUG") === "true" && providerError
+        ? { providerError }
+        : {}),
+    });
   } catch (error) {
     const code = error instanceof Error ? error.message : "server_error";
     if (code === "unauthorized") return json({ code }, 401);

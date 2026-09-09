@@ -99,6 +99,59 @@ extension OnboardingStep {
     }
 }
 
+/// Onboarding'i atlayıp doğrudan uygulama kabuğunu açmak — **yalnızca DEBUG**.
+///
+/// "Yolum" sekmesi gerçek bir path olmadan hiçbir şey göstermiyor ve o path
+/// ancak onboarding'in sonunda üretiliyor. Ekran üzerinde çalışırken her
+/// denemede otuz üç ekran geçmek yerine burası aynı işi yapıyor: anonim
+/// kullanıcının path'i yoksa **gerçek** üretim çağrısını örnek taslakla atıyor,
+/// varsa olanı kullanıyor. Sahte veri üretilmiyor — ekranın gösterdiği her
+/// satır yine sunucudan geliyor.
+///
+/// `xcrun simctl launch booted <bundle-id> -patika-debug-step yolum`
+enum DebugDirectEntry {
+    static var opensRoot: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-patika-debug-step"),
+              arguments.index(after: index) < arguments.endIndex
+        else { return false }
+        return ["yolum", "root", "path"].contains(arguments[arguments.index(after: index)].lowercased())
+    }
+
+    /// `-patika-debug-expand 5` ile "Yolum" ekranı o adım açık başlar.
+    /// Açık satırın yanındakileri nasıl geri çektiğini simülatörde görmek
+    /// dokunmadan mümkün olmuyordu.
+    static var expandedDay: Int? {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-patika-debug-expand"),
+              arguments.index(after: index) < arguments.endIndex
+        else { return nil }
+        return Int(arguments[arguments.index(after: index)])
+    }
+
+    static func prepareIfNeeded(services: AppServices, palette: PaletteController) async {
+        guard opensRoot else { return }
+        let draft = OnboardingDraft.debugSample()
+        palette.select(draft.categories)
+        palette.setMood(draft.currentMood)
+        do {
+            let token = try await services.auth.validAccessToken()
+            if let existing = try await services.backend.activePath(accessToken: token),
+               !existing.steps.isEmpty {
+                return
+            }
+            _ = try await services.backend.generatePathWithReconciliation(
+                from: draft,
+                measurementVariant: .a,
+                accessToken: token,
+                idempotencyKey: UUID()
+            )
+        } catch {
+            services.observability.capture(.pathGeneration)
+        }
+    }
+}
+
 /// DEBUG derlemede kabuğun sağ üstünde duran ileri sarma düğmesi.
 ///
 /// Görünür bir düğme, gizli bir jest yerine bilinçli seçim: gizli jest üç ay

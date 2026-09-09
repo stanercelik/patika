@@ -44,6 +44,9 @@ enum Theme {
         static let progressTrack: CGFloat = 5
         /// Seçili kart kenarlığı.
         static let border: CGFloat = 2
+        /// "Yolum" sekmesindeki tek parça iz. `PathProgressBar`ın izinden ince:
+        /// o bir gösterge, bu bir zemin çizgisi.
+        static let trail: CGFloat = 2
     }
 
     /// Tüm animasyonlar 800 ms altı (Ton eki §7). Uzun animasyon = bekletme.
@@ -104,6 +107,14 @@ enum Theme {
         static let roadmapTourDown: Double = 1.50
         static let roadmapTourHold: Double = 0.55
         static let roadmapTourUp: Double = 1.20
+
+        /// "Yolum"da bir adımın açılıp kapanması.
+        ///
+        /// Yay, süre değil: açılan kartın yüksekliği içeriğe göre değişiyor ve
+        /// sabit süreli bir eğri kısa kartta tembel, uzun kartta aceleci
+        /// duruyordu. `dampingFraction` 0.86 — sekme yok, ama duruş yumuşak.
+        /// Toplam oturma süresi ~0.42 sn, 800 ms bütçesinin içinde.
+        static let pathExpand: Animation = .spring(response: 0.42, dampingFraction: 0.86)
 
         /// Liste hâlindeki öğeler için çok daha kısa aralık. C'nin 1.5 saniyesi
         /// okunacak cümleler içindi; yedi satırlık bir yol haritasında aynı ritim
