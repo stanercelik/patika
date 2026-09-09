@@ -1,0 +1,188 @@
+import SwiftUI
+
+/// F2 — Yolun hazır (PRD-Ek Onboarding §7.2 ve §7.3).
+///
+/// ## F2 ve F3 tek ekran
+///
+/// PRD bunları ayırıyordu: F2 özet kart, F3 kaydırınca açılan gerçek harita.
+/// **Birleştirildi** (ürün sahibi kararı, 2026-09-09): iki ekran da aynı şeyi
+/// gösteriyordu ve "kaydırınca haritaya geç" adımı, kullanıcının zaten gördüğü
+/// bir şeyi tekrar açması demekti. Harita doğrudan burada; ölçüm noktaları da
+/// üstünde işaretli.
+///
+/// ## Akışın zirvesi
+///
+/// Kullanıcı beş dakikadır soru cevaplıyor; karşılığını ilk kez burada görüyor.
+/// Üç şey aynı anda okunuyor: (a) somut bir plan var, (b) 7. günde bir karşılık
+/// noktası var, (c) fazların sırası rastgele değil.
+///
+/// ## Paywall yok — ve bu bir risk
+///
+/// İncelenen uygulamaların %22'si burada ödeme istiyor. Biz istemiyoruz: ürünün
+/// tüm iddiası "işe yaradığını gördükten sonra öde" ve onboarding'de para
+/// istemek bu iddiayı ilk beş dakikada çürütür (PRD-Ek Onboarding §7.3). Kabul
+/// edilen bedel ilk altı günün gelirsiz olması.
+struct RoadmapView: View {
+    let flow: OnboardingFlowViewModel
+
+    private var rows: [PathPlan.Row] { PathPlan.rows(for: flow.pathLength) }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    DisplayText(
+                        Copy.Onboarding.roadmapHeadline(name: flow.draft.displayName),
+                        size: 30
+                    )
+                    .listReveal(0)
+
+                    // Görsel başlıkla kartın arasında, ikisinden de belirgin bir
+                    // boşlukla ayrılmış: haritanın kendisi bir liste ve listeye
+                    // yapışık bir görsel onu satır gibi gösterirdi.
+                    OnboardingIllustration(name: "illustration-f2-path-ready", height: 208)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 20)
+                        .padding(.bottom, 22)
+                        .listReveal(2)
+
+                    pathCard
+                        .listReveal(4)
+                        // Üst boşluk görselden bağımsız: varlık eklenmediğinde
+                        // `OnboardingIllustration` hiç yer kaplamıyor ve kart
+                        // başlığa yapışıyordu.
+                        .padding(.top, 18)
+                        .padding(.bottom, 26)
+
+                    ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                        TrailRow(
+                            node: node(for: row),
+                            showsLineAbove: index > 0,
+                            showsLineBelow: index < rows.count - 1
+                        ) {
+                            rowContent(row)
+                                .padding(.bottom, 22)
+                        }
+                        .listReveal(6 + index)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, Theme.Spacing.screenMargin)
+                .padding(.top, 14)
+                .padding(.bottom, 24)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
+
+            HoldToStartButton(
+                title: Copy.Button.start,
+                hint: Copy.Onboarding.holdToStartHint
+            ) {
+                flow.startFirstSession()
+            }
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.bottom, 10)
+        }
+    }
+
+    // MARK: - Path kartı
+
+    private var pathCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(flow.pathTitle)
+                .font(.title3.weight(Theme.Weight.title))
+                .foregroundStyle(Theme.textPrimary.color)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(Copy.Onboarding.roadmapMeta(
+                steps: flow.pathLength.days,
+                minutes: flow.draft.sessionLength.minutes
+            ))
+            .font(.subheadline.weight(Theme.Weight.emphasis))
+            .foregroundStyle(Theme.textPrimary.color.opacity(0.62))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
+        .background {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color.white.opacity(0.07))
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Theme.textPrimary.color.opacity(0.16), lineWidth: Theme.Line.border)
+        }
+    }
+
+    // MARK: - Harita satırları
+
+    private func node(for row: PathPlan.Row) -> TrailNode {
+        switch row {
+        case .phase: .pending
+        case .measurement: .milestone
+        }
+    }
+
+    @ViewBuilder
+    private func rowContent(_ row: PathPlan.Row) -> some View {
+        switch row {
+        case .phase(let phase, let range):
+            rowText(
+                title: Copy.Onboarding.dayLabel(range),
+                subtitle: phase.label,
+                description: phase.roadmapDescription,
+                isMilestone: false
+            )
+
+        case .measurement(let day, let isFirst):
+            rowText(
+                title: Copy.Onboarding.dayLabel(day...day),
+                subtitle: isFirst
+                    ? Copy.Onboarding.roadmapFirstMeasurement
+                    : Copy.Onboarding.roadmapMeasurement,
+                description: Copy.Onboarding.roadmapMeasurementDescription,
+                isMilestone: true
+            )
+        }
+    }
+
+    /// Gün etiketi üstte ve küçük, faz adı altında ve iri: kullanıcı listeyi
+    /// tarihlerle değil, ne yapacağıyla okuyor.
+    private func rowText(
+        title: LocalizedStringResource,
+        subtitle: LocalizedStringResource,
+        description: LocalizedStringResource,
+        isMilestone: Bool
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title)
+                .font(.caption.weight(Theme.Weight.emphasis))
+                .foregroundStyle(Theme.textPrimary.color.opacity(0.50))
+
+            Text(subtitle)
+                .font(.body.weight(Theme.Weight.action))
+                .foregroundStyle(Theme.textPrimary.color.opacity(isMilestone ? 1.0 : 0.92))
+
+            Text(description)
+                .font(.subheadline.weight(Theme.Weight.body))
+                .foregroundStyle(Theme.textPrimary.color.opacity(0.58))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+#Preview {
+    OnboardingPreviewHost(
+        step: .f2Roadmap,
+        draft: {
+            var draft = OnboardingDraft()
+            draft.name = "Taner"
+            draft.categories = [.sleep]
+            draft.currentMood = .heavy
+            return draft
+        }()
+    ) { flow in
+        RoadmapView(flow: flow)
+    }
+}

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+ <g id="Patika_A1" fill="none">
+  <path id="Path_Line" d="M 110,400 C 110,365 180,365 180,330 C 180,295 115,285 115,250 C 115,215 195,210 195,175 C 195,140 245,140 245,105" stroke="#F2EFE9" stroke-width="2.5" stroke-linecap="round"/>
+  <g id="Steps" fill="#F2EFE9">
+   <circle id="Step_01" cx="110" cy="400" r="6"/>
+   <circle id="Step_02" cx="180" cy="330" r="6"/>
+   <circle id="Step_03" cx="115" cy="250" r="6"/>
+   <circle id="Step_04" cx="195" cy="175" r="6"/>
+   <circle id="Step_05" cx="245" cy="105" r="6"/>
+  </g>
+  <rect id="Bar_Before" x="320" y="180" width="14" height="110" rx="7" fill="#F2EFE9" opacity="0.35"/>
+  <rect id="Bar_After" x="354" y="230" width="14" height="60" rx="7" fill="#F2EFE9"/>
+ </g>
+</svg>

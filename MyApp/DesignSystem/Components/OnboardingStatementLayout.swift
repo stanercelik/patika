@@ -1,0 +1,77 @@
+import SwiftUI
+
+/// C bölümünün ortak iskeleti: soru sormayan, anlatan ekranlar.
+///
+/// Soru iskeletiyle (`OnboardingQuestionLayout`) aynı kaydırma + alt bölge yapısını
+/// kullanır ki B6'dan C1'e geçerken CTA aynı yükseklikte kalsın. Fark yalnızca
+/// içerikte: burada cevap alanı yok, paragraf var.
+///
+/// Alt bölgede tek bir CTA var ve ayrı bir "geç" bağlantısı yok — C ekranlarında
+/// CTA zaten hızlı yol, ikinci bir çıkış eklemek "burada okunacak bir şey yok"
+/// demek olurdu.
+struct OnboardingStatementLayout<Content: View>: View {
+    private let headline: LocalizedStringResource
+    private let content: Content
+    private let ctaTitle: LocalizedStringResource
+    private let action: () -> Void
+
+    init(
+        headline: LocalizedStringResource,
+        ctaTitle: LocalizedStringResource = Copy.Button.next,
+        action: @escaping () -> Void,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.headline = headline
+        self.ctaTitle = ctaTitle
+        self.action = action
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    DisplayText(headline, size: 30)
+                        .sequentialReveal(0)
+                    content
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, Theme.Spacing.screenMargin)
+                .padding(.top, 14)
+                .padding(.bottom, 16)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
+
+            OnboardingQuestionFooter(
+                primaryTitle: ctaTitle,
+                primaryAction: action
+            )
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.bottom, 12)
+        }
+    }
+}
+
+/// C ekranlarının paragrafı. `BodyText`ten farkı: içine vurgu alabilmesi için
+/// `AttributedString` kabul etmesi ve birincil mürekkeple yazılması — bu
+/// ekranlarda paragraf ikincil bir açıklama değil, ekranın kendisi.
+struct StatementParagraph: View {
+    private let text: AttributedString
+
+    init(_ text: AttributedString) {
+        self.text = text
+    }
+
+    init(_ text: LocalizedStringResource) {
+        self.text = AttributedString(localized: text)
+    }
+
+    var body: some View {
+        Text(text)
+            .font(.body.weight(Theme.Weight.body))
+            .foregroundStyle(Theme.textPrimary.color.opacity(0.92))
+            .lineSpacing(5)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
