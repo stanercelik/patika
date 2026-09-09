@@ -47,8 +47,8 @@
             <div style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid rgba(242,239,233,0.30);"></div>
           </div>
           <div>
-            <p style="margin: 0; font-size: 16px; font-weight: 600;">Gelecek adım</p>
-            <p style="margin: 3px 0 0 0; font-size: 14px; color: #AEACA8;">Boş halka. <span style="color:#F2EFE9">Kilit ikonu yok</span> — başlığı da okunuyor; ne aldığını görmek ürünün vaadi.</p>
+            <p style="margin: 0; font-size: 16px; font-weight: 600;">Gelecek adım · kilitli</p>
+            <p style="margin: 3px 0 0 0; font-size: 14px; color: #AEACA8;">Boş halka + küçük asma kilit. Başlığı <span style="color:#F2EFE9">yine de okunuyor</span>; kapalı olan adımın kendisi değil, bugün dinlenebilmesi. Açıldığında buton yerine tek cümle: "Sırası gelince açılacak."</p>
           </div>
         </div>
 
@@ -88,7 +88,7 @@
       <p style="font-size: 15px; line-height: 1.6; color: #AEACA8; margin: 0;">Ahead, Duolingo, Liven ve Alan'ın hepsinde aynı mekân fikri var; hepsinde aynı zamanda burada yasak olan katman da var. Alınan: <span style="color:#F2EFE9">yukarıdan aşağı inen tek iz ve üstünde bulunduğun nokta</span>. Alınmayanlar:</p>
       <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px; font-size: 15px; color: #AEACA8;">
         <p style="margin:0;">— Seri ateşi, gün sayacı, yüzde göstergesi</p>
-        <p style="margin:0;">— Kilit ikonu ve "açılmamış seviye" dili</p>
+        <p style="margin:0;">— "Açılmamış seviye" dili, ödül olarak açılan içerik</p>
         <p style="margin:0;">— Ödül, kupa, rozet, sandık, maskot</p>
         <p style="margin:0;">— Kaçırılan günün görünür bir izi</p>
         <p style="margin:0;">— Sıralama, karşılaştırma, "diğer kullanıcılar"</p>
@@ -99,7 +99,8 @@
       <p style="font-size: 12px; font-weight: 700; letter-spacing: 1.2px; color: rgba(242,239,233,0.45); margin: 0 0 16px 0;">DAVRANIŞ</p>
       <div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: #AEACA8; line-height: 1.5;">
         <p style="margin:0;"><span style="color:#F2EFE9; font-weight:600;">Açılış konumu.</span> Ekran sıradaki adımda açılır; geçmiş adımlar yukarıda durur, aşağı değil.</p>
-        <p style="margin:0;"><span style="color:#F2EFE9; font-weight:600;">Satırların belirmesi.</span> listReveal, 0.11 sn aralık — C bölümünün 1.5 sn'lik okuma temposu değil.</p>
+        <p style="margin:0;"><span style="color:#F2EFE9; font-weight:600;">Açılma.</span> Bir satıra dokunmak onu kart yapar, diğerleri %72 opaklığa iner ve %98'e küçülür. Tek yay: response 0.42, damping 0.86 — iki ayrı eğri aynı anda çalışınca kayma hissi veriyordu.</p>
+        <p style="margin:0;"><span style="color:#F2EFE9; font-weight:600;">İzin uçları.</span> Liste görüntü alanının üstünde ve altında gradyanla soluyor; kesilen çizgi yolun orada bittiğini söylüyordu.</p>
         <p style="margin:0;"><span style="color:#F2EFE9; font-weight:600;">Reduce Motion.</span> Nefes eden düğüm sabit kalır, arka planın akışı durur, satırlar aralıksız belirir.</p>
         <p style="margin:0;"><span style="color:#F2EFE9; font-weight:600;">VoiceOver.</span> Her satır tek öğe: "4. adım, Düşünceyi tutmadan geçirmek" — düğüm ayrı okunmaz.</p>
         <p style="margin:0;"><span style="color:#F2EFE9; font-weight:600;">Ödeme.</span> Yolda hiç görünmez. Paywall PRD'deki yerinde, 7. gün ölçümünden sonra.</p>
@@ -109,7 +110,7 @@
 
   <div style="margin-top: 40px; border: 1px solid rgba(242,239,233,0.18); border-radius: 16px; padding: 22px 24px;">
     <p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 1.2px; color: rgba(242,239,233,0.55);">AÇIK SORU — KODA GEÇMEDEN ÖNCE</p>
-    <p style="margin: 12px 0 0 0; font-size: 16px; line-height: 1.55; color: #AEACA8;">Kartın üstünde "<span style="color:#F2EFE9">Bugün · 3. adım</span>" yazıyor, ama uygulamada bir adımın hangi güne ait olduğu tutulmuyor: sıradaki adım yalnızca "tamamlanmamış ilk adım". İki gün ara veren kullanıcıya da "Bugün" demek teknik olarak doğru ama duygusal olarak borç okutabilir. İki seçenek var: etiketi <span style="color:#F2EFE9">"Sıradaki adım"</span> yapmak (her durumda dürüst), ya da adımlara gerçek bir tarih bağlamak (bildirim zaten günlük). Kararı vermeden koda geçmiyorum.</p>
+    <p style="margin: 12px 0 0 0; font-size: 16px; line-height: 1.55; color: #AEACA8;"><span style="color:#F2EFE9">Çözüldü — uygulanan sürümde "Bugün" yazmıyor.</span> Uygulamada bir adımın hangi güne ait olduğu tutulmuyor; sıradaki adım yalnızca "tamamlanmamış ilk adım". İki gün ara veren birine "Bugün" demek kalan yolu borç gibi okutabilirdi, o yüzden etiket sadece "<span style="color:#F2EFE9">3. adım</span>". Adımlara gerçek tarih bağlanırsa (bildirim zaten günlük) bu yeniden açılabilir.</p>
   </div>
 
 </div>
