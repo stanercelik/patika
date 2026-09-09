@@ -292,7 +292,21 @@ Kullanıcı girdisi → sınıflandırma → **kriz kontrolü (bloklayıcı)** �
 ### Hibrit ses mimarisi (marjın tamamı buna bağlı)
 Oturumun ~%70'i önceden render edilmiş blok sesi; sadece açılış ve kişiselleştirilmiş 2–3 dakika taze TTS. Sessizlik TTS ile üretilmez, istemcide `scheduleBuffer` ile enjekte edilir. Naif yaklaşım path başına €3–10, hibrit €0.75–1.15. `AVAudioEngine` + iki `AVAudioPlayerNode` → `AVAudioMixerNode`; `.playback` kategorisi + `UIBackgroundModes: audio`; `MPNowPlayingInfoCenter`/`MPRemoteCommandCenter`. Ses modeli/voice ID **sabittir** — değiştirmek tüm kütüphaneyi yeniden render ettirir.
 
-Bunun doğrudan sonucu: **hazır blokları kaliteli, taze slotları hızlı modelle üretmek yapılamaz** — iki model arasındaki dikiş duyulur ve tam da aha momentinde duyulur. v1 tercihi `eleven_multilingual_v2`; gecikme bizde sorun değil (üretim F1'de asenkron), o yüzden flash/turbo ailesinin kalite ödünü karşılıksız kalır. Ayrıntı ve ses ayarları path üretimi ekinde §5.
+Bunun doğrudan sonucu: **hazır blokları kaliteli, taze slotları hızlı modelle üretmek yapılamaz** — iki model arasındaki dikiş duyulur ve tam da aha momentinde duyulur. 2026-09-09 ürün sahibi kararıyla sabit ve kişisel konuşmanın ikisi de doğrudan ElevenLabs EU uç noktasında `eleven_v3` kullanır; gecikme JIT kuyrukla gizlenir, flash/turbo ailesi kullanılmaz. Audio tag'ler LLM'in serbest metni değildir: sunucudaki sürümlü allowlist yalnızca dinleme testinden geçen belgelenmiş etiketleri semantik prosody rollerine eşler. SSML sessizliği yoktur; sessizlik istemci zaman çizelgesindedir.
+
+### Uyarlanabilir TTS oturum motoru — onaylı tasarım (2026-09-09)
+
+Kaynak sözleşme: `docs/superpowers/specs/2026-09-09-adaptive-tts-session-engine-design.md`.
+
+- `program_paths.kind` iki değerdir: `personalized` ve `prepared`. Onboarding path'i `personalized`dır.
+- Oturum sonu kişisel soru, şifreli cevap ve cevabın N+1 çerçevesini değiştirmesi **yalnızca kişiselleştirilmiş path'te** vardır. Hazır path'te istemci soruyu çizmez, sunucu cevap/personalization isteğini kabul etmez ve Gemini ya da kişisel TTS çağırmaz.
+- F1 bütün path'in hafif iskeletini ve yalnızca ilk oturumu hazırlar. N oynarken N+1'in sabit gövdesi hazırlanır; G2 cevabından sonra yalnızca kısa kişisel çerçeve üretilir.
+- Ses üretimi mobil isteği açık tutan dört senkron çağrı değildir. Kalıcı job + Supabase PGMQ kuyruğu, görünürlük süresi, aynı rendition hash ile kısmi devam ve idempotent reconciliation kullanır.
+- E4 soyut sıfat veya cinsiyet sormaz: `Ses A` / `Ses B` gerçek örneğini dinletir, önceden seçim yoktur. İki ses × TR/EN dört örnek oturumla aynı ayarlardan üretilip pakete gömülür.
+- Dil cihaz dili Türkçe veya bölge TR ise Türkçe, aksi hâlde İngilizcedir. Yeni path/session dilimi arayüz, ekrandaki cue ve TTS'te aynı locale'i kullanır.
+- Kişiselleştirme maliyet politikası: ilk oturum daha yoğun; devamında B+ (açılış + en fazla bir köprü + kapanış). Teknik gövde sabit ve amortizedir.
+- `AVAudioEngine` manifest sırasını çalar; bağlı konuşmalar arası 250–350 ms, gerçek sessizlik yalnızca kullanıcı bir şey yapıyorsa. Ses enerjisi 50 ms RMS, 80 ms attack / 450 ms release ile yumuşatılır ve mesh'e en fazla 0.03 konum / %4 parlaklık ekler. Taban hareketi durmaz; Reduce Motion'da ses tepkisi kapanır.
+- İngilizce bloklar mühendislik tarafından `reviewed_at = null` taslak olarak eklenebilir; insan incelemesi olmadan yayına hazır sayılmaz.
 
 ### Ölçüm skorlaması yazıldı — `MeasurementScoring`
 
