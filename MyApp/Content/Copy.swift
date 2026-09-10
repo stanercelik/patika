@@ -443,6 +443,8 @@ enum Copy {
     /// "streak" yok, kaçırılan gün için tek kelime yok — kaçırılan gün hiçbir
     /// şeyi geri almıyor (Değiştirilemez kurallar: gamification yasağı).
     enum Path {
+        static let screenTitle: LocalizedStringResource = "Yolum"
+        static let readyNote: LocalizedStringResource = "Bugünün adımı hazır."
         static let loading: LocalizedStringResource = "Yolun açılıyor."
         /// Adım satırının başlığı. Sayaç değil, adımın kendi adı yanında duran
         /// sade bir işaret.

@@ -786,6 +786,7 @@ Rozetin ortasında path'in öncesi/sonrası yüzdesi için metin slotu
 | 26 | **C4 raster yerine iki fazlı native süreç grafiği kullanır** | Soyut ufuk illüstrasyonu | Önce dalgalanıp aşağıda biten diğer uygulamalar, sonra 8. güne kadar sakin ve ardından ivmelenen Patika doğrudan okunur. Sayısal Y ekseni yoktur; grafik sonuç vaadi değildir |
 | 27 | **F2 ve onboarding sonrası Yolum ortak kıvrımlı `JourneyMapRow` kullanır** | Düz liste / raster harita | Gerçek kişisel adımlar aynı rotada görünür; sıradaki adım belirgin, gelecek başlıklar kilitli ama okunabilir kalır. Native Shape çizimi raster varlık istemez ve 60 Hz hareket bütçesini korur |
 | 28 | **Kişisel İz faz ritmi deterministik, tamamlanma geri bildirimi sunucu kaynaklıdır** | Rastgele kıvrım / süre dolunca yerel kutlama | Faz eşikleri gerçek `PathPlan` günlerinden türetilir; aynı path her açılışta aynı izi verir. Düğüm ancak yenilenen kayıtta `completed_at` görüldüğünde onaya dönüşür; böylece harita hem kişisel hem dürüst kalır |
+| 29 | **Onboarding sonrası Yolum tek parça rota ve faza bağlı heykelsi boşluk görselleri kullanır** | Kesikli gelecek rota / her fazda çizgi aralığı / rastgele stok görsel | Günlük ekranda yolun devamlılığı önceliklidir: gelecek iz soluk ama düzdür, faz etiketi kenara alınır. Üç kırık beyaz şerit görseli yalnızca gerçek `PathPhase` üzerinden seçilir; kişiselleştirme korunurken hassas metin görselleştirilmez |
 
 ---
 
@@ -1137,7 +1138,23 @@ doğrudan tamamlanmış, aktif düğüm statik gösterilir; dekoratif çizgi ve 
 VoiceOver'dan gizlidir.
 
 Fazların yatay ritmi `PathPlan.phase` + `JourneyRouteLayout` ile deterministiktir;
-rastgelelik kullanılmaz. Faz değişiminde çizgide gerçek bir aralık ve aralığın
-üstünde küçük bir faz etiketi vardır. AX Dynamic Type'ta aynı anlam düz sol ray
+rastgelelik kullanılmaz. F2'de faz değişimi kısa çizgi aralığıyla gösterilir.
+Onboarding sonrası Yolum'da ise rota hiçbir fazda kesilmez: faz etiketi izin
+kenarına alınır, gelecek bölüm kesik yerine daha soluk düz çizgi olur ve yatay
+düğüm–metin bağlantıları kaldırılır. AX Dynamic Type'ta aynı anlam düz sol ray
 üzerinde korunur. Oturum sonrası aktif → tamamlandı dönüşümü yalnızca sunucudan
 yeniden okunan `completed_at` değişimiyle çalışır ve tek yumuşak haptik verir.
+
+### 14.5 Yolum boşluk illüstrasyonları
+
+Yolum, mevcut C1/C2'nin kırık beyaz dokulu şerit ailesini sürdüren üç transparan
+heykelsi görsel kullanır: `journey-relief`, `journey-practice` ve
+`journey-closing`. Başlıktaki görsel sıradaki adımın gerçek fazından; rota
+boşluklarındaki görseller yalnızca gerçek faz başlangıçlarından seçilir. Ham
+problem metni, yaş veya cinsiyet görsel seçmez. Orta fazların aynı pratik formunu
+paylaşması görsel çeşitlilik uğruna sahte kişiselleştirme üretilmesini engeller.
+
+Uygulama kopyaları 512 piksel uzun kenar ve yaklaşık 93–186 KB'dır. Görseller
+statik, düşük opaklıklı, dokunulamaz ve VoiceOver'dan gizlidir. AX Dynamic Type'ta
+metin alanını daraltmamak için gösterilmez; Reduce Transparency'de başlık görseli
+daha da solar. Emoji, yüz, ödül, yıldız, ok ve sonuç grafiği içermezler.

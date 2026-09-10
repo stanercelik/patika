@@ -4,13 +4,12 @@ import SwiftUI
 ///
 /// ## İz dili
 ///
-/// F2 ile aynı görsel dil: sağa ve sola sakinçe kıvrılan tek bir iz, üzerinde
-/// durum düğümleri. Satırlar aynı sınır noktasında birleştiği için yol uzun
-/// kişisel başlıklarda ve Dynamic Type'ta kopmadan devam ediyor.
+/// F2 ile aynı düğüm dilini korur; fakat günlük kullanımda yol baştan sona
+/// kesintisiz, sakin bir mürekkep izi olarak akar. Faz eşikleri yolu kesmez.
 ///
 /// Sıradaki adım daha büyük, nefes ritminde bir düğüm ve açılabilen kartla
 /// belirginleşiyor. Gelecek adımların gerçek başlıkları görünür kalıyor; kilit
-/// işareti ve kesikli iz henüz açılamadıklarını birlikte anlatıyor.
+/// işareti henüz açılamadıklarını anlatırken iz kesintisiz devam ediyor.
 ///
 /// ## Sayaç yok, streak yok
 ///
@@ -64,7 +63,7 @@ struct MyPathView: View {
                 .tint(Theme.textPrimary.color)
                 .accessibilityLabel(Text(Copy.Path.loading))
         case .empty:
-            ScreenPlaceholder(title: "Yolum", message: Copy.Empty.noPath)
+            ScreenPlaceholder(title: Copy.Path.screenTitle, message: Copy.Empty.noPath)
         case .failed:
             VStack(spacing: Theme.Spacing.stack) {
                 BodyText(Copy.Path.loadError)
@@ -81,18 +80,30 @@ struct MyPathView: View {
         }
     }
 
+    @ViewBuilder
     private func ready(_ path: ActivePath) -> some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            accessibleReady(path)
+        } else {
+            standardReady(path)
+        }
+    }
+
+    private func standardReady(_ path: ActivePath) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             // Başlık path üretiminden geliyor: kullanıcının kendi kategorisinden
             // ve cümlesinden türetilmiş ad. Kaydırmanın **dışında** duruyor:
             // yirmi bir satırlık bir listede yolun adı ekrandan çıkınca
             // kullanıcı hangi yolda olduğunu kaybediyordu.
-            DisplayText(LocalizedStringResource(stringLiteral: path.title), size: 28)
-                // SOS her ekranda sağ üstte sabit; başlık onun altından başlar.
-                .padding(.top, 48)
-                .padding(.trailing, 56)
-                .padding(.bottom, 22)
-                .padding(.horizontal, Theme.Spacing.screenMargin)
+            MyPathHeader(
+                title: path.title,
+                phase: path.nextStep.flatMap { viewModel?.phase(for: $0) } ?? .closing,
+                hasNextStep: path.nextStep != nil
+            )
+            // SOS her ekranda sağ üstte sabit; başlık onun altından başlar.
+            .padding(.top, 48)
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.bottom, 12)
 
             ScrollViewReader { proxy in
                 ScrollView {
@@ -104,33 +115,55 @@ struct MyPathView: View {
                 }
                 .scrollIndicators(.hidden)
                 .scrollBounceBehavior(.basedOnSize)
+                .scrollEdgeEffectStyle(.soft, for: .top)
                 // İlk açılışta kullanıcı tamamladığı satırları yeniden geçmek
                 // zorunda kalmaz; sıradaki düğüm görünür alanın merkezine gelir.
                 .task(id: path.nextStep?.id) {
                     guard let nextID = path.nextStep?.id else { return }
                     await Task.yield()
-                    proxy.scrollTo(
-                        nextID,
-                        anchor: dynamicTypeSize.isAccessibilitySize ? .top : .center
-                    )
-                }
-                // İzin uçları **kesilmiyor, soluyor**. Bıçakla kesilmiş bir
-                // çizgi yolun orada bittiğini söylüyordu; solan iz devam eden
-                // içeriği anlatıyor.
-                .mask {
-                    LinearGradient(
-                        stops: [
-                            .init(color: .clear, location: 0),
-                            .init(color: .black, location: 0.045),
-                            .init(color: .black, location: 0.86),
-                            .init(color: .clear, location: 1),
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
+                    proxy.scrollTo(nextID, anchor: .center)
                 }
             }
         }
+    }
+
+    /// AX boyutlarında başlık sabit kalırsa dört satırlık path adı görünür
+    /// alanın tamamını kapatıyor. Başlık aynı scroll bağlamına katılır; sıradaki
+    /// kart merkeze gelir ve kullanıcı path adını görmek için yukarı kaydırabilir.
+    private func accessibleReady(_ path: ActivePath) -> some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    pathHeader(for: path)
+                        .padding(.top, 48)
+                        .padding(.horizontal, Theme.Spacing.screenMargin)
+                        .padding(.bottom, 20)
+                        .scrollTransition(.interactive, axis: .vertical) { content, phase in
+                            content.opacity(phase.isIdentity ? 1 : 0)
+                        }
+
+                    trail
+                        .padding(.horizontal, Theme.Spacing.screenMargin)
+                        .padding(.bottom, 140)
+                }
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollEdgeEffectStyle(.soft, for: .top)
+            .task(id: path.nextStep?.id) {
+                guard let nextID = path.nextStep?.id else { return }
+                await Task.yield()
+                proxy.scrollTo(nextID, anchor: .center)
+            }
+        }
+    }
+
+    private func pathHeader(for path: ActivePath) -> some View {
+        MyPathHeader(
+            title: path.title,
+            phase: path.nextStep.flatMap { viewModel?.phase(for: $0) } ?? .closing,
+            hasNextStep: path.nextStep != nil
+        )
     }
 
     /// Adımlar ve kıvrımlı ortak iz.
@@ -175,6 +208,7 @@ private struct PathStepRow: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var isExpanded: Bool { viewModel.isExpanded(step) }
     private var isLocked: Bool { viewModel.isLocked(step) }
@@ -189,7 +223,8 @@ private struct PathStepRow: View {
             startsPhase: startsPhase,
             node: viewModel.node(for: step),
             showsLock: isLocked,
-            isProminent: isExpanded
+            isProminent: isExpanded,
+            presentation: .personalTrace
         ) {
             Button {
                 Theme.softHaptic(intensity: 0.25)
@@ -212,23 +247,31 @@ private struct PathStepRow: View {
             if isExpanded { expanded }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(isExpanded ? 16 : 0)
+        .padding(isExpanded ? expandedContentInsets : EdgeInsets())
         .background {
-            // Kart yüzeyi `ChoiceRow`un yüzeyi; açık satır bir kademe belirgin.
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(
                     reduceTransparency
-                        ? Color.black.opacity(isExpanded ? 0.86 : 0)
-                        : Color.white.opacity(isExpanded ? 0.075 : 0)
+                        ? Color.black.opacity(isExpanded ? 0.90 : 0)
+                        : Color.black.opacity(isExpanded ? 0.38 : 0)
                 )
                 .overlay {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .fill(Theme.textPrimary.color.opacity(isExpanded ? 0.055 : 0))
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
                         .strokeBorder(
-                            Theme.textPrimary.color.opacity(isExpanded ? 0.14 : 0),
+                            Theme.textPrimary.color.opacity(isExpanded ? 0.20 : 0),
                             lineWidth: Theme.Line.journeyConnector
                         )
                 }
         }
+        .shadow(
+            color: Color.black.opacity(isExpanded && !reduceTransparency ? 0.16 : 0),
+            radius: 18,
+            y: 10
+        )
         .padding(.trailing, isExpanded ? 0 : 4)
     }
 
@@ -325,10 +368,70 @@ private struct PathStepRow: View {
 
     private var titleOpacity: Double {
         if isExpanded { return 1 }
-        if isCompleted { return 0.46 }
-        return isLocked ? 0.62 : 0.92
+        if isCompleted { return 0.58 }
+        return isLocked ? 0.68 : 0.94
     }
 
+    /// Normal yerleşimde aktif düğüm kartın kenarına bağlanır. Metin ve eylem
+    /// düğüm halkasının altına kaçmasın diye yalnızca düğüm tarafında daha geniş
+    /// bir iç boşluk bırakılır. AX yerleşiminde düğüm zaten kartın üstündedir.
+    private var expandedContentInsets: EdgeInsets {
+        guard !dynamicTypeSize.isAccessibilitySize else {
+            return EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 18)
+        }
+        if position.currentX < 0.5 {
+            return EdgeInsets(top: 18, leading: 54, bottom: 18, trailing: 18)
+        }
+        return EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 54)
+    }
+
+}
+
+private struct MyPathHeader: View {
+    let title: String
+    let phase: PathPhase
+    let hasNextStep: Bool
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            if !dynamicTypeSize.isAccessibilitySize {
+                Image(decorative: JourneyPhaseDecoration.assetName(for: phase))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 138, height: 104)
+                    .opacity(reduceTransparency ? 0.08 : 0.18)
+                    .offset(x: 30, y: 2)
+                    .accessibilityHidden(true)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(Copy.Path.screenTitle)
+                    .font(.caption.weight(Theme.Weight.emphasis))
+                    .foregroundStyle(Theme.textPrimary.color.opacity(0.52))
+
+                Text(verbatim: title)
+                    .font(.title.weight(Theme.Weight.display))
+                    .foregroundStyle(Theme.textPrimary.color)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(alignment: .firstTextBaseline, spacing: 7) {
+                    Circle()
+                        .fill(Theme.textPrimary.color.opacity(hasNextStep ? 0.78 : 0.40))
+                        .frame(width: 6, height: 6)
+                        .accessibilityHidden(true)
+                    Text(hasNextStep ? Copy.Path.readyNote : Copy.Path.finishedHeadline)
+                        .font(.footnote.weight(Theme.Weight.body))
+                        .foregroundStyle(Theme.textSecondary.color)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.trailing, dynamicTypeSize.isAccessibilitySize ? 0 : 82)
+        }
+    }
 }
 
 /// `fullScreenCover(item:)` kimlik istiyor; adımın kendi kimliği zaten var.

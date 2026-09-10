@@ -1,7 +1,7 @@
 # Kişisel İz Yol Haritası Tasarımı
 
 **Tarih:** 2026-09-10  
-**Durum:** Ürün sahibi tarafından onaylandı  
+**Durum:** Ürün sahibi tarafından onaylandı; Yolum görsel revizyonu 2026-09-10'da onaylandı
 **Kapsam:** F2 “Yolun hazır” ve onboarding sonrası “Yolum” haritası  
 **Kapsam dışı:** Path üretim algoritması, oturum motoru, ölçüm skoru, ödeme akışı ve F1 üretim izi
 
@@ -59,8 +59,10 @@ Bu biçimler psikolojik durum veya beklenen sonuç iddiası taşımaz. Yalnızca
 programın aşamalarını birbirinden ayıran yön bulma dilidir. Rota yukarı doğru
 “tırmanmaz”; içerik dikey olarak yukarıdan aşağı okunur.
 
-Faz değişiminde ayrı bir kart, rozet veya ödül kullanılmaz. İz kısa bir boşlukla
-ikiye ayrılır ve gerçek faz etiketi bu **sessiz eşik** üzerinde görünür.
+F2'de faz değişiminde ayrı bir kart, rozet veya ödül kullanılmaz. İz kısa bir
+boşlukla ikiye ayrılır ve gerçek faz etiketi bu **sessiz eşik** üzerinde görünür.
+Onboarding sonrası Yolum'da günlük kullanımın sürekliliği önceliklidir: aynı faz
+etiketi kenara çekilir fakat iz kesilmez.
 
 ## 4. Bilgi hiyerarşisi
 
@@ -85,8 +87,14 @@ CTA’yı kilitlemez ve ilk kullanıcı dokunuşunda iptal olur.
 
 “Yolum”da ekranın ilk işlevsel odağı sıradaki adımdır. Bu adım varsayılan açık
 kalır. Tamamlanan adımlar tekrar açılabilir; gelecek adımların başlığı okunur
-fakat içerikleri açılamaz. Kaçırılan gün, sıfırlanma, seri veya gecikme dili
-oluşturmaz.
+fakat içerikleri açılamaz. Gelecek rota kesikli değil, düşük opaklıklı düz izdir;
+yatay bağlantı çubukları çizilmez. Kaçırılan gün, sıfırlanma, seri veya gecikme
+dili oluşturmaz.
+
+Başlıkta sıradaki faza bağlı ve sonraki gerçek faz başlangıçlarında düşük
+opaklıklı üç heykelsi şerit illüstrasyonu kullanılır. Görseller hassas problem
+metnine göre değil `PathPhase` üzerinden deterministik seçilir; AX Dynamic Type'ta
+metne yer bırakmak için saklanır.
 
 ## 5. Düğüm ve iz durumları
 

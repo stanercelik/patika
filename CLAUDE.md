@@ -282,6 +282,15 @@ yazmak, ilkinin düzeltilmiş hatalarını miras almadan yeni hatalar üretiyord
   altında, aktif düğüm yalnızca grafik overlay'inde 60 Hz zaman çizelgesi üstünde
   nefes ritmindedir; metin ve kartlar her kare yeniden çizilmez. Düşük güç,
   termal baskı, arka plan ve Reduce Motion'da sürekli hareket durur.
+- **Yolum rotası kesintisizdir** (ürün sahibi kararı, 2026-09-10). F2'nin kısa
+  faz aralıkları onboarding sunumunda kalır; günlük Yolum ekranında faz eşiği
+  çizgiyi kesmez, gelecek bölüm kesikli olmaz ve düğüm–metin bağlantı çubukları
+  çizilmez. Tamamlanan bölüm daha belirgin, gelecek bölüm daha soluk tek bir
+  mürekkep izi olarak devam eder.
+- **Yolum faz görselleri gerçek faza bağlıdır.** Üç kırık beyaz, dokulu şerit
+  illüstrasyonu (`journey-relief`, `journey-practice`, `journey-closing`) yalnızca
+  sıradaki faz ve gerçek faz başlangıçlarından seçilir. Ham problem metni resme
+  çevrilmez; AX Dynamic Type'ta görseller saklanır ve hepsi VoiceOver'dan gizlidir.
 - **Tamamlama sunucu gerçeğine bağlıdır.** Oturumdan dönüşte harita yükleme
   ekranına sıçramadan aynı satır yerinde kalır; sunucuda ilk kez `completed_at`
   görüldüğünde aktif düğüm onay düğümüne kısa bir geçiş ve tek yumuşak haptikle

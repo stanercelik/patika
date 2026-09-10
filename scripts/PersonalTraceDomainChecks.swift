@@ -9,6 +9,7 @@ enum PersonalTraceDomainChecks {
         checkTechniqueSummary()
         checkRouteLayout()
         checkMotionFallbacks()
+        checkPhaseDecorations()
         print("PersonalTraceDomainChecks passed")
     }
 
@@ -164,6 +165,35 @@ enum PersonalTraceDomainChecks {
         require(
             JourneyMotionPolicy.minimumInterval == 1.0 / 60.0,
             "the active map timeline should request 60 Hz"
+        )
+    }
+
+    private static func checkPhaseDecorations() {
+        require(
+            JourneyPhaseDecoration.assetName(for: .relief) == "journey-relief",
+            "relief should use the settling sculpture"
+        )
+        require(
+            JourneyPhaseDecoration.assetName(for: .awareness) == "journey-practice"
+                && JourneyPhaseDecoration.assetName(for: .skill) == "journey-practice"
+                && JourneyPhaseDecoration.assetName(for: .behavior) == "journey-practice",
+            "middle phases should share the woven practice sculpture"
+        )
+        require(
+            JourneyPhaseDecoration.assetName(for: .closing) == "journey-closing",
+            "closing should use the returning loop sculpture"
+        )
+        require(
+            !JourneyPhaseDecoration.shouldShow(startsPhase: false, rowIndex: 8),
+            "a decorative sculpture should never appear on an ordinary step"
+        )
+        require(
+            JourneyPhaseDecoration.shouldShow(startsPhase: true, rowIndex: 3),
+            "a later real phase boundary should be eligible for decoration"
+        )
+        require(
+            !JourneyPhaseDecoration.shouldShow(startsPhase: true, rowIndex: 0),
+            "the first step should keep the initial viewport focused on today's action"
         )
     }
 

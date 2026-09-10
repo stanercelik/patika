@@ -1,5 +1,10 @@
 import SwiftUI
 
+enum JourneyMapPresentation {
+    case roadmap
+    case personalTrace
+}
+
 /// F2 ve Yolum'un ortak, faz duyarlı Kişisel İz satırı.
 ///
 /// Satırlar sınırda aynı ara x değerini kullandığı için farklı metin
@@ -15,6 +20,7 @@ struct JourneyMapRow<Content: View>: View {
     var showsLock = false
     var isProminent = false
     var disablesMotion = false
+    var presentation: JourneyMapPresentation = .roadmap
     @ViewBuilder let content: Content
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -40,6 +46,7 @@ struct JourneyMapRow<Content: View>: View {
             .padding(.vertical, 16)
             .frame(minHeight: rowHeight, alignment: .topLeading)
             .background { staticRoute }
+            .background { phaseArtwork }
             .overlay { markersAndActiveInk }
             .overlay { phaseThreshold }
             .opacity(isRevealed ? 1 : 0)
@@ -121,17 +128,17 @@ struct JourneyMapRow<Content: View>: View {
                     nodeY: nodeY,
                     showsAbove: index > 0,
                     showsBelow: index < totalCount - 1,
-                    breaksAbove: showsPhaseThreshold,
+                    breaksAbove: presentation == .roadmap && showsPhaseThreshold,
                     part: .whole
                 )
-                .trim(from: 0, to: isRevealed ? 1 : 0)
+                .trim(from: 0, to: routeReveal)
                 .stroke(
-                    Theme.textPrimary.color.opacity(showsLock ? 0.10 : 0.18),
+                    Theme.textPrimary.color.opacity(baseRouteOpacity),
                     style: StrokeStyle(
                         lineWidth: Theme.Line.trail,
                         lineCap: .round,
                         lineJoin: .round,
-                        dash: showsLock ? [5, 8] : []
+                        dash: presentation == .roadmap && showsLock ? [5, 8] : []
                     )
                 )
 
@@ -143,10 +150,10 @@ struct JourneyMapRow<Content: View>: View {
                         nodeY: nodeY,
                         showsAbove: index > 0,
                         showsBelow: index < totalCount - 1,
-                        breaksAbove: showsPhaseThreshold,
+                        breaksAbove: presentation == .roadmap && showsPhaseThreshold,
                         part: .whole
                     )
-                    .trim(from: 0, to: isRevealed ? 1 : 0)
+                    .trim(from: 0, to: routeReveal)
                     .stroke(
                         Theme.textPrimary.color.opacity(0.50),
                         style: StrokeStyle(
@@ -157,19 +164,21 @@ struct JourneyMapRow<Content: View>: View {
                     )
                 }
 
-                JourneyContentConnector(
-                    nodeX: currentX,
-                    nodeY: nodeY,
-                    targetX: connectorTargetX(in: size.width)
-                )
-                .trim(from: 0, to: isRevealed ? 1 : 0)
-                .stroke(
-                    Theme.textPrimary.color.opacity(showsLock ? 0.12 : 0.24),
-                    style: StrokeStyle(
-                        lineWidth: Theme.Line.journeyConnector,
-                        lineCap: .round
+                if presentation == .roadmap {
+                    JourneyContentConnector(
+                        nodeX: currentX,
+                        nodeY: nodeY,
+                        targetX: connectorTargetX(in: size.width)
                     )
-                )
+                    .trim(from: 0, to: isRevealed ? 1 : 0)
+                    .stroke(
+                        Theme.textPrimary.color.opacity(showsLock ? 0.12 : 0.24),
+                        style: StrokeStyle(
+                            lineWidth: Theme.Line.journeyConnector,
+                            lineCap: .round
+                        )
+                    )
+                }
             }
             .animation(routeAnimation, value: isRevealed)
         }
@@ -192,10 +201,10 @@ struct JourneyMapRow<Content: View>: View {
                             nodeY: y,
                             showsAbove: index > 0,
                             showsBelow: false,
-                            breaksAbove: showsPhaseThreshold,
+                            breaksAbove: presentation == .roadmap && showsPhaseThreshold,
                             part: .above
                         )
-                        .trim(from: 0, to: isRevealed ? 1 : 0)
+                        .trim(from: 0, to: routeReveal)
                         .stroke(
                             Theme.textPrimary.color.opacity(0.66 + breath * 0.10),
                             style: StrokeStyle(
@@ -231,10 +240,14 @@ struct JourneyMapRow<Content: View>: View {
                     resolvedNodeX(position.previousX, in: geometry.size.width)
                         + resolvedNodeX(position.currentX, in: geometry.size.width)
                 ) / 2
-                JourneyPhaseThreshold(phase: phase, isVisible: isRevealed)
+                JourneyPhaseThreshold(
+                    phase: phase,
+                    isVisible: isRevealed,
+                    style: presentation == .roadmap ? .capsule : .margin
+                )
                     .fixedSize()
                     .position(
-                        x: min(max(topX, 64), max(64, geometry.size.width - 64)),
+                        x: phaseLabelX(topX: topX, width: geometry.size.width),
                         y: 12
                     )
                     .animation(
@@ -254,6 +267,35 @@ struct JourneyMapRow<Content: View>: View {
                 .delay(min(Double(index) * Theme.Motion.journeyNodeStagger, 0.30))
     }
 
+    @ViewBuilder
+    private var phaseArtwork: some View {
+        if presentation == .personalTrace,
+           let phase,
+           JourneyPhaseDecoration.shouldShow(startsPhase: startsPhase, rowIndex: index),
+           !usesAccessibleLayout {
+            GeometryReader { geometry in
+                Image(decorative: JourneyPhaseDecoration.assetName(for: phase))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 104, height: 88)
+                    .opacity(isRevealed ? 0.18 : 0)
+                    .scaleEffect(isRevealed ? 1 : 0.96)
+                    .position(
+                        x: nodeIsLeading ? 34 : geometry.size.width - 34,
+                        y: min(96 + contentTopInset, geometry.size.height - 42)
+                    )
+                    .animation(
+                        motionIsReduced
+                            ? nil
+                            : .easeOut(duration: Theme.Motion.journeyTextReveal),
+                        value: isRevealed
+                    )
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+
     private func resolvedNodeY(in height: CGFloat) -> CGFloat {
         min(resolvedNodeCenterY, max(24, height - 24))
     }
@@ -267,6 +309,22 @@ struct JourneyMapRow<Content: View>: View {
     private func connectorTargetX(in width: CGFloat) -> CGFloat {
         if usesAccessibleLayout { return min(accessibleContentInset - 12, width - 12) }
         return nodeIsLeading ? width / 2 - 18 : width / 2 + 18
+    }
+
+    private var routeReveal: CGFloat {
+        presentation == .personalTrace ? 1 : (isRevealed ? 1 : 0)
+    }
+
+    private var baseRouteOpacity: Double {
+        if presentation == .personalTrace { return showsLock ? 0.16 : 0.21 }
+        return showsLock ? 0.10 : 0.18
+    }
+
+    private func phaseLabelX(topX: CGFloat, width: CGFloat) -> CGFloat {
+        guard presentation == .personalTrace else {
+            return min(max(topX, 64), max(64, width - 64))
+        }
+        return topX < width / 2 ? max(62, width - 62) : 62
     }
 
     @MainActor
