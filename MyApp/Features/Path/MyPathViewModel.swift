@@ -123,20 +123,18 @@ final class MyPathViewModel {
     /// deterministik olarak türüyor — model takdiri değil.
     func phase(for step: PathStepRecord) -> PathPhase? {
         guard let length = PathLength(rawValue: steps.count) else { return nil }
-        for case .phase(let phase, let range) in PathPlan.rows(for: length)
-        where range.contains(step.day) {
-            return phase
-        }
-        return nil
+        return PathPlan.phase(on: step.day, length: length)
+    }
+
+    func startsPhase(_ step: PathStepRecord) -> Bool {
+        guard let length = PathLength(rawValue: steps.count) else { return false }
+        return PathPlan.startsPhase(on: step.day, length: length)
     }
 
     /// Adımın taşıdığı teknikler. Sunucunun seçtiği `block_ids` istemcideki
     /// kütüphaneden çözülüyor: kimlikler iki tarafta birebir aynı.
     func techniques(for step: PathStepRecord) -> String? {
-        let titles = step.blockIds
-            .compactMap(BlockLibrary.block(id:))
-            .map { String(localized: $0.title) }
-        return titles.isEmpty ? nil : titles.joined(separator: " · ")
+        BlockLibrary.techniqueSummary(for: step.blockIds)
     }
 
     /// Ölçüm günleri path uzunluğundan geliyor; adım sayısı uzunluğun kendisi.

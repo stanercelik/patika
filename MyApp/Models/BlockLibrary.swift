@@ -44,8 +44,18 @@ struct SessionBlock: Sendable, Identifiable {
 /// Metinler Sakin kademede (Ton eki §3): emir yok, garanti yok, "başaracaksın"
 /// yok. "Yapabiliyorsan", "istersen" gibi kaçış payları bilinçli — gözünü kapatmak
 /// istemeyen biri talimatı çiğnemiş hissetmemeli.
-enum BlockLibrary {
+nonisolated enum BlockLibrary {
     static func block(id: String) -> SessionBlock? { blocks[id] }
+
+    /// Haritada yalnızca sunucunun gerçekten seçtiği ve bu uygulama sürümünün
+    /// tanıdığı teknikleri gösterir. Bilinmeyen yeni bloklar sessizce atlanır;
+    /// tamamı bilinmiyorsa arayüz bir teknik adı uydurmaz.
+    static func techniqueSummary(for blockIDs: [String]) -> String? {
+        let titles = blockIDs
+            .compactMap(block(id:))
+            .map { String(localized: $0.title) }
+        return titles.isEmpty ? nil : titles.joined(separator: " · ")
+    }
 
     static let blocks: [String: SessionBlock] = [
         breathAwareness.id: breathAwareness,

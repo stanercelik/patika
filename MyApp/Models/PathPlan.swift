@@ -74,4 +74,32 @@ enum PathPlan {
 
         return rows
     }
+
+    /// Tek bir günün ait olduğu faz. Harita ekranları faz sınırlarını kendi
+    /// içinde yeniden hesaplamaz; fallback ve gerçek path aynı kaynağı okur.
+    static func phase(on day: Int, length: PathLength) -> PathPhase? {
+        for case .phase(let phase, let range) in rows(for: length)
+        where range.contains(day) {
+            return phase
+        }
+        return nil
+    }
+
+    /// Faz etiketinin yalnızca gerçek başlangıç gününde görünmesini sağlar.
+    static func startsPhase(on day: Int, length: PathLength) -> Bool {
+        rows(for: length).contains { row in
+            guard case .phase(_, let range) = row else { return false }
+            return range.lowerBound == day
+        }
+    }
+
+    /// F2'nin kompakt fallback satırını gerçek faz ritmine bağlar.
+    static func phase(for row: Row, length: PathLength) -> PathPhase? {
+        switch row {
+        case .phase(let phase, _):
+            phase
+        case .measurement(let day, _):
+            phase(on: day, length: length)
+        }
+    }
 }
