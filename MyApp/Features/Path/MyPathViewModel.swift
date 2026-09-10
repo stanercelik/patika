@@ -25,6 +25,9 @@ final class MyPathViewModel {
     }
 
     private(set) var state: State = .loading
+    /// Son yenilemede sunucuda ilk kez tamamlanmış görülen adım. Görünüm bunu
+    /// yalnızca düğüm dönüşümü ve tek, yumuşak haptik için kullanır.
+    private(set) var recentlyCompletedStepID: UUID?
     /// Açık duran adım. Varsayılan olarak sıradaki adım: ekran açıldığında
     /// kullanıcının yapacağı şey zaten açık duruyor, bir dokunuş kazanılıyor.
     private(set) var expandedStepID: UUID?
@@ -47,7 +50,9 @@ final class MyPathViewModel {
     var steps: [PathStepRecord] { path?.steps.sorted { $0.day < $1.day } ?? [] }
 
     func load() async {
-        state = .loading
+        let previousPath = path
+        if previousPath == nil { state = .loading }
+        recentlyCompletedStepID = nil
         do {
             let token = try await services.auth.validAccessToken()
             guard let path = try await services.backend.activePath(accessToken: token),
@@ -56,6 +61,18 @@ final class MyPathViewModel {
                 state = .empty
                 return
             }
+            if let previousPath, previousPath.id == path.id {
+                let completedBefore = Set(
+                    previousPath.steps.compactMap { step in
+                        step.completedAt == nil ? nil : step.id
+                    }
+                )
+                recentlyCompletedStepID = path.steps
+                    .filter { $0.completedAt != nil && !completedBefore.contains($0.id) }
+                    .sorted { $0.day < $1.day }
+                    .last?.id
+            }
+
             state = .ready(path)
             expandedStepID = path.nextStep?.id
             #if DEBUG

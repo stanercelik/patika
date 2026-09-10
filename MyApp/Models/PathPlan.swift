@@ -31,6 +31,13 @@ enum PathPlan {
             case .measurement(let day, _): "measurement-\(day)"
             }
         }
+
+        /// Kompakt fallback haritasında faz satırı doğrudan bir eşiktir;
+        /// ölçüm satırı aynı fazın içinde kalır.
+        var startsPhase: Bool {
+            if case .phase = self { return true }
+            return false
+        }
     }
 
     /// Faz sınırları — toplam günün oranı olarak. 21 günde tam olarak PRD §9.3'ün

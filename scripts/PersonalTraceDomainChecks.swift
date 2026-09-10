@@ -8,6 +8,7 @@ enum PersonalTraceDomainChecks {
         checkFallbackMeasurementPhase()
         checkTechniqueSummary()
         checkRouteLayout()
+        checkMotionFallbacks()
         print("PersonalTraceDomainChecks passed")
     }
 
@@ -116,6 +117,53 @@ enum PersonalTraceDomainChecks {
                 usesAccessibleLayout: false
             ),
             "the same path should always produce the same geometry"
+        )
+    }
+
+    private static func checkMotionFallbacks() {
+        require(
+            !JourneyMotionPolicy(
+                reduceMotion: false,
+                sceneIsActive: true,
+                lowPowerMode: false,
+                thermalState: .nominal
+            ).pausesContinuousMotion,
+            "active nominal conditions should keep continuous motion"
+        )
+
+        let constrainedPolicies = [
+            JourneyMotionPolicy(
+                reduceMotion: true,
+                sceneIsActive: true,
+                lowPowerMode: false,
+                thermalState: .nominal
+            ),
+            JourneyMotionPolicy(
+                reduceMotion: false,
+                sceneIsActive: false,
+                lowPowerMode: false,
+                thermalState: .nominal
+            ),
+            JourneyMotionPolicy(
+                reduceMotion: false,
+                sceneIsActive: true,
+                lowPowerMode: true,
+                thermalState: .nominal
+            ),
+            JourneyMotionPolicy(
+                reduceMotion: false,
+                sceneIsActive: true,
+                lowPowerMode: false,
+                thermalState: .serious
+            ),
+        ]
+        require(
+            constrainedPolicies.allSatisfy(\.pausesContinuousMotion),
+            "every constrained condition should pause continuous motion"
+        )
+        require(
+            JourneyMotionPolicy.minimumInterval == 1.0 / 60.0,
+            "the active map timeline should request 60 Hz"
         )
     }
 

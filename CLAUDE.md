@@ -276,9 +276,16 @@ yazmak, ilkinin düzeltilmiş hatalarını miras almadan yeni hatalar üretiyord
   yazmaz. Gelecek adımların başlıkları görünür fakat kilitli ve etkileşimsizdir;
   kesikli iz + kilit simgesi durumu rengin tek başına anlatmasını engeller.
 - **F2 ve "Yolum" ortak `JourneyMapRow` kullanır.** Normal boyutta rota iki
-  kolonda zikzak çizer; AX Dynamic Type'ta metne yer açmak için düz sol raya
-  dönüşür. İlk görünüş çizimi 800 ms altında, aktif düğüm 60 Hz zaman çizelgesi
-  üstünde nefes ritmindedir; Reduce Motion'da rota ve düğüm statiktir.
+  kolonda faza göre farklı, deterministik bir ritimle kıvrılır; faz eşiklerinde
+  çizgi gerçekten açılır ve küçük faz etiketi bu aralığa oturur. AX Dynamic
+  Type'ta metne yer açmak için düz sol raya dönüşür. İlk görünüş çizimi 800 ms
+  altında, aktif düğüm yalnızca grafik overlay'inde 60 Hz zaman çizelgesi üstünde
+  nefes ritmindedir; metin ve kartlar her kare yeniden çizilmez. Düşük güç,
+  termal baskı, arka plan ve Reduce Motion'da sürekli hareket durur.
+- **Tamamlama sunucu gerçeğine bağlıdır.** Oturumdan dönüşte harita yükleme
+  ekranına sıçramadan aynı satır yerinde kalır; sunucuda ilk kez `completed_at`
+  görüldüğünde aktif düğüm onay düğümüne kısa bir geçiş ve tek yumuşak haptikle
+  dönüşür. İstemci süre doldu diye tamamlanma uydurmaz.
 - **Kesinti oturumu bitirmiyor.** Telefon görüşmesi, kulaklığın çıkması ve
   uygulamanın kapanması kaldığı yeri saniyesiyle saklıyor; dönüşte cümlenin
   ortasından devam ediyor (`scheduleSegment`). Kesinti bitince ses

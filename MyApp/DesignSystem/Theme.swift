@@ -47,6 +47,8 @@ enum Theme {
         /// "Yolum" sekmesindeki tek parça iz. `PathProgressBar`ın izinden ince:
         /// o bir gösterge, bu bir zemin çizgisi.
         static let trail: CGFloat = 2
+        /// Düğüm ile gerçek adım metni arasındaki yönsüz kılavuz.
+        static let journeyConnector: CGFloat = 1
     }
 
     /// Tüm animasyonlar 800 ms altı (Ton eki §7). Uzun animasyon = bekletme.
@@ -121,6 +123,10 @@ enum Theme {
         /// başlar ve toplam hareket 800 ms durum bütçesini aşmaz.
         static let journeyRouteDraw: Double = 0.44
         static let journeyNodeStagger: Double = 0.045
+        static let journeyTextReveal: Double = 0.30
+        static let journeyPhaseReveal: Double = 0.26
+        static let journeyNodeReplace: Double = 0.22
+        static let journeyPress: Double = 0.14
 
         /// Liste hâlindeki öğeler için çok daha kısa aralık. C'nin 1.5 saniyesi
         /// okunacak cümleler içindi; yedi satırlık bir yol haritasında aynı ritim

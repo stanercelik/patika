@@ -50,6 +50,10 @@ struct MyPathView: View {
             guard old != nil, new == nil else { return }
             Task { await viewModel?.load() }
         }
+        .onChange(of: viewModel?.recentlyCompletedStepID) { _, completedID in
+            guard completedID != nil, !reduceMotion else { return }
+            Theme.softHaptic(intensity: 0.55)
+        }
     }
 
     @ViewBuilder
@@ -131,12 +135,22 @@ struct MyPathView: View {
 
     /// Adımlar ve kıvrımlı ortak iz.
     private var trail: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array((viewModel?.steps ?? []).enumerated()), id: \.element.id) { index, step in
+        let steps = viewModel?.steps ?? []
+        let phases = steps.map { viewModel?.phase(for: $0) }
+        let positions = JourneyRouteLayout.positions(
+            for: phases,
+            usesAccessibleLayout: dynamicTypeSize.isAccessibilitySize
+        )
+
+        return LazyVStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(steps.enumerated()), id: \.element.id) { index, step in
                 if let viewModel {
                     PathStepRow(
                         index: index,
                         totalCount: viewModel.steps.count,
+                        position: positions[index],
+                        phase: phases[index],
+                        startsPhase: viewModel.startsPhase(step),
                         step: step,
                         viewModel: viewModel,
                         onStart: { runningStep = step }
@@ -152,11 +166,15 @@ struct MyPathView: View {
 private struct PathStepRow: View {
     let index: Int
     let totalCount: Int
+    let position: JourneyRoutePosition
+    let phase: PathPhase?
+    let startsPhase: Bool
     let step: PathStepRecord
     let viewModel: MyPathViewModel
     var onStart: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     private var isExpanded: Bool { viewModel.isExpanded(step) }
     private var isLocked: Bool { viewModel.isLocked(step) }
@@ -166,11 +184,15 @@ private struct PathStepRow: View {
         JourneyMapRow(
             index: index,
             totalCount: totalCount,
+            position: position,
+            phase: phase,
+            startsPhase: startsPhase,
             node: viewModel.node(for: step),
             showsLock: isLocked,
             isProminent: isExpanded
         ) {
             Button {
+                Theme.softHaptic(intensity: 0.25)
                 withAnimation(reduceMotion ? Theme.Motion.crossFade : Theme.Motion.pathExpand) {
                     viewModel.toggle(step)
                 }
@@ -194,12 +216,16 @@ private struct PathStepRow: View {
         .background {
             // Kart yüzeyi `ChoiceRow`un yüzeyi; açık satır bir kademe belirgin.
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.white.opacity(isExpanded ? 0.10 : 0))
+                .fill(
+                    reduceTransparency
+                        ? Color.black.opacity(isExpanded ? 0.86 : 0)
+                        : Color.white.opacity(isExpanded ? 0.075 : 0)
+                )
                 .overlay {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .strokeBorder(
-                            Theme.textPrimary.color.opacity(isExpanded ? 0.16 : 0),
-                            lineWidth: 1
+                            Theme.textPrimary.color.opacity(isExpanded ? 0.14 : 0),
+                            lineWidth: Theme.Line.journeyConnector
                         )
                 }
         }

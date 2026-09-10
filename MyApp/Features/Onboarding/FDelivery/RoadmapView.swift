@@ -26,6 +26,7 @@ struct RoadmapView: View {
     let flow: OnboardingFlowViewModel
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     /// Kendiliğinden inip çıkma görevi. Kullanıcı ekrana dokunduğu anda iptal
     /// ediliyor: yürüyen bir kaydırmayı parmakla yakalamaya çalışmak, arayüzün
     /// kullanıcıyla güreşmesi demek.
@@ -34,6 +35,24 @@ struct RoadmapView: View {
     private var rows: [PathPlan.Row] { PathPlan.rows(for: flow.pathLength) }
     private var generatedSteps: [GeneratedPathStep] {
         flow.generatedPath?.steps.sorted { $0.day < $1.day } ?? []
+    }
+    private var generatedPhases: [PathPhase?] {
+        generatedSteps.map { PathPlan.phase(on: $0.day, length: flow.pathLength) }
+    }
+    private var generatedPositions: [JourneyRoutePosition] {
+        JourneyRouteLayout.positions(
+            for: generatedPhases,
+            usesAccessibleLayout: dynamicTypeSize.isAccessibilitySize
+        )
+    }
+    private var fallbackPhases: [PathPhase?] {
+        rows.map { PathPlan.phase(for: $0, length: flow.pathLength) }
+    }
+    private var fallbackPositions: [JourneyRoutePosition] {
+        JourneyRouteLayout.positions(
+            for: fallbackPhases,
+            usesAccessibleLayout: dynamicTypeSize.isAccessibilitySize
+        )
     }
 
     /// Kaydırma konumu. `ScrollViewReader` + `scrollTo(id:)` yerine bu:
@@ -103,13 +122,17 @@ struct RoadmapView: View {
     }
 
     private var generatedMap: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 0) {
             ForEach(Array(generatedSteps.enumerated()), id: \.element.day) { index, step in
                 let isFirst = index == 0
                 let isMeasurement = flow.pathLength.measurementDays.contains(step.day) && step.day > 1
+                let phase = generatedPhases[index]
                 JourneyMapRow(
                     index: index,
                     totalCount: generatedSteps.count,
+                    position: generatedPositions[index],
+                    phase: phase,
+                    startsPhase: PathPlan.startsPhase(on: step.day, length: flow.pathLength),
                     node: isFirst ? .active : (isMeasurement ? .milestone : .pending),
                     showsLock: !isFirst,
                     isProminent: false
@@ -122,11 +145,15 @@ struct RoadmapView: View {
     }
 
     private var fallbackMap: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 0) {
             ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                let phase = fallbackPhases[index]
                 JourneyMapRow(
                     index: index,
                     totalCount: rows.count,
+                    position: fallbackPositions[index],
+                    phase: phase,
+                    startsPhase: row.startsPhase,
                     node: node(for: row),
                     showsLock: false,
                     isProminent: false
@@ -158,6 +185,15 @@ struct RoadmapView: View {
                 .font(.body.weight(Theme.Weight.action))
                 .foregroundStyle(Theme.textPrimary.color.opacity(step.day == 1 ? 1 : 0.72))
                 .fixedSize(horizontal: false, vertical: true)
+
+            if let techniques = BlockLibrary.techniqueSummary(for: step.blockIds) {
+                Text(verbatim: techniques)
+                    .font(.caption.weight(Theme.Weight.body))
+                    .foregroundStyle(
+                        Theme.textPrimary.color.opacity(step.day == 1 ? 0.68 : 0.48)
+                    )
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             if isMeasurement {
                 Text(Copy.Path.measurementNote)

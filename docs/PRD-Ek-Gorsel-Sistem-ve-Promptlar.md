@@ -785,6 +785,7 @@ Rozetin ortasında path'in öncesi/sonrası yüzdesi için metin slotu
 | 25 | **C1 görseli durum + süre aynalamasından sonra gelir** | İlk cümleden hemen sonra göstermek | Kullanıcı önce kendi durumunu ve ne kadar sürdüğünü birlikte okur; görsel bu iki parçayı bağlar, kalan kişisel cümleler ardından gelir |
 | 26 | **C4 raster yerine iki fazlı native süreç grafiği kullanır** | Soyut ufuk illüstrasyonu | Önce dalgalanıp aşağıda biten diğer uygulamalar, sonra 8. güne kadar sakin ve ardından ivmelenen Patika doğrudan okunur. Sayısal Y ekseni yoktur; grafik sonuç vaadi değildir |
 | 27 | **F2 ve onboarding sonrası Yolum ortak kıvrımlı `JourneyMapRow` kullanır** | Düz liste / raster harita | Gerçek kişisel adımlar aynı rotada görünür; sıradaki adım belirgin, gelecek başlıklar kilitli ama okunabilir kalır. Native Shape çizimi raster varlık istemez ve 60 Hz hareket bütçesini korur |
+| 28 | **Kişisel İz faz ritmi deterministik, tamamlanma geri bildirimi sunucu kaynaklıdır** | Rastgele kıvrım / süre dolunca yerel kutlama | Faz eşikleri gerçek `PathPlan` günlerinden türetilir; aynı path her açılışta aynı izi verir. Düğüm ancak yenilenen kayıtta `completed_at` görüldüğünde onaya dönüşür; böylece harita hem kişisel hem dürüst kalır |
 
 ---
 
@@ -1128,7 +1129,15 @@ Motion'da büyüme yerine mürekkep soldan sağa dolar — bekleme kalır, harek
 Rota satır başına native `Shape` + `trim` ile bir kez çizilir; scroll sırasında
 tercih/state yazan geometri ölçümü yapılmaz. Satırların gecikmesi üstten alta
 kademeli fakat toplam görünüş hareketi 800 ms altındadır. Aktif düğüm ve bu iki
-harita ekranındaki mesh normal koşullarda 60 Hz zaman çizelgesi ister. Düşük güç,
-termal baskı, arka plan ve Reduce Motion güvenlik düşüşleri mevcut sistem
-kurallarını korur. Reduce Motion'da rota doğrudan tamamlanmış, aktif düğüm statik
-gösterilir; dekoratif çizgi ve düğümler VoiceOver'dan gizlidir.
+harita ekranındaki mesh normal koşullarda 60 Hz zaman çizelgesi ister. Düğümün
+nefes değeri yalnızca aktif grafik overlay'ine verilir; satır metni ve kart gövdesi
+zaman çizelgesinin dışında kalır. Düşük güç, ciddi termal baskı, arka plan ve
+Reduce Motion güvenlik düşüşleri sürekli hareketi durdurur. Reduce Motion'da rota
+doğrudan tamamlanmış, aktif düğüm statik gösterilir; dekoratif çizgi ve düğümler
+VoiceOver'dan gizlidir.
+
+Fazların yatay ritmi `PathPlan.phase` + `JourneyRouteLayout` ile deterministiktir;
+rastgelelik kullanılmaz. Faz değişiminde çizgide gerçek bir aralık ve aralığın
+üstünde küçük bir faz etiketi vardır. AX Dynamic Type'ta aynı anlam düz sol ray
+üzerinde korunur. Oturum sonrası aktif → tamamlandı dönüşümü yalnızca sunucudan
+yeniden okunan `completed_at` değişimiyle çalışır ve tek yumuşak haptik verir.

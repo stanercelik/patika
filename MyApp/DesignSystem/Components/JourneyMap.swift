@@ -1,17 +1,20 @@
 import SwiftUI
 
-/// F2 ve "Yolum" ekranlarının ortak, kıvrımlı yol satırı.
+/// F2 ve Yolum'un ortak, faz duyarlı Kişisel İz satırı.
 ///
-/// Yol her satırın kendi sınırları içinde çizilir. Komşu satırlar sınırda aynı
-/// orta noktada buluştuğu için farklı metin yüksekliklerinde ve Dynamic Type'ta
-/// tek parça kalır; bütün listenin geometrisini her scroll karesinde ölçmek
-/// gerekmez.
+/// Satırlar sınırda aynı ara x değerini kullandığı için farklı metin
+/// yüksekliklerinde iz kopmaz; scroll sırasında liste geometrisi state'e
+/// yazılmaz.
 struct JourneyMapRow<Content: View>: View {
     let index: Int
     let totalCount: Int
+    let position: JourneyRoutePosition
+    let phase: PathPhase?
+    let startsPhase: Bool
     let node: TrailNode
     var showsLock = false
     var isProminent = false
+    var disablesMotion = false
     @ViewBuilder let content: Content
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -22,69 +25,71 @@ struct JourneyMapRow<Content: View>: View {
     @ScaledMetric(relativeTo: .body) private var prominentRowHeight: CGFloat = 208
     @ScaledMetric(relativeTo: .body) private var prominentRouteClearance: CGFloat = 104
     @ScaledMetric(relativeTo: .body) private var accessibleProminentTopInset: CGFloat = 58
-    private let accessibleRailCenter: CGFloat = 34
-    private let accessibleContentInset: CGFloat = 78
+    @ScaledMetric(relativeTo: .caption) private var phaseInset: CGFloat = 26
     @State private var isRevealed = false
 
+    private let accessibleRailCenter: CGFloat = 34
+    private let accessibleContentInset: CGFloat = 78
+
     private var usesAccessibleLayout: Bool { dynamicTypeSize.isAccessibilitySize }
-    private var currentX: CGFloat {
-        JourneyRoutePattern.normalizedX(at: index, usesAccessibleLayout: usesAccessibleLayout)
-    }
-    private var previousX: CGFloat {
-        JourneyRoutePattern.normalizedX(at: index - 1, usesAccessibleLayout: usesAccessibleLayout)
-    }
-    private var nextX: CGFloat {
-        JourneyRoutePattern.normalizedX(at: index + 1, usesAccessibleLayout: usesAccessibleLayout)
-    }
-    private var nodeIsLeading: Bool { currentX < 0.5 }
+    private var showsPhaseThreshold: Bool { startsPhase && index > 0 && phase != nil }
+    private var nodeIsLeading: Bool { position.currentX < 0.5 }
 
     var body: some View {
         contentLayout
             .padding(.vertical, 16)
             .frame(minHeight: rowHeight, alignment: .topLeading)
-            .background { route }
-            .overlay { marker }
+            .background { staticRoute }
+            .overlay { markersAndActiveInk }
+            .overlay { phaseThreshold }
             .opacity(isRevealed ? 1 : 0)
-            .offset(y: isRevealed || reduceMotion ? 0 : 8)
+            .offset(y: isRevealed || motionIsReduced ? 0 : 8)
             .task { reveal() }
-            .onChange(of: reduceMotion) {
-                if reduceMotion { isRevealed = true }
+            .onChange(of: motionIsReduced) {
+                if motionIsReduced { isRevealed = true }
             }
             .animation(.easeOut(duration: Theme.Motion.stepFill), value: node)
     }
 
     private var rowHeight: CGFloat {
-        if usesAccessibleLayout { return normalRowHeight }
-        return isProminent ? prominentRowHeight : normalRowHeight
+        let base: CGFloat
+        if usesAccessibleLayout {
+            base = normalRowHeight
+        } else {
+            base = isProminent ? prominentRowHeight : normalRowHeight
+        }
+        return base + contentTopInset
     }
+
+    private var contentTopInset: CGFloat { showsPhaseThreshold ? phaseInset : 0 }
+    private var resolvedNodeCenterY: CGFloat { nodeCenterY + contentTopInset }
 
     @ViewBuilder
     private var contentLayout: some View {
         if usesAccessibleLayout, isProminent {
-            // AX boyutunda aktif kart rayın yanındaki dar kolona sıkışmaz.
-            // Düğüm üstte kalır, kart bütün genişliği kullanır.
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 48)
-                .padding(.top, min(accessibleProminentTopInset, 140))
+                .padding(.top, min(accessibleProminentTopInset, 140) + contentTopInset)
         } else if usesAccessibleLayout {
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, accessibleContentInset)
+                .padding(.top, contentTopInset)
         } else if isProminent {
             HStack(alignment: .top, spacing: 24) {
                 if nodeIsLeading { prominentClearance }
-                content
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                content.frame(maxWidth: .infinity, alignment: .leading)
                 if !nodeIsLeading { prominentClearance }
             }
+            .padding(.top, contentTopInset)
         } else {
             HStack(alignment: .top, spacing: 36) {
                 if nodeIsLeading { routeClearance }
-                content
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                content.frame(maxWidth: .infinity, alignment: .leading)
                 if !nodeIsLeading { routeClearance }
             }
+            .padding(.top, contentTopInset)
         }
     }
 
@@ -100,17 +105,23 @@ struct JourneyMapRow<Content: View>: View {
             .accessibilityHidden(true)
     }
 
-    private var route: some View {
+    private var staticRoute: some View {
         GeometryReader { geometry in
-            let y = resolvedNodeY(in: geometry.size.height)
+            let size = geometry.size
+            let nodeY = resolvedNodeY(in: size.height)
+            let previousX = resolvedNodeX(position.previousX, in: size.width)
+            let currentX = resolvedNodeX(position.currentX, in: size.width)
+            let nextX = resolvedNodeX(position.nextX, in: size.width)
+
             ZStack {
                 JourneyRouteSegment(
-                    previousX: resolvedNodeX(previousX, in: geometry.size.width),
-                    currentX: resolvedNodeX(currentX, in: geometry.size.width),
-                    nextX: resolvedNodeX(nextX, in: geometry.size.width),
-                    nodeY: y,
+                    previousX: previousX,
+                    currentX: currentX,
+                    nextX: nextX,
+                    nodeY: nodeY,
                     showsAbove: index > 0,
                     showsBelow: index < totalCount - 1,
+                    breaksAbove: showsPhaseThreshold,
                     part: .whole
                 )
                 .trim(from: 0, to: isRevealed ? 1 : 0)
@@ -124,74 +135,151 @@ struct JourneyMapRow<Content: View>: View {
                     )
                 )
 
-                if node == .done || node == .active {
+                if node == .done {
                     JourneyRouteSegment(
-                        previousX: resolvedNodeX(previousX, in: geometry.size.width),
-                        currentX: resolvedNodeX(currentX, in: geometry.size.width),
-                        nextX: resolvedNodeX(nextX, in: geometry.size.width),
-                        nodeY: y,
+                        previousX: previousX,
+                        currentX: currentX,
+                        nextX: nextX,
+                        nodeY: nodeY,
                         showsAbove: index > 0,
                         showsBelow: index < totalCount - 1,
-                        part: node == .active ? .above : .whole
+                        breaksAbove: showsPhaseThreshold,
+                        part: .whole
                     )
                     .trim(from: 0, to: isRevealed ? 1 : 0)
                     .stroke(
-                        Theme.textPrimary.color.opacity(node == .active ? 0.74 : 0.48),
+                        Theme.textPrimary.color.opacity(0.50),
                         style: StrokeStyle(
                             lineWidth: Theme.Line.trail + 1,
                             lineCap: .round,
                             lineJoin: .round
                         )
                     )
-                    .transition(.opacity)
                 }
+
+                JourneyContentConnector(
+                    nodeX: currentX,
+                    nodeY: nodeY,
+                    targetX: connectorTargetX(in: size.width)
+                )
+                .trim(from: 0, to: isRevealed ? 1 : 0)
+                .stroke(
+                    Theme.textPrimary.color.opacity(showsLock ? 0.12 : 0.24),
+                    style: StrokeStyle(
+                        lineWidth: Theme.Line.journeyConnector,
+                        lineCap: .round
+                    )
+                )
             }
             .animation(routeAnimation, value: isRevealed)
         }
         .accessibilityHidden(true)
     }
 
-    private var marker: some View {
+    private var markersAndActiveInk: some View {
         GeometryReader { geometry in
-            JourneyMapNode(node: node, showsLock: showsLock)
-                .position(
-                    x: resolvedNodeX(currentX, in: geometry.size.width),
-                    y: resolvedNodeY(in: geometry.size.height)
-                )
-                .scaleEffect(isRevealed ? 1 : 0.84)
-                .opacity(isRevealed ? 1 : 0)
-                .animation(routeAnimation, value: isRevealed)
+            let size = geometry.size
+            let x = resolvedNodeX(position.currentX, in: size.width)
+            let y = resolvedNodeY(in: size.height)
+
+            if node == .active {
+                JourneyMotionValueReader(forcePaused: disablesMotion) { breath in
+                    ZStack {
+                        JourneyRouteSegment(
+                            previousX: resolvedNodeX(position.previousX, in: size.width),
+                            currentX: x,
+                            nextX: resolvedNodeX(position.nextX, in: size.width),
+                            nodeY: y,
+                            showsAbove: index > 0,
+                            showsBelow: false,
+                            breaksAbove: showsPhaseThreshold,
+                            part: .above
+                        )
+                        .trim(from: 0, to: isRevealed ? 1 : 0)
+                        .stroke(
+                            Theme.textPrimary.color.opacity(0.66 + breath * 0.10),
+                            style: StrokeStyle(
+                                lineWidth: Theme.Line.trail + 1,
+                                lineCap: .round,
+                                lineJoin: .round
+                            )
+                        )
+
+                        JourneyMapNode(node: node, showsLock: showsLock, breath: breath)
+                            .position(x: x, y: y)
+                    }
+                }
+            } else {
+                JourneyMapNode(node: node, showsLock: showsLock)
+                    .position(x: x, y: y)
+                    .contentTransition(.symbolEffect(.replace))
+            }
         }
+        .scaleEffect(isRevealed ? 1 : 0.84)
+        .opacity(isRevealed ? 1 : 0)
+        .animation(routeAnimation, value: isRevealed)
+        .animation(.easeOut(duration: Theme.Motion.journeyNodeReplace), value: node)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
 
+    @ViewBuilder
+    private var phaseThreshold: some View {
+        if let phase, showsPhaseThreshold {
+            GeometryReader { geometry in
+                let topX = (
+                    resolvedNodeX(position.previousX, in: geometry.size.width)
+                        + resolvedNodeX(position.currentX, in: geometry.size.width)
+                ) / 2
+                JourneyPhaseThreshold(phase: phase, isVisible: isRevealed)
+                    .fixedSize()
+                    .position(
+                        x: min(max(topX, 64), max(64, geometry.size.width - 64)),
+                        y: 12
+                    )
+                    .animation(
+                        motionIsReduced
+                            ? nil
+                            : .easeOut(duration: Theme.Motion.journeyPhaseReveal),
+                        value: isRevealed
+                    )
+            }
+        }
+    }
+
     private var routeAnimation: Animation? {
-        reduceMotion
+        motionIsReduced
             ? nil
             : .easeOut(duration: Theme.Motion.journeyRouteDraw)
                 .delay(min(Double(index) * Theme.Motion.journeyNodeStagger, 0.30))
     }
 
     private func resolvedNodeY(in height: CGFloat) -> CGFloat {
-        min(nodeCenterY, max(24, height - 24))
+        min(resolvedNodeCenterY, max(24, height - 24))
     }
 
-    private func resolvedNodeX(_ normalizedX: CGFloat, in width: CGFloat) -> CGFloat {
+    private func resolvedNodeX(_ normalizedX: Double, in width: CGFloat) -> CGFloat {
         usesAccessibleLayout
             ? min(accessibleRailCenter, width / 2)
-            : width * normalizedX
+            : width * CGFloat(normalizedX)
+    }
+
+    private func connectorTargetX(in width: CGFloat) -> CGFloat {
+        if usesAccessibleLayout { return min(accessibleContentInset - 12, width - 12) }
+        return nodeIsLeading ? width / 2 - 18 : width / 2 + 18
     }
 
     @MainActor
     private func reveal() {
         guard !isRevealed else { return }
-        if reduceMotion {
+        if motionIsReduced {
             isRevealed = true
         } else {
             withAnimation(routeAnimation) { isRevealed = true }
         }
     }
+
+    private var motionIsReduced: Bool { reduceMotion || disablesMotion }
 }
 
 private nonisolated enum JourneyRoutePart {
@@ -199,7 +287,8 @@ private nonisolated enum JourneyRoutePart {
     case above
 }
 
-/// Tek satırın üst sınırından düğüme, oradan alt sınıra uzanan eğri.
+/// Üst sınırdan düğüme ve düğümden alt sınıra uzanan eğri. Faz başlangıcında
+/// gerçek çizgi aralığı kullanır; hareketli mesh renginde maske yoktur.
 private struct JourneyRouteSegment: Shape {
     let previousX: CGFloat
     let currentX: CGFloat
@@ -207,163 +296,136 @@ private struct JourneyRouteSegment: Shape {
     let nodeY: CGFloat
     let showsAbove: Bool
     let showsBelow: Bool
+    let breaksAbove: Bool
     let part: JourneyRoutePart
 
-    func path(in rect: CGRect) -> Path {
+    nonisolated func path(in rect: CGRect) -> Path {
         let current = CGPoint(x: currentX, y: nodeY)
-        let topX = (previousX + currentX) / 2
-        let bottomX = (currentX + nextX) / 2
-        let top = CGPoint(x: topX, y: 0)
-        let bottom = CGPoint(x: bottomX, y: rect.height)
+        var result = Path()
 
-        var path = Path()
         if showsAbove {
-            path.move(to: top)
-            path.addCurve(
+            let top = CGPoint(x: (previousX + currentX) / 2, y: 0)
+            var above = Path()
+            above.move(to: top)
+            above.addCurve(
                 to: current,
                 control1: CGPoint(x: top.x, y: nodeY * 0.38),
                 control2: CGPoint(x: current.x, y: nodeY * 0.62)
             )
-        } else {
-            path.move(to: current)
+            if breaksAbove {
+                result.addPath(above.trimmedPath(from: 0, to: 0.40))
+                result.addPath(above.trimmedPath(from: 0.58, to: 1))
+            } else {
+                result.addPath(above)
+            }
         }
 
         if part == .whole, showsBelow {
+            let bottom = CGPoint(x: (currentX + nextX) / 2, y: rect.height)
             let remaining = max(rect.height - nodeY, 1)
-            path.addCurve(
+            var below = Path()
+            below.move(to: current)
+            below.addCurve(
                 to: bottom,
                 control1: CGPoint(x: current.x, y: nodeY + remaining * 0.38),
                 control2: CGPoint(x: bottom.x, y: nodeY + remaining * 0.72)
             )
+            result.addPath(below)
         }
-        return path
+
+        return result
     }
 }
 
-/// Harita ölçeğindeki durum düğümü. `TrailNodeDot` F1'in küçük üretim izinde
-/// kalır; harita düğümü başparmakla taranabilen daha belirgin bir işarettir.
-private struct JourneyMapNode: View {
-    let node: TrailNode
-    let showsLock: Bool
+/// Düğüm ile karşı kolondaki metni tek okuma birimi gibi bağlayan yönsüz çizgi.
+private struct JourneyContentConnector: Shape {
+    let nodeX: CGFloat
+    let nodeY: CGFloat
+    let targetX: CGFloat
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.scenePhase) private var scenePhase
-    @State private var lowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
-    @State private var thermalState = ProcessInfo.processInfo.thermalState
-    @ScaledMetric(relativeTo: .body) private var pendingSize: CGFloat = 34
-    @ScaledMetric(relativeTo: .body) private var activeSize: CGFloat = 50
-    @ScaledMetric(relativeTo: .body) private var milestoneSize: CGFloat = 42
-    @ScaledMetric(relativeTo: .body) private var doneSize: CGFloat = 36
+    nonisolated func path(in rect: CGRect) -> Path {
+        let direction: CGFloat = targetX >= nodeX ? 1 : -1
+        return Path { path in
+            path.move(to: CGPoint(x: nodeX + direction * 18, y: nodeY))
+            path.addLine(to: CGPoint(x: targetX, y: nodeY))
+        }
+    }
+}
+
+#Preview("Kişisel İz — normal") {
+    ScrollView {
+        VStack(spacing: 0) {
+            JourneyMapPreviewRow(index: 0, node: .done, x: (0.40, 0.40, 0.58))
+            JourneyMapPreviewRow(index: 1, node: .active, x: (0.40, 0.58, 0.36))
+            JourneyMapPreviewRow(
+                index: 2,
+                node: .pending,
+                x: (0.58, 0.36, 0.70),
+                phase: .awareness,
+                startsPhase: true
+            )
+            JourneyMapPreviewRow(index: 3, node: .milestone, x: (0.36, 0.70, 0.38))
+        }
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+    }
+    .background(Color(red: 0.06, green: 0.10, blue: 0.14))
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Kişisel İz — AX5, statik") {
+    ScrollView {
+        VStack(spacing: 0) {
+            JourneyMapPreviewRow(
+                index: 0,
+                node: .active,
+                x: (0.10, 0.10, 0.10),
+                disablesMotion: true
+            )
+            JourneyMapPreviewRow(
+                index: 1,
+                node: .pending,
+                x: (0.10, 0.10, 0.10),
+                phase: .skill,
+                startsPhase: true,
+                disablesMotion: true
+            )
+        }
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+    }
+    .background(Color(red: 0.06, green: 0.10, blue: 0.14))
+    .environment(\.dynamicTypeSize, .accessibility5)
+    .preferredColorScheme(.dark)
+}
+
+private struct JourneyMapPreviewRow: View {
+    let index: Int
+    let node: TrailNode
+    let x: (Double, Double, Double)
+    var phase: PathPhase?
+    var startsPhase = false
+    var disablesMotion = false
 
     var body: some View {
-        switch node {
-        case .pending:
-            pending
-        case .active:
-            active
-        case .done:
-            done
-        case .milestone:
-            milestone
-        }
-    }
-
-    private var pending: some View {
-        ZStack {
-            Circle()
-                .fill(Color.black.opacity(0.18))
-            Circle()
-                .strokeBorder(Theme.textPrimary.color.opacity(0.32), lineWidth: Theme.Line.border)
-            if showsLock {
-                Image(systemName: "lock.fill")
-                    .font(.caption2.weight(Theme.Weight.emphasis))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.48))
-            } else {
-                Circle()
-                    .fill(Theme.textPrimary.color.opacity(0.48))
-                    .frame(width: 6, height: 6)
+        JourneyMapRow(
+            index: index,
+            totalCount: 4,
+            position: JourneyRoutePosition(previousX: x.0, currentX: x.1, nextX: x.2),
+            phase: phase,
+            startsPhase: startsPhase,
+            node: node,
+            showsLock: node == .pending || node == .milestone,
+            isProminent: node == .active,
+            disablesMotion: disablesMotion
+        ) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Gün \(index + 1)")
+                    .font(.caption.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textSecondary.color)
+                Text(index == 1 ? "Düşünceyle arana küçük bir mesafe koy" : "Bugünün kişisel adımı")
+                    .font(.body.weight(Theme.Weight.emphasis))
+                    .foregroundStyle(Theme.textPrimary.color)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .frame(width: resolvedPendingSize, height: resolvedPendingSize)
     }
-
-    private var active: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 60.0, paused: pausesContinuousMotion)) { timeline in
-            let breath = pausesContinuousMotion
-                ? 0.5
-                : BreathCycle.value(
-                    at: timeline.date.timeIntervalSinceReferenceDate,
-                    amplitude: BreathAmplitude.ambient
-                )
-
-            ZStack {
-                Circle()
-                    .stroke(Theme.textPrimary.color.opacity(0.18 + breath * 0.12), lineWidth: 8)
-                    .scaleEffect(0.90 + breath * 0.10)
-                Circle()
-                    .fill(Color.black.opacity(0.24))
-                    .overlay {
-                        Circle()
-                            .strokeBorder(Theme.textPrimary.color.opacity(0.92), lineWidth: Theme.Line.border)
-                    }
-                Circle()
-                    .fill(Theme.textPrimary.color)
-                    .frame(width: 12, height: 12)
-            }
-        }
-        .frame(width: resolvedActiveSize, height: resolvedActiveSize)
-        .onReceive(NotificationCenter.default.publisher(for: ProcessInfo.PowerStateDidChangeMessage.name)) { _ in
-            lowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
-        }
-        .onReceive(NotificationCenter.default.publisher(for: ProcessInfo.ThermalStateDidChangeMessage.name)) { _ in
-            thermalState = ProcessInfo.processInfo.thermalState
-        }
-    }
-
-    private var pausesContinuousMotion: Bool {
-        reduceMotion
-            || scenePhase != .active
-            || lowPowerMode
-            || thermalState == .serious
-            || thermalState == .critical
-    }
-
-    private var done: some View {
-        Circle()
-            .fill(Theme.textPrimary.color.opacity(0.94))
-            .overlay {
-                Image(systemName: "checkmark")
-                    .font(.caption.weight(Theme.Weight.action))
-                    .foregroundStyle(Color.black.opacity(0.82))
-                    .contentTransition(.symbolEffect(.replace))
-            }
-            .frame(width: resolvedDoneSize, height: resolvedDoneSize)
-    }
-
-    private var milestone: some View {
-        ZStack {
-            Circle()
-                .fill(Color.black.opacity(0.18))
-            Circle()
-                .strokeBorder(Theme.textPrimary.color.opacity(0.62), lineWidth: Theme.Line.border)
-            Circle()
-                .strokeBorder(Theme.textPrimary.color.opacity(0.34), lineWidth: 1)
-                .padding(7)
-            if showsLock {
-                Image(systemName: "lock.fill")
-                    .font(.caption2.weight(Theme.Weight.emphasis))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.52))
-            } else {
-                Circle()
-                    .fill(Theme.textPrimary.color.opacity(0.92))
-                    .frame(width: 7, height: 7)
-            }
-        }
-        .frame(width: resolvedMilestoneSize, height: resolvedMilestoneSize)
-    }
-
-    private var resolvedPendingSize: CGFloat { min(pendingSize, 44) }
-    private var resolvedActiveSize: CGFloat { min(activeSize, 64) }
-    private var resolvedMilestoneSize: CGFloat { min(milestoneSize, 52) }
-    private var resolvedDoneSize: CGFloat { min(doneSize, 44) }
 }
