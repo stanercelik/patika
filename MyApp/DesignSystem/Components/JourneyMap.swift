@@ -73,7 +73,11 @@ struct JourneyMapRow<Content: View>: View {
 
     @ViewBuilder
     private var contentLayout: some View {
-        if usesAccessibleLayout, isProminent {
+        if presentation == .personalTrace, isProminent {
+            content
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 72 + contentTopInset)
+        } else if usesAccessibleLayout, isProminent {
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 48)

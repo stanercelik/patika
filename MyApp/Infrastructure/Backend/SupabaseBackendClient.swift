@@ -238,7 +238,9 @@ struct SupabaseBackendClient: BackendClient {
     /// `day` üzerinden kesin.
     func activePath(accessToken: String) async throws -> ActivePath? {
         let pathQuery = "/rest/v1/program_paths"
-            + "?select=id,kind,title&status=eq.active&order=created_at.desc&limit=1"
+            // Tamamlanan yol da okunur: son adımdan sonra "Yolum" boşalmamalı,
+            // bitmiş yolu ve izini göstermeye devam etmeli.
+            + "?select=id,kind,title,status&status=in.(active,completed)&order=created_at.desc&limit=1"
         var pathRequest = authenticatedRequest(path: pathQuery, method: "GET", accessToken: accessToken)
         pathRequest.setValue("application/json", forHTTPHeaderField: "Accept")
         let (pathData, pathResponse) = try await session.data(for: pathRequest)
@@ -259,8 +261,54 @@ struct SupabaseBackendClient: BackendClient {
             id: row.id,
             kind: row.kind ?? .personalized,
             title: row.title,
-            steps: steps
+            steps: steps,
+            isCompleted: row.status == "completed"
         )
+    }
+
+    // MARK: - "Ben" sekmesi
+
+    func profileSnapshot(accessToken: String) async throws -> ProfileSnapshot {
+        let data = try await callFunction("me-profile", body: EmptyPayload(), accessToken: accessToken)
+        return try Self.decoder.decode(ProfileSnapshot.self, from: data)
+    }
+
+    func updateDisplayName(_ name: String?, accessToken: String) async throws -> ProfileUpdateOutcome {
+        let data = try await callFunction(
+            "update-profile",
+            body: DisplayNamePayload(displayName: name),
+            accessToken: accessToken
+        )
+        let status = try JSONDecoder().decode(StatusResponse.self, from: data).status
+        return status == "crisis" ? .crisis : .updated
+    }
+
+    func deleteJournal(_ target: JournalDeletionTarget, accessToken: String) async throws {
+        _ = try await callFunction("delete-journal", body: JournalDeletionPayload(target), accessToken: accessToken)
+    }
+
+    func recordMeasurement(_ upload: MeasurementUpload, userID: UUID, accessToken: String) async throws {
+        var request = authenticatedRequest(path: "/rest/v1/measurements", method: "POST", accessToken: accessToken)
+        request.setValue("return=minimal", forHTTPHeaderField: "Prefer")
+        request.httpBody = try JSONEncoder().encode(MeasurementInsertPayload(upload, userID: userID))
+        let (data, response) = try await session.data(for: request)
+        // Aynı gün için tekil dizin (`measurements_user_day_idx`): ölçüm zaten
+        // yazılmış. Değiştirilebilir bir ölçüm ölçüm değildir; ikinci yazım
+        // sessizce geçer.
+        if (response as? HTTPURLResponse)?.statusCode == 409 { return }
+        try validate(response, data)
+    }
+
+    func deleteAccount(accessToken: String) async throws {
+        _ = try await callFunction("delete-account", body: EmptyPayload(), accessToken: accessToken)
+    }
+
+    private func callFunction(_ name: String, body: some Encodable, accessToken: String) async throws -> Data {
+        var request = authenticatedRequest(path: "/functions/v1/\(name)", method: "POST", accessToken: accessToken)
+        request.httpBody = try JSONEncoder().encode(body)
+        let (data, response) = try await session.data(for: request)
+        try validate(response, data)
+        return data
     }
 
     private static let stepColumns =
@@ -331,6 +379,7 @@ private struct ProgramPathRow: Decodable {
     let id: UUID
     let kind: ProgramPathKind?
     let title: String
+    let status: String?
 }
 
 private struct AudioStatusRow: Decodable {
@@ -409,6 +458,86 @@ private struct GeneratePathResponse: Decodable {
 
 private struct ManifestRow: Decodable {
     let manifest: SessionManifest
+}
+
+private struct EmptyPayload: Encodable {}
+
+private struct StatusResponse: Decodable {
+    let status: String
+}
+
+/// `displayName` her zaman yazılır — `null` "adı temizle" demek; alanın hiç
+/// olmaması sunucuda geçersiz istek.
+private struct DisplayNamePayload: Encodable {
+    let displayName: String?
+
+    enum CodingKeys: String, CodingKey { case displayName }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(displayName, forKey: .displayName)
+    }
+}
+
+private struct JournalDeletionPayload: Encodable {
+    let answerId: String?
+    let origin: Bool
+    let all: Bool
+
+    init(_ target: JournalDeletionTarget) {
+        switch target {
+        case .answer(let id):
+            answerId = id.uuidString.lowercased()
+            origin = false
+            all = false
+        case .origin:
+            answerId = nil
+            origin = true
+            all = false
+        case .all:
+            answerId = nil
+            origin = false
+            all = true
+        }
+    }
+}
+
+private struct MeasurementInsertPayload: Encodable {
+    let userID: String
+    let pathID: String
+    let variant: String
+    let measurementDay: Int
+    let rawResponses: [String: Double]
+    let emotionScore: Double?
+    let behaviorScore: Double?
+    let selfEfficacyScore: Double?
+
+    init(_ upload: MeasurementUpload, userID: UUID) {
+        self.userID = userID.uuidString.lowercased()
+        pathID = upload.pathID.uuidString.lowercased()
+        variant = upload.variant.rawValue
+        measurementDay = upload.day
+        rawResponses = upload.responses
+        emotionScore = upload.score?.value(for: .emotion).map(Self.rounded)
+        behaviorScore = upload.score?.value(for: .behavior).map(Self.rounded)
+        selfEfficacyScore = upload.score?.value(for: .selfEfficacy).map(Self.rounded)
+    }
+
+    /// `numeric(5,2)`.
+    private static func rounded(_ value: Double) -> Double {
+        (value * 100).rounded() / 100
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case userID = "user_id"
+        case pathID = "path_id"
+        case variant
+        case measurementDay = "measurement_day"
+        case rawResponses = "raw_responses"
+        case emotionScore = "emotion_score"
+        case behaviorScore = "behavior_score"
+        case selfEfficacyScore = "self_efficacy_score"
+    }
 }
 
 private struct CompleteStepPayload: Encodable {

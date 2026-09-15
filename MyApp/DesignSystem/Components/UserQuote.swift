@@ -1,0 +1,51 @@
+import SwiftUI
+
+/// Kullanıcının kendi cümlesi.
+///
+/// ## İki ses
+///
+/// Kullanıcının cümlesi **serif** (New York), ürünün sesi SF Pro
+/// (`Theme.Voice`). Göz kimin konuştuğunu fontan anlar; kullanıcı kendi
+/// cümlesini hangi ekranda görürse görsün aynı yüzü tanır.
+///
+/// ## Cümle kutsaldır
+///
+/// Düzeltilmez, özetlenmez, yorumlanmaz. Soldaki çizgi tırnak işaretinin yerine:
+/// tırnak metne bir "söz" ağırlığı yükler. Kısaltma gerekiyorsa çağıran taraf
+/// cümle sınırında keser (`MeViewModel.excerpt`), kelime ortasından değil.
+struct UserQuote: View {
+    let text: String
+    let caption: String
+    var detail: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(verbatim: text)
+                .font(Theme.Voice.user())
+                .foregroundStyle(Theme.textPrimary.color)
+                .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(verbatim: caption)
+                .font(.footnote.weight(Theme.Weight.body))
+                .foregroundStyle(Theme.textSecondary.color)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let detail {
+                Text(verbatim: detail)
+                    .font(.footnote.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textSecondary.color.opacity(0.78))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.leading, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(alignment: .leading) {
+            Capsule()
+                .fill(Theme.textPrimary.color.opacity(0.35))
+                .frame(width: 2)
+                .accessibilityHidden(true)
+        }
+        .accessibilityElement(children: .combine)
+    }
+}

@@ -72,6 +72,13 @@ final class AuthSessionStore {
 
     func clearError() { errorMessage = nil }
 
+    /// Hesap silindikten sonra. Keychain'deki oturum da temizlenir; uygulama bir
+    /// sonraki açılışta sıfırdan başlar.
+    func signOut() async {
+        await client.signOut(session: session)
+        session = nil
+    }
+
     private func perform(_ operation: () async throws -> AuthSession) async -> Bool {
         guard !isWorking else { return false }
         isWorking = true

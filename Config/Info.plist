@@ -11,6 +11,8 @@
 	  (PRD SS13.3). INFOPLIST_KEY_UIBackgroundModes diye bir build ayari yok —
 	  Xcode'un ureteci bu anahtari tanimiyor.
 	-->
+	<key>NSFaceIDUsageDescription</key>
+	<string>Kaydını yalnızca senin açabilmen için.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

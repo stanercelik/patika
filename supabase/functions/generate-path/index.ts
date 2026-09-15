@@ -104,9 +104,11 @@ Deno.serve(async (req) => {
         raw_text_ciphertext: rawProblemCiphertext,
         generation_summary: plan.summary,
       }),
-      // Baseline mükerrer yazılmasın: aynı kullanıcı için ikinci bir path
-      // üretimi ilk ölçümü değiştirmemeli (tekil dizin 20260909130000).
-      adminClient.from("measurements").upsert({
+      // Baseline kullanıcı başına bir kez: ikinci bir path üretimi ilk ölçümü
+      // değiştirmemeli. Tekillik kısmi dizinde (`measurements_user_baseline_idx`,
+      // 20260912120000); PostgREST kısmi dizinle `onConflict` çıkaramadığı için
+      // çakışma burada sessizce geçiliyor.
+      insertBaselineOnce(adminClient, {
         user_id: user.id,
         variant: input.measurementVariant,
         measurement_day: 0,
@@ -114,7 +116,7 @@ Deno.serve(async (req) => {
         emotion_score: scores.emotion,
         behavior_score: scores.behavior,
         self_efficacy_score: scores.selfEfficacy,
-      }, { onConflict: "user_id,measurement_day", ignoreDuplicates: true }),
+      }),
       adminClient.from("generation_jobs").insert({
         user_id: user.id,
         path_id: path.id,
@@ -144,6 +146,13 @@ Deno.serve(async (req) => {
     return json({ code: "server_error" }, 500);
   }
 });
+
+// deno-lint-ignore no-explicit-any
+async function insertBaselineOnce(adminClient: any, row: Record<string, unknown>): Promise<{ error: unknown }> {
+  const { error } = await adminClient.from("measurements").insert(row);
+  if (error?.code === "23505") return { error: null };
+  return { error };
+}
 
 async function pathResponse(adminClient: any, userId: string, pathId: string): Promise<Response> {
   const [{ data: path }, { data: steps }] = await Promise.all([

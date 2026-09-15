@@ -70,6 +70,22 @@ Deno.serve(async (req) => {
       if (completionError) throw new Error("database_write_failed");
     }
 
+    // Yolun sonu: tamamlanmamış adım kalmadıysa yol tamamlanır. "Yolum" bitmiş
+    // yolu göstermeye devam eder; "Ben" onu arşive alır ve son ölçümle kovasını
+    // hesaplar.
+    let pathStatus: "active" | "completed" = "active";
+    const { count: remaining, error: remainingError } = await adminClient.from("path_steps")
+      .select("id", { count: "exact", head: true })
+      .eq("path_id", current.path_id).eq("user_id", user.id).is("completed_at", null);
+    if (remainingError) throw new Error("database_read_failed");
+    if (remaining === 0) {
+      const { error: pathError } = await adminClient.from("program_paths")
+        .update({ status: "completed", completed_at: new Date().toISOString() })
+        .eq("id", path.id).eq("user_id", user.id).eq("status", "active");
+      if (pathError) throw new Error("database_write_failed");
+      pathStatus = "completed";
+    }
+
     let nextStepStatus: "none" | "queued" = "none";
     if (policy.shouldQueueNext && next) {
       const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/generate-audio`, {
@@ -83,7 +99,7 @@ Deno.serve(async (req) => {
       });
       if (response.ok || response.status === 202) nextStepStatus = "queued";
     }
-    return json({ status: "completed", nextStepStatus, crisis: false });
+    return json({ status: "completed", nextStepStatus, pathStatus, crisis: false });
   } catch (error) {
     const code = error instanceof Error ? error.message : "server_error";
     if (code === "unauthorized") return json({ code }, 401);

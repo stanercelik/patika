@@ -304,6 +304,92 @@ yazmak, ilkinin düzeltilmiş hatalarını miras almadan yeni hatalar üretiyord
   okunuyor (`generatePathWithReconciliation`). -1005 mobilde sıradan bir olay ve
   yeni bir anahtar ikinci bir LLM + TTS faturası demekti.
 
+### "Ben" sekmesi çalışıyor — geriye bakan defter (2026-09-12)
+
+`MyApp/Features/Me/`. Tasarım ve bütün kararlar: `docs/profile-design.md`.
+"Yolum" ileriye bakan harita, "Ben" geriye bakan defter; **birincil CTA yok**.
+Bölüm sırası sabit: başlık → Ne değişti → Defter → Yürüdüğün yollar → Sana göre
+ayarlananlar → Destek al → (anonim hesap) → Ayarlar ve gizlilik.
+
+- **Cihazda artık bir kayıt var** (`ProfileStore` → `ProfileRecord`, tek JSON,
+  `completeUnlessOpen`). Önceden onboarding bitince ad, B1 cümlesi, baseline ve
+  tercihler hiçbir yerde kalmıyordu. Kayıt `completeFirstStep` ve
+  `completeOnboarding`da yazılır; kriz sinyali verilmiş akış kaydedilmez.
+  `PersistentModels` (SwiftData) hâlâ kullanılmıyor.
+- **Değişim sayıyla değil konumla** (`BaselineTrack`): nokta kullanıcının kendi
+  başlangıç işaretine göre iyi yönde sağa kayar; yön = kelime + ok + konum, renk
+  yok. Ana sayfada ve ayrıntıda yüzde yok; sayı yalnızca path sonu raporunda.
+  Cümle deterministik şablon (`ChangeSentence`); kötüleşen katman **mutlaka** geçer.
+- **Karşılaştırma ortak maddelerle yapılır** (`ChangeAnalysis.comparableScores`):
+  14. gün kısa form; farklı madde setleri hiçbir cevap değişmemişken katmanı
+  hareket etmiş gösteriyordu.
+- **Kullanıcının cümlesi serif** (`Theme.Voice.user`, New York), ürünün sesi SF
+  Pro. Defter düzenlenmez, yalnızca silinir.
+- **Rozet = mühür = yolun rota çizimi** (`RouteSeal`); kova farkı çizimde yok.
+- **Hatırlatma artık gerçekten planlanıyor** (`ReminderScheduler`: cihazda,
+  `.active`, ses yok, izin anahtar açılınca). Uzunluk/ton/ses **salt okunur** —
+  sunucuda path tercihlerini güncelleyen uç nokta yok.
+- `PathSessionViewModel` sabit 10 dakika yerine kayıttaki `sessionLength`i kullanır.
+- **Uygulama kilidi** (`AppLockController`, Face ID/parola, 30 sn tolerans) ve
+  arka plana geçerken içeriği örten perde (`PrivacyShieldView`). **SOS ikisinin
+  de üstünde.**
+- **Destek al** (`SupportView`, `SupportResources`): ülkeye göre numara, tek
+  dokunuşla arama. ⚠️ Numaralar yayından önce resmî kaynaktan doğrulanmalı.
+- DEBUG: `-patika-debug-tab ben -patika-debug-me pending|compared|worse|finished|crisis|empty`,
+  `-patika-debug-me-anchor …`, `-patika-debug-me-sheet change|settings|reminder|support`.
+
+**Güncelleme (2026-09-12, aynı gün): sayfa yalnızca gerçek veriyle çalışıyor.**
+
+- **Kaynak sunucu.** `me-profile` Edge Function'ı ad, ilk cümle + kaçınma
+  cümlesi, oturum cevapları (şifreleri sahibine çözülmüş), ölçümler, yollar ve
+  yolun kurulduğu tercihleri döndürür; `ProfileStore.apply(_:)` kayda işler.
+  Cihaza ait olanlar (hatırlatma, gizlilik, kilit) korunur. Defter artık yalnızca
+  sunucudan dolar — yerel `appendReflection` çağrıları kaldırıldı.
+- **Verisi olmayan bölüm çizilmez, not yok.** Gerçek karşılaştırma yoksa "Ne
+  değişti" yok; cümle yoksa defter yok; yol yoksa mühür yok; hazır patikada
+  uzunluk/ton/ses satırı yok. Klinik feragat yalnızca değişim kartıyla birlikte
+  (PRD §8.1). `me-paths-empty` illüstrasyonu bu yüzden kullanılmıyor.
+- **Yeni Edge Function'lar (dağıtık):** `me-profile`, `update-profile` (ad,
+  şifreli + kriz taraması), `delete-journal` (tek cevap / ilk cümleler / hepsi),
+  `delete-account` (kişisel ses dosyaları + `auth.admin.deleteUser`, tablolar
+  cascade). Migrasyon gerekmedi. Canlı duman testi geçti.
+- **Yol içi ölçüm akışı yazıldı** (`PathSessionViewModel`): 7./14. adım ve son
+  adımdan sonra, sonuna kadar dinlendiyse ve o gün için kayıt yoksa. Cevaplar
+  `measurements` tablosuna REST ile yazılır; aynı gün çakışması (409) başarı
+  sayılır. `MeasurementSchedule` gün ↔ ölçüm noktası eşlemesi.
+- **Düzeltilen hata:** sorusu olmayan adımlar (hazır patika) hiç `completeStep`
+  çağırmıyordu ve yol ilerlemiyordu. Artık sonuna kadar dinlenen her adım
+  tamamlanır; ağ hatasında "Yeniden dene".
+- **Hesap silme gerçek:** sunucu silmeyi tamamlarsa cihaz kaydı silinir, oturum
+  kapanır, uygulama onboarding'e döner.
+- Ad onboarding sonunda sunucuya yazılır (`completeOnboarding`).
+
+**Güncelleme 2 (2026-09-12): açık kalan sunucu işleri kapandı.**
+
+- **Yol sonu:** `complete-step` tamamlanmamış adım kalmadığında yolu
+  `completed` işaretler (`pathStatus` döner). "Yolum" aktif **ya da tamamlanmış**
+  en yeni yolu okur (`status=in.(active,completed)`), son adımdan sonra boşalmaz;
+  `ActivePath.isCompleted` üretim uzlaştırmasının bitmiş yolu yeni yol sanmasını
+  engeller. "Ben" tamamlanan yolun kovasını baseline ↔ son ölçümden
+  deterministik hesaplar (`ChangeAnalysis.bucket`); son ölçüm yoksa kova yazılmaz.
+- **Ölçümler yola bağlı** (`20260912120000_measurements_per_path.sql`, uygulandı):
+  `measurements.path_id`, baseline kullanıcı başına tekil (kısmi dizin), ara/son
+  ölçüm yol başına tekil; ekleme politikası yolun sahibini denetler. `generate-path`
+  baseline'ı kısmi dizin yüzünden `onConflict` yerine ekle-ve-çakışmayı-geç ile
+  yazar. "Ne değişti" yalnızca baseline + ilgili yolun ölçümlerini karşılaştırır.
+- **Migrasyon defteri onarıldı:** uzaktaki yinelenen `20260909152752` ve
+  `20260909155018` `reverted` işaretlendi; yerel ve uzak birebir.
+- **Fonksiyon testleri koşuyor:** `npx --yes deno test --allow-read --allow-env
+  --allow-net supabase/functions/tests/` — 21/21 geçti (yeni
+  `profile_contract_test.ts`: şifreleme gidiş-dönüş, bozuk şifre reddi, ölçüm
+  migrasyonu sözleşmesi).
+- **Canlı uçtan uca doğrulandı:** 21 adımlı yol üretimi → 7. gün ölçümü (201) →
+  aynı gün tekrar (409) → yabancı yola ölçüm (403) → 21 adım tamamlama (20.
+  adımda `active`, 21.'de `completed`) → `me-profile` → hesap silme.
+
+> **Açık kalan:** yalnızca satın alma satırı (StoreKit). `me-paths-empty`
+> illüstrasyonu boş durum çizilmediği için kullanılmıyor.
+
 ### Sunucu durumu — 2026-09-09 canlı doğrulama
 
 Beş Edge Function dağıtık (`generate-path` v6, `generate-audio` v5,
@@ -329,7 +415,8 @@ cevabı şifreleyip yalnızca 2. adımı kişiselleştirip kuyruğa alıyor, EN 
 | `docs/PRD-Ek-Ton-ve-Nudge.md` | Tüm kullanıcıya görünen metinlerin tonu, mikrometin kütüphanesi, bildirim kuralları, erişilebilirlik |
 | `docs/PRD-Ek-Gorsel-Sistem-ve-Promptlar.md` | MeshGradient + Metal shader kodu, 10 kategori paleti, nefes animasyonu, Rive brief'leri, görsel prompt'ları |
 | `docs/PRD-Ek-Oturum-Motoru-ve-JIT.md` | **Oturum çalarken zorunlu.** Blok `script` şeması (fixed/silence/slot), doğal akış kuralları K1–K6, ses seviyesi ve veri ikametgâhı kararı, sesle senkron arka plan (`voiceEnergy`), kademeli üretimin düzeltilmiş modeli, adım sonu sorusu |
-| `docs/PRD-Ek-Profil-Sayfasi.md` | "Ben" sekmesi tasarımı. Ahead/Fabulous/Ladder/Yazio profil ekranlarından ne alındığı ve **ne alınmadığı**, önerilen yerleşim, önce gereken veri katmanı. **Taslak — onay bekliyor.** |
+| `docs/PRD-Ek-Profil-Sayfasi.md` | "Ben" sekmesinin ilk iskeleti ve Ahead/Fabulous/Ladder/Yazio incelemesi. Abonelik satırı eskidi; güncel tasarım aşağıdaki dosyada |
+| `docs/profile-design.md` | **"Ben" sekmesinde çalışırken zorunlu.** Ekran ekran tasarım, Ahead etkileşim döngüsü analizi, durum matrisi, mikrometin, uygulama durumu (§18) ve görsel prompt'ları (§19) |
 | `docs/PRD-Ek-Path-Uretimi-ve-AI.md` | **Backend/AI çalışırken zorunlu.** Path üretim hattı adım adım, blok kütüphanesi ve slot şeması, LLM/TTS sağlayıcı karşılaştırmaları, kişiselleştirme kademeleri, JIT üretim, üç uçtan uca vaka (söylenen cümleler + kuruş kuruş maliyet), kohort ekonomisi, gizlilik sınırları |
 
 Her dokümanın sonunda bir **karar günlüğü** var: bir tasarım kararını değiştirmeyi düşünüyorsan önce oradaki gerekçeyi oku. Bu kararların çoğu estetik değil, etik veya ticari.

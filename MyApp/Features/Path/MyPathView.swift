@@ -97,13 +97,12 @@ struct MyPathView: View {
             // kullanıcı hangi yolda olduğunu kaybediyordu.
             MyPathHeader(
                 title: path.title,
-                phase: path.nextStep.flatMap { viewModel?.phase(for: $0) } ?? .closing,
                 hasNextStep: path.nextStep != nil
             )
             // SOS her ekranda sağ üstte sabit; başlık onun altından başlar.
             .padding(.top, 48)
             .padding(.horizontal, Theme.Spacing.screenMargin)
-            .padding(.bottom, 12)
+            .padding(.bottom, 24)
 
             ScrollViewReader { proxy in
                 ScrollView {
@@ -161,7 +160,6 @@ struct MyPathView: View {
     private func pathHeader(for path: ActivePath) -> some View {
         MyPathHeader(
             title: path.title,
-            phase: path.nextStep.flatMap { viewModel?.phase(for: $0) } ?? .closing,
             hasNextStep: path.nextStep != nil
         )
     }
@@ -170,10 +168,20 @@ struct MyPathView: View {
     private var trail: some View {
         let steps = viewModel?.steps ?? []
         let phases = steps.map { viewModel?.phase(for: $0) }
-        let positions = JourneyRouteLayout.positions(
+        let basePositions = JourneyRouteLayout.positions(
             for: phases,
             usesAccessibleLayout: dynamicTypeSize.isAccessibilitySize
         )
+        let centers = steps.enumerated().map { index, step in
+            viewModel?.isExpanded(step) == true ? 0.5 : basePositions[index].currentX
+        }
+        let positions = centers.indices.map { index in
+            JourneyRoutePosition(
+                previousX: centers[max(0, index - 1)],
+                currentX: centers[index],
+                nextX: centers[min(centers.count - 1, index + 1)]
+            )
+        }
 
         return LazyVStack(alignment: .leading, spacing: 0) {
             ForEach(Array(steps.enumerated()), id: \.element.id) { index, step in
@@ -226,52 +234,52 @@ private struct PathStepRow: View {
             isProminent: isExpanded,
             presentation: .personalTrace
         ) {
-            Button {
-                Theme.softHaptic(intensity: 0.25)
-                withAnimation(reduceMotion ? Theme.Motion.crossFade : Theme.Motion.pathExpand) {
-                    viewModel.toggle(step)
+            VStack(alignment: .leading, spacing: 0) {
+                Button {
+                    Theme.softHaptic(intensity: 0.25)
+                    withAnimation(reduceMotion ? Theme.Motion.crossFade : Theme.Motion.pathExpand) {
+                        viewModel.toggle(step)
+                    }
+                } label: {
+                    body(for: step)
+                        .frame(minHeight: 44, alignment: .leading)
                 }
-            } label: {
-                body(for: step)
+                .buttonStyle(.calm)
+                .disabled(isLocked)
+                .accessibilityElement(children: .combine)
+                .accessibilityHint(isLocked ? Text(Copy.Path.lockedAccessibility) : Text(""))
+                if isExpanded {
+                    expanded
+                        .padding(20)
+                }
             }
-            .buttonStyle(.calm)
-            .disabled(isLocked)
-            .accessibilityElement(children: .combine)
-            .accessibilityHint(isLocked ? Text(Copy.Path.lockedAccessibility) : Text(""))
+            .background {
+                if isExpanded {
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .fill(Color.black.opacity(reduceTransparency ? 1 : 0.56))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                                .strokeBorder(Theme.textPrimary.color.opacity(0.22), lineWidth: Theme.Line.journeyConnector)
+                        }
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         }
     }
 
     private func body(for step: PathStepRecord) -> some View {
         VStack(alignment: .leading, spacing: 0) {
+            if isExpanded, !dynamicTypeSize.isAccessibilitySize {
+                PathTerrain()
+                    .frame(height: 148)
+                    .padding(.horizontal, -20)
+                    .padding(.top, -20)
+                    .padding(.bottom, 16)
+            }
             header
-            if isExpanded { expanded }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(isExpanded ? expandedContentInsets : EdgeInsets())
-        .background {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(
-                    reduceTransparency
-                        ? Color.black.opacity(isExpanded ? 0.90 : 0)
-                        : Color.black.opacity(isExpanded ? 0.38 : 0)
-                )
-                .overlay {
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .fill(Theme.textPrimary.color.opacity(isExpanded ? 0.055 : 0))
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .strokeBorder(
-                            Theme.textPrimary.color.opacity(isExpanded ? 0.20 : 0),
-                            lineWidth: Theme.Line.journeyConnector
-                        )
-                }
-        }
-        .shadow(
-            color: Color.black.opacity(isExpanded && !reduceTransparency ? 0.16 : 0),
-            radius: 18,
-            y: 10
-        )
+        .padding(isExpanded ? EdgeInsets(top: 20, leading: 20, bottom: 0, trailing: 20) : EdgeInsets())
         .padding(.trailing, isExpanded ? 0 : 4)
     }
 
@@ -280,7 +288,7 @@ private struct PathStepRow: View {
             HStack(spacing: 6) {
                 Text(Copy.Path.stepLabel(day: step.day))
                     .font(.caption.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color.opacity(isLocked ? 0.62 : 1))
+                    .foregroundStyle(Theme.textSecondary.color)
                 if isLocked {
                     // Kilit tek başına anlam taşımıyor: açık satırda aynı şey
                     // cümleyle de yazıyor (renk tek başına anlam taşımaz kuralı).
@@ -362,58 +370,32 @@ private struct PathStepRow: View {
 
     private var titleFont: Font {
         isExpanded
-            ? .title3.weight(Theme.Weight.title)
+            ? .title2.weight(Theme.Weight.title)
             : .body.weight(Theme.Weight.emphasis)
     }
 
     private var titleOpacity: Double {
         if isExpanded { return 1 }
-        if isCompleted { return 0.58 }
-        return isLocked ? 0.68 : 0.94
-    }
-
-    /// Normal yerleşimde aktif düğüm kartın kenarına bağlanır. Metin ve eylem
-    /// düğüm halkasının altına kaçmasın diye yalnızca düğüm tarafında daha geniş
-    /// bir iç boşluk bırakılır. AX yerleşiminde düğüm zaten kartın üstündedir.
-    private var expandedContentInsets: EdgeInsets {
-        guard !dynamicTypeSize.isAccessibilitySize else {
-            return EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 18)
-        }
-        if position.currentX < 0.5 {
-            return EdgeInsets(top: 18, leading: 54, bottom: 18, trailing: 18)
-        }
-        return EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 54)
+        if isCompleted { return 0.82 }
+        return isLocked ? 0.86 : 1
     }
 
 }
 
 private struct MyPathHeader: View {
     let title: String
-    let phase: PathPhase
     let hasNextStep: Bool
-
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         ZStack(alignment: .trailing) {
-            if !dynamicTypeSize.isAccessibilitySize {
-                Image(decorative: JourneyPhaseDecoration.assetName(for: phase))
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 138, height: 104)
-                    .opacity(reduceTransparency ? 0.08 : 0.18)
-                    .offset(x: 30, y: 2)
-                    .accessibilityHidden(true)
-            }
-
             VStack(alignment: .leading, spacing: 8) {
                 Text(Copy.Path.screenTitle)
                     .font(.caption.weight(Theme.Weight.emphasis))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.52))
+                    .tracking(2)
+                    .foregroundStyle(Theme.textSecondary.color)
 
                 Text(verbatim: title)
-                    .font(.title.weight(Theme.Weight.display))
+                    .font(.largeTitle.weight(Theme.Weight.display))
                     .foregroundStyle(Theme.textPrimary.color)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -429,7 +411,6 @@ private struct MyPathHeader: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.trailing, dynamicTypeSize.isAccessibilitySize ? 0 : 82)
         }
     }
 }

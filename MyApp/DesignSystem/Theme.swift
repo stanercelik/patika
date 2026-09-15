@@ -51,6 +51,33 @@ enum Theme {
         static let journeyConnector: CGFloat = 1
     }
 
+    /// Mesh üstünde okunur içerik yüzeyi — "Ben" sekmesinin kartları
+    /// (`docs/profile-design.md` §9.2).
+    ///
+    /// Liquid Glass değil: iOS 26 yönergesi camı gezinme ve kontrol katmanına
+    /// ayırıyor. Sekme çubuğu ve sheet'ler sistem camını kullanıyor; içerik kartı
+    /// sade bir koyu yüzey.
+    enum Surface {
+        static let cornerRadius: CGFloat = 24
+        static let padding: CGFloat = 20
+        static let fillOpacity: Double = 0.22
+        static let strokeOpacity: Double = 0.08
+        /// Increase Contrast.
+        static let fillOpacityHighContrast: Double = 0.34
+        static let strokeOpacityHighContrast: Double = 0.20
+        /// Reduce Transparency'de zemin zaten düz koyu renk.
+        static let fillOpacityOpaqueBackground: Double = 0.12
+    }
+
+    /// Kimin konuştuğu fontan okunur (ürün sahibi onayı, 2026-09-12): kullanıcının
+    /// kendi cümlesi serif (New York), ürünün sesi SF Pro. Sistem fontu olduğu için
+    /// Dynamic Type ve Bold Text ile kendiliğinden uyumlu, ek varlık getirmez.
+    enum Voice {
+        static func user(_ style: Font.TextStyle = .body) -> Font {
+            .system(style, design: .serif, weight: Weight.body)
+        }
+    }
+
     /// Tüm animasyonlar 800 ms altı (Ton eki §7). Uzun animasyon = bekletme.
     enum Motion {
         /// Ekran geçişleri: cross-fade, slide yok (Ton eki §2.1).
@@ -127,6 +154,12 @@ enum Theme {
         static let journeyPhaseReveal: Double = 0.26
         static let journeyNodeReplace: Double = 0.22
         static let journeyPress: Double = 0.14
+
+        /// Yeni mührün çizilmesi — rota ve uç düğüm birlikte ilerler.
+        static let sealDraw: Double = 0.70
+        /// "Ne değişti" satırları arası gecikme: noktalar başlangıç işaretinden
+        /// sırayla kayar (her biri `measurementBar` sürer).
+        static let changeRowStagger: Double = 0.12
 
         /// Liste hâlindeki öğeler için çok daha kısa aralık. C'nin 1.5 saniyesi
         /// okunacak cümleler içindi; yedi satırlık bir yol haritasında aynı ritim

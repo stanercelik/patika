@@ -37,6 +37,12 @@ struct PatikaApp: App {
             // DEBUG'ta `-patika-debug-step yolum` doğrudan kabuğu açar ve
             // gerekirse gerçek path üretimini tetikler. Release'te bu blok yok.
             .task {
+                // Palet uygulama yeniden açıldığında nötre düşüyordu: kategori ve
+                // ruh hâli yalnızca onboarding belleğinde duruyordu.
+                if let record = services.profile.record, !record.categories.isEmpty {
+                    paletteController.select(record.categories)
+                    paletteController.setMood(record.mood)
+                }
                 #if DEBUG
                 await DebugDirectEntry.prepareIfNeeded(services: services, palette: paletteController)
                 #endif

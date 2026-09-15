@@ -60,6 +60,9 @@ struct ActivePath: Equatable, Sendable {
     let kind: ProgramPathKind
     let title: String
     let steps: [PathStepRecord]
+    /// Sunucu yolu tamamladı (`program_paths.status = completed`). "Yolum" bitmiş
+    /// yolu göstermeye devam eder; üretim uzlaştırması onu yeni yol saymaz.
+    var isCompleted = false
 
     /// Sıradaki adım: tamamlanmamış ilk gün. Hepsi tamamlandıysa nil.
     var nextStep: PathStepRecord? {
@@ -136,6 +139,40 @@ protocol BackendClient: Sendable {
     ) async throws -> StepCompletionOutcome
     /// Aktif path ve bütün adımları. Yoksa nil.
     func activePath(accessToken: String) async throws -> ActivePath?
+
+    // MARK: "Ben" sekmesi
+
+    /// Kullanıcının sunucudaki kendi verisi; şifreli alanlar sahibine çözülmüş.
+    func profileSnapshot(accessToken: String) async throws -> ProfileSnapshot
+    /// Hitap adı. Ad serbest metin: sunucu da kriz taramasından geçirir.
+    func updateDisplayName(_ name: String?, accessToken: String) async throws -> ProfileUpdateOutcome
+    func deleteJournal(_ target: JournalDeletionTarget, accessToken: String) async throws
+    /// Yol içi ölçüm (7. / 14. adım, son). Aynı gün ikinci kez yazılmaz; sunucu
+    /// çakışması başarı sayılır — ölçüm zaten kayıtlı.
+    func recordMeasurement(_ upload: MeasurementUpload, userID: UUID, accessToken: String) async throws
+    /// Hesabı ve bütün verileri kalıcı olarak siler.
+    func deleteAccount(accessToken: String) async throws
+}
+
+enum ProfileUpdateOutcome: Equatable, Sendable {
+    case updated
+    case crisis
+}
+
+enum JournalDeletionTarget: Equatable, Sendable {
+    case answer(UUID)
+    /// İlk cümle ve kaçınma cümlesi.
+    case origin
+    case all
+}
+
+struct MeasurementUpload: Sendable {
+    /// Yol içi ölçüm hangi yola ait. Tekillik yol başına (20260912120000).
+    let pathID: UUID
+    let day: Int
+    let variant: MeasurementVariant
+    let responses: [String: Double]
+    let score: MeasurementScore?
 }
 
 extension BackendClient {
@@ -162,8 +199,10 @@ extension BackendClient {
                 )
             }
         } catch {
+            // Bitmiş eski bir yol, üretimi yarıda kalmış yeni yolun yerine geçmemeli.
             guard let active = try? await activePath(accessToken: accessToken),
-                  !active.steps.isEmpty
+                  !active.steps.isEmpty,
+                  !active.isCompleted
             else { throw error }
             return .ready(GeneratedPath(
                 id: active.id,

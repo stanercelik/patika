@@ -572,6 +572,9 @@ final class OnboardingFlowViewModel {
                 accessToken: token
             ) {
             case .completed:
+                // Kayıt burada da kurulur: G2 cevabı defterin ilk kişisel
+                // cümlesi ve kullanıcı H1'de uygulamayı kapatsa bile kalmalı.
+                services.profile.recordOnboarding(draft)
                 return true
             case .crisis:
                 flagCrisis()
@@ -618,9 +621,17 @@ final class OnboardingFlowViewModel {
     }
 
     func completeOnboarding() async {
+        // "Ben" sekmesinin başlangıcı: ad, ilk cümle, baseline ve tercihler
+        // cihazda kalır. Kriz sinyali verilmiş akış kaydedilmez.
+        services.profile.recordOnboarding(draft)
         if let token = try? await services.auth.validAccessToken() {
             do {
                 try await services.backend.markOnboardingCompleted(accessToken: token)
+                // Hitap adı sunucuda şifreli durur: uygulama yeniden kurulduğunda
+                // ya da başka bir cihazda "Ben" aynı adı gösterir.
+                if let name = draft.displayName {
+                    _ = try await services.backend.updateDisplayName(name, accessToken: token)
+                }
             } catch {
                 services.observability.capture(.profileSync)
             }

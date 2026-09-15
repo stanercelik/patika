@@ -1,32 +1,74 @@
 import SwiftUI
 
+enum RootTab: Hashable {
+    case path
+    case discover
+    case me
+
+    static var initial: RootTab {
+        #if DEBUG
+        DebugDirectEntry.initialTab ?? .path
+        #else
+        .path
+        #endif
+    }
+}
+
 /// Bilgi mimarisi — PRD §6.
 ///
 /// Üç sekme (Yolum / Keşfet / Ben) ve **her ekranda sabit** SOS butonu.
 struct RootView: View {
-    @Environment(PaletteController.self) private var palette
+    @Environment(AppServices.self) private var services
+    @Environment(\.scenePhase) private var scenePhase
+
     @State private var isShowingSOS = false
+    @State private var selection = RootTab.initial
+    /// İlk karede sahne henüz `.active` değil; perde yalnızca uygulama bir kez
+    /// etkin olduktan sonra devreye girer, açılışta yanıp sönmesin.
+    @State private var hasBeenActive = false
 
     var body: some View {
-        TabView {
-            Tab("Yolum", systemImage: "point.topleft.down.to.point.bottomright.curvepath") {
+        TabView(selection: $selection) {
+            Tab("Yolum", systemImage: "point.topleft.down.to.point.bottomright.curvepath", value: RootTab.path) {
                 MyPathTab()
             }
-            Tab("Keşfet", systemImage: "square.grid.2x2") {
+            Tab("Keşfet", systemImage: "square.grid.2x2", value: RootTab.discover) {
                 DiscoverTab()
             }
-            Tab("Ben", systemImage: "person") {
+            Tab("Ben", systemImage: "person", value: RootTab.me) {
                 MeTab()
             }
         }
         .tint(Theme.textPrimary.color)
-        // SOS her ekranda sağ üstte sabittir (PRD §6, §7.12).
+        .overlay { privacyLayer }
+        // SOS her ekranda sağ üstte sabittir (PRD §6, §7.12) — kilidin de üstünde.
         .overlay(alignment: .topTrailing) {
             SOSButton { isShowingSOS = true }
                 .padding(.trailing, Theme.Spacing.stack)
         }
         .fullScreenCover(isPresented: $isShowingSOS) {
             SOSPlaceholderView()
+        }
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            switch phase {
+            case .active:
+                hasBeenActive = true
+                services.appLock.sceneBecameActive()
+            case .background:
+                services.appLock.sceneMovedToBackground()
+            default:
+                break
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var privacyLayer: some View {
+        if services.appLock.isLocked {
+            AppLockView(controller: services.appLock)
+                .transition(.opacity)
+        } else if hasBeenActive, scenePhase != .active {
+            PrivacyShieldView()
         }
     }
 }
@@ -54,8 +96,7 @@ struct SOSButton: View {
 
 // MARK: - Sekme iskeletleri
 //
-// Bunlar yapı yerleşimi için placeholder'dır. Gerçek ekranlar
-// PRD §7 ve PRD-Ek-Onboarding'e göre ayrı dosyalarda yazılacak.
+// Keşfet hâlâ yer tutucu. Yolum `MyPathView`, Ben `MeView`.
 
 struct MyPathTab: View {
     var body: some View {
@@ -71,15 +112,6 @@ struct DiscoverTab: View {
             // Keşfet nötr palet kullanır — kişisel path'e bağlı değil.
             BreathingMeshBackground(palette: Palette.neutral.nightAdjusted(), safeY: 0.20)
             ScreenPlaceholder(title: "Keşfet", message: Copy.Empty.noSearchResults)
-        }
-    }
-}
-
-struct MeTab: View {
-    var body: some View {
-        ZStack {
-            BreathingMeshBackground(palette: Palette.neutral.nightAdjusted(), safeY: 0.20)
-            ScreenPlaceholder(title: "Ben", message: Copy.Empty.noBadges)
         }
     }
 }

@@ -3,7 +3,8 @@ import SwiftUI
 /// Onboarding sonrası bir adımın oturum ekranı.
 ///
 /// G1 ile aynı sahne (`SessionStageView`), aynı motor ve aynı ses. Farkı sonu:
-/// akış yönlendirmesi yerine adım tamamlanıp ekran kapanıyor.
+/// akış yönlendirmesi yerine adım tamamlanıp ekran kapanıyor; ölçüm günüyse
+/// arada kısa bir ölçüm var.
 struct PathSessionView: View {
     @Environment(PaletteController.self) private var palette
     @Environment(\.dismiss) private var dismiss
@@ -19,16 +20,16 @@ struct PathSessionView: View {
             BreathingMeshBackground(
                 palette: palette.current,
                 safeY: 0.5,
-                breathAmplitude: BreathAmplitude.session,
+                breathAmplitude: viewModel.breathAmplitude,
                 voiceEnergy: viewModel.runner.audio.audioEnergy
             )
             .ignoresSafeArea()
 
             content
-                .padding(.horizontal, Theme.Spacing.screenMargin)
         }
         .task { viewModel.start() }
         .onDisappear { viewModel.teardown() }
+        .animation(Theme.Motion.crossFade, value: viewModel.phase)
     }
 
     @ViewBuilder
@@ -38,8 +39,10 @@ struct PathSessionView: View {
             Text(Copy.Session.preparing)
                 .font(.title3.weight(Theme.Weight.title))
                 .foregroundStyle(Theme.textPrimary.color.opacity(0.75))
+                .padding(.horizontal, Theme.Spacing.screenMargin)
         case .running:
             SessionStageView(runner: viewModel.runner)
+                .padding(.horizontal, Theme.Spacing.screenMargin)
         case .question:
             // Soru **yalnızca kişiselleştirilmiş patikada** kuruluyor; karar
             // ViewModel'de.
@@ -54,6 +57,32 @@ struct PathSessionView: View {
                 )
                 Spacer()
             }
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+        case .completing:
+            completing
+        case .measurementIntro:
+            OnboardingStatementLayout(
+                headline: Copy.PathMeasurement.introHeadline(viewModel.measurementItems.count),
+                ctaTitle: Copy.PathMeasurement.introCTA,
+                action: { viewModel.beginMeasurement() }
+            ) {
+                StatementParagraph(Copy.PathMeasurement.introBody)
+                    .sequentialReveal(1)
+                Text(Copy.clinicalDisclaimer)
+                    .font(.caption.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textPrimary.color.opacity(0.5))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .sequentialReveal(2)
+                    .padding(.top, 4)
+            }
+            .padding(.top, 44)
+        case .measurement(let index):
+            if let item = viewModel.measurementItem(at: index) {
+                PathMeasurementQuestionView(session: viewModel, item: item, index: index)
+                    .id(index)
+                    .padding(.top, 44)
+                    .transition(.onboardingStep(reduceMotion: false))
+            }
         case .finished:
             VStack(spacing: Theme.Spacing.stack) {
                 Spacer()
@@ -67,9 +96,92 @@ struct PathSessionView: View {
                 PrimaryButton(title: Copy.Path.doneCTA, isEnabled: true) { dismiss() }
                     .padding(.bottom, 12)
             }
+            .padding(.horizontal, Theme.Spacing.screenMargin)
         case .crisis:
             // Kriz ekranında hareket yok ve akış durur (PRD §11).
             CrisisView()
+        }
+    }
+
+    @ViewBuilder
+    private var completing: some View {
+        VStack(spacing: Theme.Spacing.stack) {
+            Spacer()
+            if viewModel.showsError {
+                BodyText(Copy.PathMeasurement.completionError)
+                    .multilineTextAlignment(.center)
+                PrimaryButton(title: Copy.Path.retry, isEnabled: !viewModel.isSubmitting) {
+                    viewModel.retryCompletion()
+                }
+                SecondaryTextButton(title: Copy.Session.leave) { dismiss() }
+                    .frame(minHeight: 44)
+            } else {
+                ProgressView()
+                    .tint(Theme.textPrimary.color)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+    }
+}
+
+/// Yol içi ölçüm sorusu — onboarding D bölümüyle aynı cevap biçimi ve aynı kural:
+/// önceden doldurulmuş cevap yok, skor yok, iyi/kötü işareti yok.
+private struct PathMeasurementQuestionView: View {
+    let session: PathSessionViewModel
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var question: MeasurementQuestionViewModel
+
+    init(session: PathSessionViewModel, item: MeasurementItem, index: Int) {
+        self.session = session
+        _question = State(initialValue: MeasurementQuestionViewModel(
+            item: item,
+            variant: session.measurementVariant,
+            value: session.measurementResponse(for: item),
+            commit: { session.commitMeasurementAnswer($0, at: index) }
+        ))
+    }
+
+    var body: some View {
+        OnboardingQuestionLayout(headline: question.prompt, hint: question.hint) {
+            VStack(alignment: .leading, spacing: 20) {
+                if question.usesIntensityScale {
+                    IntensityScale(selection: question.value) { question.select($0) }
+                        .padding(.top, 4)
+                } else {
+                    VStack(spacing: 10) {
+                        ForEach(question.options) { option in
+                            ChoiceRow(label: option.label, isSelected: question.isSelected(option)) {
+                                question.select(option.value)
+                            }
+                        }
+                    }
+                }
+
+                if session.showsError {
+                    Text(Copy.PathMeasurement.saveError)
+                        .font(.footnote.weight(Theme.Weight.body))
+                        .foregroundStyle(Theme.textSecondary.color)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Text(Copy.clinicalDisclaimer)
+                    .font(.caption.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textPrimary.color.opacity(0.5))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        } footer: {
+            OnboardingQuestionFooter(
+                primaryTitle: Copy.Button.next,
+                primaryDisabledTitle: question.usesIntensityScale
+                    ? Copy.Onboarding.pickPointCTA
+                    : Copy.Onboarding.chooseOneCTA,
+                isPrimaryEnabled: question.canContinue && !session.isSubmitting,
+                primaryAction: { question.submit() },
+                skipTitle: session.showsError ? Copy.Session.leave : nil,
+                skipAction: session.showsError ? { dismiss() } : nil
+            )
         }
     }
 }

@@ -10,6 +10,14 @@ import Observation
 /// **Kişisel soru yalnızca kişiselleştirilmiş patikada** sorulur. Hazır
 /// patikada cevabın değiştirebileceği bir sonraki adım yok; sormak, cevabın bir
 /// işe yaradığını ima etmek olurdu.
+///
+/// ## Ölçüm günü
+///
+/// "Yolum" ölçüm gününün kartında "bu adımdan sonra kısa bir ölçüm var" diyor.
+/// Adım tamamlandığında o söz burada tutulur: aynı sekiz soru (14. günde altı),
+/// o noktanın varyantıyla. Cevaplar sunucuya yazılır ve "Ben" sekmesindeki
+/// karşılaştırmayı besler. Ölçüm yalnızca adım sonuna kadar dinlendiyse ve o gün
+/// için kayıt yoksa sorulur.
 @Observable
 @MainActor
 final class PathSessionViewModel {
@@ -18,6 +26,10 @@ final class PathSessionViewModel {
         case running
         /// Oturum bitti, kişisel soru bekliyor.
         case question
+        /// Sorusu olmayan adım tamamlanıyor; ağ hatasında burada kalınır.
+        case completing
+        case measurementIntro
+        case measurement(Int)
         case finished
         /// Kriz sinyali: akış durur, adım tamamlanmaz, hareket yok.
         case crisis
@@ -27,6 +39,7 @@ final class PathSessionViewModel {
     private(set) var isSubmitting = false
     private(set) var showsError = false
     private(set) var didReachEnd = false
+    private(set) var pendingMeasurement: MeasurementPoint?
 
     let runner = SessionRunner()
 
@@ -34,6 +47,8 @@ final class PathSessionViewModel {
     private let path: ActivePath
     private let step: PathStepRecord
     private var audioTask: Task<Void, Never>?
+    private var measurementResponses: [String: Double] = [:]
+    private var pendingCompletion: (answer: String?, skipped: Bool)?
 
     init(services: AppServices, path: ActivePath, step: PathStepRecord) {
         self.services = services
@@ -51,6 +66,15 @@ final class PathSessionViewModel {
         return step.question
     }
 
+    /// Ölçüm ekranında odaklanma, kriz ekranında hareketsizlik (Görsel Sistem §4).
+    var breathAmplitude: Double {
+        switch phase {
+        case .measurementIntro, .measurement, .completing: BreathAmplitude.measurement
+        case .crisis: BreathAmplitude.crisis
+        default: BreathAmplitude.session
+        }
+    }
+
     func start() {
         guard phase == .preparing else { return }
         phase = .running
@@ -58,7 +82,9 @@ final class PathSessionViewModel {
             segments: SessionScript.build(
                 step: step.generatedStep,
                 ownWords: nil,
-                targetMinutes: 10
+                // E2'nin cevabı; yol bu uzunlukla kuruldu.
+                targetMinutes: services.profile.record?.sessionLength?.minutes
+                    ?? SessionLength.standard.minutes
             )
         ) { [weak self] reachedEnd in
             self?.sessionDidFinish(reachedEnd: reachedEnd)
@@ -71,20 +97,42 @@ final class PathSessionViewModel {
         runner.teardown()
     }
 
+    /// Yarıda bırakılan oturum tamamlanmış sayılmaz. Sonuna kadar dinlenen adım
+    /// soru yoksa kendiliğinden tamamlanır — önceden hazır patikada hiçbir adım
+    /// `completed_at` almıyordu ve yol hiç ilerlemiyordu.
     private func sessionDidFinish(reachedEnd: Bool) {
         didReachEnd = reachedEnd
-        phase = question == nil ? .finished : .question
+        guard reachedEnd else {
+            phase = .finished
+            return
+        }
+        if question != nil {
+            phase = .question
+        } else {
+            phase = .completing
+            complete(answer: nil, skipped: true)
+        }
     }
 
     /// Cevap yazılmazsa (`skipped`) sonraki adım mevcut özetle hazır kalır.
     func submit(answer: String?, skipped: Bool) {
-        guard !isSubmitting else { return }
         // Her serbest metin cihazda da taranıyor: kural istisnası olduğu an
         // kural değildir.
         if let answer, CrisisClassifier.evaluate(answer).hasSignal {
-            phase = .crisis
+            markCrisis()
             return
         }
+        complete(answer: answer, skipped: skipped)
+    }
+
+    func retryCompletion() {
+        guard let pendingCompletion else { return }
+        complete(answer: pendingCompletion.answer, skipped: pendingCompletion.skipped)
+    }
+
+    private func complete(answer: String?, skipped: Bool) {
+        guard !isSubmitting else { return }
+        pendingCompletion = (answer, skipped)
         isSubmitting = true
         showsError = false
         Task { @MainActor in
@@ -98,9 +146,11 @@ final class PathSessionViewModel {
                 ) {
                 case .completed:
                     runner.audio.clearCheckpoint()
-                    phase = .finished
+                    services.profile.clearCrisisSignal()
+                    pendingCompletion = nil
+                    advanceAfterCompletion()
                 case .crisis:
-                    phase = .crisis
+                    markCrisis()
                 }
             } catch {
                 services.observability.capture(.stepCompletion)
@@ -108,6 +158,99 @@ final class PathSessionViewModel {
             }
             isSubmitting = false
         }
+    }
+
+    private func advanceAfterCompletion() {
+        guard let point = MeasurementSchedule.point(afterStep: step.day, pathLength: path.steps.count),
+              !(services.profile.record?.measurements.contains { $0.point == point && $0.pathID == path.id } ?? false)
+        else {
+            phase = .finished
+            return
+        }
+        pendingMeasurement = point
+        measurementResponses = [:]
+        phase = .measurementIntro
+    }
+
+    // MARK: - Ölçüm
+
+    var measurementItems: [MeasurementItem] {
+        guard let pendingMeasurement else { return [] }
+        return MeasurementLibrary.items(
+            for: pendingMeasurement,
+            category: services.profile.record?.primaryCategory ?? .unnamed
+        )
+    }
+
+    var measurementVariant: MeasurementVariant { pendingMeasurement?.variant ?? .a }
+
+    func measurementItem(at index: Int) -> MeasurementItem? {
+        let items = measurementItems
+        return items.indices.contains(index) ? items[index] : nil
+    }
+
+    /// Cevap önceden doldurulmaz; yalnızca geri dönülen soruda verilmiş cevap.
+    func measurementResponse(for item: MeasurementItem) -> Double? {
+        measurementResponses[item.id]
+    }
+
+    func beginMeasurement() {
+        phase = measurementItems.isEmpty ? .finished : .measurement(0)
+    }
+
+    func commitMeasurementAnswer(_ value: Double, at index: Int) {
+        let items = measurementItems
+        guard items.indices.contains(index) else { return }
+        measurementResponses[items[index].id] = value
+        if index + 1 < items.count {
+            phase = .measurement(index + 1)
+        } else {
+            saveMeasurement()
+        }
+    }
+
+    private func saveMeasurement() {
+        guard let point = pendingMeasurement, !isSubmitting else { return }
+        let items = measurementItems
+        let responses = measurementResponses
+        let day = point == .final ? path.steps.count : step.day
+        isSubmitting = true
+        showsError = false
+        Task { @MainActor in
+            do {
+                let token = try await services.auth.validAccessToken()
+                guard let userID = services.auth.session?.userID else { throw BackendError.invalidResponse }
+                try await services.backend.recordMeasurement(
+                    MeasurementUpload(
+                        pathID: path.id,
+                        day: day,
+                        variant: point.variant,
+                        responses: responses,
+                        score: MeasurementScoring.score(responses: responses, items: items)
+                    ),
+                    userID: userID,
+                    accessToken: token
+                )
+                services.profile.appendMeasurement(MeasurementRecord(
+                    id: UUID(),
+                    point: point,
+                    stepDay: day,
+                    takenAt: .now,
+                    responses: responses,
+                    pathID: path.id
+                ))
+                phase = .finished
+            } catch {
+                services.observability.capture(.profileSync)
+                showsError = true
+            }
+            isSubmitting = false
+        }
+    }
+
+    private func markCrisis() {
+        services.profile.markCrisisSignal()
+        phase = .crisis
     }
 
     /// Ses hazır değilse üretimi başlatır, sonra bekler. Oturum beklemez:
