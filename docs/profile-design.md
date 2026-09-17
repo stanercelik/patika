@@ -1558,3 +1558,29 @@ hedefe varma dili bu ekranın tonuna aykırı)?
    adlı yuvanın **2x** kutusuna sürükle.
 4. `-patika-debug-me compared` ile başlığı, `-patika-debug-me empty` ile boş
    durumu simülatörde kontrol et.
+
+## 20. Guaj defter revizyonu — 17 Eylül 2026
+
+Ürün sahibi Yolum ve Ben'in onaylı guaj illüstrasyonlarla aynı dili taşımasını
+istedi. Mobbin MCP ile Ahead'in kişisel kayıt ekranları ve Finch'in gruplu profil
+alanları görsel olarak incelendi:
+- https://mobbin.com/screens/b9227303-6f15-4e41-9447-6008d98cb635
+- https://mobbin.com/screens/ff6cc7d1-5257-48da-8101-4039b2152975
+
+Krem kâğıt kapak, koyu yeşil metin ve mevcut şeffaf guaj defter çizimi; altında
+opak koyu adaçayı kartlar. Günlük alıntıları ve geçmiş yollar ayrı yuvarlak
+yüzeyler alır. İşlevler ve gerçek veri koşulları korunur. Eski §19 monokrom
+raster brief'i bu görsel karar için geçersizdir.
+
+Defter görselinde en fazla 10 pt, Yolum sahnesinde en fazla 24 pt kaydırma
+parallax'ı bulunur. Görsel efektler yerleşim durumuna yazmaz. Profil girişleri
+360 ms, en fazla 225 ms sıra gecikmesi; başlangıç opaklığı %65 olduğundan
+kontroller görünmez bir bekleme dönemine girmez. Reduce Motion kaymayı kaldırır.
+Kriz durumunda kapak, parallax ve giriş hareketleri yoktur. Mevcut anonim hesap
+bağlama kartı kriz durumunda artık gösterilmez; Destek al öndedir.
+
+Doğrulama: Simulator build başarılı; iPhone 16e normal profil/ayar grupları/kriz
+ve iPhone 18 Pro AX5 başlık incelendi. Test target yok. Device Hub CUA bağlantısı
+`timeoutReached` döndürdü; parmakla etkileşim, VoiceOver ve Instruments kare
+süresi ölçümü tamamlanmış değildir. RM/RT dalları kodda incelendi; OS seçenekleri
+ile bu revizyonun etkileşimli kontrolü yapılmadı.

@@ -1,0 +1,6 @@
+{
+  "tool": "built-in image_gen",
+  "asset": "journey-world-continuous",
+  "actualSize": "724x2172",
+  "prompt": "Create a vertically tileable very tall 1024x3072 gouache landscape background for a scrolling wellness journey map. Use reference only for hand painted gouache style and sage/teal palette. Elevated top-down forest meadow landscape, small pond in upper third left, tiny warm cottage at right middle, stream curving on right lower third. Wide calm sage clearing down central 65 percent for overlay interface. CRITICAL top and bottom edges must match seamlessly: both have identical medium sage meadow ground and sparse low shrubs only at extreme lateral edges. No dark vignette, no dark border, no foreground leaves, no horizon, no objects across upper/lower edges, no dark horizontal bands. Keep last and first 12 percent almost uniform sage meadow textured brushwork, same brightness and color, allowing vertical repeat. Trees clustered only lateral edges in middle 75 percent. Continuous soft natural terrain with consistent brightness, no panel separations. No path drawn, no text, no UI. Full bleed opaque image. Long aspect ratio 1:3."
+}

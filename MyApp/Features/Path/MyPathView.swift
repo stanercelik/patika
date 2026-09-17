@@ -23,20 +23,43 @@ struct MyPathView: View {
 
     @State private var viewModel: MyPathViewModel?
     @State private var runningStep: PathStepRecord?
+    @State private var isCreatingPath = false
+    @State private var headerHeight: CGFloat = 280
+    @State private var headerHidden = false
+    @State private var scrollTracking = PathHeaderScrollTracking()
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         ZStack {
+            WoodlandStyle.background.ignoresSafeArea()
             BreathingMeshBackground(
                 palette: palette.current,
                 safeY: 0.12,
-                boostsFrameRate: true
+                breathAmplitude: BreathAmplitude.measurement
             )
-                .ignoresSafeArea()
+            .opacity(0.20)
+            .ignoresSafeArea()
+            .accessibilityHidden(true)
             content
         }
         .task {
             if viewModel == nil { viewModel = MyPathViewModel(services: services) }
             await viewModel?.load()
+        }
+        .fullScreenCover(isPresented: $isCreatingPath, onDismiss: {
+            Task { await viewModel?.load() }
+        }) {
+            OnboardingContainerView(palette: palette, services: services) {
+                isCreatingPath = false
+            }
+            .safeAreaInset(edge: .top, alignment: .leading, spacing: 0) {
+                Button(Copy.Button.finish) { isCreatingPath = false }
+                    .font(.caption.weight(Theme.Weight.action))
+                    .foregroundStyle(Theme.textPrimary.color)
+                    .padding(12)
+                    .background(.black.opacity(0.8), in: Capsule())
+                    .padding(.leading, 24)
+            }
         }
         .fullScreenCover(item: $runningStep) { step in
             if let path = viewModel?.path {
@@ -63,7 +86,22 @@ struct MyPathView: View {
                 .tint(Theme.textPrimary.color)
                 .accessibilityLabel(Text(Copy.Path.loading))
         case .empty:
-            ScreenPlaceholder(title: Copy.Path.screenTitle, message: Copy.Empty.noPath)
+            PathEmptyState(
+                onCreate: { isCreatingPath = true },
+                onRetry: { Task { await viewModel?.load() } }
+            )
+            #if DEBUG
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Button("Tasarım önizlemesi · örnek patika") {
+                    viewModel?.showDesignPreview()
+                }
+                .font(.caption.weight(Theme.Weight.emphasis))
+                .foregroundStyle(Theme.textSecondary.color)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .padding(.vertical, 4)
+                .background(Palette.neutral.background.color)
+            }
+            #endif
         case .failed:
             VStack(spacing: Theme.Spacing.stack) {
                 BodyText(Copy.Path.loadError)
@@ -80,340 +118,128 @@ struct MyPathView: View {
         }
     }
 
-    @ViewBuilder
     private func ready(_ path: ActivePath) -> some View {
-        if dynamicTypeSize.isAccessibilitySize {
-            accessibleReady(path)
-        } else {
-            standardReady(path)
-        }
-    }
-
-    private func standardReady(_ path: ActivePath) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Başlık path üretiminden geliyor: kullanıcının kendi kategorisinden
-            // ve cümlesinden türetilmiş ad. Kaydırmanın **dışında** duruyor:
-            // yirmi bir satırlık bir listede yolun adı ekrandan çıkınca
-            // kullanıcı hangi yolda olduğunu kaybediyordu.
-            MyPathHeader(
-                title: path.title,
-                hasNextStep: path.nextStep != nil
-            )
-            // SOS her ekranda sağ üstte sabit; başlık onun altından başlar.
-            .padding(.top, 48)
-            .padding(.horizontal, Theme.Spacing.screenMargin)
-            .padding(.bottom, 24)
-
-            ScrollViewReader { proxy in
-                ScrollView {
-                    trail
-                        .padding(.horizontal, Theme.Spacing.screenMargin)
-                        .padding(.top, 6)
-                        // Son satır sekme çubuğunun altında kalmasın.
-                        .padding(.bottom, 120)
-                }
-                .scrollIndicators(.hidden)
-                .scrollBounceBehavior(.basedOnSize)
-                .scrollEdgeEffectStyle(.soft, for: .top)
-                // İlk açılışta kullanıcı tamamladığı satırları yeniden geçmek
-                // zorunda kalmaz; sıradaki düğüm görünür alanın merkezine gelir.
-                .task(id: path.nextStep?.id) {
-                    guard let nextID = path.nextStep?.id else { return }
-                    await Task.yield()
-                    proxy.scrollTo(nextID, anchor: .center)
-                }
-            }
-        }
-    }
-
-    /// AX boyutlarında başlık sabit kalırsa dört satırlık path adı görünür
-    /// alanın tamamını kapatıyor. Başlık aynı scroll bağlamına katılır; sıradaki
-    /// kart merkeze gelir ve kullanıcı path adını görmek için yukarı kaydırabilir.
-    private func accessibleReady(_ path: ActivePath) -> some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    pathHeader(for: path)
-                        .padding(.top, 48)
-                        .padding(.horizontal, Theme.Spacing.screenMargin)
-                        .padding(.bottom, 20)
-                        .scrollTransition(.interactive, axis: .vertical) { content, phase in
-                            content.opacity(phase.isIdentity ? 1 : 0)
-                        }
+                    #if DEBUG
+                    if viewModel?.isDesignPreview == true {
+                        Text("Tasarım önizlemesi · örnek veriler")
+                            .font(.caption.weight(Theme.Weight.emphasis))
+                            .foregroundStyle(Theme.textSecondary.color)
+                    }
+                    #endif
+                    if dynamicTypeSize.isAccessibilitySize {
+                        journeyHeader(path)
+                    } else {
+                        Color.clear.frame(height: headerHeight)
+                    }
 
-                    trail
-                        .padding(.horizontal, Theme.Spacing.screenMargin)
-                        .padding(.bottom, 140)
+                    if let viewModel {
+                        IllustratedPathMap(viewModel: viewModel) { step in
+                            start(step, viewModel: viewModel)
+                        }
+                        if viewModel.nextStep == nil {
+                            BodyText(Copy.Path.finishedBody)
+                                .padding(.horizontal, Theme.Spacing.screenMargin)
+                        }
+                    }
+                }
+                .padding(.bottom, 100)
+                .background { PathLandscapeScene() }
+            }
+            .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                let offset = geometry.contentOffset.y + geometry.contentInsets.top
+                let maximum = max(0, geometry.contentSize.height - geometry.containerSize.height + geometry.contentInsets.top + geometry.contentInsets.bottom)
+                return min(maximum, max(0, offset))
+            } action: { old, new in
+                let delta = new - old
+                if new < 12 {
+                    scrollTracking.travel = 0
+                    setHeaderHidden(false)
+                } else {
+                    if (delta > 0 && scrollTracking.travel < 0) || (delta < 0 && scrollTracking.travel > 0) {
+                        scrollTracking.travel = 0
+                    }
+                    scrollTracking.travel += delta
+                    if scrollTracking.travel > 28 { setHeaderHidden(true) }
+                    if scrollTracking.travel < -18 { setHeaderHidden(false) }
+                }
+            }
+            .overlay(alignment: .top) {
+                if !dynamicTypeSize.isAccessibilitySize {
+                    journeyHeader(path)
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headerHeight = $0 }
+                        .offset(y: reduceMotion || !headerHidden ? 0 : -headerHeight)
+                        .opacity(headerHidden ? 0 : 1)
+                        .allowsHitTesting(!headerHidden)
+                        .accessibilityHidden(headerHidden)
                 }
             }
             .scrollIndicators(.hidden)
             .scrollBounceBehavior(.basedOnSize)
-            .scrollEdgeEffectStyle(.soft, for: .top)
-            .task(id: path.nextStep?.id) {
-                guard let nextID = path.nextStep?.id else { return }
-                await Task.yield()
-                proxy.scrollTo(nextID, anchor: .center)
+            .scrollEdgeEffectStyle(.soft, for: .all)
+            .refreshable { await viewModel?.load() }
+            .task(id: path.id) {
+                #if DEBUG
+                if PathPreviewFixture.isEnabled,
+                   let day = PathPreviewFixture.scrollDay,
+                   let target = path.steps.first(where: { $0.day == day }) {
+                    await Task.yield()
+                    proxy.scrollTo(target.id, anchor: .top)
+                }
+                #endif
             }
         }
     }
 
-    private func pathHeader(for path: ActivePath) -> some View {
-        MyPathHeader(
+    private func setHeaderHidden(_ hidden: Bool) {
+        guard headerHidden != hidden else { return }
+        withAnimation(reduceMotion ? .easeOut(duration: 0.18) : .smooth(duration: 0.34)) {
+            headerHidden = hidden
+        }
+    }
+
+    private func journeyHeader(_ path: ActivePath) -> some View {
+        PathHomeHeader(
             title: path.title,
-            hasNextStep: path.nextStep != nil
+            hasNextStep: path.nextStep != nil,
+            phase: path.nextStep.flatMap { viewModel?.phase(for: $0) } ?? .closing
         )
-    }
-
-    /// Adımlar ve kıvrımlı ortak iz.
-    private var trail: some View {
-        let steps = viewModel?.steps ?? []
-        let phases = steps.map { viewModel?.phase(for: $0) }
-        let basePositions = JourneyRouteLayout.positions(
-            for: phases,
-            usesAccessibleLayout: dynamicTypeSize.isAccessibilitySize
-        )
-        let centers = steps.enumerated().map { index, step in
-            viewModel?.isExpanded(step) == true ? 0.5 : basePositions[index].currentX
-        }
-        let positions = centers.indices.map { index in
-            JourneyRoutePosition(
-                previousX: centers[max(0, index - 1)],
-                currentX: centers[index],
-                nextX: centers[min(centers.count - 1, index + 1)]
-            )
-        }
-
-        return LazyVStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(steps.enumerated()), id: \.element.id) { index, step in
-                if let viewModel {
-                    PathStepRow(
-                        index: index,
-                        totalCount: viewModel.steps.count,
-                        position: positions[index],
-                        phase: phases[index],
-                        startsPhase: viewModel.startsPhase(step),
-                        step: step,
-                        viewModel: viewModel,
-                        onStart: { runningStep = step }
-                    )
-                    .id(step.id)
-                }
-            }
-        }
-    }
-}
-
-/// İz üzerindeki tek adım. Kapalıyken bir satır, açıkken bir kart.
-private struct PathStepRow: View {
-    let index: Int
-    let totalCount: Int
-    let position: JourneyRoutePosition
-    let phase: PathPhase?
-    let startsPhase: Bool
-    let step: PathStepRecord
-    let viewModel: MyPathViewModel
-    var onStart: () -> Void
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-
-    private var isExpanded: Bool { viewModel.isExpanded(step) }
-    private var isLocked: Bool { viewModel.isLocked(step) }
-    private var isCompleted: Bool { viewModel.isCompleted(step) }
-
-    var body: some View {
-        JourneyMapRow(
-            index: index,
-            totalCount: totalCount,
-            position: position,
-            phase: phase,
-            startsPhase: startsPhase,
-            node: viewModel.node(for: step),
-            showsLock: isLocked,
-            isProminent: isExpanded,
-            presentation: .personalTrace
-        ) {
-            VStack(alignment: .leading, spacing: 0) {
-                Button {
-                    Theme.softHaptic(intensity: 0.25)
-                    withAnimation(reduceMotion ? Theme.Motion.crossFade : Theme.Motion.pathExpand) {
-                        viewModel.toggle(step)
-                    }
-                } label: {
-                    body(for: step)
-                        .frame(minHeight: 44, alignment: .leading)
-                }
-                .buttonStyle(.calm)
-                .disabled(isLocked)
-                .accessibilityElement(children: .combine)
-                .accessibilityHint(isLocked ? Text(Copy.Path.lockedAccessibility) : Text(""))
-                if isExpanded {
-                    expanded
-                        .padding(20)
-                }
-            }
-            .background {
-                if isExpanded {
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .fill(Color.black.opacity(reduceTransparency ? 1 : 0.56))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                                .strokeBorder(Theme.textPrimary.color.opacity(0.22), lineWidth: Theme.Line.journeyConnector)
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+        .padding(.top, 60)
+        .padding(.bottom, 56)
+        .background {
+            if reduceTransparency {
+                WoodlandStyle.background
+            } else {
+                Rectangle()
+                    .fill(.regularMaterial)
+                    .environment(\.colorScheme, .light)
+                    .mask {
+                        VStack(spacing: 0) {
+                            Rectangle()
+                            LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                                .frame(height: 32)
                         }
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        }
-    }
-
-    private func body(for step: PathStepRecord) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if isExpanded, !dynamicTypeSize.isAccessibilitySize {
-                PathTerrain()
-                    .frame(height: 148)
-                    .padding(.horizontal, -20)
-                    .padding(.top, -20)
-                    .padding(.bottom, 16)
-            }
-            header
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(isExpanded ? EdgeInsets(top: 20, leading: 20, bottom: 0, trailing: 20) : EdgeInsets())
-        .padding(.trailing, isExpanded ? 0 : 4)
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            HStack(spacing: 6) {
-                Text(Copy.Path.stepLabel(day: step.day))
-                    .font(.caption.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
-                if isLocked {
-                    // Kilit tek başına anlam taşımıyor: açık satırda aynı şey
-                    // cümleyle de yazıyor (renk tek başına anlam taşımaz kuralı).
-                    Image(systemName: "lock")
-                        .font(.caption2.weight(Theme.Weight.emphasis))
-                        .foregroundStyle(Theme.textPrimary.color.opacity(0.34))
-                        .accessibilityHidden(true)
-                }
-            }
-
-            Text(verbatim: step.title)
-                .font(titleFont)
-                .foregroundStyle(Theme.textPrimary.color.opacity(titleOpacity))
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-
-            if viewModel.isMeasurementDay(step), !isExpanded {
-                Text(Copy.Path.measurementNote)
-                    .font(.caption2.weight(Theme.Weight.emphasis))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.62))
-                    .padding(.top, 1)
+                    }
+                    .ignoresSafeArea(edges: .top)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// Açık satırın gövdesi. Buradaki her satır **gerçek path verisinden**
-    /// geliyor: faz gün sayısından, teknikler sunucunun seçtiği `block_ids`den.
-    @ViewBuilder
-    private var expanded: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if let phase = viewModel.phase(for: step) {
-                Text(phase.label)
-                    .font(.caption.weight(Theme.Weight.emphasis))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.58))
-            }
-
-            // Teknik satırı başlıkla aynıysa yazılmıyor: aynı cümleyi iki kez
-            // okutmak bilgi değil, gürültü.
-            if let techniques = viewModel.techniques(for: step), techniques != step.title {
-                Text(verbatim: techniques)
-                    .font(.subheadline.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            if viewModel.isMeasurementDay(step) {
-                Text(Copy.Path.measurementNotice)
-                    .font(.footnote.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 2)
-            }
-
-            action
-        }
-        .padding(.top, 12)
-        .transition(.opacity)
-    }
-
-    @ViewBuilder
-    private var action: some View {
-        if isLocked {
-            Text(Copy.Path.lockedHint)
-                .font(.subheadline.weight(Theme.Weight.emphasis))
-                .foregroundStyle(Theme.textPrimary.color.opacity(0.52))
-                .padding(.top, 2)
-        } else {
-            PrimaryButton(
-                title: isCompleted ? Copy.Path.replayCTA : Copy.Path.continueCTA,
-                isEnabled: true,
-                action: onStart
-            )
-            .padding(.top, 4)
-        }
-    }
-
-    // MARK: - Türetilen görünüm değerleri
-
-    private var titleFont: Font {
-        isExpanded
-            ? .title2.weight(Theme.Weight.title)
-            : .body.weight(Theme.Weight.emphasis)
-    }
-
-    private var titleOpacity: Double {
-        if isExpanded { return 1 }
-        if isCompleted { return 0.82 }
-        return isLocked ? 0.86 : 1
-    }
-
-}
-
-private struct MyPathHeader: View {
-    let title: String
-    let hasNextStep: Bool
-
-    var body: some View {
-        ZStack(alignment: .trailing) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(Copy.Path.screenTitle)
-                    .font(.caption.weight(Theme.Weight.emphasis))
-                    .tracking(2)
-                    .foregroundStyle(Theme.textSecondary.color)
-
-                Text(verbatim: title)
-                    .font(.largeTitle.weight(Theme.Weight.display))
-                    .foregroundStyle(Theme.textPrimary.color)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                HStack(alignment: .firstTextBaseline, spacing: 7) {
-                    Circle()
-                        .fill(Theme.textPrimary.color.opacity(hasNextStep ? 0.78 : 0.40))
-                        .frame(width: 6, height: 6)
-                        .accessibilityHidden(true)
-                    Text(hasNextStep ? Copy.Path.readyNote : Copy.Path.finishedHeadline)
-                        .font(.footnote.weight(Theme.Weight.body))
-                        .foregroundStyle(Theme.textSecondary.color)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
+    private func start(_ step: PathStepRecord, viewModel: MyPathViewModel) {
+        #if DEBUG
+        if PathPreviewFixture.isEnabled || viewModel.isDesignPreview { return }
+        #endif
+        runningStep = step
     }
 }
 
-/// `fullScreenCover(item:)` kimlik istiyor; adımın kendi kimliği zaten var.
 extension PathStepRecord: Identifiable {}
+
+/// Gesture bookkeeping is intentionally not observable: only visibility changes
+/// invalidate the screen, rather than rebuilding all stops on every scroll pixel.
+private final class PathHeaderScrollTracking {
+    var travel: CGFloat = 0
+}

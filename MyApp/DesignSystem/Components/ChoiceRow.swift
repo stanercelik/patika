@@ -26,25 +26,12 @@ struct ChoiceRow: View {
 
                 Spacer(minLength: 0)
 
-                Image(systemName: "checkmark")
-                    .font(.footnote.weight(Theme.Weight.action))
-                    .foregroundStyle(Theme.textPrimary.color)
-                    .opacity(isSelected ? 1 : 0)
+                SelectionMark(isSelected: isSelected)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
             .padding(.vertical, 15)
-            .background {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.white.opacity(isSelected ? 0.16 : 0.07))
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(
-                        Theme.textPrimary.color.opacity(isSelected ? 0.55 : 0.0),
-                        lineWidth: Theme.Line.border
-                    )
-            }
+            .background { CalmSurface(isEmphasized: isSelected) }
         }
         .buttonStyle(.calm)
         .animation(Theme.Motion.crossFade, value: isSelected)

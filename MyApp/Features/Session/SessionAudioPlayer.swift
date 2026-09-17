@@ -333,6 +333,7 @@ final class SessionAudioPlayer {
     // MARK: - Varlıklar
 
     private func downloadedFile(from URL: URL, assetID: UUID) async throws -> AVAudioFile {
+        if URL.isFileURL { return try AVAudioFile(forReading: URL) }
         let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("PatikaAudio", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

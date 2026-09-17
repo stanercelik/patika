@@ -17,8 +17,12 @@ struct PrimaryButton: View {
             Text(isEnabled ? title : (disabledTitle ?? title))
                 .font(.body.weight(Theme.Weight.action))
                 .foregroundStyle(isEnabled ? Color.black : Theme.textSecondary.color)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 24)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 18)
+                .frame(minHeight: 44)
                 .background {
                     Capsule()
                         .fill(isEnabled ? Theme.textPrimary.color : Color.white.opacity(0.10))
@@ -41,6 +45,9 @@ struct SecondaryTextButton: View {
                 .font(.subheadline.weight(Theme.Weight.emphasis))
                 .foregroundStyle(Theme.textSecondary.color)
                 .underline()
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(minHeight: 44)
         }
         .buttonStyle(.calm)
     }

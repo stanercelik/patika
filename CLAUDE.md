@@ -2,6 +2,62 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 16 Eylül 2026 — Yolum düzenlemesi
+
+Ürün sahibinin son talebiyle Yolum başlığı sabit olmaktan çıkarıldı; kaydırma ile
+parallax/fade/blur uygular ve geri dönünce görünür. Mevcut adım kartı da artık
+kapatılıp yeniden açılabilir; “Buradasın” etiketi ve düğüm konumu korunur.
+Bu kararlar önceki sabit başlık ve mevcut kartın kapanmaması kararını geçersiz kılar.
+Uzun adım başlıkları kırpılmadan sarılır, rota ayrı koridorda daha yumuşak kıvrılır.
+Tasarım ve doğrulama ayrıntıları: `docs/path-home-design.md`.
+
+## 16 Eylül 2026 — uygulama genelinde arayüz iyileştirmesi
+
+Ürün sahibi kapsamı tüm uygulamanın UI/UX kalitesine genişletti. Seçim ve yazı
+alanları ortak CalmSurface kullanır; erişilebilir büyük yazıda kategori listesi
+tek sütun olur. Ben başlığı semantik tipografi ve ayrı defter görseli kullanır.
+Oturumda kullanıcının sözü Theme.Voice.user ile gösterilir. Karşılama ve oturum
+sonu ekranları uzun içerikte kaydırılabilir. Tasarım ve doğrulama kapsamı:
+`docs/ui-refinement-2026-09-16.md`.
+
+## 16 Eylül 2026 — Keşfet hazır patikaları
+
+Ürün sahibinin açık talebi hazır patika kütüphanesini bu çalışmanın kapsamına aldı.
+Keşfet üç adet yedi adımlı, kişiselleştirilmemiş patika sunar. Adımlar arasında gün
+bekleme yoktur. Önizlemede oynatma yoktur; katılım sonrası sıradaki adım ve tamamlanan
+adımlar açılır. Her patikanın ilerlemesi cihazda ayrı saklanır; kişisel sunucu
+patikası silinmez. İngilizce ses için mevcut kadın/erkek sesleri ayrı seçeneklerdir.
+İçerik TR/EN çiftleriyle, arayüz metinleri Discover String Catalog ile tutulur.
+Yolum başlığındaki dekoratif görsel kullanıcı talebiyle kaldırıldı.
+Ses üretimi ElevenLabs 402 payment_required nedeniyle tamamlanamadı; ses dosyaları
+paketlenmeden katılım etkinleşmez. Ayrıntılar: `docs/discover-design.md`.
+
+## 17 Eylül 2026 — ortak guaj illüstrasyon dili
+
+Ürün sahibi Keşfet'teki illüstrasyonları uygulamanın genel görsel dili olarak seçti.
+Bu karar önceki tek mürekkepli, buzlu cam/heykelsi raster görsel brief'ini ezer.
+Yeni aile: koyu teal, adaçayı, soluk mavi, krem ve kayısı; guaj dokusu ve gerçek
+alfa kanallı PNG kesitleri. C1/C2, F2, G2, Ben başlığı ve Yolum bu aileyi kullanır.
+Dinamik palet, ölçüm/kriz kuralları ve SF Symbols kontrol dili korunur. Kriz
+modunda dekoratif görsel gösterilmez. Kaynaklar ve prompt'lar:
+`assets/illustrations/gouache/prompts.json`.
+
+Ürün sahibi Headspace kart listesini Yolum için reddetti; yön, Duolingo/Noom/Ahead
+benzeri görsel rota ve duraklardır. Streak, enerji ve ödül mekaniği eklenmez.
+
+## 17 Eylül 2026 — Ahead manzara patikası uygulandı
+
+Ürün sahibi Ahead'in manzara içinde yolculuk yaklaşımını açıkça onayladı.
+Yolum artık küçük yan dekorlar yerine ekran genişliğinde, kaydırmayla ilerleyen
+iki özgün guaj manzarası kullanır: orman açıklığı ve gölet/nehir kıyısı. Bunlar
+statik illüstrasyon katmanlarıdır; alttaki düşük genlikli MeshGradient korunur.
+Rota ve gerçek adım düğümleri native çizilir; manzaraya gömülü tıklama noktaları
+yoktur. Arka plan sahneleri birbirine karışır, başlık kaydırmayla solar.
+Mevcut durak krem halka ve “Buradasın” ile ayrılır; ayrıntısı açılıp kapanır.
+Reduce Motion parallax'ı kapatır; Reduce Transparency ve AX boyutlarında düz
+koyu zemine geçilir. Görsel, veri veya ilerleme üretmez; oturum erişimi mevcut
+MyPathViewModel kurallarından gelir. Ayrıntılar: `docs/path-home-design.md`.
+
 ## Proje durumu
 
 **Patika** (çalışma adı) — kullanıcının derdini kendi kelimeleriyle anlattığı, karşılığında 7/14/21/28 günlük **ölçülen ve biten** bir program aldığı iOS meditasyon/zihinsel iyi oluş uygulaması. Sahibi: Novum Apps.
@@ -569,3 +625,21 @@ Android Faz 4'e ertelendi ve üç koşullu bir karar kapısına bağlandı (D30 
 PRD kendi ifadesiyle **0 kullanıcı görüşmesi ve 0 davranışsal veriyle** yazıldı; içindeki her şey hipotezdir. Faz 0 (10+ problem görüşmesi, elle uygulanan tek bir path, ölçümün gerçekten fark gösterip göstermediği) tamamlanmadan MVP kodlamasına geçilmemesi PRD'nin açık kararıdır. Karar kapısı: elle uygulanan path'te medyan iyileşme %20'nin altındaysa tasarım değişir.
 
 Açık sorular (PRD §18) hâlâ kapanmadı: ürün adı, birincil pazar (TR mi DE/EN mi — fiyatlandırmayı ve ASO'yu değiştirir), ilk path tipi (öneri: uyku), ses kimliği, kova eşikleri, ücretsiz adım sayısı. Bunlara bağlı bir uygulama kararı gerekiyorsa varsayım yapma, kullanıcıya sor.
+
+## 17 Eylül 2026 — kesintisiz manzara ve yön duyarlı başlık
+
+Ürün sahibi iki bağımsız sahnenin koyu birleşimini reddetti. Yolum artık tek uzun
+(1:3) guaj çayır görselini, eşleşen açık uçlarda %12 örtüşerek tekrarlar.
+Sahne, başlık dahil bütün kaydırılan içeriğin arkasındadır; koyu geçiş maskesi yoktur.
+Normal metinde başlık aşağı kaydırmada saklanır, yukarı kaydırmada geri gelir.
+Arka planı açık renkli native material ve yalnızca son 32 pt'de yumuşak geçiştir.
+AX boyutlarında başlık içerik akışında kalır; Reduce Motion'da yalnızca opacity,
+Reduce Transparency'de düz koyu zemin kullanılır.
+
+## 17 Eylül 2026 — Yolum ve Ben ortak guaj yüzeyleri
+
+Yolum durakları krem yüzeylere geçti, tek anchor tabanlı rota satır köşelerini
+kaldırdı. Sahne parallax'ı 24 pt, defter parallax'ı 10 pt sınırındadır. Ben'de
+krem illüstrasyonlu kapak ve koyu adaçayı bölüm kartları kullanılır. Mobbin Ahead
+kişisel kayıt ve Finch profil grupları incelendi; detaylar profile-design §20.
+Krizde dekoratif hareket ve anonim hesap bağlama çağrısı gösterilmez.

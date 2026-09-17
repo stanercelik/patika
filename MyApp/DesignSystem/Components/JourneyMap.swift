@@ -39,12 +39,18 @@ struct JourneyMapRow<Content: View>: View {
 
     private var usesAccessibleLayout: Bool { dynamicTypeSize.isAccessibilitySize }
     private var showsPhaseThreshold: Bool { startsPhase && index > 0 && phase != nil }
+    private var showsPhaseArtwork: Bool {
+        presentation == .personalTrace && !isProminent && phase != nil
+            && JourneyPhaseDecoration.shouldShow(startsPhase: startsPhase, rowIndex: index)
+            && !usesAccessibleLayout
+    }
     private var nodeIsLeading: Bool { position.currentX < 0.5 }
 
     var body: some View {
         contentLayout
             .padding(.vertical, 16)
             .frame(minHeight: rowHeight, alignment: .topLeading)
+            .padding(.bottom, showsPhaseArtwork ? 104 : 0)
             .background { staticRoute }
             .background { phaseArtwork }
             .overlay { markersAndActiveInk }
@@ -65,18 +71,26 @@ struct JourneyMapRow<Content: View>: View {
         } else {
             base = isProminent ? prominentRowHeight : normalRowHeight
         }
+        if presentation == .personalTrace { return max(base, 176) + contentTopInset }
         return base + contentTopInset
     }
 
     private var contentTopInset: CGFloat { showsPhaseThreshold ? phaseInset : 0 }
-    private var resolvedNodeCenterY: CGFloat { nodeCenterY + contentTopInset }
+    private var resolvedNodeCenterY: CGFloat {
+        (presentation == .personalTrace ? 72 : nodeCenterY) + contentTopInset
+    }
 
     @ViewBuilder
     private var contentLayout: some View {
         if presentation == .personalTrace, isProminent {
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 72 + contentTopInset)
+                .padding(.top, 112 + contentTopInset)
+        } else if presentation == .personalTrace {
+            content
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, usesAccessibleLayout ? 72 : 88)
+                .padding(.top, 40 + contentTopInset)
         } else if usesAccessibleLayout, isProminent {
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -133,7 +147,8 @@ struct JourneyMapRow<Content: View>: View {
                     showsAbove: index > 0,
                     showsBelow: index < totalCount - 1,
                     breaksAbove: presentation == .roadmap && showsPhaseThreshold,
-                    part: .whole
+                    part: .whole,
+                    isSmooth: presentation == .personalTrace
                 )
                 .trim(from: 0, to: routeReveal)
                 .stroke(
@@ -155,7 +170,8 @@ struct JourneyMapRow<Content: View>: View {
                         showsAbove: index > 0,
                         showsBelow: index < totalCount - 1,
                         breaksAbove: presentation == .roadmap && showsPhaseThreshold,
-                        part: .whole
+                        part: .whole,
+                        isSmooth: presentation == .personalTrace
                     )
                     .trim(from: 0, to: routeReveal)
                     .stroke(
@@ -206,7 +222,8 @@ struct JourneyMapRow<Content: View>: View {
                             showsAbove: index > 0,
                             showsBelow: false,
                             breaksAbove: presentation == .roadmap && showsPhaseThreshold,
-                            part: .above
+                            part: .above,
+                            isSmooth: presentation == .personalTrace
                         )
                         .trim(from: 0, to: routeReveal)
                         .stroke(
@@ -273,20 +290,15 @@ struct JourneyMapRow<Content: View>: View {
 
     @ViewBuilder
     private var phaseArtwork: some View {
-        if presentation == .personalTrace,
-           let phase,
-           JourneyPhaseDecoration.shouldShow(startsPhase: startsPhase, rowIndex: index),
-           !usesAccessibleLayout {
+        if showsPhaseArtwork, let phase {
             GeometryReader { geometry in
-                Image(decorative: JourneyPhaseDecoration.assetName(for: phase))
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 104, height: 88)
-                    .opacity(isRevealed ? 0.18 : 0)
-                    .scaleEffect(isRevealed ? 1 : 0.96)
+                PatikaIllustration(artwork: JourneyPhaseDecoration.artwork(for: phase))
+                    .frame(width: min(geometry.size.width - 104, 176), height: 104)
+                    .opacity(isRevealed ? 1 : 0)
+                    .scaleEffect(isRevealed || motionIsReduced ? 1 : 0.96)
                     .position(
-                        x: nodeIsLeading ? 34 : geometry.size.width - 34,
-                        y: min(96 + contentTopInset, geometry.size.height - 42)
+                        x: geometry.size.width * 0.64,
+                        y: geometry.size.height - 52
                     )
                     .animation(
                         motionIsReduced
@@ -360,6 +372,7 @@ private struct JourneyRouteSegment: Shape {
     let showsBelow: Bool
     let breaksAbove: Bool
     let part: JourneyRoutePart
+    var isSmooth = false
 
     nonisolated func path(in rect: CGRect) -> Path {
         let current = CGPoint(x: currentX, y: nodeY)
@@ -371,8 +384,8 @@ private struct JourneyRouteSegment: Shape {
             above.move(to: top)
             above.addCurve(
                 to: current,
-                control1: CGPoint(x: top.x, y: nodeY * 0.38),
-                control2: CGPoint(x: current.x, y: nodeY * 0.62)
+                control1: CGPoint(x: top.x, y: nodeY * (isSmooth ? 0.50 : 0.38)),
+                control2: CGPoint(x: current.x, y: nodeY * (isSmooth ? 0.50 : 0.62))
             )
             if breaksAbove {
                 result.addPath(above.trimmedPath(from: 0, to: 0.40))
@@ -389,8 +402,8 @@ private struct JourneyRouteSegment: Shape {
             below.move(to: current)
             below.addCurve(
                 to: bottom,
-                control1: CGPoint(x: current.x, y: nodeY + remaining * 0.38),
-                control2: CGPoint(x: bottom.x, y: nodeY + remaining * 0.72)
+                control1: CGPoint(x: current.x, y: nodeY + remaining * (isSmooth ? 0.50 : 0.38)),
+                control2: CGPoint(x: bottom.x, y: nodeY + remaining * (isSmooth ? 0.50 : 0.72))
             )
             result.addPath(below)
         }

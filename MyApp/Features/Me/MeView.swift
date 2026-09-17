@@ -26,11 +26,13 @@ struct MeView: View {
 
     var body: some View {
         ZStack {
+            WoodlandStyle.background.ignoresSafeArea()
             BreathingMeshBackground(
                 palette: palette.current,
                 safeY: 0.12,
-                breathAmplitude: BreathAmplitude.measurement
+                breathAmplitude: viewModel?.isInCrisisMode == true ? BreathAmplitude.crisis : BreathAmplitude.measurement
             )
+            .opacity(0.16)
             .ignoresSafeArea()
 
             if let viewModel {
@@ -80,19 +82,20 @@ private struct MeContent: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: 40) {
+                VStack(alignment: .leading, spacing: 32) {
                     MeHeader(
                         name: viewModel.displayName,
                         title: viewModel.pathTitle,
-                        detail: viewModel.headerDetail
+                        detail: viewModel.headerDetail,
+                        showsArtwork: !viewModel.isInCrisisMode
                     )
                     // SOS her ekranda sağ üstte sabit; başlık onun altından başlar.
                     .padding(.top, 48)
-                    .listReveal(0)
+                    .woodlandReveal(0, enabled: !viewModel.isInCrisisMode)
 
                     if viewModel.supportPlacement == .top {
                         SupportCard { isShowingSupport = true }
-                            .listReveal(1)
+                            .woodlandReveal(1, enabled: !viewModel.isInCrisisMode)
                     }
 
                     if !viewModel.isInCrisisMode {
@@ -101,53 +104,53 @@ private struct MeContent: View {
                                 sheet = .change
                             }
                             .id(MeAnchor.change)
-                            .listReveal(2)
+                            .woodlandReveal(2, enabled: !viewModel.isInCrisisMode)
                         }
 
                         if viewModel.supportPlacement == .belowChange {
                             SupportCard { isShowingSupport = true }
-                                .listReveal(2)
+                                .woodlandReveal(2, enabled: !viewModel.isInCrisisMode)
                         }
 
                         if viewModel.showsJournalSection {
                             JournalSection(viewModel: viewModel, pendingDeletion: $pendingDeletion)
                                 .id(MeAnchor.journal)
-                                .listReveal(3)
+                                .woodlandReveal(3, enabled: !viewModel.isInCrisisMode)
                         }
 
                         if viewModel.showsSealsSection {
                             SealsSection(seals: viewModel.seals)
                                 .id(MeAnchor.paths)
-                                .listReveal(4)
+                                .woodlandReveal(4, enabled: !viewModel.isInCrisisMode)
                         }
 
                         if !viewModel.preferenceItems.isEmpty {
                             PreferencesSection(items: viewModel.preferenceItems) { sheet = .reminder }
                                 .id(MeAnchor.preferences)
-                                .listReveal(5)
+                                .woodlandReveal(5, enabled: !viewModel.isInCrisisMode)
                         }
 
                         // Destek al, hesap işlerinin **üstünde** (P6).
                         if viewModel.supportPlacement == .standard {
                             SupportCard { isShowingSupport = true }
-                                .listReveal(6)
+                                .woodlandReveal(6, enabled: !viewModel.isInCrisisMode)
                         }
                     }
 
-                    if viewModel.showsAnonymousCard {
+                    if viewModel.showsAnonymousCard && !viewModel.isInCrisisMode {
                         AnonymousAccountCard(viewModel: viewModel) { sheet = .account }
-                            .listReveal(7)
+                            .woodlandReveal(7, enabled: !viewModel.isInCrisisMode)
                     }
 
                     SettingsEntryCard { sheet = .settings }
                         .id(MeAnchor.settings)
-                        .listReveal(7)
+                        .woodlandReveal(7, enabled: !viewModel.isInCrisisMode)
 
                     Text(verbatim: viewModel.versionText)
                         .font(.caption.weight(Theme.Weight.body))
                         .foregroundStyle(Theme.textSecondary.color)
                         .frame(maxWidth: .infinity)
-                        .listReveal(8)
+                        .woodlandReveal(8, enabled: !viewModel.isInCrisisMode)
                 }
                 .padding(.horizontal, Theme.Spacing.screenMargin)
                 // Son satır sekme çubuğunun altında kalmasın.
@@ -243,65 +246,57 @@ private struct MeHeader: View {
     let name: String?
     let title: String?
     let detail: String?
+    let showsArtwork: Bool
 
-    @ScaledMetric(relativeTo: .largeTitle) private var displaySize: CGFloat = 38
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-
-    private static let artworkName = "me-header-notebook"
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Avatar, fotoğraf, baş harf dairesi yok. Ad yoksa path adı başlık
-            // rolünü alır; ikisi de yoksa sekmenin adı.
+        VStack(alignment: .leading, spacing: 14) {
+            Text(Copy.Me.screenTitle)
+                .font(.caption.weight(Theme.Weight.emphasis))
+                .foregroundStyle((showsArtwork ? WoodlandStyle.secondaryInk : Theme.textSecondary.color))
+                .tracking(2)
+
             if let name {
                 Text(verbatim: name)
-                    .font(.system(size: displaySize, weight: Theme.Weight.display))
-                    .kerning(-0.3)
-                    .foregroundStyle(Theme.textPrimary.color)
+                    .font(.largeTitle.weight(Theme.Weight.display))
+                    .foregroundStyle((showsArtwork ? WoodlandStyle.ink : Theme.textPrimary.color))
             }
-
             if let title {
                 Text(verbatim: title)
-                    .font(
-                        name == nil
-                            ? .system(size: displaySize * 0.84, weight: Theme.Weight.display)
-                            : .title3.weight(Theme.Weight.title)
-                    )
-                    .foregroundStyle(Theme.textPrimary.color)
-            } else if name == nil {
-                Text(Copy.Me.screenTitle)
-                    .font(.system(size: displaySize, weight: Theme.Weight.display))
-                    .kerning(-0.3)
-                    .foregroundStyle(Theme.textPrimary.color)
+                    .font(name == nil ? .largeTitle.weight(Theme.Weight.display) : .title3.weight(Theme.Weight.title))
+                    .foregroundStyle((showsArtwork ? WoodlandStyle.ink : Theme.textPrimary.color))
             }
-
             if let detail {
                 Text(verbatim: detail)
                     .font(.subheadline.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
+                    .foregroundStyle((showsArtwork ? WoodlandStyle.secondaryInk : Theme.textSecondary.color))
+            }
+            if showsArtwork && !dynamicTypeSize.isAccessibilitySize {
+                PatikaIllustration(artwork: .journal)
+                    .frame(height: 176)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.top, 8)
+                    .visualEffect { content, geometry in
+                        let y = geometry.frame(in: .scrollView(axis: .vertical)).minY
+                        return content.offset(y: reduceMotion ? 0 : min(10, max(-10, -y * 0.035)))
+                    }
             }
         }
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.trailing, showsArtwork ? 92 : 0)
-        .background(alignment: .trailing) {
+        .padding(showsArtwork ? 24 : 0)
+        .background {
             if showsArtwork {
-                Image(decorative: Self.artworkName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 150, height: 104)
-                    .opacity(0.22)
-                    .offset(x: 40)
-                    .accessibilityHidden(true)
+                RoundedRectangle(cornerRadius: 32, style: .continuous)
+                    .fill(WoodlandStyle.paper)
             }
         }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
     }
 
-    private var showsArtwork: Bool {
-        !dynamicTypeSize.isAccessibilitySize && UIImage(named: Self.artworkName) != nil
-    }
 }
 
 // MARK: - 2 · Ne değişti
@@ -489,6 +484,8 @@ private struct JournalSection: View {
                 VStack(alignment: .leading, spacing: 24) {
                     ForEach(viewModel.journalPreview) { item in
                         UserQuote(text: item.text, caption: item.caption)
+                            .padding(20)
+                            .background(WoodlandStyle.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
                             .contextMenu {
                                 Button(role: .destructive) {
                                     pendingDeletion = item
@@ -518,10 +515,13 @@ private struct SealsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ProfileSectionHeader(title: Copy.Me.pathsTitle)
-            VStack(spacing: 4) {
+            VStack(spacing: 12) {
                 ForEach(seals) { seal in
                     NavigationLink(value: MeRoute.path(seal.id)) {
                         SealRow(seal: seal)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(WoodlandStyle.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
                     }
                     .buttonStyle(.calm)
                 }

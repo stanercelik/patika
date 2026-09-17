@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Mesh üstünde okunur içerik yüzeyi (`Theme.Surface`, profile-design §9.2).
+/// Guaj paletiyle uyumlu, opak koyu adaçayı içerik yüzeyi.
 ///
 /// Liquid Glass değil: cam gezinme ve kontrol katmanının dili. İçerik kartında
 /// cam kullanmak, içerikle kontrolün ayrımını bulanıklaştırır. Gölge de yok —
@@ -19,16 +19,14 @@ struct ProfileCard<Content: View>: View {
             .background {
                 let shape = RoundedRectangle(cornerRadius: Theme.Surface.cornerRadius, style: .continuous)
                 shape
-                    .fill(Color.black.opacity(fillOpacity))
+                    .fill(reduceTransparency ? WoodlandStyle.background : WoodlandStyle.surface)
                     .overlay {
-                        shape.strokeBorder(Theme.textPrimary.color.opacity(strokeOpacity), lineWidth: 1)
+                        shape.strokeBorder(
+                            LinearGradient(colors: [WoodlandStyle.sage.opacity(strokeOpacity * 1.8), WoodlandStyle.sage.opacity(strokeOpacity)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                            lineWidth: Theme.Line.journeyConnector
+                        )
                     }
             }
-    }
-
-    private var fillOpacity: Double {
-        if contrast == .increased { return Theme.Surface.fillOpacityHighContrast }
-        return reduceTransparency ? Theme.Surface.fillOpacityOpaqueBackground : Theme.Surface.fillOpacity
     }
 
     private var strokeOpacity: Double {
@@ -43,13 +41,21 @@ struct ProfileSectionHeader: View {
     var actionTitle: LocalizedStringResource?
     var action: (() -> Void)?
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var layout: AnyLayout {
+        dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+            : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 12))
+    }
+
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 12) {
+        layout {
             Text(title)
                 .font(.title3.weight(Theme.Weight.title))
                 .foregroundStyle(Theme.textPrimary.color)
                 .accessibilityAddTraits(.isHeader)
-            Spacer(minLength: 0)
+            if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
             if let actionTitle, let action {
                 Button(action: action) {
                     HStack(spacing: 4) {

@@ -27,48 +27,61 @@ struct SessionCompleteView: View {
     let flow: OnboardingFlowViewModel
     @State private var isSubmitting = false
     @State private var showsError = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
-            Spacer()
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
+                    Spacer()
 
-            DisplayText(
-                flow.didCompleteFirstSession
-                    ? Copy.Session.completedHeadline
-                    : Copy.Session.leftEarlyHeadline,
-                size: 32
-            )
+                    if !dynamicTypeSize.isAccessibilitySize {
+                        PatikaIllustration(artwork: .rest)
+                            .frame(height: 152)
+                            .frame(maxWidth: .infinity)
+                    }
 
-            BodyText(
-                flow.didCompleteFirstSession
-                    ? Copy.Session.completedBody(
-                        remaining: flow.remainingSteps,
-                        time: flow.reminderTimeText
+                    DisplayText(
+                        flow.didCompleteFirstSession
+                            ? Copy.Session.completedHeadline
+                            : Copy.Session.leftEarlyHeadline,
+                        size: 32
                     )
-                    : Copy.Session.leftEarlyBody(time: flow.reminderTimeText)
-            )
 
-            // Soru **yalnızca kişiselleştirilmiş patikada** var; kararı akış
-            // veriyor, görünüm hesaplamıyor.
-            if let question = flow.firstStepQuestion {
-                AdaptiveQuestionView(
-                    question: question,
-                    isSubmitting: isSubmitting,
-                    showsError: showsError,
-                    onSave: { submit(answer: $0, skipped: false) },
-                    onSkip: { submit(answer: nil, skipped: true) }
-                )
-                Spacer()
-            } else {
-                Spacer()
-                PrimaryButton(title: Copy.Session.completedCTA, isEnabled: !isSubmitting) {
-                    submit(answer: nil, skipped: true)
+                    BodyText(
+                        flow.didCompleteFirstSession
+                            ? Copy.Session.completedBody(
+                                remaining: flow.remainingSteps,
+                                time: flow.reminderTimeText
+                            )
+                            : Copy.Session.leftEarlyBody(time: flow.reminderTimeText)
+                    )
+
+                    // Soru **yalnızca kişiselleştirilmiş patikada** var; kararı akış
+                    // veriyor, görünüm hesaplamıyor.
+                    if let question = flow.firstStepQuestion {
+                        AdaptiveQuestionView(
+                            question: question,
+                            isSubmitting: isSubmitting,
+                            showsError: showsError,
+                            onSave: { submit(answer: $0, skipped: false) },
+                            onSkip: { submit(answer: nil, skipped: true) }
+                        )
+                        Spacer()
+                    } else {
+                        Spacer()
+                        PrimaryButton(title: Copy.Session.completedCTA, isEnabled: !isSubmitting) {
+                            submit(answer: nil, skipped: true)
+                        }
+                        .padding(.bottom, 12)
+                    }
                 }
-                .padding(.bottom, 12)
+                .frame(maxWidth: .infinity, minHeight: geometry.size.height, alignment: .leading)
+                .padding(.horizontal, Theme.Spacing.screenMargin)
             }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .padding(.horizontal, Theme.Spacing.screenMargin)
     }
 
     private func submit(answer: String?, skipped: Bool) {

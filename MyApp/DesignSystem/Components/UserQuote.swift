@@ -34,7 +34,7 @@ struct UserQuote: View {
             if let detail {
                 Text(verbatim: detail)
                     .font(.footnote.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color.opacity(0.78))
+                    .foregroundStyle(Theme.textSecondary.color)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -43,7 +43,7 @@ struct UserQuote: View {
         .background(alignment: .leading) {
             Capsule()
                 .fill(Theme.textPrimary.color.opacity(0.35))
-                .frame(width: 2)
+                .frame(width: Theme.Line.border)
                 .accessibilityHidden(true)
         }
         .accessibilityElement(children: .combine)

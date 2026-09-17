@@ -1,16 +1,16 @@
 import Foundation
 
-/// Yolum'daki heykelsi boşluk görsellerini gerçek program fazına bağlar.
+/// Yolum'un doğa illüstrasyonlarını gerçek program fazına bağlar.
 /// Görseller hassas problem metninden değil, deterministik faz bilgisinden gelir.
 enum JourneyPhaseDecoration {
-    static func assetName(for phase: PathPhase) -> String {
+    static func artwork(for phase: PathPhase) -> PatikaArtwork {
         switch phase {
         case .relief:
-            "journey-relief"
+            .shelter
         case .awareness, .skill, .behavior:
-            "journey-practice"
+            .trail
         case .closing:
-            "journey-closing"
+            .rest
         }
     }
 

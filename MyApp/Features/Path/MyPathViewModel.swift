@@ -31,6 +31,15 @@ final class MyPathViewModel {
     /// Açık duran adım. Varsayılan olarak sıradaki adım: ekran açıldığında
     /// kullanıcının yapacağı şey zaten açık duruyor, bir dokunuş kazanılıyor.
     private(set) var expandedStepID: UUID?
+    #if DEBUG
+    private(set) var isDesignPreview = false
+
+    func showDesignPreview() {
+        isDesignPreview = true
+        state = .ready(PathPreviewFixture.path)
+        expandedStepID = PathPreviewFixture.path.nextStep?.id
+    }
+    #endif
 
     private let services: AppServices
 
@@ -50,6 +59,17 @@ final class MyPathViewModel {
     var steps: [PathStepRecord] { path?.steps.sorted { $0.day < $1.day } ?? [] }
 
     func load() async {
+        #if DEBUG
+        if isDesignPreview { return }
+        if PathPreviewFixture.showsEmpty { state = .empty; return }
+        if PathPreviewFixture.isEnabled {
+            if path == nil {
+                state = .ready(PathPreviewFixture.path)
+                expandedStepID = PathPreviewFixture.startsCollapsed ? nil : PathPreviewFixture.path.nextStep?.id
+            }
+            return
+        }
+        #endif
         let previousPath = path
         if previousPath == nil { state = .loading }
         recentlyCompletedStepID = nil
@@ -90,19 +110,12 @@ final class MyPathViewModel {
 
     func isExpanded(_ step: PathStepRecord) -> Bool { expandedStepID == step.id }
 
-    /// Bir satıra dokunmak onu açar, açık olanı kapatır.
-    ///
-    /// Sıradaki adım istisna: dokunmak onu kapatmıyor. Ekranın birincil eylemi
-    /// o kart ve kullanıcının kendi dokunuşuyla kaybolması, aradığı şeyi
-    /// aramaya geri döndürüyordu.
+    /// The current stop remains identified even when its details are closed.
+    func isCurrent(_ step: PathStepRecord) -> Bool { step.id == nextStep?.id }
+
     func toggle(_ step: PathStepRecord) {
         guard !isLocked(step) else { return }
-        if expandedStepID == step.id {
-            guard step.id != nextStep?.id else { return }
-            expandedStepID = nil
-        } else {
-            expandedStepID = step.id
-        }
+        expandedStepID = expandedStepID == step.id ? nil : step.id
     }
 
     // MARK: - Satırın hâli

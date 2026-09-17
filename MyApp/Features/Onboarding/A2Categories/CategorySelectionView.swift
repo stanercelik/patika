@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CategorySelectionView: View {
     @State private var viewModel: CategorySelectionViewModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     init(flow: OnboardingFlowViewModel) {
         self._viewModel = State(initialValue: CategorySelectionViewModel(flow: flow))
@@ -9,10 +10,10 @@ struct CategorySelectionView: View {
 
     // Aralık ve kart yoğunluğu, 10 seçeneğin ortak alt bölge yüksekliğiyle birlikte
     // kaydırmadan sığmasına göre ayarlı. Alt bölge değişirse burası da değişmeli.
-    private let columns = [
+    private var columns: [GridItem] { dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [
         GridItem(.flexible(), spacing: 8),
         GridItem(.flexible(), spacing: 8),
-    ]
+    ] }
 
     var body: some View {
         // Varsayılan metin boyutunda 10 seçeneğin tamamı kaydırmadan görünür;
@@ -69,12 +70,7 @@ struct CategoryCard: View {
                             Theme.textPrimary.color.opacity(isSelected ? 1.0 : 0.72)
                         )
                     Spacer(minLength: 0)
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .font(.caption.weight(Theme.Weight.action))
-                            .foregroundStyle(Theme.textPrimary.color)
-                            .transition(.opacity)
-                    }
+                    SelectionMark(isSelected: isSelected)
                 }
 
                 Spacer(minLength: 2)
@@ -92,18 +88,8 @@ struct CategoryCard: View {
             .frame(maxWidth: .infinity, minHeight: 56, alignment: .topLeading)
             .padding(.horizontal, 13)
             .padding(.vertical, 9)
-            .background {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.white.opacity(isSelected ? 0.16 : 0.07))
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(
-                        Theme.textPrimary.color.opacity(isSelected ? 0.55 : 0.0),
-                        lineWidth: Theme.Line.border
-                    )
-            }
-            .opacity(isDimmed ? 0.40 : 1.0)
+            .background { CalmSurface(isEmphasized: isSelected) }
+            .opacity(isDimmed ? 0.62 : 1.0)
         }
         .buttonStyle(.calm)
         .animation(Theme.Motion.crossFade, value: isSelected)

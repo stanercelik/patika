@@ -85,6 +85,7 @@ extension OnboardingStep {
         case "a2": self = .a2Categories
         case "b1": self = .b1ProblemText
         case "c1": self = .c1Mirroring
+        case "c2": self = .c2NotAlone
         case "d0": self = .d0MeasurementIntro
         case "d1": self = .dMeasurement(1)
         case "e1": self = .e1Reminder
@@ -134,6 +135,7 @@ enum DebugDirectEntry {
         let draft = OnboardingDraft.debugSample()
         palette.select(draft.categories)
         palette.setMood(draft.currentMood)
+        if PathPreviewFixture.isEnabled || PathPreviewFixture.showsEmpty { return }
         do {
             let token = try await services.auth.validAccessToken()
             if let existing = try await services.backend.activePath(accessToken: token),

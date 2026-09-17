@@ -26,7 +26,7 @@ struct MirroringView: View {
             // Durum ve süre birlikte okunduktan sonra: görsel bu iki parçayı
             // tek bir kişisel yol hissinde birleştirir; kalan cümleler ardından gelir.
             OnboardingIllustration(
-                name: "illustration-c1-mirror",
+                name: PatikaArtwork.reflection.rawValue,
                 height: 282,
                 accessibilityHeight: 194
             )

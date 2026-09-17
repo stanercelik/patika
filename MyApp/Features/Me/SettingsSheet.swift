@@ -146,6 +146,10 @@ struct SettingsSheet: View {
                     Text(Copy.Me.Settings.irreversibleHeader)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Palette.neutral.background.color)
+            .environment(\.defaultMinListRowHeight, 52)
+            .font(.body.weight(Theme.Weight.body))
             .navigationTitle(Text(Copy.Me.Settings.title))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

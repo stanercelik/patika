@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Environment(AppServices.self) private var services
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var viewModel: WelcomeViewModel
     private let flow: OnboardingFlowViewModel
 
@@ -11,45 +12,52 @@ struct WelcomeView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Üstte kelime markası yok: marka kimliği yol animasyonunun kendisi.
-            // Logo hazır olduğunda animasyonun kapanış karesine yerleşecek.
-            Spacer(minLength: 24)
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    // Üstte kelime markası yok: marka kimliği yol animasyonunun kendisi.
+                    // Logo hazır olduğunda animasyonun kapanış karesine yerleşecek.
+                    Spacer(minLength: 24)
 
-            PathDrawAnimation()
-                .frame(maxWidth: .infinity)
-                .frame(height: 300)
+                    PathDrawAnimation()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : min(300, geometry.size.height * 0.40))
 
-            Spacer(minLength: 24)
+                    Spacer(minLength: 24)
 
-            VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
-                DisplayText(viewModel.headline)
-                BodyText(viewModel.body)
-            }
-            .padding(.horizontal, Theme.Spacing.screenMargin)
-
-            PrimaryButton(title: viewModel.ctaTitle) {
-                Task { await viewModel.startTapped() }
-            }
-            .disabled(viewModel.isWorking)
-            .padding(.horizontal, Theme.Spacing.screenMargin)
-            .padding(.top, 32)
-
-            if let message = services.auth.errorMessage {
-                Text(message)
-                    .font(.footnote.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
-                    .fixedSize(horizontal: false, vertical: true)
+                    VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
+                        DisplayText(viewModel.headline)
+                        BodyText(viewModel.body)
+                    }
                     .padding(.horizontal, Theme.Spacing.screenMargin)
-                    .padding(.top, 12)
-            }
 
-            SecondaryTextButton(title: Copy.Auth.returningLink) {
-                viewModel.returningTapped()
+                    PrimaryButton(title: viewModel.ctaTitle) {
+                        Task { await viewModel.startTapped() }
+                    }
+                    .disabled(viewModel.isWorking)
+                    .padding(.horizontal, Theme.Spacing.screenMargin)
+                    .padding(.top, 32)
+
+                    if let message = services.auth.errorMessage {
+                        Text(message)
+                            .font(.footnote.weight(Theme.Weight.body))
+                            .foregroundStyle(Theme.textSecondary.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.horizontal, Theme.Spacing.screenMargin)
+                            .padding(.top, 12)
+                    }
+
+                    SecondaryTextButton(title: Copy.Auth.returningLink) {
+                        viewModel.returningTapped()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 18)
+                    .padding(.bottom, 12)
+                }
+                .frame(minHeight: geometry.size.height)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 18)
-            .padding(.bottom, 12)
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
         }
         .sheet(isPresented: $viewModel.showsReturningAuth) {
             ReturningUserAuthView(services: services) {

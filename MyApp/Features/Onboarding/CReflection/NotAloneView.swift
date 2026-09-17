@@ -19,10 +19,10 @@ struct NotAloneView: View {
             StatementParagraph(flow.draft.primaryCategory.commonalityLine)
                 .sequentialReveal(1)
 
-            // Tek lifin daha geniş bir akışa katılması, "yaygın" kelimesini
-            // sayı ya da insan figürü kullanmadan görünür kılar.
+            // Birbirine karışan yapraklar ve ortak akış; sayı veya insan
+            // figürü üzerinden sosyal kanıt ima etmez.
             OnboardingIllustration(
-                name: "illustration-c2-common",
+                name: PatikaArtwork.belonging.rawValue,
                 height: 292,
                 accessibilityHeight: 194
             )

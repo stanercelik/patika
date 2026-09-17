@@ -5,10 +5,8 @@ import SwiftUI
 /// Görsel, metnin anlattığı fikrin hemen ardından gelir. Böylece bağımsız bir
 /// dekor değil, okunan cümlenin görsel karşılığı olur.
 ///
-/// Varlık henüz eklenmemişse bileşen **hiçbir yer kaplamaz**. Görseller ürün
-/// sahibi tarafından üretilip `Assets.xcassets/Onboarding` altına atılacak
-/// (prompt'lar: PRD-Ek Görsel Sistem §11); o güne kadar ekranlar eksiksiz
-/// çalışır ve yerinde boşluk ya da kırık ikon durmaz.
+/// Varlık yoksa hiç yer kaplamaz. Şeffaf guaj sahneleri ortak
+/// `PatikaArtwork` ailesinden gelir; renk ve doku Keşfet ile aynıdır.
 struct OnboardingIllustration: View {
     let name: String
     var height: CGFloat = 268

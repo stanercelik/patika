@@ -11,15 +11,38 @@ struct SessionStageView: View {
     let runner: SessionRunner
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer(minLength: 0)
+            ScrollView {
+                sceneContent
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 28)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
+            .defaultScrollAnchor(.center, for: .alignment)
+
+            SessionProgressTrail(progress: runner.progress)
+                .padding(.bottom, 24)
+
+            controls
+                .padding(.bottom, 16)
+        }
+        // Sahne değişimi 600 ms: 800 ms bütçesinin içinde ama ekran
+        // geçişlerinden belirgin şekilde yavaş — burada acele edilecek bir şey
+        // yok.
+        .animation(.easeInOut(duration: 0.6), value: runner.currentSegment?.id)
+    }
+
+    private var sceneContent: some View {
+        VStack(spacing: 0) {
 
             if runner.currentSegment?.kind == .ownWords {
                 Text(Copy.Session.ownWordsFraming)
                     .font(.subheadline.weight(Theme.Weight.emphasis))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.55))
+                    .foregroundStyle(Theme.textSecondary.color)
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 14)
                     .transition(.opacity)
@@ -39,26 +62,22 @@ struct SessionStageView: View {
             if let note = runner.audioNote {
                 Text(note)
                     .font(.footnote.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.40))
+                    .foregroundStyle(Theme.textSecondary.color)
                     .padding(.top, 18)
             }
 
-            Spacer(minLength: 0)
 
-            SessionProgressTrail(progress: runner.progress)
-                .padding(.bottom, 24)
-
-            controls
-                .padding(.bottom, 16)
         }
-        // Sahne değişimi 600 ms: 800 ms bütçesinin içinde ama ekran
-        // geçişlerinden belirgin şekilde yavaş — burada acele edilecek bir şey
-        // yok.
-        .animation(.easeInOut(duration: 0.6), value: runner.currentSegment?.id)
+    }
+
+    private var controlsLayout: AnyLayout {
+        dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: 12))
+            : AnyLayout(HStackLayout(spacing: 28))
     }
 
     private var controls: some View {
-        HStack(spacing: 28) {
+        controlsLayout {
             Button {
                 runner.togglePause()
             } label: {
@@ -71,6 +90,7 @@ struct SessionStageView: View {
                 .foregroundStyle(Theme.textPrimary.color.opacity(0.72))
                 .padding(.horizontal, 18)
                 .padding(.vertical, 11)
+                .frame(minWidth: 44, minHeight: 44)
                 .background(.ultraThinMaterial, in: Capsule())
             }
             .buttonStyle(.calm)
@@ -80,7 +100,8 @@ struct SessionStageView: View {
             } label: {
                 Text(Copy.Session.leave)
                     .font(.subheadline.weight(Theme.Weight.emphasis))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.48))
+                    .foregroundStyle(Theme.textSecondary.color)
+                    .frame(minWidth: 44, minHeight: 44)
             }
             .buttonStyle(.calm)
         }
@@ -90,7 +111,7 @@ struct SessionStageView: View {
     /// yazılınca yönerge gibi okunuyordu, oysa bu onun cümlesi.
     private var sceneFont: Font {
         switch runner.currentSegment?.kind {
-        case .ownWords: .title2.weight(Theme.Weight.title).italic()
+        case .ownWords: Theme.Voice.user(.title2)
         case .opening, .closing: .title3.weight(Theme.Weight.title)
         default: .title3.weight(Theme.Weight.body)
         }

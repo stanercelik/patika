@@ -38,7 +38,7 @@ struct MeasurementQuestionView: View {
 
                 Text(Copy.clinicalDisclaimer)
                     .font(.caption.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.5))
+                    .foregroundStyle(Theme.textSecondary.color)
                     .fixedSize(horizontal: false, vertical: true)
             }
         } footer: {

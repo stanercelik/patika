@@ -33,7 +33,7 @@ struct RootView: View {
                 MyPathTab()
             }
             Tab("Keşfet", systemImage: "square.grid.2x2", value: RootTab.discover) {
-                DiscoverTab()
+                DiscoverView { selection = .path }
             }
             Tab("Ben", systemImage: "person", value: RootTab.me) {
                 MeTab()
@@ -86,6 +86,7 @@ struct SOSButton: View {
                 .foregroundStyle(Theme.textPrimary.color)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
+                .frame(minWidth: 44, minHeight: 44)
                 .background(.ultraThinMaterial, in: Capsule())
         }
         .buttonStyle(.calm)
@@ -99,19 +100,13 @@ struct SOSButton: View {
 // Keşfet hâlâ yer tutucu. Yolum `MyPathView`, Ben `MeView`.
 
 struct MyPathTab: View {
+    @Environment(DiscoverLibrary.self) private var library
     var body: some View {
-        MyPathView()
-    }
-}
-
-struct DiscoverTab: View {
-    @Environment(PaletteController.self) private var palette
-
-    var body: some View {
-        ZStack {
-            // Keşfet nötr palet kullanır — kişisel path'e bağlı değil.
-            BreathingMeshBackground(palette: Palette.neutral.nightAdjusted(), safeY: 0.20)
-            ScreenPlaceholder(title: "Keşfet", message: Copy.Empty.noSearchResults)
+        if let path = library.activePath {
+            DiscoverPathView(path: path, isPreview: false)
+                .id(path.id)
+        } else {
+            MyPathView()
         }
     }
 }
@@ -167,5 +162,6 @@ struct SOSPlaceholderView: View {
     RootView()
         .environment(PaletteController())
         .environment(AppServices.live())
+        .environment(DiscoverLibrary())
         .preferredColorScheme(.dark)
 }

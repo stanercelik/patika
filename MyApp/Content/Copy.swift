@@ -57,6 +57,14 @@ enum Copy {
     /// Boş durumlar (Ton eki §3.1). Hiçbirinde şaka yok, hiçbirinde suçlama yok.
     /// "Acelesi yok" cümlesi ürünün imzasıdır.
     enum Empty {
+        static let discoverHeadline: LocalizedStringResource = "Kendi ritminde."
+        static let discoverBody: LocalizedStringResource = "Şu an burada keşfedilecek bir içerik yok. Kendi yoluna Yolum’dan devam edebilirsin."
+        static let returnToPath: LocalizedStringResource = "Yoluma dön"
+        static let pathInvitation: LocalizedStringResource = "Bir yol, seninle başlar."
+        static let pathInvitationBody: LocalizedStringResource = "Şu an bu hesapta bir patika görünmüyor. Kendinden biraz söz ederek sana özel bir yol oluşturabilirsin."
+        static let pathInvitationNote: LocalizedStringResource = "Daha önce bir yol oluşturduysan önce yeniden kontrol edebilirsin."
+        static let checkPath: LocalizedStringResource = "Yolumu yeniden kontrol et"
+
         static let noPath: LocalizedStringResource =
             "Burası şimdilik boş. Bir şey anlatmaya hazır olduğunda buradayız."
         static let noBadges: LocalizedStringResource =
@@ -443,6 +451,11 @@ enum Copy {
     /// "streak" yok, kaçırılan gün için tek kelime yok — kaçırılan gün hiçbir
     /// şeyi geri almıyor (Değiştirilemez kurallar: gamification yasağı).
     enum Path {
+        static let currentLocation: LocalizedStringResource = "Buradasın"
+        static let expandDetails: LocalizedStringResource = "Adım ayrıntılarını aç"
+        static let collapseDetails: LocalizedStringResource = "Adım ayrıntılarını kapat"
+        static let detailsExpanded: LocalizedStringResource = "Ayrıntılar açık"
+        static let detailsCollapsed: LocalizedStringResource = "Ayrıntılar kapalı"
         static let screenTitle: LocalizedStringResource = "Yolum"
         static let readyNote: LocalizedStringResource = "Bugünün adımı hazır."
         static let loading: LocalizedStringResource = "Yolun açılıyor."

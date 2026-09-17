@@ -58,8 +58,10 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
             .scrollIndicators(.hidden)
             .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
+            .scrollEdgeEffectStyle(.soft, for: .bottom)
 
             footer
+                .padding(.top, 12)
                 .padding(.horizontal, Theme.Spacing.screenMargin)
                 .padding(.bottom, 12)
         }
@@ -72,6 +74,7 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
 /// (PRD-Ek Onboarding §10): kullanıcı kapana kısılmış hissetmez, ama kolay yol
 /// da atlamak değildir.
 struct OnboardingQuestionFooter: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     var primaryTitle: LocalizedStringResource
     var primaryDisabledTitle: LocalizedStringResource?
     var isPrimaryEnabled: Bool = true
@@ -82,7 +85,7 @@ struct OnboardingQuestionFooter: View {
     /// İkincil satırın yeri **her ekranda** ayrılır, o ekranda çıkış olmasa bile.
     /// Ayrılmazsa birincil buton B2'den B4'e geçerken bir satır boyu yukarı
     /// kayıyor; kalıcı kabuğun altını oyan tam olarak bu tür küçük zıplamalar.
-    @ScaledMetric(relativeTo: .subheadline) private var escapeRowHeight: CGFloat = 34
+    @ScaledMetric(relativeTo: .subheadline) private var escapeRowHeight: CGFloat = 44
 
     var body: some View {
         VStack(spacing: 0) {
@@ -103,7 +106,7 @@ struct OnboardingQuestionFooter: View {
                     Color.clear
                 }
             }
-            .frame(height: escapeRowHeight)
+            .frame(height: dynamicTypeSize.isAccessibilitySize && skipTitle == nil ? 0 : escapeRowHeight)
         }
     }
 }

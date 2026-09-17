@@ -1,0 +1,384 @@
+{
+  "version": 1,
+  "audioLocale": "en",
+  "paths": [
+    {
+      "id": "evening",
+      "title": {
+        "en": "Evening, unhurried",
+        "tr": "Akşamı yavaşlat"
+      },
+      "summary": {
+        "en": "A softer landing at the end of the day.",
+        "tr": "Günün sonunda daha yavaş bir geçiş."
+      },
+      "artwork": "discover-evening",
+      "steps": [
+        {
+          "id": "evening-1",
+          "title": {
+            "en": "Arrive here",
+            "tr": "Buraya gel"
+          },
+          "guidance": {
+            "en": "Find a supported position. Let your eyes stay open, or lower your gaze. Notice three ordinary things around you. Feel the surface carrying your weight. There is no need to make your breathing deeper. Let it find its own pace. For the next few moments, simply notice where your body meets the chair or bed.",
+            "tr": "Destekli bir pozisyon bul. Gözlerin açık kalabilir ya da bakışını indirebilirsin. Çevrende sıradan üç şeyi fark et. Ağırlığını taşıyan yüzeyi hisset. Nefesini derinleştirmen gerekmiyor. Kendi ritmini bulmasına izin ver. Birkaç an boyunca bedeninin koltuğa ya da yatağa değdiği yeri fark et."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "evening-2",
+          "title": {
+            "en": "Set the day down",
+            "tr": "Günü bir kenara bırak"
+          },
+          "guidance": {
+            "en": "Bring to mind one small thing that happened today, without retelling the whole day. You do not need to solve it here. Imagine setting it on a shelf until you choose to return to it. Feel your hands resting. When another thought arrives, quietly name it thinking, then return to the weight of your hands.",
+            "tr": "Bugün olan küçük bir şeyi, bütün günü yeniden anlatmadan hatırla. Burada çözmen gerekmiyor. Ona dönmeyi seçene kadar bir rafa bıraktığını düşün. Dinlenen ellerini hisset. Yeni bir düşünce geldiğinde içinden düşünme de ve ellerinin ağırlığına dön."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "evening-3",
+          "title": {
+            "en": "Soften one place",
+            "tr": "Bir noktayı yumuşat"
+          },
+          "guidance": {
+            "en": "Notice your jaw, shoulders, and hands. Choose just one place where you could do a little less holding. Do not force it to relax. Let a small amount of effort drop, if that feels comfortable. Keep breathing naturally. Spend this quiet moment noticing the difference between holding and letting the surface support you.",
+            "tr": "Çeneni, omuzlarını ve ellerini fark et. Biraz daha az sıkabileceğin tek bir yer seç. Gevşemeye zorlama. Rahat geliyorsa küçük bir çabayı bırak. Doğal nefesini sürdür. Bu sessiz anda kendini tutmakla yüzeyin seni desteklemesi arasındaki farkı fark et."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "evening-4",
+          "title": {
+            "en": "Thoughts can wait",
+            "tr": "Düşünceler bekleyebilir"
+          },
+          "guidance": {
+            "en": "If a task is circling in your mind, give it a short name, such as tomorrow or something to remember. A name is enough; you do not need the whole story. Let your attention return to a sound in the room. Thoughts may continue in the background. Practice hearing one sound without chasing the next thought.",
+            "tr": "Zihninde bir iş dönüp duruyorsa ona yarın ya da hatırlanacak bir şey gibi kısa bir ad ver. Adı yeterli; bütün hikâye gerekmiyor. Dikkatini odadaki bir sese getir. Düşünceler arkada sürebilir. Bir sonraki düşünceyi kovalamadan tek bir sesi duymayı dene."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "evening-5",
+          "title": {
+            "en": "Make a little room",
+            "tr": "Biraz alan aç"
+          },
+          "guidance": {
+            "en": "Look for one small comfort already here: a warm sleeve, a steady surface, or the dimness of the room. Let your attention rest there. This does not have to change how you feel. You are simply noticing one part of this moment. When attention moves away, return gently to that small comfort.",
+            "tr": "Burada olan küçük bir rahatlığı bul: sıcak bir kol, sağlam bir yüzey ya da odanın loşluğu. Dikkatini orada dinlendir. Bu, hislerini değiştirmek zorunda değil. Yalnızca bu anın bir parçasını fark ediyorsun. Dikkatin uzaklaştığında o küçük rahatlığa yavaşça dön."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "evening-6",
+          "title": {
+            "en": "A quieter transition",
+            "tr": "Daha sakin bir geçiş"
+          },
+          "guidance": {
+            "en": "Think of one ordinary action that can mark the end of your day. It might be putting down your phone or turning off a lamp. Choose something small enough to do without a plan. Notice what changes when you imagine doing it slowly. For now, feel your feet or legs supported and let the next breath arrive on its own.",
+            "tr": "Günün sonunu işaret edebilecek sıradan bir hareket düşün. Telefonu bırakmak ya da bir lambayı kapatmak olabilir. Plan gerektirmeyecek kadar küçük bir şey seç. Onu yavaşça yaptığını düşündüğünde ne değiştiğini fark et. Şimdi ayaklarının ya da bacaklarının desteğini hisset ve sıradaki nefesin kendiliğinden gelmesini bekle."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "evening-7",
+          "title": {
+            "en": "Keep what fits",
+            "tr": "Sana uyanı yanında tut"
+          },
+          "guidance": {
+            "en": "Recall the practices you tried: feeling support, naming a thought, or noticing a small comfort. Choose the one that felt easiest to return to. You do not need to keep them all. Try that one now in your own way. There is no test at the end of this path. A small practice can be enough for this evening.",
+            "tr": "Denediğin pratikleri hatırla: desteği hissetmek, bir düşünceye ad vermek ya da küçük bir rahatlığı fark etmek. Dönmesi en kolay olanı seç. Hepsini tutman gerekmiyor. Şimdi onu kendi biçiminde dene. Bu patikanın sonunda bir sınav yok. Bu akşam için küçük bir pratik yeterli olabilir."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        }
+      ]
+    },
+    {
+      "id": "breath",
+      "title": {
+        "en": "Room to breathe",
+        "tr": "Nefese yer aç"
+      },
+      "summary": {
+        "en": "Meet your natural breath, without a performance.",
+        "tr": "Doğal nefesinle, bir şey başarmaya çalışmadan tanış."
+      },
+      "artwork": "discover-breath",
+      "steps": [
+        {
+          "id": "breath-1",
+          "title": {
+            "en": "Meet your breath",
+            "tr": "Nefesinle tanış"
+          },
+          "guidance": {
+            "en": "Sit in a way that feels supported. Keep your breathing ordinary. Notice where you can feel it most easily: near the nose, the chest, or the belly. Choose one place and stay with a few breaths. There is no right depth or speed. If focusing on breathing feels uncomfortable, notice your feet instead.",
+            "tr": "Destekli hissettiğin bir biçimde otur. Nefesini doğal bırak. Onu en kolay nerede hissettiğini fark et: burnunda, göğsünde ya da karnında. Bir yer seç ve birkaç nefes boyunca orada kal. Doğru bir derinlik ya da hız yok. Nefese odaklanmak rahatsız ederse ayaklarını fark et."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "breath-2",
+          "title": {
+            "en": "Follow one breath",
+            "tr": "Tek bir nefesi izle"
+          },
+          "guidance": {
+            "en": "Notice the beginning of a natural breath in, and the way it turns into a breath out. You do not need to stretch either part or hold your breath. Follow just this one cycle. Then begin again with the next. If your attention wanders, the next breath is a simple place to return.",
+            "tr": "Doğal bir nefes alışın başlangıcını ve nefes verişe dönüşünü fark et. Hiçbir kısmını uzatman ya da nefesini tutman gerekmiyor. Yalnızca bu döngüyü izle. Sonrakiyle yeniden başla. Dikkatin dağılırsa sıradaki nefes dönebileceğin basit bir yer."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "breath-3",
+          "title": {
+            "en": "Feel the support",
+            "tr": "Desteği hisset"
+          },
+          "guidance": {
+            "en": "Let breathing happen in the background. Place your attention on the contact beneath your feet or your seat. Notice pressure, warmth, or texture. You may feel very little, and that is fine. Move attention gently between this contact and one natural breath. You can choose whichever feels more comfortable.",
+            "tr": "Nefes arkada sürsün. Dikkatini ayaklarının ya da oturduğun yerin altındaki temasa getir. Basıncı, sıcaklığı ya da dokuyu fark et. Çok az şey hissedebilirsin. Dikkatini bu temasla doğal bir nefes arasında yavaşça taşı. Hangisi daha rahatsa onu seçebilirsin."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "breath-4",
+          "title": {
+            "en": "Notice the return",
+            "tr": "Geri dönüşü fark et"
+          },
+          "guidance": {
+            "en": "Rest your attention on one place where breathing is easy to feel. Sooner or later, a thought or sound may pull you away. The practice is not staying perfectly focused. It is noticing that movement and returning without a struggle. Each time you notice, begin with the breath that is already here.",
+            "tr": "Dikkatini nefesi kolay hissettiğin bir yerde dinlendir. Bir düşünce ya da ses seni başka yere çekebilir. Pratik kusursuz odaklanmak değil. Bu hareketi fark edip zorlanmadan dönmek. Her fark edişte burada olan nefesle başla."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "breath-5",
+          "title": {
+            "en": "Make space for sound",
+            "tr": "Sese alan aç"
+          },
+          "guidance": {
+            "en": "Let one sound reach you without searching for its source. Then notice one natural breath. Allow both to belong to the same moment. You do not need a quiet room to practice. If the sound is unpleasant, return to the steady contact beneath your feet rather than trying to push it away.",
+            "tr": "Kaynağını aramadan bir sesin sana gelmesine izin ver. Sonra doğal bir nefesi fark et. İkisi de aynı ana ait olabilir. Pratik için sessiz bir oda gerekmiyor. Ses hoş değilse onu itmeye çalışmak yerine ayaklarının altındaki sağlam temasa dön."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "breath-6",
+          "title": {
+            "en": "A pause in the day",
+            "tr": "Günün içinde bir durak"
+          },
+          "guidance": {
+            "en": "Imagine a small gap between two things you do each day. Before opening a door, sitting down, or reaching for your phone, there may be room for one ordinary breath. Practice that now. Notice your hands, let one breath come and go, and feel the support beneath you. No special breathing pattern is needed.",
+            "tr": "Gün içinde yaptığın iki şey arasında küçük bir aralık düşün. Bir kapıyı açmadan, oturmadan ya da telefona uzanmadan önce sıradan bir nefese yer olabilir. Şimdi dene. Ellerini fark et, bir nefes gelsin ve gitsin, altındaki desteği hisset. Özel bir nefes düzeni gerekmiyor."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "breath-7",
+          "title": {
+            "en": "Choose your anchor",
+            "tr": "Döneceğin yeri seç"
+          },
+          "guidance": {
+            "en": "You have tried breathing, contact, and sound as places to return to. Choose one that feels straightforward today. Spend this quiet moment with it. When attention wanders, come back gently. You can take this practice into an ordinary day, for one breath or a little longer, whenever you choose.",
+            "tr": "Dönebileceğin yerler olarak nefesi, teması ve sesi denedin. Bugün sana basit gelen birini seç. Bu sessiz anda onunla kal. Dikkatin dağıldığında yavaşça dön. Bu pratiği sıradan bir güne, bir nefes ya da biraz daha uzun süre için, istediğinde taşıyabilirsin."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        }
+      ]
+    },
+    {
+      "id": "focus",
+      "title": {
+        "en": "One thing at a time",
+        "tr": "Bir seferde tek şey"
+      },
+      "summary": {
+        "en": "Gentle practice for attention in an ordinary day.",
+        "tr": "Sıradan bir günde dikkat için küçük pratikler."
+      },
+      "artwork": "discover-focus",
+      "steps": [
+        {
+          "id": "focus-1",
+          "title": {
+            "en": "Land in the room",
+            "tr": "Odaya dön"
+          },
+          "guidance": {
+            "en": "Let your gaze rest on an ordinary object nearby. Notice its shape, one edge, and a small change in color. There is nothing special to find. Feel your feet while you look. If a thought arrives, let it be there and return to the object. For a little while, this is the only thing you are choosing to notice.",
+            "tr": "Bakışını yakındaki sıradan bir nesnede dinlendir. Biçimini, bir kenarını ve küçük bir renk değişimini fark et. Özel bir şey bulman gerekmiyor. Bakarken ayaklarını hisset. Bir düşünce gelirse orada kalsın; nesneye dön. Bir süreliğine fark etmeyi seçtiğin tek şey bu."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "focus-2",
+          "title": {
+            "en": "Name the next step",
+            "tr": "Sıradaki adımı adlandır"
+          },
+          "guidance": {
+            "en": "Think of one task you may return to after this pause. Make the next action smaller than the whole task. It might be opening a document or reading one paragraph. You do not need to start it now. Name that small action once, then return attention to your hands resting and your natural breathing.",
+            "tr": "Bu duraktan sonra dönebileceğin tek bir işi düşün. Sıradaki hareketi işin tamamından daha küçük tut. Bir dosyayı açmak ya da bir paragraf okumak olabilir. Şimdi başlaman gerekmiyor. O küçük hareketi bir kez adlandır; sonra dinlenen ellerine ve doğal nefesine dön."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "focus-3",
+          "title": {
+            "en": "Let a thought pass",
+            "tr": "Bir düşünce geçsin"
+          },
+          "guidance": {
+            "en": "Choose a simple point of attention: an object, a sound, or your feet. When a thought interrupts, quietly say thinking. You do not need to argue with it or finish its story. Return to your chosen point. This is a practice in coming back, rather than keeping the mind empty.",
+            "tr": "Basit bir dikkat noktası seç: bir nesne, bir ses ya da ayakların. Bir düşünce araya girince içinden düşünme de. Onunla tartışman ya da hikâyesini bitirmen gerekmiyor. Seçtiğin noktaya dön. Bu, zihni boş tutmaktan çok geri dönme pratiği."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "focus-4",
+          "title": {
+            "en": "Clear a small space",
+            "tr": "Küçük bir alan aç"
+          },
+          "guidance": {
+            "en": "Look at the space in front of you. Notice one object you need for your next small action and one you do not need right now. There is no need to tidy everything. If it feels useful, move just that second object aside. Then pause and notice whether your gaze has a little less to follow.",
+            "tr": "Önündeki alana bak. Sıradaki küçük hareket için gereken bir nesneyi ve şu an gerekmeyen bir nesneyi fark et. Her şeyi toplaman gerekmiyor. İşine yarayacaksa yalnızca ikinci nesneyi kenara koy. Sonra dur ve bakışının takip edeceği şeylerin biraz azalıp azalmadığını fark et."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "focus-5",
+          "title": {
+            "en": "Find an easier pace",
+            "tr": "Daha rahat bir hız bul"
+          },
+          "guidance": {
+            "en": "Choose a very small movement, such as opening and resting one hand. Do it slowly enough to notice the beginning and the end. Let your breath keep its own pace. You are not trying to become slower at everything. You are exploring what one deliberate movement feels like before returning to your day.",
+            "tr": "Bir eli açıp dinlendirmek gibi çok küçük bir hareket seç. Başlangıcını ve sonunu fark edecek kadar yavaş yap. Nefesin kendi hızında kalsın. Her şeyi yavaşlatmaya çalışmıyorsun. Gününe dönmeden önce tek bir bilinçli hareketin nasıl hissettirdiğini keşfediyorsun."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "focus-6",
+          "title": {
+            "en": "Return without a verdict",
+            "tr": "Yargılamadan geri dön"
+          },
+          "guidance": {
+            "en": "Recall a moment when your attention moved away from something today. Leave out the judgment about what that means. Attention moves; now you can choose where it goes next. Feel the support beneath you and name one small action you would like to return to. Spend this quiet moment simply being here.",
+            "tr": "Bugün dikkatinin bir şeyden uzaklaştığı bir anı hatırla. Bunun ne anlama geldiğine dair yargıyı bir kenara bırak. Dikkat hareket eder; şimdi nereye gideceğini seçebilirsin. Altındaki desteği hisset ve dönmek istediğin küçük bir hareketi adlandır. Bu sessiz anda yalnızca burada kal."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        },
+        {
+          "id": "focus-7",
+          "title": {
+            "en": "Carry one practice",
+            "tr": "Bir pratiği yanında taşı"
+          },
+          "guidance": {
+            "en": "Consider the practices you have tried: looking closely, naming one next action, or returning without judgment. Choose one to keep nearby. Try it once now, in a way that fits this moment. You can use it briefly before a task, and leave it when it is no longer useful. Your attention does not need to be perfect.",
+            "tr": "Denediğin pratikleri düşün: yakından bakmak, sıradaki tek hareketi adlandırmak ya da yargılamadan dönmek. Yakınında tutmak için birini seç. Şimdi bu ana uyan bir biçimde bir kez dene. Bir işten önce kısaca kullanabilir ve işe yaramadığında bırakabilirsin. Dikkatinin kusursuz olması gerekmiyor."
+          },
+          "closing": {
+            "en": "Let your attention widen to the room. Notice one sound and the support beneath you. This practice is complete. You can close the app here, or return to your path when you choose.",
+            "tr": "Dikkatin odaya yayılsın. Bir sesi ve altındaki desteği fark et. Bu pratik tamamlandı. Uygulamayı burada kapatabilir ya da istediğinde patikana dönebilirsin."
+          },
+          "quietSeconds": 40
+        }
+      ]
+    }
+  ]
+}

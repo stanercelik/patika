@@ -10,6 +10,10 @@ enum Theme {
     static let minimumContrast: Double = 4.5
     static let minimumContrastLargeText: Double = 3.0
 
+    enum Control {
+        static let cornerRadius: CGFloat = 20
+    }
+
     enum Spacing {
         static let screenMargin: CGFloat = 24
         static let stack: CGFloat = 16
@@ -207,9 +211,11 @@ enum Theme {
 
 /// Buton basımı: 0.98 scale + yumuşak haptic (Ton eki §2.1).
 struct CalmButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.98 : 1.0)
+            .opacity(configuration.isPressed ? 0.86 : 1.0)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }

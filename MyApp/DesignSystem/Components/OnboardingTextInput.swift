@@ -23,7 +23,7 @@ struct OnboardingTextInput: View {
             "",
             text: $text,
             prompt: Text(placeholder)
-                .foregroundStyle(Theme.textSecondary.color.opacity(0.75)),
+                .foregroundStyle(Theme.textSecondary.color),
             axis: .vertical
         )
         .font(.body.weight(Theme.Weight.body))
@@ -38,20 +38,11 @@ struct OnboardingTextInput: View {
         // yazmadığı bir cümleyi okutmak demek.
         .autocorrectionDisabled()
         .focused($isFocused)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 18)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.white.opacity(0.07))
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(
-                    Theme.textPrimary.color.opacity(isFocused ? 0.45 : 0.14),
-                    lineWidth: Theme.Line.border
-                )
-        }
+        .background { CalmSurface(isEmphasized: isFocused) }
+        .accessibilityLabel(Text(placeholder))
         .animation(Theme.Motion.crossFade, value: isFocused)
     }
 }
