@@ -3,7 +3,6 @@ import SwiftUI
 struct DiscoverSessionView: View {
     @State private var model: DiscoverSessionViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var showsSupport = false
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     init(path: DiscoverPath, step: DiscoverStep, library: DiscoverLibrary) {
         _model = State(initialValue: DiscoverSessionViewModel(path: path, step: step, library: library))
@@ -18,7 +17,6 @@ struct DiscoverSessionView: View {
                         Text(model.step.title.value).font(.title3.weight(Theme.Weight.title)).foregroundStyle(Theme.textPrimary.color)
                     }
                     Spacer()
-                    SOSButton { model.audio.pause(); showsSupport = true }
                     Button { model.stop(); dismiss() } label: {
                         Image(systemName: "xmark").font(.body.weight(Theme.Weight.action)).frame(width: 44, height: 44)
                     }.foregroundStyle(Theme.textPrimary.color).accessibilityLabel(DiscoverCopy.close)
@@ -63,7 +61,6 @@ struct DiscoverSessionView: View {
             }
             .padding(24)
         }
-        .fullScreenCover(isPresented: $showsSupport) { SOSPlaceholderView() }
         .task { await model.start() }
         .onDisappear { model.stop() }
     }

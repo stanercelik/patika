@@ -16,12 +16,13 @@ enum RootTab: Hashable {
 
 /// Bilgi mimarisi — PRD §6.
 ///
-/// Üç sekme (Yolum / Keşfet / Ben) ve **her ekranda sabit** SOS butonu.
+/// Üç sekme (Yolum / Keşfet / Ben). Ürün sahibi kararı (2026-09-17): sabit SOS
+/// düğmesi ve nefes ekranı kaldırıldı; destek erişimi Ben sekmesindeki
+/// "Destek al" kartında, kriz yakalaması serbest metin sınıflandırıcısında kalır.
 struct RootView: View {
     @Environment(AppServices.self) private var services
     @Environment(\.scenePhase) private var scenePhase
 
-    @State private var isShowingSOS = false
     @State private var selection = RootTab.initial
     /// İlk karede sahne henüz `.active` değil; perde yalnızca uygulama bir kez
     /// etkin olduktan sonra devreye girer, açılışta yanıp sönmesin.
@@ -41,14 +42,6 @@ struct RootView: View {
         }
         .tint(Theme.textPrimary.color)
         .overlay { privacyLayer }
-        // SOS her ekranda sağ üstte sabittir (PRD §6, §7.12) — kilidin de üstünde.
-        .overlay(alignment: .topTrailing) {
-            SOSButton { isShowingSOS = true }
-                .padding(.trailing, Theme.Spacing.stack)
-        }
-        .fullScreenCover(isPresented: $isShowingSOS) {
-            SOSPlaceholderView()
-        }
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
             case .active:
@@ -73,31 +66,9 @@ struct RootView: View {
     }
 }
 
-/// PRD §7.12: iki dokunuşta ses başlar, önceden üretilmiş, ücretsiz, çevrimdışı.
-/// Basılı tutunca büyür, bırakınca ses başlar — kaza koruması (Ton eki §2.2).
-/// **Asla ücretli olmamalı.**
-struct SOSButton: View {
-    var action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text("SOS")
-                .font(.footnote.weight(Theme.Weight.action))
-                .foregroundStyle(Theme.textPrimary.color)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .frame(minWidth: 44, minHeight: 44)
-                .background(.ultraThinMaterial, in: Capsule())
-        }
-        .buttonStyle(.calm)
-        .accessibilityLabel("Acil sakinleşme")
-        .accessibilityHint("Kısa bir nefes oturumu başlatır")
-    }
-}
-
 // MARK: - Sekme iskeletleri
 //
-// Keşfet hâlâ yer tutucu. Yolum `MyPathView`, Ben `MeView`.
+// Yolum `MyPathView`, Ben `MeView`.
 
 struct MyPathTab: View {
     @Environment(DiscoverLibrary.self) private var library
@@ -128,33 +99,6 @@ struct ScreenPlaceholder: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.top, 100)
         .padding(.horizontal, Theme.Spacing.screenMargin)
-    }
-}
-
-/// SOS ekranı — Nötr — Nötr kademe. Tek bir büyük nefes animasyonu, başka hiçbir şey.
-/// Whimsy bütçesi 0 (Ton eki §4).
-struct SOSPlaceholderView: View {
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        ZStack {
-            BreathingMeshBackground(
-                palette: Palette.neutral,
-                safeY: 0.85,
-                breathAmplitude: BreathAmplitude.session
-            )
-            VStack {
-                Spacer()
-                Text("Birlikte nefes alalım.")
-                    .font(.title3.weight(Theme.Weight.title))
-                    .foregroundStyle(Theme.textPrimary.color)
-                Button(Copy.Button.finish) { dismiss() }
-                    .buttonStyle(.calm)
-                    .foregroundStyle(Theme.textSecondary.color)
-                    .padding(.top, Theme.Spacing.stack)
-                    .padding(.bottom, 48)
-            }
-        }
     }
 }
 

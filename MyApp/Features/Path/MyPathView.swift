@@ -207,8 +207,8 @@ struct MyPathView: View {
             phase: path.nextStep.flatMap { viewModel?.phase(for: $0) } ?? .closing
         )
         .padding(.horizontal, Theme.Spacing.screenMargin)
-        .padding(.top, 60)
-        .padding(.bottom, 56)
+        .padding(.top, 12)
+        .padding(.bottom, 20)
         .background {
             if reduceTransparency {
                 WoodlandStyle.background
