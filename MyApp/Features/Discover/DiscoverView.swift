@@ -38,7 +38,7 @@ struct DiscoverView: View {
                     }
                 }
                 .padding(.horizontal, Theme.Spacing.screenMargin)
-                .padding(.top, 72)
+                .padding(.top, 20)
                 .padding(.bottom, 40)
             }
             .scrollIndicators(.hidden)

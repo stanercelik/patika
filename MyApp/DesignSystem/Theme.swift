@@ -31,9 +31,9 @@ enum Theme {
     /// `.weight(...)` yazılmaz.
     enum Weight {
         /// `DisplayText` — iri başlıklar.
-        static let display: Font.Weight = .heavy
+        static let display: Font.Weight = .bold
         /// Ekran içi ara başlıklar, ölçüm soruları.
-        static let title: Font.Weight = .bold
+        static let title: Font.Weight = .semibold
         /// Gövde metni. Sistem varsayılanı `.regular`; bir kademe yukarıda.
         static let body: Font.Weight = .medium
         /// Buton ve dokunulabilir her şey.
@@ -80,6 +80,43 @@ enum Theme {
         static func user(_ style: Font.TextStyle = .body) -> Font {
             .system(style, design: .serif, weight: Weight.body)
         }
+    }
+
+    /// Tipografi rolleri — **tek kaynak**, `Weight` ile aynı mantıkta.
+    ///
+    /// Ağırlık nasıl rolden geliyorsa punto da rolden gelir: çağrı yerinde
+    /// `.font(.caption)` yazılmaz. Gerekçe (ürün sahibi kararı, 2026-09-17): ham
+    /// sistem stilleri SF Pro döndürüyor, `product(_:_:)` ise yuvarlak aileyi.
+    /// İkisi aynı ekranda karışınca ürünün tek bir yazı sesi olmuyor — "Yolum"
+    /// ekranında başlık Pro, gövde Rounded'dı ve ekran iki ayrı üründen
+    /// derlenmiş gibi okunuyordu.
+    ///
+    /// Aile değişecekse yalnızca `product(_:_:)` değişir.
+    enum TypeFace {
+        static func product(_ style: Font.TextStyle, _ weight: Font.Weight) -> Font {
+            .system(style, design: .rounded, weight: weight)
+        }
+
+        /// Ekranın kim olduğunu söyleyen küçük üst satır ("Yolum").
+        /// `tracking` çağrı yerinde 1.2 — 2.0'da bu puntoda harfler dağılıyordu.
+        static var eyebrow: Font { product(.caption2, Weight.emphasis) }
+        /// Ekran başlığı. `largeTitle` değil: başlık ekranın sahibi değil kapısı,
+        /// ve iri punto üst alanı gereksiz büyütüyordu.
+        static var screenTitle: Font { product(.title2, Weight.display) }
+        /// Başlık altındaki tek açıklama satırı.
+        static var screenNote: Font { product(.footnote, Weight.body) }
+        /// Duraktaki adımın adı.
+        static var cardTitle: Font { product(.callout, Weight.title) }
+        /// Sıradaki durak bir kademe iri — ekranda göz önce oraya gitsin.
+        static var cardTitleProminent: Font { product(.title3, Weight.title) }
+        /// "3. adım", "Ölçüm günü" gibi durak üstü işaretler.
+        static var cardMeta: Font { product(.caption, Weight.emphasis) }
+        /// Açılan ayrıntıdaki gövde.
+        static var detailBody: Font { product(.subheadline, Weight.body) }
+        /// Durak düğümünün içindeki gün sayısı ve simge.
+        static var nodeMark: Font { product(.headline, Weight.action) }
+        /// Buton.
+        static var action: Font { product(.callout, Weight.action) }
     }
 
     /// Tüm animasyonlar 800 ms altı (Ton eki §7). Uzun animasyon = bekletme.
@@ -149,6 +186,23 @@ enum Theme {
         /// Toplam oturma süresi ~0.42 sn, 800 ms bütçesinin içinde.
         static let pathExpand: Animation = .spring(response: 0.42, dampingFraction: 0.86)
 
+        /// Başlığın kaydırmada gidip gelmesi. `dampingFraction` 0.90'dan 0.82'ye
+        /// indirildi (ürün sahibi kararı, 2026-09-17): 0.90 yaylanmayı tamamen
+        /// yutuyor ve hareket "kesildi" gibi duruyordu; 0.82 girip çıkışa ağırlık
+        /// veriyor ama başlığı zıplatmıyor.
+        static let headerReveal: Animation = .spring(response: 0.46, dampingFraction: 0.82)
+
+        /// Tabelanın açılıp kapanması — `pathExpand`ten belirgin şekilde canlı.
+        ///
+        /// `dampingFraction` 0.72: etiket düğümden aşağı sarkarken bir kez hafifçe
+        /// yaylanıyor, sonra oturuyor. Sekme değil, ağırlığı olan bir nesnenin
+        /// durması. Oturma süresi ~0.70 sn, 800 ms bütçesinin içinde.
+        static let bouncy: Animation = .spring(response: 0.48, dampingFraction: 0.72)
+
+        /// Yön değiştirmeyen geçişler: başlığın gidip gelmesi, opaklık, kaydırma.
+        /// Başı ve sonu yumuşak — sabit hızlı bir geçiş mekanik duruyordu.
+        static let glide: Animation = .easeInOut(duration: 0.34)
+
         /// F2 ve "Yolum"daki kıvrımlı rotanın bir satırlık çizim süresi.
         /// `trim` GPU-dostu bir shape animasyonu; satırlar kısa aralıklarla
         /// başlar ve toplam hareket 800 ms durum bütçesini aşmaz.
@@ -194,6 +248,7 @@ enum Theme {
         static var crossFade: Animation { .easeInOut(duration: screenTransition) }
         static var palette: Animation { .easeInOut(duration: paletteTransition) }
         static var progress: Animation { .smooth(duration: progressTravel) }
+        static let press: Animation = .spring(response: 0.32, dampingFraction: 0.78)
     }
 
     /// Haptik tek seviyedir (Ton eki §7): başka stil kullanılmaz.
@@ -216,7 +271,7 @@ struct CalmButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.98 : 1.0)
             .opacity(configuration.isPressed ? 0.86 : 1.0)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .animation(reduceMotion ? .easeInOut(duration: 0.18) : Theme.Motion.press, value: configuration.isPressed)
     }
 }
 

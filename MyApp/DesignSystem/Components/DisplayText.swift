@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// İri başlık. Punto `@ScaledMetric` ile ölçeklenir — sabit punto yok, AX5'te de
-/// büyür (Ton eki §7: Dynamic Type zorunlu).
+/// İri başlık. Semantik büyük başlık stili ölçekli punto ile kullanılır —
+/// `@ScaledMetric` AX5'te de büyür (Ton eki §7: Dynamic Type zorunlu).
 struct DisplayText: View {
     let text: LocalizedStringResource
-    var size: CGFloat = 38
+    var size: CGFloat
 
     @ScaledMetric(relativeTo: .largeTitle) private var scaledSize: CGFloat = 38
 
@@ -16,7 +16,7 @@ struct DisplayText: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: scaledSize, weight: Theme.Weight.display))
+            .font(.system(size: scaledSize, weight: Theme.Weight.display, design: .rounded))
             .foregroundStyle(Theme.textPrimary.color)
             // Ağırlık bir kademe arttığında harfler birbirine yaklaşır; kerning
             // eskisi kadar sıkı kalırsa iri puntoda harfler yapışıyor.
@@ -34,7 +34,7 @@ struct BodyText: View {
 
     var body: some View {
         Text(text)
-            .font(.body.weight(Theme.Weight.body))
+            .font(Theme.TypeFace.product(.body, Theme.Weight.body))
             .foregroundStyle(Theme.textSecondary.color)
             .lineSpacing(3)
             .fixedSize(horizontal: false, vertical: true)

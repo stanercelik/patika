@@ -9,4 +9,21 @@ enum WoodlandStyle {
     static let secondaryInk = RGB(hex: 0x4A6058).color
     static let apricot = RGB(hex: 0xE9BA8F).color
     static let sage = RGB(hex: 0x9BAE9B).color
+
+}
+
+struct WoodlandGlassSurface: ViewModifier {
+    var cornerRadius: CGFloat = 24
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
+
+    func body(content: Content) -> some View {
+        if reduceTransparency || contrast == .increased {
+            content.background(WoodlandStyle.surface, in: RoundedRectangle(cornerRadius: cornerRadius))
+        } else {
+            content
+                .glassEffect(.regular.tint(WoodlandStyle.ink.opacity(0.65)), in: .rect(cornerRadius: cornerRadius))
+                .environment(\.colorScheme, .dark)
+        }
+    }
 }

@@ -239,7 +239,7 @@ extension Copy {
             static let privacyHeader: LocalizedStringResource = "Gizlilik"
             static let appLock: LocalizedStringResource = "Uygulama kilidi"
             static let appLockFooter: LocalizedStringResource =
-                "Açılırken Face ID ya da parola ister. SOS kilidin dışında kalır."
+                "Açılırken Face ID ya da parola ister."
             static let appLockUnavailable: LocalizedStringResource =
                 "Bu telefonda parola kurulu olmadığı için kilit açılamıyor."
             static let hideJournal: LocalizedStringResource = "Cümlelerimi Ben sekmesinde gizle"

@@ -24,10 +24,9 @@ struct MyPathView: View {
     @State private var viewModel: MyPathViewModel?
     @State private var runningStep: PathStepRecord?
     @State private var isCreatingPath = false
-    @State private var headerHeight: CGFloat = 280
+    @State private var headerHeight: CGFloat = 150
     @State private var headerHidden = false
     @State private var scrollTracking = PathHeaderScrollTracking()
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         ZStack {
@@ -195,7 +194,7 @@ struct MyPathView: View {
 
     private func setHeaderHidden(_ hidden: Bool) {
         guard headerHidden != hidden else { return }
-        withAnimation(reduceMotion ? .easeOut(duration: 0.18) : .smooth(duration: 0.34)) {
+        withAnimation(reduceMotion ? .easeOut(duration: 0.18) : Theme.Motion.headerReveal) {
             headerHidden = hidden
         }
     }
@@ -206,26 +205,11 @@ struct MyPathView: View {
             hasNextStep: path.nextStep != nil,
             phase: path.nextStep.flatMap { viewModel?.phase(for: $0) } ?? .closing
         )
+        // Zemin başlığın kendi camı; ekran genişliğinde bir bant yok. Başlık
+        // manzaranın üstünde yüzüyor, onu ikiye bölmüyor.
         .padding(.horizontal, Theme.Spacing.screenMargin)
-        .padding(.top, 12)
-        .padding(.bottom, 20)
-        .background {
-            if reduceTransparency {
-                WoodlandStyle.background
-            } else {
-                Rectangle()
-                    .fill(.regularMaterial)
-                    .environment(\.colorScheme, .light)
-                    .mask {
-                        VStack(spacing: 0) {
-                            Rectangle()
-                            LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
-                                .frame(height: 32)
-                        }
-                    }
-                    .ignoresSafeArea(edges: .top)
-            }
-        }
+        .padding(.top, 4)
+        .padding(.bottom, 10)
     }
 
     private func start(_ step: PathStepRecord, viewModel: MyPathViewModel) {

@@ -1,17 +1,21 @@
 import SwiftUI
 
-/// A continuous walking route. Lessons live on the route; gouache scenes fill
-/// the clearings beside it. Each row measures its own text before drawing ink.
+/// Kesintisiz bir yürüyüş rotası. Her durak bir **tabela**: yoldaki yuvarlak ile
+/// adımın adı tek bir gövde.
+///
+/// ## Neden tabela
+///
+/// Önce düğüm ile etiket arasında 12 pt boşluk vardı ve rota o boşluktan
+/// geçiyordu; etiket, düğüme ait bir isim değil yola düşmüş ayrı bir kutu gibi
+/// okunuyordu (ürün sahibi geri bildirimi, 2026-09-17). Şimdi etiket düğümün
+/// altına giriyor, ikisi tek siluet oluşturuyor.
+///
+/// Duraklar merkezin iki yanında sırayla duruyor; aradaki olukta yol görünmeye
+/// devam ediyor. Ortada duran bir durak yolu boydan boya örterdi.
 struct IllustratedPathMap: View {
     let viewModel: MyPathViewModel
     let onStart: (PathStepRecord) -> Void
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-
-    private func location(_ index: Int) -> CGFloat {
-        if dynamicTypeSize.isAccessibilitySize { return 0.5 }
-        let positions: [CGFloat] = [0.5, 0.25, 0.5, 0.75, 0.5, 0.25, 0.5, 0.75]
-        return positions[index % positions.count]
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,7 +23,7 @@ struct IllustratedPathMap: View {
                 IllustratedPathStop(
                     step: step,
                     viewModel: viewModel,
-                    currentX: location(index),
+                    isLeading: dynamicTypeSize.isAccessibilitySize || index.isMultiple(of: 2),
                     onStart: { onStart(step) }
                 )
                 .id(step.id)
@@ -47,7 +51,8 @@ struct IllustratedPathMap: View {
 private struct IllustratedPathStop: View {
     let step: PathStepRecord
     let viewModel: MyPathViewModel
-    let currentX: CGFloat
+    /// Durak merkezin solunda mı: oluk karşı tarafta açılır.
+    let isLeading: Bool
     let onStart: () -> Void
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -57,105 +62,140 @@ private struct IllustratedPathStop: View {
     private var expanded: Bool { viewModel.isExpanded(step) }
     private var locked: Bool { viewModel.isLocked(step) }
     private var accessible: Bool { dynamicTypeSize.isAccessibilitySize }
-    private var nodeSize: CGFloat { current ? 76 : 58 }
+    private var nodeSize: CGFloat { current ? 72 : 54 }
+
+    /// Etiketin düğümün altına girdiği pay. Siluetin tek parça okunması buna
+    /// bağlı: boşluk kaldığı an iki ayrı nesne görünüyor.
+    private let tuck: CGFloat = 20
+    /// Yolun göründüğü oluk. AX boyutlarında metne yer açmak için kapanır.
+    private var gutter: CGFloat { accessible ? 0 : 88 }
+
+    private var expandAnimation: Animation {
+        reduceMotion ? .easeOut(duration: 0.18) : Theme.Motion.bouncy
+    }
 
     var body: some View {
-        VStack(spacing: 16) {
-            HStack(alignment: .top, spacing: 0) {
-                if currentX > 0.5 { clearing }
-                stopButton
-                    .frame(maxWidth: .infinity)
-                if currentX < 0.5 { clearing }
+        HStack(spacing: 0) {
+            if !isLeading, gutter > 0 { Color.clear.frame(width: gutter) }
+            signpost
+            if isLeading, gutter > 0 { Color.clear.frame(width: gutter) }
+        }
+        .padding(.top, 20)
+        .padding(.bottom, 44)
+        .animation(expandAnimation, value: expanded)
+    }
+
+    /// Düğüm + etiket tek gövde. Negatif aralık etiketi düğümün altına sokuyor;
+    /// `zIndex` düğümü üstte tutuyor ki daire etiketin kenarında kesilmesin.
+    private var signpost: some View {
+        VStack(spacing: -tuck) {
+            nodeMark
+                .zIndex(1)
+            label
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var nodeMark: some View {
+        ZStack {
+            if current {
+                Circle()
+                    .stroke(WoodlandStyle.apricot.opacity(0.24), lineWidth: Theme.Line.border)
+                    .frame(width: nodeSize + 18, height: nodeSize + 18)
             }
-            .padding(.top, 18)
+            Circle()
+                .fill(current ? WoodlandStyle.paper : WoodlandStyle.ink)
+                .overlay {
+                    Circle().strokeBorder(
+                        current ? WoodlandStyle.apricot : WoodlandStyle.sage.opacity(0.45),
+                        lineWidth: Theme.Line.border
+                    )
+                }
+                .frame(width: nodeSize, height: nodeSize)
+                .shadow(color: WoodlandStyle.ink.opacity(0.18), radius: 8, y: 4)
+
+            if current || completed {
+                Image(systemName: completed ? "checkmark" : "leaf.fill")
+                    .font(Theme.TypeFace.nodeMark)
+                    .foregroundStyle(current ? WoodlandStyle.ink : WoodlandStyle.sage)
+            } else {
+                Text(step.day.formatted())
+                    .font(Theme.TypeFace.nodeMark)
+                    .foregroundStyle(Theme.textPrimary.color)
+            }
+        }
+        .frame(width: nodeSize + 18, height: nodeSize + 18)
+        .anchorPreference(key: PathStopAnchors.self, value: .bounds) { [step.id: $0] }
+        .accessibilityHidden(true)
+    }
+
+    /// Özet ile ayrıntı **aynı** kâğıdın üstünde: açılınca yeni bir kart
+    /// belirmiyor, tabela uzuyor.
+    private var label: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                Theme.softHaptic(intensity: 0.25)
+                withAnimation(expandAnimation) { viewModel.toggle(step) }
+            } label: {
+                summary
+            }
+            .buttonStyle(PathStopButtonStyle())
+            .disabled(locked)
+            .accessibilityElement(children: .combine)
+            .accessibilityValue(Text(verbatim: accessibilityState))
+            .accessibilityHint(
+                locked
+                    ? Text(Copy.Path.lockedHint)
+                    : Text(expanded ? Copy.Path.collapseDetails : Copy.Path.expandDetails)
+            )
 
             if expanded {
                 detail
-                    .padding(.horizontal, accessible ? 0 : 20)
-                    .transition(.opacity.combined(with: .offset(y: reduceMotion ? 0 : -5)))
+                    .transition(.opacity.combined(with: .offset(y: reduceMotion ? 0 : -6)))
             }
         }
-        .padding(.bottom, 46)
-        .frame(maxWidth: .infinity)
-        .animation(reduceMotion ? .easeOut(duration: 0.18) : Theme.Motion.pathExpand, value: expanded)
+        .background(
+            WoodlandStyle.paper,
+            in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+        )
+        .shadow(color: WoodlandStyle.ink.opacity(0.14), radius: 12, y: 5)
     }
 
-    private var clearing: some View {
-        Color.clear.frame(maxWidth: .infinity).frame(height: 1)
-    }
-
-    private var stopButton: some View {
-        Button {
-            Theme.softHaptic(intensity: 0.25)
-            withAnimation(reduceMotion ? .easeOut(duration: 0.18) : Theme.Motion.pathExpand) {
-                viewModel.toggle(step)
-            }
-        } label: {
-            VStack(spacing: 12) {
-                ZStack {
-                    if current {
-                        Circle().stroke(WoodlandStyle.apricot.opacity(0.24), lineWidth: Theme.Line.border)
-                            .frame(width: 94, height: 94)
-                    }
-                    Circle()
-                        .fill(current ? WoodlandStyle.paper : WoodlandStyle.ink)
-                        .overlay {
-                            Circle().strokeBorder(current ? WoodlandStyle.apricot : WoodlandStyle.sage.opacity(0.45), lineWidth: Theme.Line.border)
-                        }
-                        .frame(width: nodeSize, height: nodeSize)
-                        .shadow(color: WoodlandStyle.ink.opacity(0.18), radius: 8, y: 4)
-                    if current || completed {
-                        Image(systemName: completed ? "checkmark" : "leaf.fill")
-                            .font(.title3.weight(Theme.Weight.action))
-                            .foregroundStyle(current ? WoodlandStyle.ink : WoodlandStyle.sage)
-                            .rotationEffect(.degrees(current && expanded && !reduceMotion ? -8 : 0))
-                    } else {
-                        Text(step.day.formatted())
-                            .font(.title3.weight(Theme.Weight.action))
-                            .foregroundStyle(Theme.textPrimary.color)
-                    }
+    private var summary: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 5) {
+                if locked {
+                    Image(systemName: "lock.fill").accessibilityHidden(true)
                 }
-                .frame(height: 80)
-                .anchorPreference(key: PathStopAnchors.self, value: .bounds) { [step.id: $0] }
-                .accessibilityHidden(true)
+                Text(current ? Copy.Path.currentLocation : Copy.Path.stepLabel(day: step.day))
+                Spacer(minLength: 4)
+                if !locked {
+                    Image(systemName: "chevron.down")
+                        .rotationEffect(.degrees(expanded ? 180 : 0))
+                        .accessibilityHidden(true)
+                }
+            }
+            .font(Theme.TypeFace.cardMeta)
+            .foregroundStyle(WoodlandStyle.secondaryInk)
 
-                VStack(spacing: 6) {
-                    HStack(spacing: 5) {
-                        if locked { Image(systemName: "lock.fill").accessibilityHidden(true) }
-                        Text(current ? Copy.Path.currentLocation : Copy.Path.stepLabel(day: step.day))
-                        if !locked {
-                            Image(systemName: "chevron.down")
-                                .rotationEffect(.degrees(expanded ? 180 : 0))
-                                .accessibilityHidden(true)
-                        }
-                    }
-                    .font(.caption.weight(Theme.Weight.emphasis))
+            Text(verbatim: step.title)
+                .font(current ? Theme.TypeFace.cardTitleProminent : Theme.TypeFace.cardTitle)
+                .foregroundStyle(WoodlandStyle.ink)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if viewModel.isMeasurementDay(step) {
+                Text(Copy.Path.measurementNote)
+                    .font(Theme.TypeFace.cardMeta)
                     .foregroundStyle(WoodlandStyle.secondaryInk)
-                    Text(verbatim: step.title)
-                        .font(current ? .headline.weight(Theme.Weight.title) : .subheadline.weight(Theme.Weight.emphasis))
-                        .foregroundStyle(WoodlandStyle.ink)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                    if viewModel.isMeasurementDay(step) {
-                        Text(Copy.Path.measurementNote)
-                            .font(.caption.weight(Theme.Weight.emphasis))
-                            .foregroundStyle(WoodlandStyle.secondaryInk)
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .background(WoodlandStyle.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-                .shadow(color: WoodlandStyle.ink.opacity(0.12), radius: 10, y: 4)
-                .frame(maxWidth: accessible ? .infinity : currentX == 0.5 ? 240 : .infinity)
             }
-            .frame(maxWidth: .infinity)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(PathStopButtonStyle())
-        .disabled(locked)
-        .accessibilityElement(children: .combine)
-        .accessibilityValue(Text(verbatim: accessibilityState))
-        .accessibilityHint(locked ? Text(Copy.Path.lockedHint) : Text(expanded ? Copy.Path.collapseDetails : Copy.Path.expandDetails))
+        .multilineTextAlignment(.leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        // Düğümün altından başla: metin dairenin altında kalmasın.
+        .padding(.top, tuck + 14)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 14)
+        .contentShape(Rectangle())
     }
 
     private var accessibilityState: String {
@@ -166,28 +206,38 @@ private struct IllustratedPathStop: View {
 
     private var detail: some View {
         VStack(alignment: .leading, spacing: 12) {
+            Rectangle()
+                .fill(WoodlandStyle.secondaryInk.opacity(0.16))
+                .frame(height: Theme.Line.journeyConnector)
+                .accessibilityHidden(true)
+
             if let phase = viewModel.phase(for: step) {
-                Text(phase.label).font(.caption.weight(Theme.Weight.emphasis))
+                Text(phase.label)
+                    .font(Theme.TypeFace.cardMeta)
+                    .foregroundStyle(WoodlandStyle.secondaryInk)
             }
             if let techniques = viewModel.techniques(for: step), techniques != step.title {
                 Text(verbatim: techniques)
-                    .font(.subheadline.weight(Theme.Weight.body))
+                    .font(Theme.TypeFace.detailBody)
                     .fixedSize(horizontal: false, vertical: true)
             }
             if viewModel.isMeasurementDay(step) {
                 Text(Copy.Path.measurementNotice)
-                    .font(.footnote.weight(Theme.Weight.body))
+                    .font(Theme.TypeFace.detailBody)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Button(action: onStart) {
                 HStack(spacing: 10) {
-                    Image(systemName: "play.fill").font(.caption.weight(Theme.Weight.action)).accessibilityHidden(true)
+                    Image(systemName: "play.fill")
+                        .font(Theme.TypeFace.cardMeta)
+                        .accessibilityHidden(true)
                     Text(completed ? Copy.Path.replayCTA : Copy.Path.continueCTA)
-                        .font(.body.weight(Theme.Weight.action))
+                        .font(Theme.TypeFace.action)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, minHeight: 24)
-                .padding(.horizontal, 16).padding(.vertical, 16)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 15)
                 .foregroundStyle(WoodlandStyle.paper)
                 .background(WoodlandStyle.ink, in: Capsule())
             }
@@ -195,13 +245,13 @@ private struct IllustratedPathStop: View {
             .disabled(locked)
         }
         .foregroundStyle(WoodlandStyle.ink)
-        .padding(18)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(WoodlandStyle.paper, in: RoundedRectangle(cornerRadius: 24))
     }
 }
 
-/// Locked stops retain readable titles; availability is conveyed by lock and text.
+/// Kapalı duraklar başlığını okunur tutar; açılmadığını kilit ve metin anlatır.
 private struct PathStopButtonStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     func makeBody(configuration: Configuration) -> some View {
@@ -219,7 +269,8 @@ private struct PathStopAnchors: PreferenceKey {
     }
 }
 
-/// One cubic per pair of actual node centers; no row-boundary corners.
+/// Gerçek düğüm merkezleri arasında karo başına tek bir kübik; satır sınırında
+/// köşe oluşmuyor.
 private func continuousRoute(_ points: [CGPoint]) -> Path {
     Path { path in
         guard let first = points.first else { return }

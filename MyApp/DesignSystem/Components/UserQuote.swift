@@ -22,6 +22,7 @@ struct UserQuote: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(verbatim: text)
                 .font(Theme.Voice.user())
+                .fontDesign(.serif)
                 .foregroundStyle(Theme.textPrimary.color)
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)

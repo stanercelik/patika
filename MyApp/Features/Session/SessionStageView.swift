@@ -52,6 +52,7 @@ struct SessionStageView: View {
             // `Text`in içeriğini yerinde değiştirip geçişi hiç oynatmıyordu.
             Text(verbatim: runner.currentSegment?.text ?? "")
                 .font(sceneFont)
+                .fontDesign(runner.currentSegment?.kind == .ownWords ? .serif : .rounded)
                 .foregroundStyle(Theme.textPrimary.color.opacity(0.94))
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)

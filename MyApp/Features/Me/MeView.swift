@@ -89,8 +89,7 @@ private struct MeContent: View {
                         detail: viewModel.headerDetail,
                         showsArtwork: !viewModel.isInCrisisMode
                     )
-                    // SOS her ekranda sağ üstte sabit; başlık onun altından başlar.
-                    .padding(.top, 48)
+                    .padding(.top, 16)
                     .woodlandReveal(0, enabled: !viewModel.isInCrisisMode)
 
                     if viewModel.supportPlacement == .top {
