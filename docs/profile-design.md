@@ -594,6 +594,11 @@ olduğu için ek varlık getirmez, Dynamic Type ve Bold Text ile otomatik uyumlu
 
 ### 6.5 Yürüdüğün yollar — mühürler
 
+> **GEÇERSİZ — 2026-09-19, Ben v2 (§21).** "Yürüdüğün yollar" bölümü kalkıyor;
+> yerine kilometre taşı rozetleri (`BadgeShelf`) geliyor. Aşağıdaki metin tarihsel
+> kayıt olarak duruyor. `RouteSeal` rozet sayfasındaki yol rozetinde yeniden
+> kullanılabilir.
+
 PRD §10'daki "Rozet + Koleksiyon" satırının tasarımı.
 
 #### Fikir: rozet, yolun kendi çizimi
@@ -660,6 +665,9 @@ oynat + **Bende kalsın** (Dosyalar'a kaydet, `ShareLink`). Ana sayfada yok. Yol
 en fazla bir satırı olur; oynatıcı satırı sayfayı bir medya kütüphanesine çevirir.
 
 ### 6.6 Sana göre ayarlananlar
+
+> **GEÇERSİZ — 2026-09-19, Ben v2 (§21).** "Sana göre ayarlananlar" profilden
+> kalkıp Ayarlar sayfasına taşınıyor. Aşağıdaki metin tarihsel kayıt olarak duruyor.
 
 Yazio'nun çiplerinden fikir, ama her satırda **kaynak** var.
 
@@ -1617,3 +1625,173 @@ ve iPhone 18 Pro AX5 başlık incelendi. Test target yok. Device Hub CUA bağlan
 `timeoutReached` döndürdü; parmakla etkileşim, VoiceOver ve Instruments kare
 süresi ölçümü tamamlanmış değildir. RM/RT dalları kodda incelendi; OS seçenekleri
 ile bu revizyonun etkileşimli kontrolü yapılmadı.
+
+## 21. Ben v2 — 19 Eylül 2026
+
+Ürün sahibi "Ben" sekmesinin yeniden tasarımını onayladı. Bu bölüm planın **tasarım
+kararlarını** ve **durum matrisini** kaydeder. Uygulama aşamaları (sunucu, veri
+katmanı, ekranlar) ve görsel prompt'ları: `docs/profile-v2-plan.md` ve
+`assets/illustrations/me-v2/prompts.md`.
+
+### 21.1 Neden yeniden tasarım
+
+- Üstteki "Ben" etiketli büyük krem kapak ve illüstrasyon ilk ekranın önemli bir
+  bölümünü kaplıyor.
+- Defter alıntıları profil sayfasının ortasına dökülüyor; defter kendi sayfasını
+  hak ediyor.
+- "Yürüdüğün yollar" ve "Sana göre ayarlananlar" sayfayı uzatıyor.
+- Sürüm yazısı profilde duruyor; ayarların en altına ait.
+- Ayarlar sistem `List`'i ve nötr renklerle çiziliyor; uygulamanın koyu orman ve
+  adaçayı dilinden kopuk.
+
+Hedef kompakt bir profil: kimlik kartı, illüstrasyonlu defter kartı, rozetler ve
+bütünleşik ayarlar. **"Ne değişti" ve "Destek al" kalıyor.**
+
+### 21.2 Onaylanan kararlar (2026-09-19)
+
+| Konu | Karar |
+|---|---|
+| Üst başlık | "Ben" etiketi ve büyük kapak illüstrasyonu kalkıyor |
+| Kimlik kartı | Fotoğraf, ad, yol adı, "N. adım · faz", mini iz ve haftalık ritim noktaları |
+| Profil resmi | Supabase Storage, özel kova, sahibine RLS ile, imzalı URL |
+| Defter | Ayrı sayfa. Mevcut cevaplar + kullanıcının kendi notları, sunucuda şifreli. Her not kriz sınıflandırıcısından geçiyor |
+| Defter kartı | İllüstrasyonlu, bulanık önizleme. Basınca kapak 3D açılıyor, ardından zoom geçişi |
+| Yürüdüğün yollar | Kalkıyor; yerine rozetler geliyor |
+| Gamification | Serbest: kilometre taşı rozetleri, nazik seri, rozet kutlaması. **Yasak kalanlar:** toplam sayılar, lig/kıyas, sıfırlanan ilerleme, kayıp bildirimi, sahte aciliyet, can/enerji |
+| Rozet animasyonu | Lottie ve özel damga animasyonu yok. Sade native beliriş + tek yumuşak haptik |
+| Rozet seti | Yol, ölçüm, seri, defter |
+| Ne değişti | Kalıyor; kompakt, daha aşağıda, guaj dilinde |
+| Anonim hesap | Kompakt tek satır, kimlik kartının hemen altında |
+| Destek al | Profilde kalıyor |
+| Sana göre ayarlananlar | Ayarlara taşınıyor |
+| Sürüm | Profilden kalkıyor, ayarlarda en altta ortada |
+| Ayarlar görünümü | Koyu orman zemin + adaçayı kart grupları |
+| Destek yerelleştirme | Numara cihaz bölgesinden, metin dili uygulama dilinden (TR/EN) |
+| Arka plan | Koyu orman + üstte kısa bir guaj çayır şeridi, aşağı doğru koyuya karışıyor |
+
+**Varsayımlar** (itiraz edilmediği sürece geçerli):
+
+- Kullanıcının kendi notları düzenlenip silinebiliyor. Adım cevapları yine yalnızca
+  siliniyor.
+- Seri "bu hafta" demek: pazartesi–pazar arasında tamamlanan adım günleri. Seri
+  kırılınca hiçbir mesaj gösterilmiyor. Haftada 0 gün varsa noktalar boş kalıyor,
+  yanında metin yok.
+- Kova C'de rozet yine veriliyor ama yol sonunda kutlama ekranı açılmıyor; rozet
+  raf'ta sessizce beliriyor.
+- Kriz modunda rozet, kutlama, illüstrasyon ve seri görünmüyor.
+
+### 21.3 Sayfa yapısı (yukarıdan aşağı)
+
+```
+[guaj çayır şeridi — kaydırmayla solar]
+┌ Kimlik kartı ─────────────────── (⚙)┐
+│ (foto)  Taner                        │
+│         Uykuya dönüş yolu            │
+│         12. adım · Farkındalık       │
+│         ━━━━━━━━━░░░░░  ● ● ● ○ ○ ○ ○ │  ← iz + bu haftanın 7 noktası
+└──────────────────────────────────────┘
+[ Hesabını bağla, yolun kaybolmasın  ›  ✕ ]   ← yalnızca anonimse
+┌ Defter kartı (guaj defter + bulanık son not) ┐
+│ "İç dünyana ait notları burada biriktir."    │
+└──────────────────────────────────────────────┘
+Rozetler                                 Tümü ›
+( ◉ )( ◉ )( ◉ )( ○ )  ← kazanılanlar + sıradaki kilitli
+Ne değişti  (kompakt, 3 satır, küçük guaj ikon)  ›
+Destek al                                         ›
+```
+
+Kriz modunda yalnızca kimlik kartı (görselsiz) ve en üstte "Destek al" görünüyor;
+hareket yok. Bugünkü `supportPlacement` mantığı korunuyor.
+
+Bölüm bazlı tasarım kararları:
+
+- **Kimlik kartı** (`ProfileIdentityCard`): koyu adaçayı kart. Solda 64 pt avatar;
+  fotoğraf yoksa krem daire içinde adın baş harfi, ad da yoksa `leaf` simgesi.
+  Dokununca "Fotoğraf seç / Kaldır" `confirmationDialog`'u. Sağda ad (`screenTitle`,
+  `coverTitle` değil), yol adı, "N. adım · faz" ve altında mini iz; onun altında
+  haftanın 7 noktası (tamamlanan gün dolu adaçayı, bugün halkalı). Sağ üstte ⚙
+  (cam, 44 pt) Ayarlar'ı açıyor. Yol yoksa adım satırı ve iz çizilmiyor.
+  VoiceOver tek öğe: "Taner, Uykuya dönüş yolu, 12. adım, Farkındalık fazı, bu
+  hafta 3 gün".
+- **Defter kartı** (`JournalCoverCard`): zemin `me-journal-cover` görseli; üstünde
+  son kaydın ilk ~120 karakteri `.blur(6)` ve `.privacySensitive()` ile. Kayıt yoksa
+  davet metni ve "İlk notunu yaz". `hidesJournal` açıksa bulanık önizleme de yok.
+  Kapak `rotation3DEffect(.degrees(-100), axis: y, anchor: .leading, perspective:
+  0.6)` ile ~420 ms'de açılıp alttan krem sayfa dokusunu gösteriyor, ardından
+  `.navigationTransition(.zoom)` ile defter sayfası karttan büyüyor. Reduce
+  Motion'da kapak dönmüyor, yalnızca geçiş oluyor.
+- **Rozet rafı** (`BadgeShelf`): yatay sıra; kazanılanlar yeniden eskiye, en sonda
+  sıradaki tek kilitli rozet soluk kontur hâlinde. "Tümü" → `BadgesView` ızgarası;
+  kilitli rozetin altında nasıl kazanılacağı tek cümleyle yazıyor; sayı ya da
+  ilerleme çubuğu yok. Hiç rozet yoksa ilk kilitli rozet ve "İlk adımı attığında
+  burada" yazıyor.
+- **Ne değişti** (`CompactChangeCard`): başlık cümlesi + üç katman tek satırda
+  "kelime + ok", solda küçük `me-change` guaj ikonu. `BaselineTrack` çubukları
+  karttan kalkıyor, yalnızca `ChangeDetailSheet`'te kalıyor. Klinik feragat altında
+  duruyor; ortaya çıkma animasyonu ve haptik korunuyor.
+- **Destek al**: mevcut `MeEntryRow` satırı.
+- **Defter sayfası** (`JournalView` yeniden yazım): koyu orman + krem kâğıt yaprak
+  (`me-journal-paper`); ay başlıklı gruplar; kullanıcının notu serif
+  (`Theme.Voice.user`) ve köşede kalem işareti, adım cevabı soru üstte + cevap
+  serif. Kendi notları kaydırarak silinir ve bağlam menüsünden düzenlenir;
+  `NoteComposerSheet` kaydederken önce cihazdaki `CrisisClassifier`, sonra sunucu
+  kontrolü yapar — sinyal varsa `CrisisView` açılır, not yazılmaz. `hidesJournal`
+  ve uygulama kilidi davranışı değişmiyor.
+- **Rozet kutlaması** (`BadgeEarnedSheet`, `.medium`): rozet görseli `scale 0.85 →
+  1` ve solma (~500 ms), tek `Theme.softHaptic`, rozet adı ve tek cümle, "Bende
+  kalsın". Konfeti ve ses yok; birden fazla rozet tek yaprakta yan yana. Kriz
+  modunda ve Kova C yol sonunda açılmıyor.
+- **Ayarlar** (`SettingsSheet` yeniden yazım): `List` yerine `ScrollView` +
+  `SettingsGroup` / `SettingsRow` / `SettingsToggleRow` / `SettingsDestructiveRow`
+  bileşenleri; zemin koyu orman, kartlar adaçayı; toggle tint adaçayı. Satırlar en
+  az 52 pt, AX boyutlarında etiket ve değer alt alta. Bölüm sırası: Hesap (foto,
+  ad, bağlama) → Sana göre ayarlananlar (hatırlatma, adım uzunluğu, ton, ses —
+  salt okunur, "…dediğin için" açıklamasıyla) → Gizlilik (kilit, defteri gizle,
+  analitik) → Veri (dışa aktar, defteri sil) → Hakkında (nasıl ölçüyoruz, Destek
+  al) → Geri alınamaz (hesabı sil) → en altta ortada soluk "Patika 1.0 (42)".
+  `ReminderSheet` ve profildeki hatırlatma kısayolu kalkıyor; hatırlatma yalnızca
+  Ayarlar'da.
+- **Rozet kataloğu** (14): Yol: `first-step`, `phase-relief`, `phase-awareness`,
+  `phase-skill`, `phase-behavior`, `phase-closing`, `path-complete`. Ölçüm:
+  `measure-day7`, `measure-day14` — **katılımdan** verilir, sonuçtan değil. Seri:
+  `week-3`, `week-5`, `week-7` (bir takvim haftasında tamamlanan adım günü).
+  Defter: `note-first`, `note-10`. Rozetler geri alınmaz; istemci hesaplanan
+  kümeyi sunucudakiyle birleştirir (bir notu silmek "İlk not" rozetini götürmez).
+
+### 21.4 Durum matrisi
+
+| # | Durum | Kimlik kartı | Defter kartı | Rozetler | Haftalık ritim |
+|---|---|---|---|---|---|
+| B0 | Yol yok | Ad + avatar; adım satırı ve iz çizilmez | Davet metni + "İlk notunu yaz" | İlk kilitli rozet + "İlk adımı attığında burada" | Noktalar boş, yanında metin yok |
+| B1 | Yol aktif, ölçüm öncesi | Ad, yol adı, "N. adım · faz", iz | Son kaydın bulanık önizlemesi (varsa) | Kazanılanlar + sıradaki kilitli | Tamamlanan günler dolu adaçayı, bugün halkalı |
+| B2 | Yol aktif, 7/14. ölçüm yapıldı | aynı | aynı | Ölçüm rozeti (katılımdan) eklendi | aynı |
+| B3 | Yol tamamlandı (Kova A/B) | Adım satırı ve iz kalır | aynı | Yol sonu rozetleri; kutlama yaprağı Sıcak | aynı |
+| B4 | Yol tamamlandı (Kova C) | aynı | aynı | Rozet raf'ta sessizce; kutlama yaprağı yok (Nötr) | aynı |
+| B5 | Defter boş | normal | Bulanık önizleme yok; davet + "İlk notunu yaz" | normal | normal |
+| B6 | `hidesJournal` açık | normal | Bulanık önizleme de yok; davet kalır | normal | normal |
+| B7 | Anonim hesap | normal | normal | normal | normal; kimlik kartının hemen altında "Hesabını bağla" tek satırı |
+| B8 | Kriz sinyali aktif | Yalnızca kimlik kartı, görselsiz, hareketsiz; en üstte Destek al | Yok | Yok | Yok |
+
+Seri kuralları (B1–B4 ortak): hafta pazartesi–pazar; kırılınca mesaj yok, 0 tamamlanan
+gün varsa noktalar boş kalır ve yanında metin olmaz; bildirimlerde seriden hiç söz
+edilmez.
+
+### 21.5 Geçersiz kılınan ve taşınan bölümler
+
+| Eski | Durum |
+|---|---|
+| §6.5 Yürüdüğün yollar | **Geçersiz** — yerine rozet rafı (§21.3); `RouteSeal` yol rozetinde yeniden kullanılabilir |
+| §6.6 Sana göre ayarlananlar | **Geçersiz** — Ayarlar sayfasına taşındı (§21.3) |
+| §6.2–6.3 Ne değişti | Kalıyor — kompakt `CompactChangeCard`, daha aşağıda, `BaselineTrack` yalnızca ayrıntı sayfasında |
+| §6.4 Defter | Kart `JournalCoverCard` oluyor; liste ayrı `JournalView` sayfasına taşınıyor; kullanıcının kendi notları eklendi |
+| §6.9 Sürüm alt bilgisi | Profilden kalkıyor; Ayarlar'ın en altında ortada |
+| §7 S6 Anonim kart | Kompakt tek satır, kimlik kartının hemen altında; kapatma davranışı aynı |
+| §6.7 Destek al | Profilde kalıyor; krizde en üstte |
+| §1 başlık/yolculuk kimliği | "Ben" etiketli büyük kapak kalkıyor; kimlik kartı compakt karşılığı |
+
+### 21.6 Görsel varlıkları
+
+Defter kapağı (`me-journal-cover`), kâğıt dokusu (`me-journal-paper`), "Ne değişti"
+ikonu (`me-change`), 14 rozet (`badge-*`) ve opsionel `me-backdrop`. Kilitli rozet
+görsel istemez: aynı görsel kodda gri tona çevrilip %30 opaklıkla çizilir. Tam
+prompt'lar: `assets/illustrations/me-v2/prompts.md`.

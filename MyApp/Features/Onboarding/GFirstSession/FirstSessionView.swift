@@ -72,7 +72,7 @@ struct FirstSessionView: View {
     /// Sahne paylaşılıyor: aynı görünüm onboarding sonrası günlük adımda da
     /// çalışıyor (`PathSessionView`).
     private var running: some View {
-        SessionStageView(runner: viewModel.runner)
+        SessionStageView(runner: viewModel.runner, artwork: .trailhead)
     }
 }
 

@@ -1005,3 +1005,4 @@ Bu koşullar sağlanmadan Android'e geçmek, çalıştığı kanıtlanmamış bi
 | 14 | Uygulama koyu moda sabit | Açık/koyu mod desteği | Gradyan interpolasyonu açık modda öngörülemeyen ara tonlar üretiyor; meditasyon için de doğru |
 | 15 | Android Faz 4'e ertelendi, karar kapısı tanımlı | Faz 2'de Android | Kanıtlanmamış ürünü iki kere yazmamak |
 | 16 | StoreKit 2 birincil | RevenueCat zorunlu | Tek platformda RevenueCat'in ana faydası (çapraz platform abonelik senkronu) yok |
+| 17 | Gamification kısmen serbest bırakıldı (2026-09-19, Ben v2): kilometre taşı rozetleri, nazik haftalık seri ve sade kutlama serbest; toplam sayılar, lig/kıyas, sıfırlanan ilerleme, kayıp bildirimi, sahte aciliyet ve can/enerji yasak kalır | Karar #5'in tamamı (streak dâhil tam yasak) | Emek görünür ve tanınır olmalı; zarar veren kayıp kaçınması mekanikleri değil. Seri kırılınca mesaj yok, bildirimde seri yok; rozet anı kutlaması Sıcak kademesinde, kriz ve Kova C'de Nötr (kutlama yok) |

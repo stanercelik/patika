@@ -404,6 +404,15 @@ enum Copy {
         static let resume: LocalizedStringResource = "Devam"
         /// Oturumdan çıkış. "İptal" değil, "vazgeç" değil.
         static let leave: LocalizedStringResource = "Burada duralım"
+        /// Sarma düğmeleri görünür metin taşımaz; VoiceOver bunu okur.
+        static let skipBackward: LocalizedStringResource = "15 saniye geri"
+        static let skipForward: LocalizedStringResource = "15 saniye ileri"
+        /// Duraklatıldığında sahnenin altındaki tek satır. Süre yok, uyarı yok.
+        static let pausedNote: LocalizedStringResource = "Kaldığın yer duruyor."
+        /// Oturum ekranının üst satırı.
+        static func stepEyebrow(day: Int, title: String) -> LocalizedStringResource {
+            "\(day). adım · \(title)"
+        }
 
         // MARK: G2 — Oturum sonu (PRD-Ek Onboarding §8)
         //

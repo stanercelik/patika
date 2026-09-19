@@ -58,6 +58,20 @@ final class PathSessionViewModel {
 
     var stepTitle: String { step.title }
 
+    /// Oturum ekranının üst satırı: "12. adım · Nefesi fark etmek".
+    var stepEyebrow: String {
+        String(localized: Copy.Session.stepEyebrow(day: step.day, title: step.title))
+    }
+
+    /// Adımın fazından seçilir — yol haritasındaki fazla aynı yer. Kullanıcının
+    /// cevabı ya da sonucu görsele çevrilmez.
+    var artwork: SessionArtwork {
+        guard let length = PathLength(rawValue: path.steps.count),
+              let phase = PathPlan.phase(on: step.day, length: length)
+        else { return .practice }
+        return SessionArtwork(phase: phase)
+    }
+
     /// Soru **yalnızca** kişiselleştirilmiş patikada ve yalnızca oturum sonuna
     /// kadar gidildiyse. Yarıda bırakana soru sormak, bırakmayı bir eksiklik
     /// gibi okutuyordu.
@@ -277,12 +291,14 @@ final class PathSessionViewModel {
                             pathStepId: step.id,
                             accessToken: token
                         ) else { return }
-                        runner.replaceSegments(SessionScript.build(from: playback.manifest))
+                        let offset = SessionAudioPlayer.resumeOffset(for: playback.manifest.stepID)
+                        runner.replaceSegments(SessionScript.build(from: playback.manifest), startingAt: offset)
                         await runner.audio.play(
                             playback: playback,
                             title: step.title,
-                            startingAt: SessionAudioPlayer.resumeOffset(for: playback.manifest.stepID)
+                            startingAt: offset
                         ) {}
+                        runner.audioDidStart()
                         return
                     }
                     if status == .failed { return }

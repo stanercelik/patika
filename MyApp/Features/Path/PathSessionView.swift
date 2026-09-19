@@ -41,7 +41,11 @@ struct PathSessionView: View {
                 .foregroundStyle(Theme.textPrimary.color.opacity(0.75))
                 .padding(.horizontal, Theme.Spacing.screenMargin)
         case .running:
-            SessionStageView(runner: viewModel.runner)
+            SessionStageView(
+                runner: viewModel.runner,
+                eyebrow: viewModel.stepEyebrow,
+                artwork: viewModel.artwork
+            )
                 .padding(.horizontal, Theme.Spacing.screenMargin)
         case .question:
             // Soru **yalnızca kişiselleştirilmiş patikada** kuruluyor; karar

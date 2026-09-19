@@ -568,8 +568,21 @@ Bunlar tercih değil; ihlal edildiğinde ürün ya etik olarak bozulur ya mağaz
 - Teşhis yok, ilaç yorumu yok, garanti ("geçecek", "iyileşeceksin") yok, "terapi/tedavi/klinik olarak kanıtlanmış" iddiası yok.
 - Kriz anında harita değil, **numara** gösterilir. Yardım hatları ülkeye göre yerelleştirilir (TR/DE/EN).
 
-**Gamification — kategorik olarak yasak**
-Streak, can/enerji sistemi, lig/sıralama, kullanıcılar arası kıyaslama, sıfırlanan ilerleme, "seni özledik" bildirimleri, sahte aciliyet/geri sayım, değişken ödül döngüsü. Kaygı ürününde kayıp kaçınması = üretilmiş kaygı. Kaçırılan gün hiçbir şeyi geri almaz; dönüşte tek cümle: *"Buradasın. Kaldığın yerden devam edelim."*
+**Gamification — sınırları çizilmiş serbestlik (güncellendi, 2026-09-19)**
+Serbest: kilometre taşı rozetleri, nazik haftalık seri, sade kutlama. Rozet geri
+alınmaz; kutlama Lottie ya da özel damga animasyonu değil, sade native beliriş ve
+tek yumuşak haptiktir.
+Yasak kalan: toplam sayılar, lig/sıralama ve kullanıcılar arası kıyaslama,
+sıfırlanan ilerleme, kayıp bildirimi ("seni özledik"), sahte aciliyet/geri sayım,
+can/enerji sistemi, değişken ödül döngüsü. Kaygı ürününde kayıp kaçınması =
+üretilmiş kaygı.
+Seri kuralları: seri "bu hafta" demektir — pazartesi–pazar arasında tamamlanan adım
+günleri. Kırılınca sıfırlanma mesajı gösterilmez, "kaybetmek üzeresin" denmez,
+bildirimlerde seriden hiç söz edilmez. Haftada 0 gün varsa noktalar boş kalır,
+yanında metin olmaz. Kaçırılan gün hiçbir şeyi geri almaz; dönüşte tek cümle:
+*"Buradasın. Kaldığın yerden devam edelim."*
+Kriz modunda rozet, kutlama, illüstrasyon ve seri görünmez; Kova C'de rozet verilir
+ama kutlama yapılmaz — rozet raf'ta sessizce belirir.
 
 **Ticari**
 - Paywall **gün 7'de ve ölçüm ekranından sonra** — asla önce.
@@ -643,3 +656,35 @@ kaldırdı. Sahne parallax'ı 24 pt, defter parallax'ı 10 pt sınırındadır. 
 krem illüstrasyonlu kapak ve koyu adaçayı bölüm kartları kullanılır. Mobbin Ahead
 kişisel kayıt ve Finch profil grupları incelendi; detaylar profile-design §20.
 Krizde dekoratif hareket ve anonim hesap bağlama çağrısı gösterilmez.
+
+## 19 Eylül 2026 — oturum ekranı: oynatma kontrolleri ve faz görseli
+
+Ürün sahibinin talebiyle oturum ekranı (`SessionStageView`, G1 ve Yolum ortak)
+yeniden düzenlendi. Kontroller: 15 sn geri · krem kâğıt oynat/duraklat · 15 sn
+ileri (cam) + "Burada duralım". İleri sarma kapanış sahnesinin içine atlamaz.
+Kalan süre hâlâ sayıyla gösterilmez. Kilit ekranı/kulaklık 15 sn atlama da çalışır.
+Ses varken sahne saati sesin saatini okur (iki saat artık kaymıyor); duraklatma
+durumu sesten okunur, kilit ekranından duraklatınca sahne de durur. Kaldığı yerden
+devam eden seste sahne de o noktadan başlar. Ortadaki guaj görsel adımın fazından
+seçilir (`SessionArtwork`), arka planla aynı nefeste %3 ölçeklenir; Reduce Motion
+ve duraklatmada durur, AX boyutlarında gösterilmez, varlık yoksa yer kaplamaz.
+Görsel adları ve prompt'lar: `assets/illustrations/session/prompts.md`.
+
+## 19 Eylül 2026 — Ben v2 ve gamification kural güncellemesi
+
+Ürün sahibi "Ben" sekmesinin v2 düzenlemesini onayladı: kimlik kartı (fotoğraf, ad,
+yol, mini iz, haftalık ritim noktaları), illüstrasyonlu defter kartı ve kullanıcı
+notlarıyla ayrı defter sayfası, kilometre taşı rozetleri ve nazik haftalık seri,
+koyu orman dilinde bütünleşik ayarlar. Bunun gerektirdiği kural değişikliği:
+gamification artık kategorik yasak değil, **sınırları çizilmiş serbestlik** —
+serbest: rozet, nazik seri, kutlama; yasak kalan: toplam sayılar, lig/kıyas,
+sıfırlanan ilerleme, kayıp bildirimi, sahte aciliyet, can/enerji (yukarıda
+"Değiştirilemez kurallar" güncellendi). Seri kırılınca mesaj yok; bildirimde seri
+yok. Rozet anı kutlaması Sıcak kademesindedir (sade beliriş + tek yumuşak
+haptik); kriz ve Kova C'de Nötr — Kova C'de rozet raf'ta sessizce belirir,
+kutlama yaprağı açılmaz. "Yürüdüğün yollar" ve "Sana göre ayarlananlar" bölümleri
+geçersiz: ilki rozetlere, ikincisi Ayarlar'a taşınıyor; sürüm yazısı profilden
+kalkıp ayarların en altına iniyor. PRD §10'un "streak yok" satırı bu kararla
+kısmen geçersizdir (PRD gövdesi güncellenmedi; karar günlüğü #17'ye bak). Plan:
+`docs/profile-v2-plan.md`; tasarım: `docs/profile-design.md` §21; görseller:
+`assets/illustrations/me-v2/prompts.md`.

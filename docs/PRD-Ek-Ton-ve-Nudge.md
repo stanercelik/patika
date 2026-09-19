@@ -327,9 +327,15 @@ Nudge-engine "immediate positive reinforcement" der. Doğru, ama ölçüsü ür�
 | Path tamamlama (Kova A) | 5/5 | Rapor + rozet + artifact |
 | Path tamamlama (Kova B) | 3/5 | Rapor, rozet var, kutlama dili yok |
 | Path tamamlama (Kova C) | **0/5** | Hiçbir kutlama unsuru. Nötr kademe. |
+| Rozet kazanma anı (km taşı) | 2/5 | Sade beliriş: rozet 0.85→1 ölçek + solma (~500 ms), tek yumuşak haptik, rozet adı + tek cümle; konfeti ve ses yok |
 | Geri dönüş (60 gün sonra) | 2/5 | "Seni görmek güzel." Sadece bu. |
 
 > **Kova C'de rozet verilir mi?** Evet — ama üstünde sayı değil, sadece "21 gün" yazar. Emek tanınır, sonuç uydurulmaz.
+
+> **Rozet anı (2026-09-19, Ben v2):** Rozet kazanma anı 🟡 Sıcak kademesindedir.
+> Kriz modunda ve Kova C yol sonunda kutlama yoktur (🔴 Nötr): Kova C'de rozet raf'ta
+> sessizce belirir, kutlama yaprağı açılmaz. Serbest bırakılan gamification'ın tek
+> kutlama biçimi budur — Lottie/damga animasyonu, konfeti ve ses yok.
 
 ---
 
@@ -423,3 +429,4 @@ Bu katmanın işe yarayıp yaramadığını ölçmenin yolu:
 | 10 | Whimsy bütçesi: oturum başına 2 | Sınır yok | Delight enflasyonu, dikkat dağıtır |
 | 11 | Kova C'de kutlama 0/5 ama rozet var | — | Emek tanınır, sonuç uydurulmaz |
 | 12 | Mevsimsel kutlama teması yok | "Seasonal campaigns" | Tatiller bu kitlede zor dönemler |
+| 13 | Rozet anı kutlaması 🟡 Sıcak (2/5, sade beliriş + tek yumuşak haptik); kriz ve Kova C'de 🔴 Nötr, kutlama yok | Gamification yasak kütüphanesi | Ben v2 (2026-09-19) rozet ve nazik seriyi serbest bıraktı; emek tanınır ama kriz ve Kova C'de kutlama kişiye zarar verir |

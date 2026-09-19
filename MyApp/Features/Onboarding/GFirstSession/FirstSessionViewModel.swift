@@ -128,14 +128,16 @@ final class FirstSessionViewModel {
                             pathStepId: stepId,
                             accessToken: token
                         ) else { return }
-                        runner.replaceSegments(SessionScript.build(from: playback.manifest))
                         // Uygulama oturumun ortasında kapandıysa oradan devam
                         // eder; baştan başlamak kesintiyi ikinci kez yaşatıyordu.
+                        let offset = SessionAudioPlayer.resumeOffset(for: playback.manifest.stepID)
+                        runner.replaceSegments(SessionScript.build(from: playback.manifest), startingAt: offset)
                         await audio.play(
                             playback: playback,
                             title: stepTitle,
-                            startingAt: SessionAudioPlayer.resumeOffset(for: playback.manifest.stepID)
+                            startingAt: offset
                         ) {}
+                        runner.audioDidStart()
                         return
                     }
                     if status == .failed || status == .pending { return }

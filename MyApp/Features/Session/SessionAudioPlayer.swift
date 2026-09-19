@@ -42,6 +42,11 @@ final class SessionAudioPlayer {
     private let mixer = AVAudioMixerNode()
     private var isGraphBuilt = false
     private var files: [AVAudioFile] = []
+    /// Sarma zaman çizelgesini yeniden kurar; yüklenen dosyalar ve biçim bu
+    /// yüzden oynatma boyunca elde tutuluyor.
+    private var timeline: SessionTimeline?
+    private var loadedFiles: [UUID: AVAudioFile] = [:]
+    private var format: AVAudioFormat?
     private var completionTask: Task<Void, Never>?
     private var envelope = SessionEnvelope()
     private var onFinish: (@MainActor () -> Void)?
@@ -56,6 +61,13 @@ final class SessionAudioPlayer {
     private var accumulated: TimeInterval = 0
     private var checkpointKey: String?
     var isPlaying: Bool { state == .playing }
+
+    /// Kilit ekranındaki ve kulaklıktaki 15 saniye düğmeleri. Sahne saati de
+    /// taşınsın diye sarma kararı oturum motorunda (`SessionRunner.skip`).
+    var onSkip: (@MainActor (TimeInterval) -> Void)?
+
+    /// Kilit ekranı ve oturum ekranı aynı aralığı kullanır.
+    static let skipInterval: TimeInterval = 15
 
     // MARK: - Oynatma
 
@@ -89,6 +101,9 @@ final class SessionAudioPlayer {
             buildGraph(format: format)
             observeInterruptions()
             files = Array(loaded.values)
+            self.timeline = timeline
+            self.loadedFiles = loaded
+            self.format = format
             duration = timeline.duration
             let start = min(max(offset, 0), max(0, timeline.duration - 1))
             accumulated = start
@@ -168,6 +183,30 @@ final class SessionAudioPlayer {
 
     func stop() { stop(resetState: true) }
 
+    /// Zaman çizelgesinde `time` anına atlar. Duraklamışken duraklamış kalır.
+    ///
+    /// Düğüm durdurulup çizelge o andan yeniden kuruluyor: `scheduleSegment`
+    /// cümlenin ortasına düşen parçayı kaldığı yerden çaldığı için kesinti
+    /// sonrası devamla aynı yol.
+    func seek(to time: TimeInterval) {
+        guard state == .playing || state == .paused,
+              let timeline, let format
+        else { return }
+        let wasPlaying = state == .playing
+        let target = min(max(time, 0), max(0, duration - 1))
+        commitClock()
+        voice.stop()
+        accumulated = target
+        elapsed = target
+        schedule(timeline: timeline, files: loadedFiles, format: format, from: target)
+        if wasPlaying {
+            voice.play()
+            clockOrigin = clock.now
+        }
+        saveCheckpoint()
+        updateNowPlaying(rate: wasPlaying ? 1 : 0)
+    }
+
     /// Kullanıcı adımı bitirdiğinde çağrılır: kaldığı yer kaydı silinir, yoksa
     /// tamamlanmış bir adım bir daha açıldığında ortasından başlıyordu.
     func clearCheckpoint() {
@@ -196,6 +235,9 @@ final class SessionAudioPlayer {
         voice.stop()
         if engine.isRunning { engine.stop() }
         files.removeAll()
+        loadedFiles.removeAll()
+        timeline = nil
+        format = nil
         elapsed = 0
         accumulated = 0
         clockOrigin = nil
@@ -204,6 +246,8 @@ final class SessionAudioPlayer {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
         MPRemoteCommandCenter.shared().playCommand.removeTarget(nil)
         MPRemoteCommandCenter.shared().pauseCommand.removeTarget(nil)
+        MPRemoteCommandCenter.shared().skipForwardCommand.removeTarget(nil)
+        MPRemoteCommandCenter.shared().skipBackwardCommand.removeTarget(nil)
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         if resetState, state != .finished { state = .idle }
     }
@@ -378,7 +422,19 @@ final class SessionAudioPlayer {
             Task { @MainActor in self?.pause() }
             return .success
         }
-        center.skipForwardCommand.isEnabled = false
-        center.skipBackwardCommand.isEnabled = false
+        center.skipForwardCommand.removeTarget(nil)
+        center.skipBackwardCommand.removeTarget(nil)
+        center.skipForwardCommand.preferredIntervals = [NSNumber(value: Self.skipInterval)]
+        center.skipBackwardCommand.preferredIntervals = [NSNumber(value: Self.skipInterval)]
+        center.skipForwardCommand.isEnabled = true
+        center.skipBackwardCommand.isEnabled = true
+        center.skipForwardCommand.addTarget { [weak self] _ in
+            Task { @MainActor in self?.onSkip?(Self.skipInterval) }
+            return .success
+        }
+        center.skipBackwardCommand.addTarget { [weak self] _ in
+            Task { @MainActor in self?.onSkip?(-Self.skipInterval) }
+            return .success
+        }
     }
 }
