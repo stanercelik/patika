@@ -4,18 +4,9 @@ import {
   type PathPlanDTO,
   validatePlan,
 } from "./schema.ts";
-
-const crisisPatterns = [
-  /intihar/i, /kendimi oldur/i, /kendimi öldür/i, /yasamak istemiyorum/i,
-  /yaşamak istemiyorum/i, /canima kiymak/i, /canıma kıymak/i, /self[ -]?harm/i,
-  /kill myself/i, /suicide/i,
-];
+import { crisisSignalForText } from "./crisis.ts";
 
 export type CrisisResult = { signal: boolean; source: "rule" | "gemini" | "none" };
-
-export function crisisSignalForText(text: string): boolean {
-  return crisisPatterns.some((pattern) => pattern.test(text));
-}
 
 export function ruleBasedCrisisCheck(input: GeneratePathRequest): CrisisResult {
   const text = `${input.problemText}\n${input.avoidanceText ?? ""}`;

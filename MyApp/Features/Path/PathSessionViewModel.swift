@@ -40,6 +40,9 @@ final class PathSessionViewModel {
     private(set) var showsError = false
     private(set) var didReachEnd = false
     private(set) var pendingMeasurement: MeasurementPoint?
+    /// Bu oturumda kazanılan rozetler. Yaprak yalnızca `finished` ekranında açılır
+    /// (`badgesToCelebrate`), adım tamamlanırken ya da ölçüm sorulurken değil.
+    private(set) var earnedBadges: [BadgeID] = []
 
     let runner = SessionRunner()
 
@@ -161,7 +164,9 @@ final class PathSessionViewModel {
                 case .completed:
                     runner.audio.clearCheckpoint()
                     services.profile.clearCrisisSignal()
+                    services.profile.appendCompletedStepDate()
                     pendingCompletion = nil
+                    awardBadges()
                     advanceAfterCompletion()
                 case .crisis:
                     markCrisis()
@@ -184,6 +189,48 @@ final class PathSessionViewModel {
         pendingMeasurement = point
         measurementResponses = [:]
         phase = .measurementIntro
+    }
+
+    // MARK: - Rozetler
+
+    /// Bu adım tamamlanmış hâliyle yol. `path` oturum açılırken okunmuştu; adım
+    /// sunucuda yeni tamamlandı ve rozet hesabı onu görmeli.
+    private var pathWithCurrentStepCompleted: ActivePath {
+        let now = Date.now
+        let steps = path.steps.map { record -> PathStepRecord in
+            guard record.id == step.id, record.completedAt == nil else { return record }
+            return PathStepRecord(
+                id: record.id, day: record.day, title: record.title, blockIds: record.blockIds,
+                slotCopy: record.slotCopy, audioStatus: record.audioStatus,
+                question: record.question, completedAt: now
+            )
+        }
+        var updated = ActivePath(id: path.id, kind: path.kind, title: path.title, steps: steps)
+        updated.isCompleted = steps.allSatisfy { $0.completedAt != nil }
+        return updated
+    }
+
+    private func awardBadges() {
+        earnedBadges += BadgeAwarder(services: services).award(activePath: pathWithCurrentStepCompleted)
+    }
+
+    /// Finished ekranında yaprakta gösterilecek rozetler.
+    ///
+    /// Kova C'deki yol sonunda ve kriz modunda **boş**: rozet verilmiştir ve rafta
+    /// durur ama kutlama yapılmaz (`BadgeCelebration`).
+    var badgesToCelebrate: [BadgeID] {
+        guard let record = services.profile.record else { return [] }
+        let bucket: OutcomeBucket? = pathWithCurrentStepCompleted.isCompleted
+            ? ChangeAnalysis.bucket(
+                measurements: record.measurements.filter { $0.point == .baseline || $0.pathID == path.id },
+                category: record.primaryCategory
+            )
+            : nil
+        return BadgeCelebration.shouldPresent(
+            badges: earnedBadges,
+            isInCrisisMode: record.crisisSignalAt != nil,
+            bucket: bucket
+        ) ? earnedBadges : []
     }
 
     // MARK: - Ölçüm
@@ -253,6 +300,7 @@ final class PathSessionViewModel {
                     responses: responses,
                     pathID: path.id
                 ))
+                awardBadges()
                 phase = .finished
             } catch {
                 services.observability.capture(.profileSync)

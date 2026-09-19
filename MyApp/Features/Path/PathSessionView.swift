@@ -10,6 +10,7 @@ struct PathSessionView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: PathSessionViewModel
+    @State private var celebration: BadgeCelebrationItem?
 
     init(services: AppServices, path: ActivePath, step: PathStepRecord) {
         _viewModel = State(initialValue: PathSessionViewModel(services: services, path: path, step: step))
@@ -30,6 +31,14 @@ struct PathSessionView: View {
         .task { viewModel.start() }
         .onDisappear { viewModel.teardown() }
         .animation(Theme.Motion.crossFade, value: viewModel.phase)
+        .onChange(of: viewModel.phase) { _, phase in
+            guard phase == .finished else { return }
+            let badges = viewModel.badgesToCelebrate
+            if !badges.isEmpty { celebration = BadgeCelebrationItem(badges: badges) }
+        }
+        .sheet(item: $celebration) { item in
+            BadgeEarnedSheet(badges: item.badges)
+        }
     }
 
     @ViewBuilder

@@ -3,7 +3,8 @@ import Foundation
 
 /// "Ben" sekmesinin durumlarını simülatörde görmek için örnek kayıtlar.
 ///
-/// `-patika-debug-me pending|compared|worse|finished|crisis|empty` kaydı diske
+/// `-patika-debug-me pending|compared|worse|finished|crisis|empty|v2full|v2badges`
+/// (Ben v2: `v2empty` = `empty`, `v2crisis` = `crisis`) kaydı diske
 /// yazmayan bir depoyla kurar; `-patika-debug-tab ben` uygulamayı o sekmede açar.
 /// 7. gün ölçümü henüz gerçek akışta yok — bu senaryolar olmadan değişim kartının
 /// dolu hâli hiç görülemezdi.
@@ -12,6 +13,10 @@ import Foundation
 enum MeDebugSeed {
     enum Scenario: String {
         case pending, compared, worse, finished, crisis, empty
+        /// Ben v2: karşılaştırma + notlar + rozetler + bu haftanın adım günleri.
+        case v2full
+        /// Ben v2: neredeyse bütün rozetler kazanılmış.
+        case v2badges
     }
 
     static var scenario: Scenario? {
@@ -19,7 +24,12 @@ enum MeDebugSeed {
         guard let index = arguments.firstIndex(of: "-patika-debug-me"),
               arguments.index(after: index) < arguments.endIndex
         else { return nil }
-        return Scenario(rawValue: arguments[arguments.index(after: index)].lowercased())
+        let name = arguments[arguments.index(after: index)].lowercased()
+        switch name {
+        case "v2empty": return .empty
+        case "v2crisis": return .crisis
+        default: return Scenario(rawValue: name)
+        }
     }
 
     /// `-patika-debug-me-anchor journal|paths|preferences|settings` — sayfa o
@@ -32,7 +42,21 @@ enum MeDebugSeed {
         return MeAnchor(rawValue: arguments[arguments.index(after: index)].lowercased())
     }
 
-    /// `-patika-debug-me-sheet change|settings|reminder|support`.
+    /// `-patika-debug-me-route journal|badges` — sayfa doğrudan o alt ekranda açılır.
+    static var route: MeRoute? {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-patika-debug-me-route"),
+              arguments.index(after: index) < arguments.endIndex
+        else { return nil }
+        switch arguments[arguments.index(after: index)].lowercased() {
+        case "journal": return .journal
+        case "badges": return .badges
+        default: return nil
+        }
+    }
+
+    /// `-patika-debug-me-sheet change|settings|support|note|badge`
+    /// (`note` ve `badge` defter sayfasında açılır).
     static var sheet: String? {
         let arguments = ProcessInfo.processInfo.arguments
         guard let index = arguments.firstIndex(of: "-patika-debug-me-sheet"),
@@ -115,7 +139,7 @@ enum MeDebugSeed {
         switch scenario {
         case .pending, .crisis, .empty:
             break
-        case .compared:
+        case .compared, .v2full, .v2badges:
             record.measurements.append(measurement(
                 .day7, day: 7, at: now.addingTimeInterval(-2 * day1),
                 responses: shifted(baseline, category: category, steps: [.behavior: 2, .selfEfficacy: 1])
@@ -163,7 +187,36 @@ enum MeDebugSeed {
         }
 
         if scenario == .crisis { record.crisisSignalAt = now }
+        if scenario == .v2full || scenario == .v2badges { seedV2(&record, scenario: scenario, now: now) }
         return record
+    }
+
+    /// Ben v2 örnekleri: kullanıcının kendi notları, kazanılmış rozetler ve
+    /// bu haftanın adım günleri. Metinler `Copy` dışındadır çünkü kullanıcının
+    /// kendi sesi.
+    private static func seedV2(_ record: inout ProfileRecord, scenario: Scenario, now: Date) {
+        record.notes = [
+            JournalNote(
+                id: UUID(),
+                body: "Bugün yürüyüşten sonra omuzlarım gevşedi. Sebebini bilmiyorum ama kalsın.",
+                createdAt: now.addingTimeInterval(-2 * day1),
+                updatedAt: now.addingTimeInterval(-2 * day1)
+            ),
+            JournalNote(
+                id: UUID(),
+                body: "Akşam telefonu erken bıraktım. Uyumadan önce kafamdaki gürültü biraz azaldı.",
+                createdAt: now.addingTimeInterval(-6 * 60 * 60),
+                updatedAt: now.addingTimeInterval(-6 * 60 * 60)
+            ),
+        ]
+        record.completedStepDates = [0, 1, 2, 8, 9, 10].map { now.addingTimeInterval(-Double($0) * day1) }
+
+        let earned: [BadgeID] = scenario == .v2badges
+            ? BadgeID.allCases.filter { $0 != .week7 && $0 != .pathComplete && $0 != .note10 }
+            : [.firstStep, .phaseRelief, .measureDay7, .week3, .noteFirst]
+        record.earnedBadges = earned.enumerated().map { index, badge in
+            EarnedBadge(badgeID: badge, earnedAt: now.addingTimeInterval(-Double(earned.count - index) * day1))
+        }
     }
 
     private static func reflection(_ text: String, question: String, day: Int, title: String, at date: Date) -> JournalEntry {

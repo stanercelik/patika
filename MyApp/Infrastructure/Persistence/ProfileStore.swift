@@ -85,9 +85,41 @@ final class ProfileStore {
                 record.journal.removeAll { $0.id == id }
             case .origin:
                 record.journal.removeAll { $0.source == .origin || $0.source == .avoidance }
+            case .note(let id):
+                record.notes.removeAll { $0.id == id }
+            case .allNotes:
+                record.notes.removeAll()
             case .all:
                 record.journal.removeAll()
+                record.notes.removeAll()
             }
+        }
+    }
+
+    // MARK: - Notlar ve rozetler
+
+    /// Sunucunun döndürdüğü notu kayda işler (yeni ya da düzenlenmiş).
+    func upsertNote(_ note: JournalNote) {
+        update { record in
+            if let index = record.notes.firstIndex(where: { $0.id == note.id }) {
+                record.notes[index] = note
+            } else {
+                record.notes.append(note)
+            }
+        }
+    }
+
+    /// Adım tamamlanınca, sunucunun bir sonraki okumasını beklemeden: haftalık
+    /// ritim ve seri rozetleri hemen doğru olsun.
+    func appendCompletedStepDate(_ date: Date = .now) {
+        update { $0.completedStepDates.append(date) }
+    }
+
+    /// Yeni rozetleri kayda ekler; var olanlar yerinde kalır. Rozet geri alınmaz.
+    func recordEarnedBadges(_ badges: [EarnedBadge]) {
+        update { record in
+            let known = Set(record.earnedBadges.map(\.badgeID))
+            record.earnedBadges += badges.filter { !known.contains($0.badgeID) }
         }
     }
 
@@ -160,6 +192,7 @@ final class ProfileStore {
     /// Bu cihazdaki kaydı siler. Sunucudaki path etkilenmez.
     func erase() {
         record = nil
+        NoteDraftStore.clear()
         guard let fileURL else { return }
         try? FileManager.default.removeItem(at: fileURL)
     }
@@ -254,6 +287,19 @@ extension ProfileRecord {
 
         let existingOrigin = journal.first { $0.source == .origin }
         let existingAvoidance = journal.first { $0.source == .avoidance }
+        notes = snapshot.notes.map {
+            JournalNote(id: $0.id, body: $0.body, createdAt: $0.createdAt, updatedAt: $0.updatedAt)
+        }
+        // Rozet geri alınmaz: sunucudakiler ile cihazda henüz yazılamamış olanlar
+        // birleşir, hiçbiri düşmez.
+        let serverBadges = snapshot.earnedBadges.compactMap { badge in
+            BadgeID(rawValue: badge.id).map { EarnedBadge(badgeID: $0, earnedAt: badge.earnedAt) }
+        }
+        let serverIDs = Set(serverBadges.map(\.badgeID))
+        earnedBadges = serverBadges + earnedBadges.filter { !serverIDs.contains($0.badgeID) }
+        completedStepDates = snapshot.completedStepDates
+        avatarURL = snapshot.avatarURL
+
         var entries: [JournalEntry] = []
         if let origin = snapshot.origin {
             if let text = origin.problemText {

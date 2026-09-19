@@ -1,7 +1,7 @@
 import { authenticate } from "../_shared/auth.ts";
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { encryptSensitiveText } from "../_shared/encryption.ts";
-import { crisisSignalForText } from "../_shared/providers.ts";
+import { crisisSignalForText } from "../_shared/crisis.ts";
 
 // Hitap adı. Ad serbest metin: kriz taramasından geçer ve şifreli saklanır
 // (`profiles.name_ciphertext`). Boş ad gerçek bir seçenek — sütun temizlenir.

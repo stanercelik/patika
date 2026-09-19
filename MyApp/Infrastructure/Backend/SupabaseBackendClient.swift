@@ -287,6 +287,64 @@ struct SupabaseBackendClient: BackendClient {
         _ = try await callFunction("delete-journal", body: JournalDeletionPayload(target), accessToken: accessToken)
     }
 
+    func saveNote(id: UUID?, body: String, accessToken: String) async throws -> NoteSaveOutcome {
+        let data = try await callFunction(
+            "save-note",
+            body: NoteSavePayload(id: id, body: body),
+            accessToken: accessToken
+        )
+        let response = try Self.decoder.decode(NoteSaveResponse.self, from: data)
+        if response.status == "crisis" { return .crisis }
+        guard let note = response.note else { throw BackendError.invalidResponse }
+        return .saved(JournalNote(id: note.id, body: body, createdAt: note.createdAt, updatedAt: note.updatedAt))
+    }
+
+    func deleteNote(id: UUID, accessToken: String) async throws {
+        _ = try await callFunction("save-note", body: NoteDeletePayload(id: id), accessToken: accessToken)
+    }
+
+    func uploadAvatar(_ jpegData: Data, userID: UUID, accessToken: String) async throws {
+        var request = authenticatedRequest(
+            path: "/storage/v1/object/avatars/\(userID.uuidString.lowercased())/avatar.jpg",
+            method: "POST",
+            accessToken: accessToken
+        )
+        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+        // Yeni fotoğraf eskisinin yerine geçer.
+        request.setValue("true", forHTTPHeaderField: "x-upsert")
+        let (data, response) = try await session.upload(for: request, from: jpegData)
+        try validate(response, data)
+    }
+
+    func removeAvatar(userID: UUID, accessToken: String) async throws {
+        let request = authenticatedRequest(
+            path: "/storage/v1/object/avatars/\(userID.uuidString.lowercased())/avatar.jpg",
+            method: "DELETE",
+            accessToken: accessToken
+        )
+        let (data, response) = try await session.data(for: request)
+        // Zaten yoksa istenen durum oluşmuş demektir.
+        if (response as? HTTPURLResponse)?.statusCode == 404 { return }
+        try validate(response, data)
+    }
+
+    func recordBadges(_ badges: [BadgeID], userID: UUID, accessToken: String) async throws {
+        guard !badges.isEmpty else { return }
+        var request = authenticatedRequest(
+            path: "/rest/v1/earned_badges?on_conflict=user_id,badge_id",
+            method: "POST",
+            accessToken: accessToken
+        )
+        // `on conflict do nothing`: rozet geri alınmaz ve ikinci yazım sessizce geçer.
+        request.setValue("resolution=ignore-duplicates,return=minimal", forHTTPHeaderField: "Prefer")
+        request.httpBody = try JSONEncoder().encode(badges.map {
+            BadgeInsertPayload(userID: userID.uuidString.lowercased(), badgeID: $0.rawValue)
+        })
+        let (data, response) = try await session.data(for: request)
+        if (response as? HTTPURLResponse)?.statusCode == 409 { return }
+        try validate(response, data)
+    }
+
     func recordMeasurement(_ upload: MeasurementUpload, userID: UUID, accessToken: String) async throws {
         var request = authenticatedRequest(path: "/rest/v1/measurements", method: "POST", accessToken: accessToken)
         request.setValue("return=minimal", forHTTPHeaderField: "Prefer")
@@ -480,25 +538,68 @@ private struct DisplayNamePayload: Encodable {
 }
 
 private struct JournalDeletionPayload: Encodable {
-    let answerId: String?
-    let origin: Bool
-    let all: Bool
+    var answerId: String?
+    var noteId: String?
+    var origin = false
+    var allNotes = false
+    var all = false
 
     init(_ target: JournalDeletionTarget) {
         switch target {
-        case .answer(let id):
-            answerId = id.uuidString.lowercased()
-            origin = false
-            all = false
-        case .origin:
-            answerId = nil
-            origin = true
-            all = false
-        case .all:
-            answerId = nil
-            origin = false
-            all = true
+        case .answer(let id): answerId = id.uuidString.lowercased()
+        case .origin: origin = true
+        case .note(let id): noteId = id.uuidString.lowercased()
+        case .allNotes: allNotes = true
+        case .all: all = true
         }
+    }
+}
+
+/// `id` yoksa oluşturma, varsa güncelleme.
+private struct NoteSavePayload: Encodable {
+    let id: UUID?
+    let body: String
+
+    enum CodingKeys: String, CodingKey { case action, id, body }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id == nil ? "create" : "update", forKey: .action)
+        try container.encodeIfPresent(id?.uuidString.lowercased(), forKey: .id)
+        try container.encode(body, forKey: .body)
+    }
+}
+
+private struct NoteDeletePayload: Encodable {
+    let id: UUID
+
+    enum CodingKeys: String, CodingKey { case action, id }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode("delete", forKey: .action)
+        try container.encode(id.uuidString.lowercased(), forKey: .id)
+    }
+}
+
+private struct NoteSaveResponse: Decodable {
+    struct Note: Decodable {
+        let id: UUID
+        let createdAt: Date
+        let updatedAt: Date
+    }
+
+    let status: String
+    let note: Note?
+}
+
+private struct BadgeInsertPayload: Encodable {
+    let userID: String
+    let badgeID: String
+
+    enum CodingKeys: String, CodingKey {
+        case userID = "user_id"
+        case badgeID = "badge_id"
     }
 }
 

@@ -688,3 +688,53 @@ kalkıp ayarların en altına iniyor. PRD §10'un "streak yok" satırı bu karar
 kısmen geçersizdir (PRD gövdesi güncellenmedi; karar günlüğü #17'ye bak). Plan:
 `docs/profile-v2-plan.md`; tasarım: `docs/profile-design.md` §21; görseller:
 `assets/illustrations/me-v2/prompts.md`.
+
+## 19 Eylül 2026 — Ben v2 uygulandı
+
+`docs/profile-v2-plan.md` Aşama 0–8 kodda bitti. Sayfa: kimlik kartı (fotoğraf, ad,
+yol, iz, haftalık ritim), guaj defter kartı (bulanık önizleme, kapak açılışı, zoom
+geçişi), rozet rafı, kompakt "Ne değişti", Destek al; ayarlar dişliyle açılan yaprakta
+ve koyu orman + adaçayı dilinde (`PatikaSettings`). Defter ayrı sayfa
+(`JournalView`), kullanıcı kendi notunu yazar/düzenler/siler (`NoteComposerSheet`).
+"Yürüdüğün yollar" ve "Sana göre ayarlananlar" profilden kalktı; `PathDetailView`
+silindi.
+
+- **Kurallar kodda:** `BadgeCatalog.earned` saf ve deterministik; rozet geri alınmaz
+  (`BadgeAwarder` yalnızca ekler). Ölçüm rozetleri katılımdan verilir. Kutlama
+  yaprağı `BadgeCelebration.shouldPresent` ile denetlenir: kriz modunda ve Kova C
+  yol sonunda açılmaz. Seri "bu hafta" demek (`WeeklyRhythm`, pazartesi başlar).
+- **Not güvenliği:** cihazdaki `CrisisClassifier`, sonra sunucu taraması
+  (`save-note`); sinyalde not yazılmaz ve **`SupportView`** açılır (numara).
+  Taslak `NoteDraftStore` dosyasında (`UserDefaults` değil). Kriz metni sunucuda
+  `_shared/crisis.ts` tek kaynağından geçer; `providers.ts` kendi listesini tutmaz.
+- **Destek al metni** `Support.xcstrings`te: numara cihaz bölgesinden, dil
+  `AppLocale.current`ten. Diğer arayüz hâlâ sabit Türkçe.
+- **⚠️ Dağıtılmadı.** Migrasyon `20260919120000_*` ve Edge Function'lar (`save-note`
+  yeni; `me-profile`, `delete-journal`, `delete-account`, `complete-step`,
+  `update-profile`, `generate-path` güncellendi) uzak projeye uygulanmadı; canlı
+  duman testi yapılmadı. İstemci sunucudan önce çıkarsa güvenli (yeni alanlar
+  `decodeIfPresent`, not yazma "yeniden dene" der).
+- **Test:** `Tests/BadgeCatalogTests` (rozet kuralları, haftalık ritim, eski
+  `record.json`'ın okunabilmesi). Test hedefi yok, elle derlenir:
+
+```bash
+swiftc -o /tmp/badgetest MyApp/Content/Tone.swift MyApp/Models/DomainEnums.swift \
+  MyApp/Models/ProfileRecord.swift MyApp/Models/ProfileSnapshot.swift \
+  MyApp/Models/BadgeCatalog.swift MyApp/Models/WeeklyRhythm.swift MyApp/Models/PathPlan.swift \
+  MyApp/Models/SessionManifest.swift MyApp/Models/MeasurementLibrary.swift \
+  MyApp/Models/MeasurementScoring.swift MyApp/Infrastructure/Backend/RetryPolicy.swift \
+  MyApp/Infrastructure/Backend/BackendError.swift MyApp/Infrastructure/Backend/BackendClient.swift \
+  MyApp/Features/Onboarding/OnboardingDraft.swift Tests/BadgeCatalogTests/main.swift && /tmp/badgetest
+```
+
+  Deno: `npx --yes deno test --allow-read --allow-env --allow-net supabase/functions/tests/`
+  (29/29; yeni `notes_contract_test.ts`: şifreleme gidiş-dönüşü, kriz reddi,
+  başka kullanıcının notuna 403, rozet tekilliği, avatar kovası).
+- **Yerleşim tuzağı:** `scaledToFill` bir görselin ideal genişliği piksel boyutudur;
+  yerleşimin içinde durursa üst `ZStack`i ve sayfayı ekrandan geniş yapar
+  (kimlik kartı ve rozet başlığı iki yandan kırpılıyordu). Görseller `.background`
+  ya da `.overlay` içinde ve `.clipped()` ile durur (`MeBackdrop`, `JournalCoverCard`).
+- DEBUG: `-patika-debug-me v2full|v2badges|v2empty|v2crisis`,
+  `-patika-debug-me-route journal|badges`,
+  `-patika-debug-me-sheet note|badge|settings|change|support`.
+

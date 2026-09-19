@@ -22,7 +22,7 @@ struct SupportView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     Button { dismiss() } label: {
-                        Text(Copy.Path.doneCTA)
+                        Text(Copy.Support.close)
                             .font(.body.weight(Theme.Weight.action))
                             .foregroundStyle(Theme.textSecondary.color)
                             .frame(minWidth: 44, minHeight: 44, alignment: .leading)
@@ -111,7 +111,7 @@ private struct SupportLineRow: View {
                 }
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(Copy.Support.callAccessibility(
+            .accessibilityLabel(Text(verbatim: Copy.Support.callAccessibility(
                 name: String(localized: line.name),
                 number: line.displayNumber
             )))

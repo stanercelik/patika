@@ -28,6 +28,19 @@ struct ProfileRecord: Codable, Equatable, Sendable {
     var tone: TonePreference?
     var voice: VoicePreference?
     var journal: [JournalEntry]
+    /// Kullanıcının kendi yazdığı notlar (Ben v2). Adım cevaplarından ayrı durur:
+    /// notlar düzenlenebilir, cevaplar yalnızca silinir; ikisi de sunucuda şifreli.
+    var notes: [JournalNote] = []
+    /// Sunucuda kazanılmış rozetler. Rozet geri alınmaz: bu liste yalnızca büyür,
+    /// bir notu ya da adımı silmek rozeti götürmez.
+    var earnedBadges: [EarnedBadge] = []
+    /// Tamamlanan adımların anı (haftalık ritim ve seri rozetleri için). Gün
+    /// sınırı cihazın takviminden hesaplanır.
+    var completedStepDates: [Date] = []
+    /// Sunucudaki profil fotoğrafının son bilinen imzalı adresi (1 saatlik).
+    /// Ekranda gösterilen yerel önbellektir (`AvatarStore`); bu adres yalnızca
+    /// önbellek boşken indirmek için var.
+    var avatarURL: URL?
     var measurements: [MeasurementRecord]
     /// Biten ya da bırakılan yollar. Path sonu servisi yazılana kadar boş kalır.
     var pathArchive: [PathArchiveEntry]
@@ -43,6 +56,42 @@ struct ProfileRecord: Codable, Equatable, Sendable {
     var startedAt: Date
 
     var primaryCategory: ProblemCategory { categories.first ?? .unnamed }
+
+    /// Anahtarlar açıkça yazılı: `init(from:)` yeni alanları `decodeIfPresent` ile
+    /// okur. Cihazda duran eski `record.json` bu alanlar olmadan yazıldı; sentezlenen
+    /// çözücü eksik anahtarda hata verip kaydın **tamamını** düşürürdü.
+    enum CodingKeys: String, CodingKey {
+        case displayName, categories, mood, timing, reminder, sessionLength, tone, voice
+        case journal, notes, earnedBadges, completedStepDates, avatarURL
+        case measurements, pathArchive, privacy, crisisSignalAt, revealedMeasurementID
+        case anonymousCardHiddenUntil, startedAt
+    }
+}
+
+extension ProfileRecord {
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        displayName = try container.decodeIfPresent(String.self, forKey: .displayName)
+        categories = try container.decode([ProblemCategory].self, forKey: .categories)
+        mood = try container.decodeIfPresent(MoodLevel.self, forKey: .mood)
+        timing = try container.decodeIfPresent(ProblemTiming.self, forKey: .timing)
+        reminder = try container.decode(ReminderSetting.self, forKey: .reminder)
+        sessionLength = try container.decodeIfPresent(SessionLength.self, forKey: .sessionLength)
+        tone = try container.decodeIfPresent(TonePreference.self, forKey: .tone)
+        voice = try container.decodeIfPresent(VoicePreference.self, forKey: .voice)
+        journal = try container.decode([JournalEntry].self, forKey: .journal)
+        notes = try container.decodeIfPresent([JournalNote].self, forKey: .notes) ?? []
+        earnedBadges = try container.decodeIfPresent([EarnedBadge].self, forKey: .earnedBadges) ?? []
+        completedStepDates = try container.decodeIfPresent([Date].self, forKey: .completedStepDates) ?? []
+        avatarURL = try container.decodeIfPresent(URL.self, forKey: .avatarURL)
+        measurements = try container.decode([MeasurementRecord].self, forKey: .measurements)
+        pathArchive = try container.decode([PathArchiveEntry].self, forKey: .pathArchive)
+        privacy = try container.decode(PrivacySettings.self, forKey: .privacy)
+        crisisSignalAt = try container.decodeIfPresent(Date.self, forKey: .crisisSignalAt)
+        revealedMeasurementID = try container.decodeIfPresent(UUID.self, forKey: .revealedMeasurementID)
+        anonymousCardHiddenUntil = try container.decodeIfPresent(Date.self, forKey: .anonymousCardHiddenUntil)
+        startedAt = try container.decode(Date.self, forKey: .startedAt)
+    }
 }
 
 struct ReminderSetting: Codable, Equatable, Sendable {
@@ -77,6 +126,16 @@ struct JournalEntry: Codable, Equatable, Sendable, Identifiable {
     let stepTitle: String?
     let pathID: UUID?
     let createdAt: Date
+}
+
+/// Kullanıcının defterine kendi yazdığı not. Adım cevabının aksine **düzenlenir**:
+/// notu yazan kullanıcı, path'in bir sonraki adımı onun üstüne kurulmadığı için
+/// cümlesini sonradan düzeltebilir.
+struct JournalNote: Codable, Equatable, Sendable, Identifiable {
+    let id: UUID
+    var body: String
+    let createdAt: Date
+    var updatedAt: Date
 }
 
 /// Bir ölçüm noktasının **ham** cevapları. Skor saklanmaz; her gösterimde

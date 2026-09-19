@@ -147,6 +147,16 @@ protocol BackendClient: Sendable {
     /// Hitap adı. Ad serbest metin: sunucu da kriz taramasından geçirir.
     func updateDisplayName(_ name: String?, accessToken: String) async throws -> ProfileUpdateOutcome
     func deleteJournal(_ target: JournalDeletionTarget, accessToken: String) async throws
+    /// Defter notunu oluşturur (`id == nil`) ya da günceller. Sunucu metni kriz
+    /// taramasından geçirir; sinyalde not **yazılmaz** ve `.crisis` döner.
+    func saveNote(id: UUID?, body: String, accessToken: String) async throws -> NoteSaveOutcome
+    func deleteNote(id: UUID, accessToken: String) async throws
+    /// Profil fotoğrafı: özel kova, yol `<user_id>/avatar.jpg`. İstemci yalnızca
+    /// kendi klasörüne yazabilir (RLS).
+    func uploadAvatar(_ jpegData: Data, userID: UUID, accessToken: String) async throws
+    func removeAvatar(userID: UUID, accessToken: String) async throws
+    /// Kazanılan rozetleri yazar. Çakışma başarı sayılır: rozet zaten kayıtlı.
+    func recordBadges(_ badges: [BadgeID], userID: UUID, accessToken: String) async throws
     /// Yol içi ölçüm (7. / 14. adım, son). Aynı gün ikinci kez yazılmaz; sunucu
     /// çakışması başarı sayılır — ölçüm zaten kayıtlı.
     func recordMeasurement(_ upload: MeasurementUpload, userID: UUID, accessToken: String) async throws
@@ -159,10 +169,19 @@ enum ProfileUpdateOutcome: Equatable, Sendable {
     case crisis
 }
 
+enum NoteSaveOutcome: Equatable, Sendable {
+    case saved(JournalNote)
+    case crisis
+}
+
 enum JournalDeletionTarget: Equatable, Sendable {
     case answer(UUID)
     /// İlk cümle ve kaçınma cümlesi.
     case origin
+    /// Kullanıcının kendi yazdığı tek bir not.
+    case note(UUID)
+    case allNotes
+    /// Cevaplar, ilk cümleler ve notlar. Rozetler silinmez.
     case all
 }
 

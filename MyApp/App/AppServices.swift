@@ -9,18 +9,22 @@ final class AppServices {
     let observability: Observability
     /// Cihazdaki kişisel kayıt — "Ben" sekmesinin kaynağı.
     let profile: ProfileStore
+    /// Profil fotoğrafının cihazdaki kopyası.
+    let avatar: AvatarStore
     let appLock: AppLockController
 
     init(
         auth: AuthSessionStore,
         backend: any BackendClient,
         observability: Observability,
-        profile: ProfileStore
+        profile: ProfileStore,
+        avatar: AvatarStore
     ) {
         self.auth = auth
         self.backend = backend
         self.observability = observability
         self.profile = profile
+        self.avatar = avatar
         self.appLock = AppLockController(store: profile)
     }
 
@@ -34,8 +38,17 @@ final class AppServices {
             ),
             backend: SupabaseBackendClient(),
             observability: .live(),
-            profile: makeProfileStore()
+            profile: makeProfileStore(),
+            avatar: makeAvatarStore()
         )
+    }
+
+    private static func makeAvatarStore() -> AvatarStore {
+        #if DEBUG
+        // Örnek senaryo gerçek hesabın fotoğraf önbelleğine dokunmaz.
+        if MeDebugSeed.scenario != nil { return .ephemeral() }
+        #endif
+        return .live()
     }
 
     private static func makeProfileStore() -> ProfileStore {

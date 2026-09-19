@@ -21,6 +21,47 @@ Referanslar Mobbin'den (birebir kopyalanmıyor):
 - Rozetler: stoic.'in sade rozet rafı ([ekran](https://mobbin.com/screens/4f2d0d12-94b1-410a-b34c-e8f1d6f38dbb)) ve Fitbit'in kilitli/açık rozet listesi ([ekran](https://mobbin.com/screens/439e6107-d27c-443f-82eb-90ecc8c09346)).
 - Ayarlar: Tide Guide ([ekran](https://mobbin.com/screens/cce4ab10-6d4a-4f25-a0a4-1b70483ca75c)) ve HYPE ([ekran](https://mobbin.com/screens/3cf1055e-d4d6-489e-9ecc-8930a2aecc76)), sürüm yazısı en altta.
 
+## Uygulama durumu (2026-09-19, akşam)
+
+| Aşama | Durum | Not |
+|---|---|---|
+| 0 · Kural ve doküman | Bitti | CLAUDE.md, PRD §19, Ton eki, `profile-design` §21, `me-v2/prompts.md`; 18 görsel `Assets.xcassets/Me/` altında |
+| 1 · Sunucu | **Kod bitti, dağıtılmadı** | Migrasyon, `save-note`, `me-profile`/`delete-journal`/`delete-account` güncellemeleri, `_shared/crisis.ts` tek kaynak. Deno 29/29. Uzak projeye **uygulanmadı** ve canlı duman testi yapılmadı |
+| 2 · İstemci veri katmanı | Bitti | `ProfileRecord` (eski `record.json` okunur), `BadgeCatalog`, `WeeklyRhythm`, `AvatarStore`, `NoteDraftStore`, `BackendClient` uçları. `Tests/BadgeCatalogTests` geçiyor |
+| 3 · "Ben" sayfası | Bitti | Simülatörde doğrulandı: dolu, boş, kriz, AX5 |
+| 4 · Defter sayfası | Bitti | Kâğıt yaprak, not yazma/düzenleme/silme, taslak, iki katmanlı kriz taraması |
+| 5 · Rozet kutlaması | Bitti | Oturum sonu (`PathSessionView`) ve defter; kriz ve Kova C'de açılmaz |
+| 6 · Ayarlar | Bitti | `PatikaSettings` bileşenleri, plandaki bölüm sırası |
+| 7 · Destek yerelleştirme | Bitti | `Support.xcstrings` TR+EN; numara bölgeden, metin `AppLocale`den. ⚠️ Numaralar hâlâ resmî kaynaktan doğrulanmalı |
+| 8 · DEBUG | Bitti | `-patika-debug-me v2full\|v2badges\|v2empty\|v2crisis`, `-patika-debug-me-route journal\|badges`, `-patika-debug-me-sheet note\|badge\|settings\|change\|support` |
+
+**Sıradaki iş (sıra önemli):** (1) migrasyonu ve Edge Function'ları dağıt
+(`supabase db push`, `supabase functions deploy save-note me-profile delete-journal
+delete-account complete-step update-profile generate-path`); (2) canlı duman testi
+(aşağıdaki Doğrulama 3); (3) cihazda gerçek fotoğraf yükleme ve VoiceOver turu.
+İstemci sunucudan önce çıkarsa güvenli: `ProfileSnapshot` yeni alanları
+`decodeIfPresent` ile okuyor, `save-note` yokken not yazma "yeniden dene" der ve
+taslak korunur.
+
+**Plandan sapmalar (bilinçli):**
+
+- Not kaydında kriz sinyali `CrisisView` yerine **`SupportView`** açar. `CrisisView`
+  onboarding'den kalma yer tutucu, numara göstermiyor; kriz anında numara gösterilir.
+- Not taslağı `UserDefaults` değil, `ProfileRecord` ile aynı koruma sınıfındaki
+  (`completeUnlessOpen`) bir dosyada (`NoteDraftStore`): plist düz metin ve
+  yedeklerle dolaşır, not kullanıcının en özel metni. Kaydedilince, kriz sinyalinde
+  ve kayıt silinince silinir.
+- Rozetler "Ben" sayfası açılırken **sessizce** uzlaşır (kutlama yok); yaprak yalnızca
+  oturum sonunda ve defterde açılır. Sunucuya yazma ateşle-unut; yazılamayanlar bir
+  sonraki sayfa yüklemesinde `syncUnsynced` ile yeniden gönderilir.
+- Anonim hesap satırı plandaki "yolun kaybolmasın" yerine mevcut "Bu kayıt şimdilik
+  yalnızca bu telefonda." cümlesini kullanır: kayıp kaçınması üretilmiş kaygıdır.
+
+**Bilinen sınırlar:** profil fotoğrafı başka bir cihazda değiştirilirse bu cihazın
+önbelleği, fotoğraf sunucudan silinene ya da önbellek boşalana kadar eski kalır
+(sunucu fotoğrafın değişim zamanını döndürmüyor). `me-paths-empty` ve
+`me-header-notebook` görselleri artık kullanılmıyor.
+
 ## Onaylanan kararlar (2026-09-19)
 
 | Konu | Karar |

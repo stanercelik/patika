@@ -1,9 +1,17 @@
+import PhotosUI
 import SwiftUI
 
-/// Ayarlar ve gizlilik.
+/// Ayarlar ve gizlilik (`docs/profile-v2-plan.md` Aşama 6).
 ///
 /// Profil "sen kimsin", ayarlar "uygulama nasıl davransın" — ikisi ayrı yüzey.
-/// Yıkıcı işlem saklanmaz, ayrı bir başlık altında durur.
+/// Koyu orman zemini ve adaçayı kart grupları; `List` yok. Bölüm sırası:
+/// Hesap → Sana göre ayarlananlar → Gizlilik → Veri → Hakkında → Geri alınamaz,
+/// en altta ortada soluk sürüm yazısı. Yıkıcı işlem saklanmaz, ayrı bir başlık
+/// altında durur.
+///
+/// Adım uzunluğu, anlatım ve ses **salt okunur**: yol kurulurken seçildi ve
+/// sunucuda bunları güncelleyen bir uç nokta yok. Değişiyormuş gibi davranan bir
+/// düğme koymak yerine bunu söylüyoruz (`preferencesFootnote`).
 struct SettingsSheet: View {
     let viewModel: MeViewModel
 
@@ -13,6 +21,9 @@ struct SettingsSheet: View {
     @State private var analyticsConsent: Bool
     @State private var confirmsJournalDeletion = false
     @State private var confirmsAccountDeletion = false
+    @State private var isShowingSupport = false
+    @State private var isShowingLinkSheet = false
+    @State private var pickedPhoto: PhotosPickerItem?
 
     init(viewModel: MeViewModel) {
         self.viewModel = viewModel
@@ -21,141 +32,55 @@ struct SettingsSheet: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                if viewModel.record != nil {
-                    Section {
-                        NavigationLink {
-                            ReminderEditor(viewModel: viewModel)
-                        } label: {
-                            LabeledContent {
-                                Text(verbatim: viewModel.reminderSummary)
-                            } label: {
-                                Text(Copy.Me.reminderLabel)
-                            }
-                        }
-                    } header: {
-                        Text(Copy.Me.Settings.reminderHeader)
-                    }
-                }
+            ZStack {
+                WoodlandStyle.background.ignoresSafeArea()
 
-                Section {
-                    if viewModel.record != nil {
-                        Toggle(isOn: Binding(
-                            get: { viewModel.appLockEnabled },
-                            set: { enabled in Task { await viewModel.setAppLock(enabled) } }
-                        )) {
-                            Text(Copy.Me.Settings.appLock)
-                        }
-                        .disabled(!AppLockController.isAvailable && !viewModel.appLockEnabled)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.sectionSpacing) {
+                        if viewModel.record != nil { accountGroup }
+                        if !viewModel.preferenceItems.isEmpty { preferencesGroup }
+                        privacyGroup
+                        if viewModel.record != nil { dataGroup }
+                        aboutGroup
+                        irreversibleGroup
 
-                        if viewModel.hasJournal {
-                            Toggle(isOn: Binding(
-                                get: { viewModel.hidesJournal },
-                                set: { viewModel.setHidesJournal($0) }
-                            )) {
-                                Text(Copy.Me.Settings.hideJournal)
-                            }
-                        }
-                    }
-
-                    Toggle(isOn: $analyticsConsent) {
-                        Text(Copy.Me.Settings.analytics)
-                    }
-                    .onChange(of: analyticsConsent) { _, consent in
-                        viewModel.setAnalyticsConsent(consent)
-                    }
-                } header: {
-                    Text(Copy.Me.Settings.privacyHeader)
-                } footer: {
-                    // İzin bilgilendirilmiş olmalı: neyin paylaşılmadığını söyler.
-                    Text(Copy.Me.Settings.analyticsFooter)
-                }
-
-                if viewModel.record != nil {
-                    Section {
-                        if let export = viewModel.exportPayload {
-                            ShareLink(
-                                item: export,
-                                preview: SharePreview(String(localized: Copy.Me.Settings.exportPreview))
-                            ) {
-                                Text(Copy.Me.Settings.export)
-                            }
-                        }
-                        if viewModel.hasJournal {
-                            Button(role: .destructive) {
-                                confirmsJournalDeletion = true
-                            } label: {
-                                Text(Copy.Me.Settings.deleteJournal)
-                            }
-                            .disabled(viewModel.isWorking)
-                        }
-                    } header: {
-                        Text(Copy.Me.Settings.dataHeader)
-                    }
-
-                    Section {
-                        NavigationLink {
-                            NameEditor(viewModel: viewModel)
-                        } label: {
-                            LabeledContent {
-                                if let name = viewModel.displayName {
-                                    Text(verbatim: name)
-                                }
-                            } label: {
-                                Text(Copy.Me.Settings.nameRow)
-                            }
-                        }
-
-                        LabeledContent {
-                            Text(viewModel.isAccountLinked ? Copy.Me.Settings.linkedYes : Copy.Me.Settings.linkedNo)
-                        } label: {
-                            Text(Copy.Me.Settings.linkedRow)
-                        }
-                    } header: {
-                        Text(Copy.Me.Settings.accountHeader)
-                    }
-                }
-
-                Section {
-                    NavigationLink {
-                        MeasurementMethodView()
-                    } label: {
-                        Text(Copy.Me.howWeMeasure)
-                    }
-                    LabeledContent {
+                        // Sürüm ayarların en altında, ortada ve soluk: profilden
+                        // buraya taşındı.
                         Text(verbatim: viewModel.versionText)
-                    } label: {
-                        Text(Copy.Me.Settings.versionRow)
+                            .font(Theme.TypeFace.rowCaption)
+                            .foregroundStyle(Theme.textSecondary.color.opacity(0.7))
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 4)
                     }
-                } header: {
-                    Text(Copy.Me.Settings.aboutHeader)
+                    .padding(.horizontal, Theme.Spacing.screenMargin)
+                    .padding(.top, 8)
+                    .padding(.bottom, 32)
                 }
-
-                Section {
-                    Button(role: .destructive) {
-                        confirmsAccountDeletion = true
-                    } label: {
-                        if viewModel.isWorking {
-                            ProgressView()
-                        } else {
-                            Text(Copy.Me.Settings.deleteAccount)
-                        }
-                    }
-                    .disabled(viewModel.isWorking)
-                } header: {
-                    Text(Copy.Me.Settings.irreversibleHeader)
-                }
+                .scrollIndicators(.hidden)
             }
-            .scrollContentBackground(.hidden)
-            .background(Palette.neutral.background.color)
-            .environment(\.defaultMinListRowHeight, 52)
-            .font(.body.weight(Theme.Weight.body))
             .navigationTitle(Text(Copy.Me.Settings.title))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(role: .close) { dismiss() }
                 }
+            }
+            .onChange(of: pickedPhoto) { _, item in
+                guard let item else { return }
+                Task {
+                    defer { pickedPhoto = nil }
+                    guard let data = try? await item.loadTransferable(type: Data.self) else {
+                        viewModel.actionError = Copy.Me.photoFailed
+                        return
+                    }
+                    await viewModel.setPhoto(data)
+                }
+            }
+            .sheet(isPresented: $isShowingLinkSheet) {
+                AccountLinkSheet(viewModel: viewModel)
+            }
+            .fullScreenCover(isPresented: $isShowingSupport) {
+                SupportView()
             }
             .alert(Text(Copy.Me.Settings.deleteJournalTitle), isPresented: $confirmsJournalDeletion) {
                 Button(role: .destructive) {
@@ -189,6 +114,166 @@ struct SettingsSheet: View {
         }
     }
 
+    // MARK: Gruplar
+
+    private var accountGroup: some View {
+        SettingsGroup(title: Copy.Me.Settings.accountHeader) {
+            PhotosPicker(selection: $pickedPhoto, matching: .images) {
+                SettingsRow(title: Copy.Me.photoChoose, symbol: "photo", showsChevron: true)
+            }
+            .buttonStyle(.calm)
+
+            if viewModel.services.avatar.hasImage {
+                Button {
+                    Task { await viewModel.removePhoto() }
+                } label: {
+                    SettingsRow(title: Copy.Me.photoRemove, symbol: "trash")
+                }
+                .buttonStyle(.calm)
+                .disabled(viewModel.isWorking)
+            }
+
+            NavigationLink {
+                NameEditor(viewModel: viewModel)
+            } label: {
+                SettingsRow(
+                    title: Copy.Me.Settings.nameRow,
+                    value: viewModel.displayName ?? String(localized: Copy.Me.Settings.nameNone),
+                    showsChevron: true
+                )
+            }
+            .buttonStyle(.calm)
+
+            if viewModel.isAccountLinked {
+                SettingsRow(title: Copy.Me.Settings.linkedRow, value: String(localized: Copy.Me.Settings.linkedYes))
+            } else {
+                Button { isShowingLinkSheet = true } label: {
+                    SettingsRow(
+                        title: Copy.Me.Settings.linkedRow,
+                        value: String(localized: Copy.Me.Settings.linkedNo),
+                        showsChevron: true
+                    )
+                }
+                .buttonStyle(.calm)
+            }
+        }
+    }
+
+    /// Hatırlatma düzenlenebilir; uzunluk, anlatım ve ses salt okunur.
+    private var preferencesGroup: some View {
+        SettingsGroup(
+            title: Copy.Me.preferencesTitle,
+            footer: viewModel.preferenceItems.contains { !$0.isEditable } ? Copy.Me.preferencesFootnote : nil
+        ) {
+            ForEach(viewModel.preferenceItems) { item in
+                if item.isEditable {
+                    NavigationLink {
+                        ReminderEditor(viewModel: viewModel)
+                    } label: {
+                        SettingsRow(
+                            title: Self.label(for: item.kind),
+                            value: item.value,
+                            caption: item.caption,
+                            showsChevron: true
+                        )
+                    }
+                    .buttonStyle(.calm)
+                } else {
+                    SettingsRow(title: Self.label(for: item.kind), value: item.value, caption: item.caption)
+                }
+            }
+        }
+    }
+
+    private static func label(for kind: MeViewModel.PreferenceItem.Kind) -> LocalizedStringResource {
+        switch kind {
+        case .reminder: Copy.Me.reminderLabel
+        case .sessionLength: Copy.Me.sessionLengthLabel
+        case .tone: Copy.Me.toneLabel
+        case .voice: Copy.Me.voiceLabel
+        }
+    }
+
+    private var privacyGroup: some View {
+        // İzin bilgilendirilmiş olmalı: altbilgi neyin paylaşılmadığını söyler.
+        SettingsGroup(title: Copy.Me.Settings.privacyHeader, footer: Copy.Me.Settings.analyticsFooter) {
+            if viewModel.record != nil {
+                SettingsToggleRow(
+                    title: Copy.Me.Settings.appLock,
+                    isOn: Binding(
+                        get: { viewModel.appLockEnabled },
+                        set: { enabled in Task { await viewModel.setAppLock(enabled) } }
+                    ),
+                    isEnabled: AppLockController.isAvailable || viewModel.appLockEnabled
+                )
+
+                if viewModel.hasJournal {
+                    SettingsToggleRow(
+                        title: Copy.Me.Settings.hideJournal,
+                        isOn: Binding(
+                            get: { viewModel.hidesJournal },
+                            set: { viewModel.setHidesJournal($0) }
+                        )
+                    )
+                }
+            }
+
+            SettingsToggleRow(title: Copy.Me.Settings.analytics, isOn: $analyticsConsent)
+                .onChange(of: analyticsConsent) { _, consent in
+                    viewModel.setAnalyticsConsent(consent)
+                }
+        }
+    }
+
+    private var dataGroup: some View {
+        SettingsGroup(title: Copy.Me.Settings.dataHeader) {
+            if let export = viewModel.exportPayload {
+                ShareLink(
+                    item: export,
+                    preview: SharePreview(String(localized: Copy.Me.Settings.exportPreview))
+                ) {
+                    SettingsRow(title: Copy.Me.Settings.export, symbol: "square.and.arrow.up", showsChevron: true)
+                }
+                .buttonStyle(.calm)
+            }
+            if viewModel.hasJournal {
+                Button { confirmsJournalDeletion = true } label: {
+                    SettingsDestructiveRow(title: Copy.Me.Settings.deleteJournal)
+                }
+                .buttonStyle(.calm)
+                .disabled(viewModel.isWorking)
+            }
+        }
+    }
+
+    /// "Destek al" burada da durur: hiçbir zaman ödeme duvarının ya da uygulama
+    /// kilidinin arkasında değil.
+    private var aboutGroup: some View {
+        SettingsGroup(title: Copy.Me.Settings.aboutHeader) {
+            NavigationLink {
+                MeasurementMethodView()
+            } label: {
+                SettingsRow(title: Copy.Me.howWeMeasure, symbol: "chart.line.uptrend.xyaxis", showsChevron: true)
+            }
+            .buttonStyle(.calm)
+
+            Button { isShowingSupport = true } label: {
+                SettingsRow(title: Copy.Me.supportTitle, symbol: "hand.raised", showsChevron: true)
+            }
+            .buttonStyle(.calm)
+        }
+    }
+
+    private var irreversibleGroup: some View {
+        SettingsGroup(title: Copy.Me.Settings.irreversibleHeader) {
+            Button { confirmsAccountDeletion = true } label: {
+                SettingsDestructiveRow(title: Copy.Me.Settings.deleteAccount, isWorking: viewModel.isWorking)
+            }
+            .buttonStyle(.calm)
+            .disabled(viewModel.isWorking)
+        }
+    }
+
     /// Silme tamamlanınca uygulama en başa döner: kayıt, oturum ve palet sıfır.
     private func deleteAccount() async {
         guard await viewModel.deleteAccount() else { return }
@@ -196,25 +281,6 @@ struct SettingsSheet: View {
         palette.select([])
         palette.setMood(nil)
         appState.hasCompletedOnboarding = false
-    }
-}
-
-/// "Ben"deki hatırlatma satırından açılan yaprak.
-struct ReminderSheet: View {
-    let viewModel: MeViewModel
-
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            ReminderEditor(viewModel: viewModel)
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button(role: .close) { dismiss() }
-                    }
-                }
-        }
-        .presentationDetents([.medium, .large])
     }
 }
 
@@ -276,6 +342,7 @@ struct ReminderEditor: View {
                 }
             }
         }
+        .settingsFormStyle()
         .navigationTitle(Text(Copy.Me.reminderLabel))
         .navigationBarTitleDisplayMode(.inline)
         .animation(Theme.Motion.crossFade, value: isEnabled)
@@ -336,6 +403,7 @@ struct NameEditor: View {
                 .onSubmit(save)
             }
         }
+        .settingsFormStyle()
         .navigationTitle(Text(Copy.Me.Settings.nameRow))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -353,5 +421,16 @@ struct NameEditor: View {
         Task {
             if await viewModel.saveName(name) { dismiss() }
         }
+    }
+}
+
+extension View {
+    /// Alt sayfaların `Form`u koyu orman zeminine ve adaçayı satırlara geçer;
+    /// sistem grisi ayarların geri kalanından kopuk duruyordu.
+    func settingsFormStyle() -> some View {
+        scrollContentBackground(.hidden)
+            .background(WoodlandStyle.background.ignoresSafeArea())
+            .listRowBackground(WoodlandStyle.surface)
+            .tint(WoodlandStyle.sage)
     }
 }

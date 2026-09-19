@@ -9,6 +9,7 @@ import { corsHeaders, json } from "../_shared/cors.ts";
 // gider. Paylaşılan blok sesleri kişisel veri taşımadığı için kalır.
 
 const bucket = "private_audio";
+const avatarBucket = "avatars";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -30,6 +31,13 @@ Deno.serve(async (req) => {
         if (removeError) throw new Error("storage_write_failed");
       }
     }
+
+    // Profil fotoğrafı: tek dosya, ayrı kova. `remove` olmayan dosyada hata
+    // vermez; yine de okuma/yazma hatası hesabın silinmesini durdurur — geride
+    // kişisel bir fotoğraf bırakmaktansa kullanıcı tekrar dener.
+    const { error: avatarError } = await adminClient.storage.from(avatarBucket)
+      .remove([`${user.id}/avatar.jpg`]);
+    if (avatarError) throw new Error("storage_write_failed");
 
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id);
     if (deleteError) throw new Error("account_delete_failed");

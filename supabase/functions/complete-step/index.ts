@@ -2,7 +2,7 @@ import { completionPolicy, personalizeNextFrame, safeAnswerSummary } from "../_s
 import { authenticate } from "../_shared/auth.ts";
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { encryptSensitiveText } from "../_shared/encryption.ts";
-import { crisisSignalForText } from "../_shared/providers.ts";
+import { crisisSignalForText } from "../_shared/crisis.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });

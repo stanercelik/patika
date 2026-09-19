@@ -218,6 +218,128 @@ extension Copy {
         static let preferencesFootnote: LocalizedStringResource =
             "Adım uzunluğu, anlatım ve ses bu yol kurulurken seçildi. Yeni bir yolda yeniden seçebilirsin."
 
+        // MARK: Kimlik kartı (Ben v2)
+
+        static let settingsButton: LocalizedStringResource = "Ayarlar"
+        static let photoTitle: LocalizedStringResource = "Profil fotoğrafı"
+        static let photoChoose: LocalizedStringResource = "Fotoğraf seç"
+        static let photoRemove: LocalizedStringResource = "Fotoğrafı kaldır"
+        static let photoFailed: LocalizedStringResource =
+            "Fotoğraf kaydedilemedi. Bu senin yüzünden değil; yeniden deneyebilirsin."
+        static let photoAccessibility: LocalizedStringResource = "Profil fotoğrafı"
+        static func weekDays(_ count: Int) -> LocalizedStringResource {
+            "bu hafta \(count) gün"
+        }
+        /// Kimlik kartı VoiceOver'da tek öğe: ad, yol, adım ve faz, hafta.
+        static func identityAccessibility(parts: [String]) -> LocalizedStringResource {
+            "\(parts.joined(separator: ", "))"
+        }
+
+        // MARK: Defter kartı
+
+        static let journalCardInvite: LocalizedStringResource =
+            "İç dünyana ait notları burada biriktirebilirsin."
+        static let journalCardWrite: LocalizedStringResource = "İlk notunu yaz"
+        static let journalCardOpenHint: LocalizedStringResource = "Defteri açar"
+        static let journalCardLabel: LocalizedStringResource = "Defter"
+
+        // MARK: Defter sayfası ve not yazma
+
+        static let journalNewNote: LocalizedStringResource = "Yeni not"
+        static let journalEditNote: LocalizedStringResource = "Notu düzenle"
+        static let journalEdit: LocalizedStringResource = "Düzenle"
+        static func journalNoteCaption(date: String) -> LocalizedStringResource { "Notun · \(date)" }
+        static let journalOwnNote: LocalizedStringResource = "Kendi notun"
+        static let notePlaceholder: LocalizedStringResource = "Yazmak istediğin ne varsa."
+        static let noteSaveFailed: LocalizedStringResource =
+            "Yazdığın kaybolmadı. Bu senin yüzünden değil; yeniden deneyebilirsin."
+
+        // MARK: Rozetler
+
+        static let badgesTitle: LocalizedStringResource = "Rozetler"
+        static let badgesAll: LocalizedStringResource = "Tümü"
+        static let badgesFirstHint: LocalizedStringResource = "İlk adımı attığında burada"
+        static let badgeLockedLabel: LocalizedStringResource = "Henüz kazanılmadı"
+        static func badgeAccessibility(title: String, detail: String, earned: Bool) -> LocalizedStringResource {
+            earned ? "\(title). \(detail)" : "\(title), henüz kazanılmadı. \(detail)"
+        }
+
+        /// Rozet adı, kazanıldığında söylenen tek cümle ve kazanma koşulu.
+        ///
+        /// Ton: 🟡 Sıcak (kriz ve Kova C'de 🔴 — orada kutlama yaprağı açılmaz,
+        /// metin yalnızca rafta durur). Ünlem yok, "harika/tebrikler" yok; sayı
+        /// yalnızca eşiğin kendisi.
+        enum Badge {
+            static func title(_ id: BadgeID) -> LocalizedStringResource {
+                switch id {
+                case .firstStep: "İlk adım"
+                case .phaseRelief: "Rahatlama"
+                case .phaseAwareness: "Farkındalık"
+                case .phaseSkill: "Beceri"
+                case .phaseBehavior: "Davranış"
+                case .phaseClosing: "Kapanış"
+                case .pathComplete: "Yolun sonu"
+                case .measureDay7: "7. adım ölçümü"
+                case .measureDay14: "14. adım ölçümü"
+                case .week3: "Haftada 3 gün"
+                case .week5: "Haftada 5 gün"
+                case .week7: "Haftada 7 gün"
+                case .noteFirst: "İlk not"
+                case .note10: "On not"
+                }
+            }
+
+            /// Kazanıldığında rozet yaprağında yazan cümle.
+            static func earned(_ id: BadgeID) -> LocalizedStringResource {
+                switch id {
+                case .firstStep: "İlk adımı attın."
+                case .phaseRelief: "İlk fazı geride bıraktın."
+                case .phaseAwareness: "Farkındalık fazını geride bıraktın."
+                case .phaseSkill: "Beceri fazını geride bıraktın."
+                case .phaseBehavior: "Davranış fazını geride bıraktın."
+                case .phaseClosing: "Kapanış adımını tamamladın."
+                case .pathComplete: "Yolu sonuna kadar yürüdün."
+                case .measureDay7: "7. adımdaki ölçüme katıldın."
+                case .measureDay14: "14. adımdaki ölçüme katıldın."
+                case .week3: "Bir haftada 3 gün adım attın."
+                case .week5: "Bir haftada 5 gün adım attın."
+                case .week7: "Bir haftada 7 gün adım attın."
+                case .noteFirst: "Defterine ilk notunu yazdın."
+                case .note10: "Defterine on not yazdın."
+                }
+            }
+
+            /// Kilitli rozetin altında yazan tek cümle. İlerleme çubuğu ya da
+            /// "3/5" yok: sayaç, geri sayan bir sayıyla aynı baskıyı kurar.
+            static func howToEarn(_ id: BadgeID) -> LocalizedStringResource {
+                switch id {
+                case .firstStep: "İlk adımı tamamladığında."
+                case .phaseRelief: "Rahatlama fazının adımlarını tamamladığında."
+                case .phaseAwareness: "Farkındalık fazının adımlarını tamamladığında."
+                case .phaseSkill: "Beceri fazının adımlarını tamamladığında."
+                case .phaseBehavior: "Davranış fazının adımlarını tamamladığında."
+                case .phaseClosing: "Kapanış adımını tamamladığında."
+                case .pathComplete: "Yolun son adımını tamamladığında."
+                case .measureDay7: "7. adımdaki ölçüme katıldığında."
+                case .measureDay14: "14. adımdaki ölçüme katıldığında."
+                case .week3: "Bir takvim haftasında 3 gün adım attığında."
+                case .week5: "Bir takvim haftasında 5 gün adım attığında."
+                case .week7: "Bir takvim haftasında 7 gün adım attığında."
+                case .noteFirst: "Defterine ilk notunu yazdığında."
+                case .note10: "Defterine on not yazdığında."
+                }
+            }
+
+            static func family(_ family: BadgeID.Family) -> LocalizedStringResource {
+                switch family {
+                case .path: "Yol"
+                case .measurement: "Ölçüm"
+                case .streak: "Hafta"
+                case .journal: "Defter"
+                }
+            }
+        }
+
         // MARK: Destek, uygulama, hesap
 
         static let supportTitle: LocalizedStringResource = "Destek al"
@@ -304,28 +426,42 @@ extension Copy {
     }
 
     /// Destek al — 🔴 Nötr kademe. Süsleme yok, hareket yok, satış yok.
+    ///
+    /// Metinler `Support.xcstrings`te (TR + EN). **Numara cihaz bölgesinden**
+    /// (`SupportResources.lines`), **metnin dili uygulama dilinden**
+    /// (`AppLocale.current`): Almanya'da Türkçe kullanan biri TelefonSeelsorge'yi
+    /// Türkçe açıklamayla görür. Arayüzün geri kalanı hâlâ sabit Türkçe; bu ekran
+    /// kriz anında bir kullanıcının anlayacağı dilde durmalı.
     enum Support {
-        static let title: LocalizedStringResource = "Destek al"
-        static let body: LocalizedStringResource =
-            "Şu an zorlanıyorsan bununla yalnız kalmak zorunda değilsin. Aşağıdaki hatlarda seni dinleyecek biri var."
-        static let call: LocalizedStringResource = "Ara"
-        static func callAccessibility(name: String, number: String) -> LocalizedStringResource {
-            "\(name), \(number). Aramak için dokun."
+        private static func text(_ key: String.LocalizationValue) -> LocalizedStringResource {
+            LocalizedStringResource(
+                key,
+                table: "Support",
+                locale: Locale(identifier: AppLocale.current.rawValue)
+            )
         }
-        static let directory: LocalizedStringResource = "Bulunduğun ülkedeki diğer hatlar"
-        static let notEmergencyService: LocalizedStringResource =
-            "Patika bir acil durum ya da tedavi hizmeti değildir."
-        static let emergencyName: LocalizedStringResource = "Acil çağrı"
-        static let emergencyDetail: LocalizedStringResource =
-            "Sen ya da bir başkası hemen tehlikedeyse"
-        static let trSocialSupportName: LocalizedStringResource = "ALO 183"
-        static let trSocialSupportDetail: LocalizedStringResource = "Sosyal destek hattı"
-        static let deTelefonSeelsorgeName: LocalizedStringResource = "TelefonSeelsorge"
-        static let deTelefonSeelsorgeDetail: LocalizedStringResource = "Anonim telefonla destek"
-        static let us988Name: LocalizedStringResource = "988 Lifeline"
-        static let us988Detail: LocalizedStringResource = "Kriz hattı · arayabilir ya da mesaj atabilirsin"
-        static let gbSamaritansName: LocalizedStringResource = "Samaritans"
-        static let gbSamaritansDetail: LocalizedStringResource = "Duygusal destek hattı"
+
+        static var title: LocalizedStringResource { text("support.title") }
+        static var body: LocalizedStringResource { text("support.body") }
+        static var call: LocalizedStringResource { text("support.call") }
+        static var close: LocalizedStringResource { text("support.close") }
+        /// "ALO 183, 183. Aramak için dokun." Cümle parçaları katalogdan, birleşim
+        /// burada: katalog anahtarında enterpolasyon yok.
+        static func callAccessibility(name: String, number: String) -> String {
+            "\(name), \(number). \(String(localized: text("support.tapToCall")))"
+        }
+        static var directory: LocalizedStringResource { text("support.directory") }
+        static var notEmergencyService: LocalizedStringResource { text("support.notEmergencyService") }
+        static var emergencyName: LocalizedStringResource { text("support.emergency.name") }
+        static var emergencyDetail: LocalizedStringResource { text("support.emergency.detail") }
+        static var trSocialSupportName: LocalizedStringResource { text("support.tr.socialSupport.name") }
+        static var trSocialSupportDetail: LocalizedStringResource { text("support.tr.socialSupport.detail") }
+        static var deTelefonSeelsorgeName: LocalizedStringResource { text("support.de.telefonSeelsorge.name") }
+        static var deTelefonSeelsorgeDetail: LocalizedStringResource { text("support.de.telefonSeelsorge.detail") }
+        static var us988Name: LocalizedStringResource { text("support.us.988.name") }
+        static var us988Detail: LocalizedStringResource { text("support.us.988.detail") }
+        static var gbSamaritansName: LocalizedStringResource { text("support.gb.samaritans.name") }
+        static var gbSamaritansDetail: LocalizedStringResource { text("support.gb.samaritans.detail") }
     }
 
     /// Yol içi ölçüm — 🟠 Sakin. Sınav değil; skor ve yorum yok.

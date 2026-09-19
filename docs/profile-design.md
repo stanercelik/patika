@@ -1795,3 +1795,12 @@ Defter kapağı (`me-journal-cover`), kâğıt dokusu (`me-journal-paper`), "Ne 
 ikonu (`me-change`), 14 rozet (`badge-*`) ve opsionel `me-backdrop`. Kilitli rozet
 görsel istemez: aynı görsel kodda gri tona çevrilip %30 opaklıkla çizilir. Tam
 prompt'lar: `assets/illustrations/me-v2/prompts.md`.
+
+### 21.7 Uygulama durumu (2026-09-19)
+
+Aşama 0–8 kodda bitti; ayrıntı, sapmalar ve sıradaki iş `docs/profile-v2-plan.md`
+başındaki "Uygulama durumu" tablosunda. Sunucu tarafı (migrasyon + Edge Function'lar)
+**henüz uzak projeye dağıtılmadı**. Simülatörde doğrulanan durumlar: B0 (boş), B1
+(dolu), B8 (kriz), AX5'te kimlik kartı, defter kartı, rozet başlığı, anonim satır
+ve ayarlar. Doğrulanmayanlar: gerçek fotoğraf seçimi, kapak açılış animasyonunun
+zamanlaması (yalnızca kod incelemesi), VoiceOver turu.

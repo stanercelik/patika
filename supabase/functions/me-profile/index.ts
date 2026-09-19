@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.116.0";
 import { authenticate } from "../_shared/auth.ts";
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { decryptSensitiveText } from "../_shared/encryption.ts";
@@ -22,7 +23,7 @@ Deno.serve(async (req) => {
   try {
     const { user, adminClient } = await authenticate(req);
 
-    const [profile, statement, measurements, paths, completedSteps, answers] = await Promise.all([
+    const [profile, statement, measurements, paths, completedSteps, answers, notes, badges] = await Promise.all([
       adminClient.from("profiles")
         .select("name_ciphertext,locale,voice_preference,created_at")
         .eq("user_id", user.id).maybeSingle(),
@@ -39,18 +40,33 @@ Deno.serve(async (req) => {
         .select("id,kind,title,status,length_days,personalization_context,created_at,completed_at")
         .eq("user_id", user.id).in("status", ["active", "completed", "cancelled"])
         .order("created_at", { ascending: false }),
+      // `completed_at` haftalık ritmi besler (WeeklyRhythm); istemci gün
+      // sınırını cihazın takviminden hesaplar, sunucu yalnızca anı verir.
       adminClient.from("path_steps")
-        .select("path_id")
+        .select("path_id,completed_at")
         .eq("user_id", user.id).not("completed_at", "is", null),
       adminClient.from("path_step_answers")
         .select("id,question,answer_ciphertext,created_at,path_steps!inner(day,title,path_id)")
         .eq("user_id", user.id).eq("skipped", false).not("answer_ciphertext", "is", null)
         .order("created_at", { ascending: true }),
+      adminClient.from("journal_notes")
+        .select("id,body_ciphertext,created_at,updated_at")
+        .eq("user_id", user.id).order("created_at", { ascending: true }),
+      adminClient.from("earned_badges")
+        .select("badge_id,earned_at")
+        .eq("user_id", user.id).order("earned_at", { ascending: true }),
     ]);
 
-    for (const result of [profile, statement, measurements, paths, completedSteps, answers]) {
+    for (const result of [profile, statement, measurements, paths, completedSteps, answers, notes, badges]) {
       if (result.error) throw new Error("database_read_failed");
     }
+
+    const decryptedNotes = await Promise.all((notes.data ?? []).map(async (row) => {
+      const text = await safeDecrypt(row.body_ciphertext);
+      return text
+        ? { id: row.id, body: text, createdAt: row.created_at, updatedAt: row.updated_at }
+        : null;
+    }));
 
     const completedByPath = new Map<string, number>();
     for (const row of completedSteps.data ?? []) {
@@ -116,6 +132,10 @@ Deno.serve(async (req) => {
         };
       }),
       answers: decryptedAnswers.filter((item) => item !== null),
+      notes: decryptedNotes.filter((item) => item !== null),
+      earnedBadges: (badges.data ?? []).map((row) => ({ id: row.badge_id, earnedAt: row.earned_at })),
+      completedStepDates: (completedSteps.data ?? []).map((row) => row.completed_at),
+      avatarURL: await avatarSignedURL(adminClient, user.id),
     });
   } catch (error) {
     const code = error instanceof Error ? error.message : "server_error";
@@ -123,6 +143,22 @@ Deno.serve(async (req) => {
     return json({ code: "server_error" }, 500);
   }
 });
+
+const avatarSignedURLLifetime = 60 * 60;
+
+/// Fotoğraf yoksa ya da imzalanamazsa `null`: profil fotoğrafı yüzünden bütün
+/// sayfa düşmez, istemci baş harfe döner.
+async function avatarSignedURL(client: SupabaseClient, userId: string): Promise<string | null> {
+  try {
+    const storage = client.storage.from("avatars");
+    const { data: files, error: listError } = await storage.list(userId, { limit: 10 });
+    if (listError || !files?.some((file) => file.name === "avatar.jpg")) return null;
+    const { data, error } = await storage.createSignedUrl(`${userId}/avatar.jpg`, avatarSignedURLLifetime);
+    return error ? null : data.signedUrl;
+  } catch {
+    return null;
+  }
+}
 
 async function safeDecrypt(value: string | null): Promise<string | null> {
   if (!value) return null;
