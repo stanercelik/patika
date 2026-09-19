@@ -17,7 +17,29 @@ enum MeRoute: Hashable {
 
 /// "Ben" — geriye bakan defter (`docs/profile-design.md`).
 ///
-/// Bölüm sırası sabit; verisi olmayan bölüm çizilmez.
+/// ## Yüzey: krem kapak + koyu adaçayı kartlar (`profile-design.md` §20)
+///
+/// Sayfanın üstünde **krem kâğıt bir kapak** durur: koyu yeşil metin ve guaj
+/// defter çizimi. Altında **opak koyu adaçayı** kartlar gelir. Defter alıntıları
+/// ve geçmiş yollar kendi yuvarlak yüzeylerini alır.
+///
+/// > Bu §20'nin kararıdır ve §9.2'nin "kart = koyu yüzey" tarifini de, bir ara
+/// > denenen "her şey kâğıt" yönünü de geçersiz kılar. Her şeyi kâğıda çevirmek
+/// > kapağı sıradanlaştırıyordu: kapak ancak altındaki yüzey ondan farklıysa
+/// > kapak gibi okunuyor.
+///
+/// ## Kart sayısı azaltıldı (ürün sahibi geri bildirimi, 2026-09-17)
+///
+/// §20'nin malzemesi korunarak bölümler **gruplandı**: "Destek al" ve "Ayarlar"
+/// ayrı iki kart değil, ayırıcıyla bölünmüş tek kart. Gerekçe: sekiz ayrı kutu
+/// sayfayı eşit ağırlıkta sekize bölüyordu ve hangisinin önemli olduğu
+/// okunmuyordu. Aynı kalıp Waking Up ve stoic.'in profil ekranlarında da var:
+/// sakinlik, kutu sayısını azaltıp satırları tek yüzeyde toplamaktan geliyor.
+///
+/// ## Yalnızca gerçek veri
+///
+/// Verisi olmayan bölüm **çizilmez**: karşılaştırma yoksa "Ne değişti" yok,
+/// cümle yoksa defter yok, yol yoksa mühür yok. **Birincil CTA yok.**
 struct MeView: View {
     @Environment(AppServices.self) private var services
     @Environment(PaletteController.self) private var palette
@@ -82,18 +104,18 @@ private struct MeContent: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: 32) {
+                VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.sectionSpacing) {
                     MeHeader(
                         name: viewModel.displayName,
                         title: viewModel.pathTitle,
                         detail: viewModel.headerDetail,
                         showsArtwork: !viewModel.isInCrisisMode
                     )
-                    .padding(.top, 16)
+                    .padding(.top, 8)
                     .woodlandReveal(0, enabled: !viewModel.isInCrisisMode)
 
                     if viewModel.supportPlacement == .top {
-                        SupportCard { isShowingSupport = true }
+                        supportRow
                             .woodlandReveal(1, enabled: !viewModel.isInCrisisMode)
                     }
 
@@ -103,53 +125,63 @@ private struct MeContent: View {
                                 sheet = .change
                             }
                             .id(MeAnchor.change)
-                            .woodlandReveal(2, enabled: !viewModel.isInCrisisMode)
+                            .woodlandReveal(2)
                         }
 
                         if viewModel.supportPlacement == .belowChange {
-                            SupportCard { isShowingSupport = true }
-                                .woodlandReveal(2, enabled: !viewModel.isInCrisisMode)
+                            supportRow.woodlandReveal(2)
                         }
 
                         if viewModel.showsJournalSection {
                             JournalSection(viewModel: viewModel, pendingDeletion: $pendingDeletion)
                                 .id(MeAnchor.journal)
-                                .woodlandReveal(3, enabled: !viewModel.isInCrisisMode)
+                                .woodlandReveal(3)
                         }
 
                         if viewModel.showsSealsSection {
                             SealsSection(seals: viewModel.seals)
                                 .id(MeAnchor.paths)
-                                .woodlandReveal(4, enabled: !viewModel.isInCrisisMode)
+                                .woodlandReveal(4)
                         }
 
                         if !viewModel.preferenceItems.isEmpty {
                             PreferencesSection(items: viewModel.preferenceItems) { sheet = .reminder }
                                 .id(MeAnchor.preferences)
-                                .woodlandReveal(5, enabled: !viewModel.isInCrisisMode)
+                                .woodlandReveal(5)
                         }
 
-                        // Destek al, hesap işlerinin **üstünde** (P6).
-                        if viewModel.supportPlacement == .standard {
-                            SupportCard { isShowingSupport = true }
-                                .woodlandReveal(6, enabled: !viewModel.isInCrisisMode)
-                        }
                     }
 
+                    // Destek al + Ayarlar tek kartta, ayırıcıyla (P6: destek
+                    // hesap işlerinin üstünde kalır). İki ayrı kutu, aynı
+                    // ağırlıkta iki karar varmış gibi okunuyordu.
+                    ProfileCard(padding: 0) {
+                        VStack(spacing: 0) {
+                            if viewModel.supportPlacement == .standard, !viewModel.isInCrisisMode {
+                                MeEntryRow(
+                                    title: Copy.Me.supportTitle,
+                                    caption: String(localized: Copy.Me.supportSubtitle),
+                                    symbol: "hand.raised"
+                                ) { isShowingSupport = true }
+                                ProfileRowDivider().padding(.leading, Theme.Surface.padding)
+                            }
+                            MeEntryRow(title: Copy.Me.settingsRow) { sheet = .settings }
+                        }
+                    }
+                    .id(MeAnchor.settings)
+                    .woodlandReveal(6, enabled: !viewModel.isInCrisisMode)
+
+                    // §20: kriz durumunda anonim hesap kartı gösterilmez.
                     if viewModel.showsAnonymousCard && !viewModel.isInCrisisMode {
                         AnonymousAccountCard(viewModel: viewModel) { sheet = .account }
-                            .woodlandReveal(7, enabled: !viewModel.isInCrisisMode)
+                            .woodlandReveal(7)
                     }
 
-                    SettingsEntryCard { sheet = .settings }
-                        .id(MeAnchor.settings)
-                        .woodlandReveal(7, enabled: !viewModel.isInCrisisMode)
-
                     Text(verbatim: viewModel.versionText)
-                        .font(.caption.weight(Theme.Weight.body))
+                        .font(Theme.TypeFace.rowCaption)
                         .foregroundStyle(Theme.textSecondary.color)
                         .frame(maxWidth: .infinity)
-                        .woodlandReveal(8, enabled: !viewModel.isInCrisisMode)
+                        .woodlandReveal(8)
                 }
                 .padding(.horizontal, Theme.Spacing.screenMargin)
                 // Son satır sekme çubuğunun altında kalmasın.
@@ -219,9 +251,18 @@ private struct MeContent: View {
         }
     }
 
-    /// Yeni ölçüm ilk kez görüldüğünde noktalar başlangıç işaretinden yeni
-    /// yerlerine kayar, ardından tek bir yumuşak haptik. Sonraki açılışlarda
-    /// statik. Reduce Motion'da noktalar doğrudan yerinde.
+    /// Kriz sinyalinde ya da üç katman birden kötüleştiğinde destek yukarı çıkar;
+    /// orada tek başına durduğu için kendi kartını alır.
+    private var supportRow: some View {
+        ProfileCard(padding: 0) {
+            MeEntryRow(
+                title: Copy.Me.supportTitle,
+                caption: String(localized: Copy.Me.supportSubtitle),
+                symbol: "hand.raised"
+            ) { isShowingSupport = true }
+        }
+    }
+
     private func playChangeRevealIfNeeded() async {
         guard viewModel.consumeChangeReveal(), !reduceMotion else { return }
         isChangeRevealed = false
@@ -241,6 +282,18 @@ private struct MeContent: View {
 
 // MARK: - 1 · Başlık
 
+/// Krem kâğıt kapak: koyu yeşil metin + guaj defter çizimi (`profile-design.md`
+/// §20).
+///
+/// Bir ara bu kapak kaldırılıp yerine cam bir çubuk konmuştu; sayfa o hâlde
+/// kimliğini tamamen kaybetti (ürün sahibi geri bildirimi, 2026-09-17). Kapak
+/// geri geldi — sayfanın fikri **geriye bakan defter** ve o fikri taşıyan tek
+/// görsel bu.
+///
+/// Parallax en fazla 10 pt (§20) ve yalnızca render katmanında: yerleşime
+/// yazmadığı için kaydırma sırasında satırlar yeniden ölçülmüyor.
+///
+/// Kriz durumunda kapak, görsel ve hareket yoktur: `showsArtwork` false.
 private struct MeHeader: View {
     let name: String?
     let title: String?
@@ -251,41 +304,44 @@ private struct MeHeader: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(Copy.Me.screenTitle)
-                .font(.caption.weight(Theme.Weight.emphasis))
-                .foregroundStyle((showsArtwork ? WoodlandStyle.secondaryInk : Theme.textSecondary.color))
-                .tracking(2)
+                .font(Theme.TypeFace.eyebrow)
+                .tracking(1.2)
+                .foregroundStyle(showsArtwork ? WoodlandStyle.secondaryInk : Theme.textSecondary.color)
 
+            // Ad yoksa ad satırı hiç yoktur; path adı büyüyüp başlık rolünü alır.
+            // "Sen" ya da "Misafir" yazılmaz (kimlik bloğu kuralı).
             if let name {
                 Text(verbatim: name)
-                    .font(.largeTitle.weight(Theme.Weight.display))
-                    .foregroundStyle((showsArtwork ? WoodlandStyle.ink : Theme.textPrimary.color))
+                    .font(Theme.TypeFace.coverTitle)
+                    .foregroundStyle(showsArtwork ? WoodlandStyle.ink : Theme.textPrimary.color)
             }
             if let title {
                 Text(verbatim: title)
-                    .font(name == nil ? .largeTitle.weight(Theme.Weight.display) : .title3.weight(Theme.Weight.title))
-                    .foregroundStyle((showsArtwork ? WoodlandStyle.ink : Theme.textPrimary.color))
+                    .font(name == nil ? Theme.TypeFace.coverTitle : Theme.TypeFace.sectionTitle)
+                    .foregroundStyle(showsArtwork ? WoodlandStyle.ink : Theme.textPrimary.color)
             }
             if let detail {
                 Text(verbatim: detail)
-                    .font(.subheadline.weight(Theme.Weight.body))
-                    .foregroundStyle((showsArtwork ? WoodlandStyle.secondaryInk : Theme.textSecondary.color))
+                    .font(Theme.TypeFace.screenNote)
+                    .foregroundStyle(showsArtwork ? WoodlandStyle.secondaryInk : Theme.textSecondary.color)
             }
+
             if showsArtwork && !dynamicTypeSize.isAccessibilitySize {
                 PatikaIllustration(artwork: .journal)
-                    .frame(height: 176)
+                    .frame(height: 168)
                     .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                     .visualEffect { content, geometry in
                         let y = geometry.frame(in: .scrollView(axis: .vertical)).minY
-                        return content.offset(y: reduceMotion ? 0 : min(10, max(-10, -y * 0.035)))
+                        return content.offset(y: min(10, max(-10, -y * 0.035)))
                     }
             }
         }
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(showsArtwork ? 24 : 0)
+        .padding(showsArtwork ? 22 : 0)
         .background {
             if showsArtwork {
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
@@ -295,10 +351,54 @@ private struct MeHeader: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
     }
-
 }
 
-// MARK: - 2 · Ne değişti
+/// Koyu adaçayı kart içindeki dokunulabilir satır. Ayrı kartlar yerine tek
+/// kartta ayırıcıyla dizilir.
+private struct MeEntryRow: View {
+    let title: LocalizedStringResource
+    var caption: String?
+    var symbol: String?
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                if let symbol {
+                    Image(systemName: symbol)
+                        .font(Theme.TypeFace.rowSymbol)
+                        .foregroundStyle(Theme.textPrimary.color)
+                        .frame(width: 26)
+                        .accessibilityHidden(true)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(Theme.TypeFace.rowTitle)
+                        .foregroundStyle(Theme.textPrimary.color)
+                        .multilineTextAlignment(.leading)
+                    if let caption {
+                        Text(verbatim: caption)
+                            .font(Theme.TypeFace.rowCaption)
+                            .foregroundStyle(Theme.textSecondary.color)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+                .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                ProfileChevron()
+            }
+            .padding(.horizontal, Theme.Surface.padding)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.calm)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+    }
+}
+
+// MARK: - 2 · Ne değişti — sayfanın tek açık bloğu
 
 private struct ChangeSection: View {
     let summary: ChangeSummary
@@ -309,8 +409,8 @@ private struct ChangeSection: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ProfileSectionHeader(title: Copy.Me.changeTitle)
+        VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.labelSpacing) {
+            PatikaSectionLabel(title: Copy.Me.changeTitle)
 
             Button(action: onOpen) { card }
                 .buttonStyle(.calm)
@@ -319,19 +419,21 @@ private struct ChangeSection: View {
                 .accessibilityHint(Text(Copy.Me.changeOpenHint))
                 .accessibilityAddTraits(.isButton)
 
-            // PRD §8.1: her ölçüm yüzeyinde sabit.
+            // PRD §8.1: her ölçüm yüzeyinde sabit. Zeminde durur, kâğıtta değil —
+            // feragat içeriğin parçası değil, çerçevesi.
             Text(Copy.clinicalDisclaimer)
-                .font(.footnote.weight(Theme.Weight.body))
+                .font(Theme.TypeFace.rowCaption)
                 .foregroundStyle(Theme.textSecondary.color)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     private var card: some View {
         ProfileCard {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 18) {
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
                     Text(verbatim: summary.headline)
-                        .font(.title3.weight(Theme.Weight.title))
+                        .font(Theme.TypeFace.cardTitleProminent)
                         .foregroundStyle(Theme.textPrimary.color)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
@@ -344,7 +446,7 @@ private struct ChangeSection: View {
                 HStack(spacing: 8) {
                     BaselineLegendMark()
                     Text(verbatim: summary.legend)
-                        .font(.footnote.weight(Theme.Weight.body))
+                        .font(Theme.TypeFace.rowCaption)
                         .foregroundStyle(Theme.textSecondary.color)
                         .multilineTextAlignment(.leading)
                 }
@@ -381,7 +483,7 @@ private struct ChangeSection: View {
 
     private func label(_ row: ChangeSummary.Row) -> some View {
         Text(Copy.Me.layerShort(row.layer))
-            .font(.subheadline.weight(Theme.Weight.emphasis))
+            .font(Theme.TypeFace.rowTitle)
             .foregroundStyle(Theme.textPrimary.color)
             .fixedSize(horizontal: true, vertical: false)
     }
@@ -400,7 +502,7 @@ private struct ChangeSection: View {
                 Image(systemName: ChangeDirectionSymbol.name(for: direction))
                     .accessibilityHidden(true)
             }
-            .font(.subheadline.weight(Theme.Weight.emphasis))
+            .font(Theme.TypeFace.rowTitle)
             .foregroundStyle(Theme.textPrimary.color.opacity(0.92))
             .fixedSize()
             .opacity(isRevealed ? 1 : 0)
@@ -444,47 +546,34 @@ private struct JournalSection: View {
     let viewModel: MeViewModel
     @Binding var pendingDeletion: MeViewModel.JournalItem?
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline) {
-                ProfileSectionHeader(title: Copy.Me.journalTitle)
-                Spacer(minLength: 0)
-                if viewModel.hasMoreJournal, !viewModel.isJournalObscured {
-                    NavigationLink(value: MeRoute.journal) {
-                        HStack(spacing: 4) {
-                            Text(Copy.Me.journalAll)
-                            Image(systemName: "chevron.right")
-                                .font(.caption.weight(Theme.Weight.action))
-                                .accessibilityHidden(true)
-                        }
-                        .font(.subheadline.weight(Theme.Weight.action))
-                        .foregroundStyle(Theme.textSecondary.color)
-                        .frame(minWidth: 44, minHeight: 44)
-                        .contentShape(.rect)
-                    }
-                    .buttonStyle(.calm)
-                }
-            }
+        VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.labelSpacing) {
+            header
 
             if viewModel.isJournalObscured {
                 Button { viewModel.revealJournal() } label: {
                     ProfileCard {
                         HStack(spacing: 12) {
-                            Image(systemName: "eye.slash")
-                                .accessibilityHidden(true)
+                            Image(systemName: "eye.slash").accessibilityHidden(true)
                             Text(Copy.Me.journalHidden)
                         }
-                        .font(.body.weight(Theme.Weight.emphasis))
+                        .font(Theme.TypeFace.rowTitle)
                         .foregroundStyle(Theme.textSecondary.color)
                     }
                 }
                 .buttonStyle(.calm)
             } else {
-                VStack(alignment: .leading, spacing: 24) {
+                // §20: defter alıntıları kendi yuvarlak yüzeylerini alır.
+                VStack(alignment: .leading, spacing: 12) {
                     ForEach(viewModel.journalPreview) { item in
                         UserQuote(text: item.text, caption: item.caption)
-                            .padding(20)
-                            .background(WoodlandStyle.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                            .padding(Theme.Surface.padding)
+                            .background(
+                                WoodlandStyle.surface,
+                                in: RoundedRectangle(cornerRadius: Theme.Surface.cornerRadius, style: .continuous)
+                            )
                             .contextMenu {
                                 Button(role: .destructive) {
                                     pendingDeletion = item
@@ -504,6 +593,41 @@ private struct JournalSection: View {
             }
         }
     }
+
+    /// "Tümü" bir `NavigationLink` olduğu için `PatikaSectionLabel`ın closure
+    /// tabanlı eylemi kullanılamıyor; başlık burada elle kuruluyor.
+    private var header: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(Copy.Me.journalTitle)
+                .font(Theme.TypeFace.sectionTitle)
+                .foregroundStyle(Theme.textPrimary.color)
+                .accessibilityAddTraits(.isHeader)
+            // Gizlilik ayarının açık olduğu sayfada her an görünür (F13):
+            // kullanıcı korumayı bir köşede unutmasın.
+            if viewModel.hidesJournal {
+                Image(systemName: "eye.slash")
+                    .font(Theme.TypeFace.rowCaption)
+                    .foregroundStyle(Theme.textSecondary.color)
+                    .accessibilityHidden(true)
+            }
+            Spacer(minLength: 0)
+            if viewModel.hasMoreJournal, !viewModel.isJournalObscured {
+                NavigationLink(value: MeRoute.journal) {
+                    HStack(spacing: 4) {
+                        Text(Copy.Me.journalAll)
+                        Image(systemName: "chevron.right")
+                            .font(Theme.TypeFace.lockMark)
+                            .accessibilityHidden(true)
+                    }
+                    .font(Theme.TypeFace.rowAction)
+                    .foregroundStyle(Theme.textSecondary.color)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.calm)
+            }
+        }
+    }
 }
 
 // MARK: - 4 · Yürüdüğün yollar
@@ -512,15 +636,12 @@ private struct SealsSection: View {
     let seals: [MeViewModel.SealItem]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ProfileSectionHeader(title: Copy.Me.pathsTitle)
-            VStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.labelSpacing) {
+            PatikaSectionLabel(title: Copy.Me.pathsTitle)
+            VStack(spacing: 10) {
                 ForEach(seals) { seal in
                     NavigationLink(value: MeRoute.path(seal.id)) {
                         SealRow(seal: seal)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(WoodlandStyle.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
                     }
                     .buttonStyle(.calm)
                 }
@@ -533,24 +654,24 @@ private struct SealRow: View {
     let seal: MeViewModel.SealItem
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @ScaledMetric(relativeTo: .body) private var sealSize: CGFloat = 56
+    @ScaledMetric(relativeTo: .body) private var sealSize: CGFloat = 52
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 14) {
             RouteSeal(
                 stepCount: seal.stepCount,
                 walkedFraction: seal.walkedFraction,
                 style: seal.style,
-                size: dynamicTypeSize.isAccessibilitySize ? 44 : min(sealSize, 72)
+                size: dynamicTypeSize.isAccessibilitySize ? 44 : min(sealSize, 68)
             )
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(verbatim: seal.title)
-                    .font(.body.weight(Theme.Weight.emphasis))
+                    .font(Theme.TypeFace.rowTitle)
                     .foregroundStyle(Theme.textPrimary.color)
                     .multilineTextAlignment(.leading)
                 Text(verbatim: seal.detail)
-                    .font(.footnote.weight(Theme.Weight.body))
+                    .font(Theme.TypeFace.rowCaption)
                     .foregroundStyle(Theme.textSecondary.color)
                     .multilineTextAlignment(.leading)
             }
@@ -559,9 +680,15 @@ private struct SealRow: View {
             Spacer(minLength: 0)
             ProfileChevron()
         }
-        .padding(.vertical, 8)
-        .frame(minHeight: 52)
+        .padding(.horizontal, Theme.Surface.padding)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
         .contentShape(.rect)
+        // §20: geçmiş yollar da kendi yuvarlak yüzeyini alır.
+        .background(
+            WoodlandStyle.surface,
+            in: RoundedRectangle(cornerRadius: Theme.Surface.cornerRadius, style: .continuous)
+        )
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(Copy.Me.sealAccessibility(title: seal.title, detail: seal.detail)))
         .accessibilityAddTraits(.isButton)
@@ -575,8 +702,8 @@ private struct PreferencesSection: View {
     let onEditReminder: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ProfileSectionHeader(title: Copy.Me.preferencesTitle)
+        VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.labelSpacing) {
+            PatikaSectionLabel(title: Copy.Me.preferencesTitle)
 
             ProfileCard(padding: 0) {
                 VStack(spacing: 0) {
@@ -628,22 +755,23 @@ private struct PreferenceRow: View {
         VStack(alignment: .leading, spacing: 4) {
             if dynamicTypeSize.isAccessibilitySize {
                 Text(label)
-                    .font(.body.weight(Theme.Weight.emphasis))
+                    .font(Theme.TypeFace.rowTitle)
                     .foregroundStyle(Theme.textPrimary.color)
                 valueLabel(showsChevron: showsChevron)
             } else {
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
                     Text(label)
-                        .font(.body.weight(Theme.Weight.emphasis))
+                        .font(Theme.TypeFace.rowTitle)
                         .foregroundStyle(Theme.textPrimary.color)
                     Spacer(minLength: 8)
                     valueLabel(showsChevron: showsChevron)
                 }
             }
 
+            // "Sorduğumuz her şeyin karşılığı olmalı": değerin kaynağı yazılır.
             if let caption {
                 Text(verbatim: caption)
-                    .font(.footnote.weight(Theme.Weight.body))
+                    .font(Theme.TypeFace.rowCaption)
                     .foregroundStyle(Theme.textSecondary.color)
                     .multilineTextAlignment(.leading)
             }
@@ -659,66 +787,10 @@ private struct PreferenceRow: View {
     private func valueLabel(showsChevron: Bool) -> some View {
         HStack(spacing: 6) {
             Text(verbatim: value)
-                .font(.body.weight(Theme.Weight.body))
+                .font(Theme.TypeFace.rowValue)
                 .foregroundStyle(Theme.textSecondary.color)
             if showsChevron { ProfileChevron() }
         }
-    }
-}
-
-// MARK: - 6 · Destek al, 8 · Uygulama
-
-private struct SupportCard: View {
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            ProfileCard {
-                HStack(spacing: 14) {
-                    Image(systemName: "hand.raised")
-                        .font(.title3.weight(Theme.Weight.title))
-                        .foregroundStyle(Theme.textPrimary.color)
-                        .frame(width: 28)
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(Copy.Me.supportTitle)
-                            .font(.body.weight(Theme.Weight.emphasis))
-                            .foregroundStyle(Theme.textPrimary.color)
-                        Text(Copy.Me.supportSubtitle)
-                            .font(.footnote.weight(Theme.Weight.body))
-                            .foregroundStyle(Theme.textSecondary.color)
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 0)
-                    ProfileChevron()
-                }
-            }
-        }
-        .buttonStyle(.calm)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-    }
-}
-
-private struct SettingsEntryCard: View {
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            ProfileCard(padding: 0) {
-                HStack {
-                    Text(Copy.Me.settingsRow)
-                        .font(.body.weight(Theme.Weight.emphasis))
-                        .foregroundStyle(Theme.textPrimary.color)
-                    Spacer(minLength: 8)
-                    ProfileChevron()
-                }
-                .padding(.horizontal, Theme.Surface.padding)
-                .padding(.vertical, 16)
-                .frame(minHeight: 52)
-            }
-        }
-        .buttonStyle(.calm)
     }
 }
 
@@ -732,7 +804,7 @@ private struct AnonymousAccountCard: View {
         ProfileCard {
             VStack(alignment: .leading, spacing: 10) {
                 Text(Copy.Me.anonymousTitle)
-                    .font(.body.weight(Theme.Weight.emphasis))
+                    .font(Theme.TypeFace.rowTitle)
                     .foregroundStyle(Theme.textPrimary.color)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -741,10 +813,10 @@ private struct AnonymousAccountCard: View {
                         HStack(spacing: 4) {
                             Text(Copy.Me.linkAccount)
                             Image(systemName: "chevron.right")
-                                .font(.caption.weight(Theme.Weight.action))
+                                .font(Theme.TypeFace.lockMark)
                                 .accessibilityHidden(true)
                         }
-                        .font(.subheadline.weight(Theme.Weight.action))
+                        .font(Theme.TypeFace.rowAction)
                         .foregroundStyle(Theme.textPrimary.color)
                         .frame(minHeight: 44)
                         .contentShape(.rect)
@@ -753,7 +825,7 @@ private struct AnonymousAccountCard: View {
 
                     Button { viewModel.hideAnonymousCard() } label: {
                         Text(Copy.Auth.notNow)
-                            .font(.subheadline.weight(Theme.Weight.emphasis))
+                            .font(Theme.TypeFace.rowAction)
                             .foregroundStyle(Theme.textSecondary.color)
                             .frame(minHeight: 44)
                             .contentShape(.rect)
@@ -775,7 +847,7 @@ private struct AccountLinkSheet: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
                 Text(Copy.Auth.linkBody)
-                    .font(.body.weight(Theme.Weight.body))
+                    .font(Theme.TypeFace.product(.body, Theme.Weight.body))
                     .foregroundStyle(Theme.textSecondary.color)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -788,7 +860,7 @@ private struct AccountLinkSheet: View {
 
                 if let message = viewModel.authErrorMessage {
                     Text(message)
-                        .font(.footnote.weight(Theme.Weight.body))
+                        .font(Theme.TypeFace.rowCaption)
                         .foregroundStyle(Theme.textSecondary.color)
                         .fixedSize(horizontal: false, vertical: true)
                 }

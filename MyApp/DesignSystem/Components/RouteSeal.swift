@@ -26,6 +26,8 @@ struct RouteSeal: View {
     let style: Style
     let size: CGFloat
     let animatesDrawing: Bool
+    /// Yüzeyin mürekkebi. Kâğıtta `.ink`; koyu zeminde varsayılan `.light`.
+    let ink: PatikaInk
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var drawProgress: Double
@@ -35,13 +37,15 @@ struct RouteSeal: View {
         walkedFraction: Double,
         style: Style,
         size: CGFloat = 56,
-        animatesDrawing: Bool = false
+        animatesDrawing: Bool = false,
+        ink: PatikaInk = .light
     ) {
         self.stepCount = stepCount
         self.walkedFraction = walkedFraction
         self.style = style
         self.size = size
         self.animatesDrawing = animatesDrawing
+        self.ink = ink
         _drawProgress = State(initialValue: animatesDrawing ? 0 : 1)
     }
 
@@ -54,7 +58,7 @@ struct RouteSeal: View {
             RoundedRectangle(cornerRadius: size * 0.30, style: .continuous)
                 .trim(from: style == .stopped ? 0.07 : 0, to: 1)
                 .stroke(
-                    Theme.textPrimary.color.opacity(style == .active ? 0.34 : 0.48),
+                    ink.primary.opacity(style == .active ? 0.34 : 0.48),
                     style: StrokeStyle(
                         lineWidth: max(1, size / 56),
                         lineCap: .round,
@@ -63,22 +67,26 @@ struct RouteSeal: View {
                 )
 
             ZStack {
-                if style != .completed {
+                // Yürünmemiş kısmın soluk önizlemesi yalnızca aktif yolda var:
+                // orada rota gerçekten devam ediyor. Yarım kalan yolda geri
+                // kalanı göstermek "kaçırdığın şey" diye okunurdu — mühür
+                // yalnızca yürüneni çizer, çerçeve açık uçlu kalır (F7).
+                if style == .active {
                     RouteSealShape(points: points)
                         .stroke(
-                            Theme.textPrimary.color.opacity(0.22),
+                            ink.primary.opacity(0.22),
                             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
                         )
                 }
                 RouteSealShape(points: points)
                     .trim(from: 0, to: walked)
                     .stroke(
-                        Theme.textPrimary.color.opacity(0.94),
+                        ink.primary.opacity(0.94),
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
                     )
                 if walked > 0 {
                     RouteSealNode(points: points, fraction: walked, radius: lineWidth * 1.6)
-                        .fill(Theme.textPrimary.color)
+                        .fill(ink.primary)
                 }
             }
             .padding(size * 0.23)
@@ -94,6 +102,11 @@ struct RouteSeal: View {
             withAnimation(.easeOut(duration: Theme.Motion.sealDraw)) {
                 drawProgress = 1
             }
+            // Tek yumuşak nabız, çizim bittiğinde (F6). Whimsy bütçesinin
+            // içinde: bu zaten sayfadaki tek fark edilir an.
+            try? await Task.sleep(for: .seconds(Theme.Motion.sealDraw))
+            guard !Task.isCancelled else { return }
+            Theme.softHaptic(intensity: 0.4)
         }
     }
 }

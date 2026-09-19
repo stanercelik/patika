@@ -954,7 +954,38 @@ GERİ ALINAMAZ
   değil.
 - `safeY` 0.12. Metin bandı üstte yoğun olduğu için scrim oraya çekilir.
 
-### 9.2 Yüzey (yeni token önerisi)
+### 9.2 Yüzey
+
+> **BU NOT GEÇERSİZ — §20 bu alanı zaten karara bağlamıştı.**
+>
+> Aşağıdaki "her şey kâğıt" yönü §20 okunmadan yazıldı ve uygulandığında sayfa
+> kimliğini kaybetti (ürün sahibi geri bildirimi, 2026-09-17). Geçerli karar
+> §20'dedir: **krem kâğıt kapak + guaj defter çizimi, altında opak koyu adaçayı
+> kartlar.** Kapak ancak altındaki yüzey ondan farklıysa kapak gibi okunuyor.
+>
+> Tarihsel kayıt olarak bırakıldı:
+>
+> Gerekçe: üç sekme üç ayrı malzemeden yapılmış gibi duruyordu. "Yolum" guaj
+> manzaranın üstünde açık kâğıt tabelalar kullanıyor; "Ben" koyu kartlar
+> kullanınca aynı uygulamanın parçası hissi kayboluyordu. Ortak yüzey dili
+> `MyApp/DesignSystem/Components/PatikaSurface.swift` içinde (`paperSurface`,
+> `PatikaRow`, `PatikaSectionLabel`).
+>
+> **Aşağıdaki iki kuraldan biri duruyor, biri düştü:**
+>
+> - **Duruyor:** kartlar Liquid Glass değil. Cam gezinme ve kontrol katmanının
+>   dili; sekme çubuğu, yüzen başlık ve sheet'ler sistem camını kullanır, içerik
+>   yüzeyi kullanmaz. Kâğıt cam değildir — çelişki yüzeyin **renginde**ydi,
+>   malzeme kuralında değil.
+> - **Düştü:** "gölge yok". O kuralın gerekçesi "koyu zeminde gölge görünmez,
+>   yalnızca kirletir"di. Gölge artık koyu zeminde değil, **açık kâğıdın altında**
+>   ve kâğıdı zeminden ayıran şeyin kendisi. Ölçüler `PatikaSurfaceMetrics`te.
+>
+> **Zemin değişmedi:** §9.1'deki nefes alan mesh yerinde kalıyor. "Ben" guaj
+> manzara almadı — profil kişinin kendisi, onun rengi. Kâğıt + mesh, "Yolum" ile
+> aynı hissi verir ama aynı sayfa olmaz.
+
+Aşağıdaki bölüm kararın **öncesini** kaydeder (tarihsel):
 
 Kartlar Liquid Glass **değil**. Apple'ın iOS 26 yönergesi camı gezinme ve kontrol
 katmanına ayırıyor; içerik kartlarında cam, içerikle kontrolün ayrımını
@@ -974,8 +1005,10 @@ enum Surface {
 }
 ```
 
-- Gölge yok. Koyu zeminde gölge görünmez, yalnızca kirletir.
-- Kart içi ayırıcı: 1 pt, `textPrimary` %8, satır iç kenarından başlar.
+- ~~Gölge yok. Koyu zeminde gölge görünmez, yalnızca kirletir.~~ (2026-09-17'de
+  düştü — yukarıdaki nota bak.)
+- Kart içi ayırıcı: 1 pt, `textPrimary` %8, satır iç kenarından başlar. Kâğıt
+  yüzeyde karşılığı `PaperRowDivider`: `secondaryInk` %16.
 
 ### 9.3 Tipografi
 

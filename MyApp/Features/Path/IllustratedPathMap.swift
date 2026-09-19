@@ -10,6 +10,15 @@ import SwiftUI
 /// okunuyordu (ürün sahibi geri bildirimi, 2026-09-17). Şimdi etiket düğümün
 /// altına giriyor, ikisi tek siluet oluşturuyor.
 ///
+/// ## Bir durak açık, kalanı kompakt
+///
+/// Yalnızca bugünün durağı geniş; önceki ve sonraki duraklar adlarından ibaret
+/// küçük tabelalar (ürün sahibi kararı, 2026-09-17). Hepsini aynı boyda çizmek
+/// ekranı eşit ağırlıkta yirmi bir kutuya bölüyordu ve bugünün hangisi olduğu
+/// okunmuyordu. Küçük tabelaya dokunmak onu açıyor, tekrar dokunmak kapatıyor —
+/// **açmak okumaktır**, başlatmak değil: kilitli bir adımın ayrıntısı görünür,
+/// "Kaldığın yerden" butonu yine basılamaz.
+///
 /// Duraklar merkezin iki yanında sırayla duruyor; aradaki olukta yol görünmeye
 /// devam ediyor. Ortada duran bir durak yolu boydan boya örterdi.
 struct IllustratedPathMap: View {
@@ -62,11 +71,14 @@ private struct IllustratedPathStop: View {
     private var expanded: Bool { viewModel.isExpanded(step) }
     private var locked: Bool { viewModel.isLocked(step) }
     private var accessible: Bool { dynamicTypeSize.isAccessibilitySize }
-    private var nodeSize: CGFloat { current ? 72 : 54 }
 
+    /// Bugünün durağı ya da açılmış bir durak geniş çizilir; kalanı kompakt.
+    private var isOpen: Bool { current || expanded }
+
+    private var nodeSize: CGFloat { current ? 72 : 46 }
     /// Etiketin düğümün altına girdiği pay. Siluetin tek parça okunması buna
     /// bağlı: boşluk kaldığı an iki ayrı nesne görünüyor.
-    private let tuck: CGFloat = 20
+    private var tuck: CGFloat { current ? 20 : 14 }
     /// Yolun göründüğü oluk. AX boyutlarında metne yer açmak için kapanır.
     private var gutter: CGFloat { accessible ? 0 : 88 }
 
@@ -80,8 +92,8 @@ private struct IllustratedPathStop: View {
             signpost
             if isLeading, gutter > 0 { Color.clear.frame(width: gutter) }
         }
-        .padding(.top, 20)
-        .padding(.bottom, 44)
+        .padding(.top, current ? 20 : 12)
+        .padding(.bottom, isOpen ? 44 : 26)
         .animation(expandAnimation, value: expanded)
     }
 
@@ -89,11 +101,25 @@ private struct IllustratedPathStop: View {
     /// `zIndex` düğümü üstte tutuyor ki daire etiketin kenarında kesilmesin.
     private var signpost: some View {
         VStack(spacing: -tuck) {
-            nodeMark
+            nodeButton
                 .zIndex(1)
             label
         }
         .frame(maxWidth: .infinity)
+    }
+
+    /// Yuvarlak da açıp kapatıyor (ürün sahibi kararı, 2026-09-17). Etiket ile
+    /// düğüm tek nesne olduğuna göre dokunma alanı da tek olmalı; yalnızca
+    /// yazıya basılabilmesi, dairenin süs olduğunu ima ediyordu.
+    ///
+    /// Yardımcı teknolojiden gizli: aynı işi yapan iki öğe VoiceOver'da listeyi
+    /// ikiye katlardı. Etiket butonu tam etiketi ve ipucunu zaten taşıyor.
+    private var nodeButton: some View {
+        Button(action: toggle) {
+            nodeMark
+        }
+        .buttonStyle(PathStopButtonStyle())
+        .accessibilityHidden(true)
     }
 
     private var nodeMark: some View {
@@ -114,40 +140,36 @@ private struct IllustratedPathStop: View {
                 .frame(width: nodeSize, height: nodeSize)
                 .shadow(color: WoodlandStyle.ink.opacity(0.18), radius: 8, y: 4)
 
-            if current || completed {
-                Image(systemName: completed ? "checkmark" : "leaf.fill")
+            if current {
+                Image(systemName: "leaf.fill")
                     .font(Theme.TypeFace.nodeMark)
-                    .foregroundStyle(current ? WoodlandStyle.ink : WoodlandStyle.sage)
+                    .foregroundStyle(WoodlandStyle.ink)
+            } else if completed {
+                Image(systemName: "checkmark")
+                    .font(Theme.TypeFace.nodeMarkCompact)
+                    .foregroundStyle(WoodlandStyle.sage)
             } else {
+                // Gün sayısı yalnızca burada yazıyor; etiket onu tekrar etmiyor.
                 Text(step.day.formatted())
-                    .font(Theme.TypeFace.nodeMark)
+                    .font(Theme.TypeFace.nodeMarkCompact)
                     .foregroundStyle(Theme.textPrimary.color)
             }
         }
         .frame(width: nodeSize + 18, height: nodeSize + 18)
         .anchorPreference(key: PathStopAnchors.self, value: .bounds) { [step.id: $0] }
-        .accessibilityHidden(true)
     }
 
     /// Özet ile ayrıntı **aynı** kâğıdın üstünde: açılınca yeni bir kart
     /// belirmiyor, tabela uzuyor.
     private var label: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Button {
-                Theme.softHaptic(intensity: 0.25)
-                withAnimation(expandAnimation) { viewModel.toggle(step) }
-            } label: {
+            Button(action: toggle) {
                 summary
             }
             .buttonStyle(PathStopButtonStyle())
-            .disabled(locked)
             .accessibilityElement(children: .combine)
             .accessibilityValue(Text(verbatim: accessibilityState))
-            .accessibilityHint(
-                locked
-                    ? Text(Copy.Path.lockedHint)
-                    : Text(expanded ? Copy.Path.collapseDetails : Copy.Path.expandDetails)
-            )
+            .accessibilityHint(Text(expanded ? Copy.Path.collapseDetails : Copy.Path.expandDetails))
 
             if expanded {
                 detail
@@ -156,34 +178,41 @@ private struct IllustratedPathStop: View {
         }
         .background(
             WoodlandStyle.paper,
-            in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+            in: RoundedRectangle(cornerRadius: isOpen ? 24 : 18, style: .continuous)
         )
-        .shadow(color: WoodlandStyle.ink.opacity(0.14), radius: 12, y: 5)
+        .shadow(color: WoodlandStyle.ink.opacity(isOpen ? 0.14 : 0.10), radius: isOpen ? 12 : 7, y: isOpen ? 5 : 3)
+        // Kompakt tabela adının genişliği kadar; açılınca kolonu dolduruyor.
+        .frame(maxWidth: isOpen || accessible ? .infinity : 232)
     }
 
     private var summary: some View {
         VStack(alignment: .leading, spacing: 5) {
-            HStack(spacing: 5) {
-                if locked {
-                    Image(systemName: "lock.fill").accessibilityHidden(true)
-                }
-                Text(current ? Copy.Path.currentLocation : Copy.Path.stepLabel(day: step.day))
-                Spacer(minLength: 4)
-                if !locked {
+            if current {
+                HStack(spacing: 5) {
+                    Text(Copy.Path.currentLocation)
+                    Spacer(minLength: 4)
                     Image(systemName: "chevron.down")
                         .rotationEffect(.degrees(expanded ? 180 : 0))
                         .accessibilityHidden(true)
                 }
+                .font(Theme.TypeFace.cardMeta)
+                .foregroundStyle(WoodlandStyle.secondaryInk)
             }
-            .font(Theme.TypeFace.cardMeta)
-            .foregroundStyle(WoodlandStyle.secondaryInk)
 
-            Text(verbatim: step.title)
-                .font(current ? Theme.TypeFace.cardTitleProminent : Theme.TypeFace.cardTitle)
-                .foregroundStyle(WoodlandStyle.ink)
-                .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                if locked && !current {
+                    Image(systemName: "lock.fill")
+                        .font(Theme.TypeFace.lockMark)
+                        .foregroundStyle(WoodlandStyle.secondaryInk)
+                        .accessibilityHidden(true)
+                }
+                Text(verbatim: step.title)
+                    .font(current ? Theme.TypeFace.cardTitleProminent : Theme.TypeFace.cardTitle)
+                    .foregroundStyle(locked && !current ? WoodlandStyle.ink.opacity(0.72) : WoodlandStyle.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
-            if viewModel.isMeasurementDay(step) {
+            if viewModel.isMeasurementDay(step), isOpen {
                 Text(Copy.Path.measurementNote)
                     .font(Theme.TypeFace.cardMeta)
                     .foregroundStyle(WoodlandStyle.secondaryInk)
@@ -192,16 +221,20 @@ private struct IllustratedPathStop: View {
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment: .leading)
         // Düğümün altından başla: metin dairenin altında kalmasın.
-        .padding(.top, tuck + 14)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 14)
+        .padding(.top, tuck + (current ? 14 : 10))
+        .padding(.horizontal, current ? 16 : 14)
+        .padding(.bottom, current ? 14 : 12)
         .contentShape(Rectangle())
     }
 
     private var accessibilityState: String {
-        if locked { return String(localized: Copy.Path.lockedAccessibility) }
         let disclosure = String(localized: expanded ? Copy.Path.detailsExpanded : Copy.Path.detailsCollapsed)
-        return completed ? String(localized: Copy.Path.completedNote) + ". " + disclosure : disclosure
+        if locked {
+            return String(localized: Copy.Path.lockedAccessibility) + ". " + disclosure
+        }
+        return completed
+            ? String(localized: Copy.Path.completedNote) + ". " + disclosure
+            : disclosure
     }
 
     private var detail: some View {
@@ -226,28 +259,41 @@ private struct IllustratedPathStop: View {
                     .font(Theme.TypeFace.detailBody)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Button(action: onStart) {
-                HStack(spacing: 10) {
-                    Image(systemName: "play.fill")
-                        .font(Theme.TypeFace.cardMeta)
-                        .accessibilityHidden(true)
-                    Text(completed ? Copy.Path.replayCTA : Copy.Path.continueCTA)
-                        .font(Theme.TypeFace.action)
-                        .fixedSize(horizontal: false, vertical: true)
+
+            if locked {
+                // Kilitli adımda buton yok: basılamayan bir buton, kapalı olanın
+                // ne olduğunu anlatmak yerine kullanıcıyı denemeye davet ediyordu.
+                Text(Copy.Path.lockedHint)
+                    .font(Theme.TypeFace.cardMeta)
+                    .foregroundStyle(WoodlandStyle.secondaryInk)
+            } else {
+                Button(action: onStart) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "play.fill")
+                            .font(Theme.TypeFace.cardMeta)
+                            .accessibilityHidden(true)
+                        Text(completed ? Copy.Path.replayCTA : Copy.Path.continueCTA)
+                            .font(Theme.TypeFace.action)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 24)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 15)
+                    .foregroundStyle(WoodlandStyle.paper)
+                    .background(WoodlandStyle.ink, in: Capsule())
                 }
-                .frame(maxWidth: .infinity, minHeight: 24)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 15)
-                .foregroundStyle(WoodlandStyle.paper)
-                .background(WoodlandStyle.ink, in: Capsule())
+                .buttonStyle(.calm)
             }
-            .buttonStyle(.calm)
-            .disabled(locked)
         }
         .foregroundStyle(WoodlandStyle.ink)
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func toggle() {
+        Theme.softHaptic(intensity: 0.25)
+        withAnimation(expandAnimation) { viewModel.toggle(step) }
     }
 }
 

@@ -15,6 +15,8 @@ struct BaselineTrack: View {
     let offset: Double?
     /// false iken nokta başlangıç işaretinde bekler; ilk gösterimde oradan kayar.
     var isRevealed = true
+    /// Yüzeyin mürekkebi. Kâğıtta `.ink` — kırık beyaz nokta kâğıtta görünmezdi.
+    var ink: PatikaInk = .light
 
     @ScaledMetric(relativeTo: .body) private var height: CGFloat = 22
     @Environment(\.colorSchemeContrast) private var contrast
@@ -28,7 +30,7 @@ struct BaselineTrack: View {
 
             ZStack {
                 Capsule()
-                    .fill(Theme.textPrimary.color.opacity(contrast == .increased ? 0.36 : 0.18))
+                    .fill(ink.primary.opacity(contrast == .increased ? 0.36 : 0.18))
                     .frame(width: width, height: Theme.Line.trail)
                     .position(x: midX, y: midY)
 
@@ -37,7 +39,7 @@ struct BaselineTrack: View {
                     path.addLine(to: CGPoint(x: midX, y: midY + 8))
                 }
                 .stroke(
-                    Theme.textPrimary.color.opacity(0.62),
+                    ink.primary.opacity(0.62),
                     style: StrokeStyle(
                         lineWidth: 1,
                         lineCap: .round,
@@ -47,7 +49,7 @@ struct BaselineTrack: View {
 
                 if let offset {
                     Circle()
-                        .fill(Theme.textPrimary.color)
+                        .fill(ink.primary)
                         .frame(width: 9, height: 9)
                         .position(
                             x: midX + CGFloat(isRevealed ? min(max(offset, -1), 1) : 0) * travel,
@@ -63,6 +65,8 @@ struct BaselineTrack: View {
 
 /// Göstergedeki küçük başlangıç işareti örneği: "┆ Başlangıcın".
 struct BaselineLegendMark: View {
+    var ink: PatikaInk = .light
+
     @ScaledMetric(relativeTo: .footnote) private var height: CGFloat = 13
 
     var body: some View {
@@ -71,7 +75,7 @@ struct BaselineLegendMark: View {
             path.addLine(to: CGPoint(x: 0, y: height))
         }
         .stroke(
-            Theme.textPrimary.color.opacity(0.62),
+            ink.primary.opacity(0.62),
             style: StrokeStyle(lineWidth: 1, lineCap: .round, dash: [2, 2])
         )
         .frame(width: 1, height: height)

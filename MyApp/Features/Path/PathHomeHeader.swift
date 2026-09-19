@@ -22,15 +22,6 @@ struct PathHomeHeader: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 7) {
-                Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
-                    .accessibilityHidden(true)
-                Text(Copy.Path.screenTitle)
-                    .tracking(1.2)
-            }
-            .font(Theme.TypeFace.eyebrow)
-            .foregroundStyle(Theme.textSecondary.color)
-
             Text(verbatim: title)
                 .font(Theme.TypeFace.screenTitle)
                 .foregroundStyle(Theme.textPrimary.color)

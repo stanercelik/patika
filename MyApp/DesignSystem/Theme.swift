@@ -115,6 +115,28 @@ enum Theme {
         static var detailBody: Font { product(.subheadline, Weight.body) }
         /// Durak düğümünün içindeki gün sayısı ve simge.
         static var nodeMark: Font { product(.headline, Weight.action) }
+        /// Kompakt duraklarda aynı işaret — daire 46 pt'ye indiğinde `headline`
+        /// kenarlara değiyordu.
+        static var nodeMarkCompact: Font { product(.subheadline, Weight.action) }
+        /// Kilit, chevron gibi metnin yanında duran küçük durum simgeleri.
+        static var lockMark: Font { product(.caption2, Weight.emphasis) }
+
+        // MARK: Kompakt satır ("Ben", "Keşfet")
+
+        /// Krem kapaktaki ad — sayfanın en iri yazısı (`profile-design.md` §20).
+        static var coverTitle: Font { product(.largeTitle, Weight.display) }
+        /// Zemin üstündeki bölüm başlığı.
+        static var sectionTitle: Font { product(.title3, Weight.title) }
+        /// Kompakt kâğıt satırın etiketi.
+        static var rowTitle: Font { product(.body, Weight.emphasis) }
+        /// Satırın sağındaki değer.
+        static var rowValue: Font { product(.body, Weight.body) }
+        /// Değerin kaynağını söyleyen alt satır ("…dediğin için").
+        static var rowCaption: Font { product(.footnote, Weight.body) }
+        /// Satır başındaki SF Symbol.
+        static var rowSymbol: Font { product(.title3, Weight.title) }
+        /// Bölüm başlığındaki "Tümü" gibi ikincil eylemler.
+        static var rowAction: Font { product(.subheadline, Weight.action) }
         /// Buton.
         static var action: Font { product(.callout, Weight.action) }
     }

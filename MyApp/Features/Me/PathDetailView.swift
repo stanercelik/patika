@@ -74,11 +74,37 @@ struct PathDetailView: View {
 
             let entries = viewModel.journalItems(forPath: seal.pathID)
             if !entries.isEmpty, !viewModel.isJournalObscured {
+                journalSection(seal: seal, entries: entries)
+            }
+        }
+    }
+
+    /// Tamamlanan yolda ilk ve son cümle yan yana durur; arayüz bu iki cümle
+    /// hakkında tek kelime söylemez (F2). Değişimin sayısız, kelimelerle kurulan
+    /// kanıtı bu yan yanalık — konuşan ürün değil, kullanıcının kendisi.
+    /// Ortadaki kayıtlar varsa kendi başlıklarıyla altta listelenir.
+    @ViewBuilder
+    private func journalSection(seal: MeViewModel.SealItem, entries: [MeViewModel.JournalItem]) -> some View {
+        if seal.style == .completed, entries.count >= 2, let first = entries.first, let last = entries.last {
+            VStack(alignment: .leading, spacing: 20) {
+                UserQuote(text: first.text, caption: first.caption, detail: first.detail)
+                UserQuote(text: last.text, caption: last.caption, detail: last.detail)
+            }
+
+            let middle = entries.dropFirst().dropLast()
+            if !middle.isEmpty {
                 VStack(alignment: .leading, spacing: 20) {
                     ProfileSectionHeader(title: Copy.Me.pathJournalTitle)
-                    ForEach(entries) { item in
+                    ForEach(middle) { item in
                         UserQuote(text: item.text, caption: item.caption, detail: item.detail)
                     }
+                }
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 20) {
+                ProfileSectionHeader(title: Copy.Me.pathJournalTitle)
+                ForEach(entries) { item in
+                    UserQuote(text: item.text, caption: item.caption, detail: item.detail)
                 }
             }
         }

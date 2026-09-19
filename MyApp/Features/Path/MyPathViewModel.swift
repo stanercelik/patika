@@ -113,8 +113,13 @@ final class MyPathViewModel {
     /// The current stop remains identified even when its details are closed.
     func isCurrent(_ step: PathStepRecord) -> Bool { step.id == nextStep?.id }
 
+    /// Açmak **okumaktır**, başlatmak değil (ürün sahibi kararı, 2026-09-17).
+    ///
+    /// Kilitli adım da açılıyor: ne aldığını görmek ürünün vaadi ve haritadaki
+    /// küçük tabelalar yalnızca adı taşıdığı için ayrıntıya ulaşmanın başka yolu
+    /// yok. Kapalı olan tek şey bugün dinlenebilmesi — `isLocked` oturumu
+    /// başlatan yolu kapatmaya devam ediyor.
     func toggle(_ step: PathStepRecord) {
-        guard !isLocked(step) else { return }
         expandedStepID = expandedStepID == step.id ? nil : step.id
     }
 
