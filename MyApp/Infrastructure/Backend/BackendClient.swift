@@ -109,7 +109,7 @@ protocol BackendClient: Sendable {
         idempotencyKey: UUID
     ) async throws -> PathGenerationResult
     func hasCompletedOnboarding(accessToken: String) async throws -> Bool
-    func markOnboardingCompleted(accessToken: String) async throws
+    func markOnboardingCompleted(userID: UUID, accessToken: String) async throws
 
     /// Bir path'in tek bir gününü kimliğiyle birlikte okur.
     func pathStep(pathId: UUID, day: Int, accessToken: String) async throws -> PathStepRecord

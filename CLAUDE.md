@@ -72,6 +72,43 @@ sheet-önizleme kararlarını geçersiz kılar. Plan: `docs/discover-v2-plan.md`
 tasarım: `docs/discover-design.md`; görseller:
 `assets/illustrations/discover/prompts.md`.
 
+Ürün sahibi görsel yoğunluğu geri bildirimle azalttı (2026-09-20): `discover-world`
+manzarası koyu orman tonunda %58 perdeyle karartılır (`PathLandscapeScene`
+`dimming`; Yolum'un varsayılanı 0, değişmedi), kart görsel bandı 150 pt'den
+112 pt'ye iner, yatay şerit kalır; kart özeti koyu mürekkep (`ink`) ve bir punto
+büyük, durum etiketi kapsül içinde. Bölüm başlıkları düz krem yazıdır; koyu zeminde
+kontrastı ölçüldü (medyan 7,2:1). Keşfet görselleri JPEG imageset'tir.
+
+## 20 Eylül 2026 — oturum kalıcılığı, defter yüzeyi, not sınırı
+
+Ürün sahibi patikanın, profil fotoğrafının ve defter notlarının uygulama yeniden
+açılınca kaybolduğunu bildirdi. Kök neden `AuthSessionStore`: Keychain oturumu
+fire-and-forget bir Task'la geri yükleniyordu, açılışta ilk jeton isteyen "henüz
+yüklenmedi"yi "oturum yok" sanıp yeni bir anonim kullanıcı açıyor ve gerçek oturumu
+eziyordu (iOS 27 simülatöründe 3 açılışta 3 farklı kullanıcı, canlı sunucuda
+doğrulandı). Her açılışta boş patika, kaybolan not ve fotoğraf, Yolum'un boş
+durumundaki "Başla" ile de baştan onboarding buradan geliyordu.
+
+- **Her giriş noktası geri yüklemeyi bekler** (`restoration`); jeton istekleri tek
+  uçuştaki Task'ı paylaşır ve çağıranın iptalinden bağımsızdır.
+- **Geçici hata kimliği yok etmez.** Yeni anonim kullanıcı yalnızca Keychain
+  gerçekten boşsa ya da sunucu yenileme jetonunu kesin reddettiyse
+  (`AuthClientError.sessionRejected`) açılır; bağlantılı hesapta hiç açılmaz.
+  Test: `Tests/AuthSessionStoreTests` (swiftc ile derlenir, bkz. dosya başı).
+- **`markOnboardingCompleted` filtresizdi**: Supabase `pg_safeupdate` 400 dönüyor,
+  hiçbir profilde `onboarding_completed_at` dolmamıştı. `user_id=eq.` filtresi eklendi.
+- **Onboarding'in son ekranından önce çıkılırsa** ve sunucuda bu kimliğin patikası
+  varsa açılışta onboarding tamamlanmış sayılır (`PatikaApp.adoptExistingPathIfAny`,
+  4 sn zaman aşımı). Taslak (`OnboardingDraft`) hâlâ kalıcı değil; patika üretilmeden
+  yarıda kalan akış baştan başlar.
+- **Defter her zaman kâğıt yaprak ve açılan kapakla gelir**, kayıt olmasa da; boş
+  defter kâğıdın üstünde koyu mürekkeple çizilir (`JournalView.paperSheet`).
+- **Not sınırı 1000** (`JournalNote.maxLength` = sunucudaki `maxNoteLength`, ikisi
+  birlikte değişir; UTF-16 birimiyle ölçülür). Sayaç yalnızca son %10'da görünür;
+  ödev hissi vermesin. Bu, eski "sessiz 4000" kararını geçersiz kılar.
+- Bu hatadan önce oluşan veri eski anonim kimliklerin altında kaldı ve
+  kurtarılamaz (anonim kimliğin kimlik bilgisi yok).
+
 ## Proje durumu
 
 **Patika** (çalışma adı) — kullanıcının derdini kendi kelimeleriyle anlattığı, karşılığında 7/14/21/28 günlük **ölçülen ve biten** bir program aldığı iOS meditasyon/zihinsel iyi oluş uygulaması. Sahibi: Novum Apps.

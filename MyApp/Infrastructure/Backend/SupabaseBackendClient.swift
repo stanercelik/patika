@@ -53,9 +53,13 @@ struct SupabaseBackendClient: BackendClient {
         return profiles.first?.onboardingCompletedAt != nil
     }
 
-    func markOnboardingCompleted(accessToken: String) async throws {
+    /// Filtre zorunlu: Supabase `pg_safeupdate` filtresiz UPDATE'i reddediyor
+    /// ("UPDATE requires a WHERE clause", 400). Filtre olmadan çağrı hiç başarılı
+    /// olmadı ve hiçbir profilde `onboarding_completed_at` dolmadı; başka cihazda
+    /// "Zaten hesabım var" akışı bu yüzden kayıtlı patikayı bulamıyordu.
+    func markOnboardingCompleted(userID: UUID, accessToken: String) async throws {
         var request = authenticatedRequest(
-            path: "/rest/v1/profiles",
+            path: "/rest/v1/profiles?user_id=eq.\(userID.uuidString.lowercased())",
             method: "PATCH",
             accessToken: accessToken
         )

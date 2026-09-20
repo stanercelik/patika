@@ -198,5 +198,25 @@ do {
     check(roundTrip == emptyRecord(startedAt: wednesday), "gidiş-dönüş eşit")
 }
 
+// MARK: Not uzunluğu sınırı (sunucudaki maxNoteLength ile aynı sayı, UTF-16 birimi)
+
+do {
+    let limit = JournalNote.maxLength
+    let exact = String(repeating: "a", count: limit)
+    check(JournalNote.clamped(exact) == exact, "tam sınırdaki not değişmez")
+    check(JournalNote.clamped(exact + "b").utf16.count == limit, "bir fazlası sınıra kesilir")
+    check(JournalNote.clamped("kısa not") == "kısa not", "kısa not değişmez")
+
+    // Emoji iki UTF-16 birimi: karakter sayısıyla ölçülseydi sunucu reddederdi.
+    let emoji = String(repeating: "\u{1F642}", count: limit)
+    let clampedEmoji = JournalNote.clamped(emoji)
+    check(clampedEmoji.utf16.count <= limit, "emojili not UTF-16 sınırını aşmaz (\(clampedEmoji.utf16.count))")
+    check(clampedEmoji == String(repeating: "\u{1F642}", count: limit / 2), "emoji ortasından bölünmez")
+
+    // Aksanlı harfler (İ, ş, ğ) tek birim; Türkçe metin karakter sayısıyla kesilir.
+    let turkish = String(repeating: "şğİ", count: limit)
+    check(JournalNote.clamped(turkish).utf16.count == limit, "Türkçe metin tam sınıra kesilir")
+}
+
 print(failures == 0 ? "OK — all badge catalog checks passed" : "\(failures) failure(s)")
 exit(failures == 0 ? 0 : 1)

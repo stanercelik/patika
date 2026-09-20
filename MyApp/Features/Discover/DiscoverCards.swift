@@ -10,8 +10,13 @@ struct DiscoverStatusLabel: View {
         } icon: {
             Image(systemName: symbol).accessibilityHidden(true)
         }
-        .font(Theme.TypeFace.cardMeta)
-        .foregroundStyle(WoodlandStyle.secondaryInk)
+        .font(Theme.TypeFace.product(.footnote, Theme.Weight.emphasis))
+        .foregroundStyle(WoodlandStyle.ink)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        // Durum metnin kendisiyle ve simgesiyle okunur; kapsül yalnızca satırı
+        // kâğıttan ayırır, anlamı renge taşımaz.
+        .background(WoodlandStyle.ink.opacity(0.09), in: Capsule())
     }
 
     private var text: String {
@@ -44,14 +49,17 @@ struct DiscoverPathCard: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var isAccessible: Bool { dynamicTypeSize.isAccessibilitySize }
-    /// Erişilebilir boyutta satır sınırı fiilen kalkar; normalde iki satır ayrılır
-    /// ki şerideki kartlar aynı boyda dursun.
-    private var lineCap: Int { isAccessible ? 12 : 2 }
+    /// Görsel bandı kısa: uzun bir boyalı sahne kartın yazısıyla ve arkadaki manzarayla
+    /// yarışıyordu (ürün sahibi geri bildirimi, 2026-09-20). 150 pt'ten indi.
+    private static let artworkHeight: CGFloat = 112
+    /// Erişilebilir boyutta satır sınırı fiilen kalkar; normalde üç satır ayrılır
+    /// (en uzun Türkçe özet üç satıra sığar, kısaltılmaz) ve kartlar aynı boyda durur.
+    private var lineCap: Int { isAccessible ? 12 : 3 }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if !isAccessible {
-                DiscoverArtwork(name: path.artwork, height: 150)
+                DiscoverArtwork(name: path.artwork, height: Self.artworkHeight)
                     .clipShape(UnevenRoundedRectangle(
                         topLeadingRadius: PatikaSurfaceMetrics.radius,
                         topTrailingRadius: PatikaSurfaceMetrics.radius,
@@ -65,8 +73,8 @@ struct DiscoverPathCard: View {
                     .lineLimit(lineCap)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(verbatim: path.summary.value)
-                    .font(Theme.TypeFace.rowCaption)
-                    .foregroundStyle(WoodlandStyle.secondaryInk)
+                    .font(Theme.TypeFace.product(.subheadline, Theme.Weight.body))
+                    .foregroundStyle(WoodlandStyle.ink)
                     .lineLimit(lineCap, reservesSpace: !isAccessible)
                     .fixedSize(horizontal: false, vertical: true)
                 DiscoverStatusLabel(status: status)

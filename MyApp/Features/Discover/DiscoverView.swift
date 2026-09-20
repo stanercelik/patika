@@ -32,6 +32,11 @@ struct DiscoverView: View {
     /// Keşfet'te kalır, buradan çağrılmaz.
     let onOpenPath: () -> Void
 
+    /// Manzaranın üstündeki koyu perde. Kartlar öne çıksın, başlıklar okunsun diye
+    /// yüksek; manzara hâlâ seçilebilir (ağaç, su, yol) ama artık zemin. Ürün sahibi
+    /// seçimi (2026-09-20): "manzarayı karart".
+    private static let landscapeDimming = 0.58
+
     var body: some View {
         NavigationStack(path: $route) {
             ZStack {
@@ -93,7 +98,7 @@ struct DiscoverView: View {
             // Son satır sekme çubuğunun altında kalmasın.
             .padding(.bottom, 120)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background { PathLandscapeScene(assetName: "discover-world") }
+            .background { PathLandscapeScene(assetName: "discover-world", dimming: Self.landscapeDimming) }
         }
         .scrollHidesHeader($headerHidden)
         .discoverDebugScroll()

@@ -11,8 +11,11 @@ metinle durur (`PatikaArt.exists`).
 ## Nereye konacak
 
 Her varlık Xcode'da `MyApp/Assets.xcassets/Discover/` altında aynı adla bir Image
-Set içine konur. Adlar birebir aynı olmalı — kod bu adlarla arar. Kaynak PNG'ler
-`assets/illustrations/discover/` altında tutulur.
+Set içine konur (`discover-<ad>.imageset/artwork.jpg` + `Contents.json`). Adlar birebir
+aynı olmalı — kod bu adlarla arar. Düz `.png` dosyası katalog tarafından görülmez;
+görsel imageset içinde değilse `PatikaArt.exists` false döner ve hiçbir şey çizilmez.
+Üretilen tam boyutlu PNG'ler git geçmişinde (`5bbbf5c`) durur; uygulamada JPEG olarak
+gönderilir.
 
 | Image Set adı | Boyut / tür | Nerede görünür |
 | --- | --- | --- |
@@ -37,9 +40,11 @@ değişmez.
   örtüşerek tekrar eder, bu yüzden üst ve alt %12 birebir eşleşmeli.
 - İnsan, yüz, el, metin, harf, sayı, çerçeve yok. Zirve, merdiven, bayrak, yükselen
   başarı eğrisi, oyun dünyası, kupa, kutlama yok.
-- **Boyut bütçesi:** her PNG ≤600 KB olacak şekilde `pngquant`/ImageOptim ile
-  indirilir (mevcut dört görsel ~2,7 MB/adet; on patikada 27 MB'a çıkar). Hedef
-  toplam ≤8 MB.
+- **Boyut bütçesi:** her görsel ≤600 KB, toplam ≤8 MB. Opak guaj dokusu PNG'ye
+  sığmıyor: palet indirgemesi (256 renk) tek görselde bile ~960 KB tuttu ve dokuyu
+  bozar. Bunun yerine JPEG, kalite 85-92, kroma altörneklemesiz (4:4:4). Derlenmiş
+  pakette on iki görsel toplam ~6,4 MB (`assetutil --info`), Xcode JPEG'i olduğu gibi
+  saklıyor.
 - Ekran boyunca yazı görselin üstüne binmez; görsel yalnızca yer duygusu taşır.
 
 ## Ortak stil bloğu — opak sahne
@@ -116,6 +121,6 @@ Feeling: adını bilmeden başlamak.
 2. Yedi kart yan yana konduğunda aynı elden çıkmış görünüyor mu (palet, doku, ışık)?
 3. Hiçbir görselde zirve, merdiven, bayrak, kutlama, insan, yüz veya yazı yok mu?
 4. 64 pt'e küçültüldüğünde her görsel tek bir sakin şekil olarak okunuyor mu?
-5. Her PNG ≤600 KB mı, `Assets.xcassets/Discover/` altında adları birebir doğru mu?
+5. Her görsel ≤600 KB mı, `Assets.xcassets/Discover/` altında imageset olarak, adları birebir doğru mu?
 6. Simülatör: `-patika-debug-tab kesfet` ile ana ekran, `-patika-debug-no-art` ile
    görselsiz hâl kırılmadan açılıyor mu?

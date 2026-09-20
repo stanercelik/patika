@@ -84,8 +84,13 @@ check("journal_notes not readable by owner via REST either", s in (401, 403, 404
 # 5. validation
 s, b = req("POST", "/functions/v1/save-note", A, {"action": "create", "body": "   "})
 check("empty note -> 400", s == 400, (s, b))
-s, b = req("POST", "/functions/v1/save-note", A, {"action": "create", "body": "x" * 4001})
-check("4001 chars -> 400", s == 400, (s, b))
+# Sınır sunucudaki maxNoteLength ve istemcideki JournalNote.maxLength ile aynı: 1000.
+s, b = req("POST", "/functions/v1/save-note", A, {"action": "create", "body": "x" * 1001})
+check("1001 chars -> 400", s == 400, (s, b))
+s, b = req("POST", "/functions/v1/save-note", A, {"action": "create", "body": "x" * 1000})
+check("exactly 1000 chars -> saved", s == 200 and b.get("status") == "saved", (s, b))
+if s == 200 and "note" in b:
+    req("POST", "/functions/v1/save-note", A, {"action": "delete", "id": b["note"]["id"]})
 
 # 6. badges: unique, no update/delete
 body = [{"user_id": aid, "badge_id": "first-step"}]

@@ -181,12 +181,24 @@ final class SupabaseAuthClient: NSObject, AuthClient, @unchecked Sendable {
         return request
     }
 
+    /// Sunucunun bir oturumu kesin olarak geçersiz saydığı hata kodları. Yalnızca
+    /// bunlar kimliğin kurtarılamadığı anlamına gelir; 5xx, 429 ve ağ hataları
+    /// geçicidir ve oturum korunur.
+    private static let rejectedSessionCodes: Set<String> = [
+        "refresh_token_not_found",
+        "refresh_token_already_used",
+        "session_not_found",
+        "session_expired",
+        "user_not_found",
+    ]
+
     private func validate(response: URLResponse, data: Data) throws {
         guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
             let code = (try? JSONDecoder().decode(AuthErrorPayload.self, from: data).errorCode) ?? "invalid_auth_response"
             if code == "manual_linking_disabled" { throw AuthClientError.manualLinkingDisabled }
             if code == "identity_already_exists" { throw AuthClientError.identityAlreadyLinked }
             if code == "anonymous_provider_disabled" { throw AuthClientError.providerUnavailable }
+            if Self.rejectedSessionCodes.contains(code) { throw AuthClientError.sessionRejected }
             throw AuthClientError.invalidResponse
         }
     }

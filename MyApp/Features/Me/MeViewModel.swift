@@ -367,7 +367,7 @@ final class MeViewModel {
     /// işaretlenir. Sonucu görüntüleyen çağırıdır (destek ekranı).
     func saveNote(id: UUID?, body raw: String) async -> NoteSaveResult {
         let body = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !body.isEmpty else { return .failed }
+        guard !body.isEmpty, body.utf16.count <= JournalNote.maxLength else { return .failed }
 
         if CrisisClassifier.evaluate(body).hasSignal {
             services.profile.markCrisisSignal()

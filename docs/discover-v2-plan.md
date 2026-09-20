@@ -2,9 +2,10 @@
 
 ## Uygulama durumu (20 Eylül 2026)
 
-**Aşama 0–7 tamam.** Aşama 7'nin metinleri yazıldı ve kataloğa girdi, ama **klinik gözden
-geçirme beklemeden yayına alınmaz** (aşağıya bak). Aşama 8 kısmen: sekiz görsel teslim edildi
-ama henüz imageset değil.
+**Aşama 0–8 tamam.** Aşama 7'nin metinleri yazıldı ve kataloğa girdi, ama **klinik gözden
+geçirme beklemeden yayına alınmaz** (aşağıya bak). Aşama 8'de görseller imageset oldu ve
+görsel yoğunluk geri bildirimiyle sadeleştirildi; gerçek ses, cihaz erişilebilirlik
+senaryoları ve VoiceOver hâlâ açık.
 
 | Aşama | Durum | Not |
 |---|---|---|
@@ -16,7 +17,7 @@ ama henüz imageset değil.
 | 5 Oturum birleştirme | Tamam | `PathSessionViewModel.Source`, `DiscoverSessionView/ViewModel` silindi |
 | 6 Katılım Keşfet'te | Tamam | Yolum devralması kalktı, çoklu katılım, `recency` sırası |
 | 7 İçerik: 7 yeni patika | Tamam | Katalog 10 patika, 70 adım; klinik inceleme açık |
-| 8 Görseller + doğrulama | Kısmen | 8 PNG teslim edildi; imageset kaydı, ≤600 KB küçültme ve görsel doğrulama açık |
+| 8 Görseller + doğrulama | Tamam | 12 görsel JPEG imageset, derlenmiş pakette 6,4 MB; görsel sadeleştirme yapıldı |
 
 Plandan sapmalar ve nedenleri:
 
@@ -73,10 +74,9 @@ Plandan sapmalar ve nedenleri:
 
 Bilinen sınır: kaydırılan içerik durum çubuğundaki saatin altına giriyor (simülatörde
 üst kenar efekti görünmüyor; Yolum ve Ben'de de aynı). `discover-world` manzarası ve yedi
-yeni kart görseli teslim edildi ama `Assets.xcassets/Discover/` altında düz `.png` olarak
-duruyor; imageset olmadıkları için `UIImage(named:)` bulamıyor ve `PatikaArt.exists` hâlâ
-false döner. Ekran varlık yokken kırılmıyor (`-patika-debug-no-art` ile doğrulandı), bu
-yüzden görseller hiç görünmüyor ama hata da yok.
+yeni kart görseli teslim edildiğinde düz `.png` olarak duruyordu, `UIImage(named:)`
+bulamıyor ve `PatikaArt.exists` false dönüyordu. Ekran varlık yokken kırılmadığı için
+görseller hiç görünmüyor ama hata da yoktu; Aşama 8'de imageset yapıldı.
 
 ---
 
@@ -331,21 +331,42 @@ oturum da `SessionRunner` + `SessionStageView` üzerinden çalışır.
 > müdahale değildir" sınırı korunur. Yeni metinler klinik gözden geçirme beklemeden
 > yayına alınmaz (PRD-Ek Path Üretimi §2.3 ile aynı süreç kuralı).
 
-### Aşama 8 — Görseller + doğrulama (kısmen)
+### Aşama 8 — Görseller + doğrulama (yapıldı)
 Görseller `MyApp/Assets.xcassets/Discover/` altına **birebir bu adlarla** konur.
 
 - [x] Sekiz görsel üretildi ve `Assets.xcassets/Discover/` altına kondu (`discover-world`,
   `-beat`, `-pressure`, `-refill`, `-rooms`, `-kinder`, `-carry`, `-unnamed`).
-- [ ] Her biri `discover-*.imageset` klasörüne taşınır (`Contents.json` + `artwork.png`,
-  mevcut `discover-evening.imageset` ile aynı kalıp). Şu an düz `.png`; katalog bunları
-  görmüyor.
-- [ ] Boyut ≤600 KB'a indirilir. Sekizi de ~3 MB (toplam ~24 MB); hedef toplam ≤8 MB.
-- [ ] `discover-world` ölçüsü: istenen 1024×3072, gelen 724×2172 (oran aynı, 1:3). Yeterli
-  netlik mi, simülatörde bakılır.
-- [ ] `discover-world` dikiş kontrolü: üst üste iki kez döşenince görünür kesit var mı,
-  orta %65 kartların altında sakin mi.
-- [ ] Yedi kart görselinin kartta (üstten kırpılma) ve detay hero'sunda görsel doğrulaması.
-- [ ] Aşağıdaki "Doğrulama" tablosundaki açık maddeler.
+- [x] Her biri `discover-*.imageset` klasörüne taşındı (`Contents.json` + `artwork.jpg`,
+  mevcut imageset'lerle aynı kalıp). Var olan dört imageset de aynı biçime çekildi.
+- [x] **Biçim PNG yerine JPEG.** Plan `pngquant` diyordu; bu makinede `libimagequant` yok
+  ve 256 renge indirgeme tek görselde bile 960 KB tuttu, ayrıca boya dokusunu bozar.
+  JPEG (kalite 85-92, 4:4:4) sekiz yeni görselde 566-599 KB, var olan dördünde 381-563 KB.
+  Toplam 6,4 MB (hedef ≤8 MB); Xcode JPEG'i olduğu gibi paketliyor (`assetutil`).
+  Tam boyutlu özgün PNG'ler git geçmişinde (`5bbbf5c`). Görsellerin hepsi opak RGB, alfa
+  kaybı yok.
+- [x] `discover-world` ölçüsü: istenen 1024×3072, gelen 724×2172 (oran aynı, 1:3).
+  Simülatörde netlik yeterli, ayrıca yeniden üretim gerekmedi.
+- [x] `discover-world` dikiş kontrolü: uygulamanın karo ve solma mantığı Python'da aynen
+  kurulup dikiş bölgesi görüntülendi; görünür kesit yok, yalnızca çok hafif bir çalı
+  gölgesi. Kenar satırı farkı orta düzeyde (ortalama 8,9/255).
+- [x] Yedi kart görseli kartlarda (dört bölüm) ve `breath` detay hero'sunda doğrulandı.
+  Diğer detay hero'ları aynı bileşeni kullanıyor, tek tek bakılmadı.
+- [x] **Görsel yoğunluk sadeleştirmesi** (ürün sahibi geri bildirimi, 2026-09-20; üç soru,
+  üçünde seçim yapıldı):
+  - Manzara koyu orman tonunda %58 perdeyle karartıldı (`PathLandscapeScene.dimming`,
+    yalnızca Keşfet; Yolum'un varsayılanı 0). Perde her karonun kendisine uygulanır,
+    karoların birbirine karışması bozulmaz.
+  - Yatay şerit kaldı; kart görsel bandı 150 pt'den 112 pt'ye indi.
+  - Kart özeti `ink` rengine ve bir punto büyüğüne (footnote'tan subheadline'a) çıktı,
+    durum etiketi kapsül içine alındı. Özet satır sınırı 2'den 3'e çıktı: en uzun Türkçe
+    özet ("Bir şeyler yolunda değil ama...") üç satır tutuyor ve kısaltılmıyor; bu yüzden
+    iki satırlık özetli kartlarda bir satırlık boşluk kalıyor.
+  - Bölüm başlığı için önce koyu kapsül denendi, perde konunca gereksiz kaldı ve silindi.
+- [x] Başlık kontrastı ölçüldü (krem yazı `F2EFE9`): önce doğrudan manzaranın üstünde
+  medyan 2,4-2,7:1, açık yerlerde 1,4:1 (AA büyük yazı eşiği 3:1, başarısız). Perdeden sonra
+  medyan 7,2-7,7:1, en açık %5'lik zemin pikselinde bile 3,1-3,4:1 (geçer).
+- [ ] Aşağıdaki "Doğrulama" tablosundaki açık maddeler (gerçek ses, Reduce Motion ve
+  Transparency, Increase Contrast, VoiceOver).
 
 ---
 
@@ -458,7 +479,10 @@ Simülatörde görsel doğrulama (`xcrun simctl launch booted devplaceholder.X9R
 | Ses yokken oturum hata ekranı, adım tamamlanmıyor | aynı, gerçek pakette | Tamam |
 | Gerçek ElevenLabs kaydıyla çalma, kilit ekranı, kesinti, arka plan | cihaz | Açık (ses üretimi engeli) |
 | On patika, dört bölüm, yeni kartlar (görselsiz) | `-patika-debug-tab kesfet` | Tamam |
-| `discover-world` ve yedi kart görseli | imageset'ler eklendikten sonra | Açık (Aşama 8) |
+| `discover-world` ve yedi kart görseli | imageset'ler eklendikten sonra | Tamam; başlık kontrastı ölçüldü, dikiş kontrol edildi |
+| Görsel yoğunluk: karartılmış manzara, kısa görsel bandı, koyu özet | `-patika-debug-tab kesfet` | Tamam |
+| Detay hero (görselli) | `-patika-debug-discover-preview breath` | Tamam |
+| AX5'te ana ekran (manzara ve görsel saklanır) | `-patika-debug-ax5` | Tamam |
 | Reduce Motion / Reduce Transparency / Increase Contrast | Ayarlar > Erişilebilirlik | Açık |
 | VoiceOver turu | cihaz | Açık |
 

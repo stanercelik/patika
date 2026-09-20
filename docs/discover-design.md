@@ -113,6 +113,18 @@ yetkili yayıncıyla üretim yeniden çalıştırılmalı, MP3'ler dinlenmeli ve
   gerçek çalma, kesinti, arka plan ve tamamlanma UI akışı henüz doğrulanmadı.
 - Reduce Motion/Transparency cihaz senaryolarının tam uçtan uca kontrolü bekliyor.
 
+### Aşama 8 doğrulaması ve görsel sadeleştirme (20 Eylül 2026)
+
+- Sekiz yeni görsel `discover-*.imageset` (JPEG) yapıldı, var olan dört imageset de aynı
+  biçime çekildi. Derlenmiş pakette on iki görsel toplam 6,4 MB (`assetutil --info`).
+- İlk yerleşimde aydınlık manzara üstünde başlıklar 2,4-2,7:1 kontrastta kaldı ve kartlar
+  manzarayla yarıştı. Ürün sahibi kararıyla: manzara %58 karartıldı (`dimming`, yalnızca
+  Keşfet), görsel bandı 150 pt'den 112 pt'ye indi, özet metni koyu mürekkep ve bir punto
+  büyük oldu, durum etiketi kapsül aldı. Sonuç: başlık medyan 7,2-7,7:1.
+- Simulator (iPhone 17 Pro): ana ekran dört kaydırma noktasında, `breath` detayı, AX5.
+- **Açık:** Reduce Motion / Reduce Transparency / Increase Contrast cihaz senaryoları,
+  VoiceOver, gerçek ses.
+
 ### Aşama 7 doğrulaması (20 Eylül 2026)
 
 - Yedi yeni patika (`beat`, `pressure`, `refill`, `rooms`, `kinder`, `carry`, `unnamed`) ve

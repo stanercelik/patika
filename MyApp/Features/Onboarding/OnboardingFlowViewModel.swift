@@ -624,9 +624,10 @@ final class OnboardingFlowViewModel {
         // "Ben" sekmesinin başlangıcı: ad, ilk cümle, baseline ve tercihler
         // cihazda kalır. Kriz sinyali verilmiş akış kaydedilmez.
         services.profile.recordOnboarding(draft)
-        if let token = try? await services.auth.validAccessToken() {
+        if let token = try? await services.auth.validAccessToken(),
+           let userID = services.auth.session?.userID {
             do {
-                try await services.backend.markOnboardingCompleted(accessToken: token)
+                try await services.backend.markOnboardingCompleted(userID: userID, accessToken: token)
                 // Hitap adı sunucuda şifreli durur: uygulama yeniden kurulduğunda
                 // ya da başka bir cihazda "Ben" aynı adı gösterir.
                 if let name = draft.displayName {

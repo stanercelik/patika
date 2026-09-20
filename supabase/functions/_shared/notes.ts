@@ -7,7 +7,9 @@ import { encryptSensitiveText } from "./encryption.ts";
 // kriz kuralları gerçek bir veritabanı olmadan sınanabilsin diye. `save-note`
 // yalnızca bu modülü Supabase'e bağlar.
 
-export const maxNoteLength = 4_000;
+// İstemcideki `JournalNote.maxLength` ile aynı sayı; ikisi birlikte değişir.
+// `String.length` UTF-16 birimi sayar, istemci de öyle ölçer.
+export const maxNoteLength = 1_000;
 
 export type NoteRow = { id: string; created_at: string; updated_at: string };
 

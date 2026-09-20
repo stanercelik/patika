@@ -136,6 +136,23 @@ struct JournalNote: Codable, Equatable, Sendable, Identifiable {
     var body: String
     let createdAt: Date
     var updatedAt: Date
+
+    /// Bir notun en fazla uzunluğu. Sunucudaki `maxNoteLength` ile **aynı sayı**
+    /// (`supabase/functions/_shared/notes.ts`); ikisi birlikte değişir.
+    ///
+    /// UTF-16 birimiyle ölçülür çünkü sunucu `String.length` ile sayıyor: karakter
+    /// sayısıyla ölçülseydi emojili bir not istemcide geçer, sunucuda reddedilir
+    /// ve kullanıcı "kaydedilemedi" döngüsüne girerdi.
+    static let maxLength = 1_000
+
+    /// Sınırı aşan metni sondan keser; bir karakteri (emoji, aksanlı harf) ortasından
+    /// bölmez.
+    static func clamped(_ text: String) -> String {
+        guard text.utf16.count > maxLength else { return text }
+        var result = String(text.prefix(maxLength))
+        while result.utf16.count > maxLength { result.removeLast() }
+        return result
+    }
 }
 
 /// Bir ölçüm noktasının **ham** cevapları. Skor saklanmaz; her gösterimde

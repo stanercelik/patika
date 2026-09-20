@@ -28,6 +28,9 @@ enum AuthClientError: LocalizedError {
     case cancelled
     case manualLinkingDisabled
     case identityAlreadyLinked
+    /// Sunucu yenileme jetonunu kesin olarak reddetti (döndürülmüş, silinmiş ya da
+    /// oturumu yok). Ağ hatası ve zaman aşımı bu değildir: onlar geçicidir.
+    case sessionRejected
 
     var errorDescription: String? {
         switch self {
@@ -36,6 +39,7 @@ enum AuthClientError: LocalizedError {
         case .manualLinkingDisabled: "manual_linking_disabled"
         case .identityAlreadyLinked: "identity_already_exists"
         case .invalidResponse: "invalid_auth_response"
+        case .sessionRejected: "session_rejected"
         }
     }
 }

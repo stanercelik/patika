@@ -56,10 +56,8 @@ struct JournalView: View {
                 }
                 .buttonStyle(.calm)
                 .padding(Theme.Spacing.screenMargin)
-            } else if viewModel.hasJournal {
-                paperList
             } else {
-                emptyState
+                paperSheet
             }
         }
         .navigationTitle(Text(Copy.Me.journalTitle))
@@ -134,13 +132,36 @@ struct JournalView: View {
         }
     }
 
-    // MARK: Boş defter
+    // MARK: Kâğıt yaprak
 
-    private var emptyState: some View {
+    /// Defter **her zaman** kâğıt yaprak ve açılan kapakla gelir; içeriği yalnızca
+    /// içerideki görünüm değişir. Önceden yalnızca kayıt varken kâğıt çiziliyordu:
+    /// boş defter düz metinle açılıyor, ilk not yazılınca da kapak yeniden
+    /// oynuyordu. Kâğıt ve kapak `Group`un dışında durduğu için içerik boştan
+    /// doluya geçse de kimlikleri değişmez ve kapak yalnızca sayfa açılırken oynar.
+    private var paperSheet: some View {
+        Group {
+            if viewModel.hasJournal {
+                entryList
+            } else {
+                emptyPaper
+            }
+        }
+        .background { paper }
+        // Kapak kâğıdın üstünde başlar ve sayfa açılırken (yakınlaşma geçişiyle
+        // aynı anda) sol kenarından açılır.
+        .overlay { JournalCoverOverlay(preview: viewModel.journalCardPreview) }
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .padding(.horizontal, 12)
+        .padding(.bottom, 12)
+    }
+
+    /// Boş defter kâğıdın üstünde, koyu mürekkeple: kayıt varken de aynı yüzey.
+    private var emptyPaper: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text(Copy.Me.journalEmpty)
                 .font(Theme.TypeFace.rowValue)
-                .foregroundStyle(Theme.textSecondary.color)
+                .foregroundStyle(WoodlandStyle.secondaryInk)
                 .fixedSize(horizontal: false, vertical: true)
 
             Button { composer = .new } label: {
@@ -149,19 +170,18 @@ struct JournalView: View {
                     Text(Copy.Me.journalCardWrite)
                 }
                 .font(Theme.TypeFace.rowAction)
-                .foregroundStyle(WoodlandStyle.apricot)
+                .foregroundStyle(WoodlandStyle.ink)
                 .frame(minHeight: 44)
                 .contentShape(.rect)
             }
             .buttonStyle(.calm)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(Theme.Spacing.screenMargin)
+        .padding(.horizontal, 20)
+        .padding(.top, 24)
     }
 
-    // MARK: Kâğıt yaprak
-
-    private var paperList: some View {
+    private var entryList: some View {
         List {
             ForEach(viewModel.journalGroups) { group in
                 Section {
@@ -183,13 +203,6 @@ struct JournalView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background { paper }
-        // Kapak kâğıdın üstünde başlar ve sayfa açılırken (yakınlaşma geçişiyle
-        // aynı anda) sol kenarından açılır.
-        .overlay { JournalCoverOverlay(preview: viewModel.journalCardPreview) }
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .padding(.horizontal, 12)
-        .padding(.bottom, 12)
     }
 
     private var paper: some View {

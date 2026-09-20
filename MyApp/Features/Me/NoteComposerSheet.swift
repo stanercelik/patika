@@ -2,8 +2,9 @@ import SwiftUI
 
 /// Defter notu yazma ve düzenleme yaprağı (`docs/profile-v2-plan.md` Aşama 4).
 ///
-/// - **Karakter sayacı yok**: yazmayı ödeve çevirir. Sınır (4000) sessizce
-///   uygulanır.
+/// - **Sınır `JournalNote.maxLength`** (sunucuyla aynı sayı). Sayaç baştan
+///   görünmez — yazmayı ödeve çevirir; yalnızca son %10'da "N karakter kaldı"
+///   çıkar ki metnin neden durduğu anlaşılsın.
 /// - **Otomatik düzeltme kapalı**: not kullanıcının kendi cümlesi, düzeltilmiş
 ///   hâli onun cümlesi değil.
 /// - **Taslak korunur** (`NoteDraftStore`): kayıt başarısız olursa ya da yaprak
@@ -23,7 +24,8 @@ struct NoteComposerSheet: View {
     @State private var showsError = false
     @FocusState private var isFocused: Bool
 
-    private static let limit = 4_000
+    /// Sayaç, sınıra bu kadar karakter kalınca görünür.
+    private static let counterThreshold = JournalNote.maxLength / 10
 
     init(
         viewModel: MeViewModel,
@@ -36,8 +38,10 @@ struct NoteComposerSheet: View {
         _text = State(initialValue: editing?.text ?? NoteDraftStore.load() ?? "")
     }
 
+    private var remaining: Int { JournalNote.maxLength - text.utf16.count }
+
     private var canSave: Bool {
-        !isSaving && !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !isSaving && remaining >= 0 && !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var body: some View {
@@ -65,6 +69,14 @@ struct NoteComposerSheet: View {
                         }
                     }
 
+                    if remaining <= Self.counterThreshold {
+                        Text(remaining > 0 ? Copy.Me.noteRemaining(remaining) : Copy.Me.noteLimitReached)
+                            .font(Theme.TypeFace.rowCaption)
+                            .foregroundStyle(Theme.textSecondary.color)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .accessibilityAddTraits(.updatesFrequently)
+                    }
+
                     if showsError {
                         Text(Copy.Me.noteSaveFailed)
                             .font(Theme.TypeFace.rowCaption)
@@ -89,7 +101,8 @@ struct NoteComposerSheet: View {
             }
         }
         .onChange(of: text) { _, value in
-            if value.count > Self.limit { text = String(value.prefix(Self.limit)) }
+            let clamped = JournalNote.clamped(value)
+            if clamped != value { text = clamped }
             showsError = false
             if editing == nil { NoteDraftStore.save(text) }
         }

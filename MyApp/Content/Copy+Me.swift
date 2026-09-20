@@ -251,6 +251,10 @@ extension Copy {
         static func journalNoteCaption(date: String) -> LocalizedStringResource { "Notun · \(date)" }
         static let journalOwnNote: LocalizedStringResource = "Kendi notun"
         static let notePlaceholder: LocalizedStringResource = "Yazmak istediğin ne varsa."
+        static func noteRemaining(_ count: Int) -> LocalizedStringResource {
+            "\(count) karakter kaldı"
+        }
+        static let noteLimitReached: LocalizedStringResource = "Not sınırına geldin."
         static let noteSaveFailed: LocalizedStringResource =
             "Yazdığın kaybolmadı. Bu senin yüzünden değil; yeniden deneyebilirsin."
 

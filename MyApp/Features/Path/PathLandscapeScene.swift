@@ -19,8 +19,17 @@ import SwiftUI
 /// Yolum `journey-world-continuous`, Keşfet `discover-world` ile aynı tekniği
 /// kullanır: yalnızca `assetName` değişir. Varlık pakette yoksa hiçbir şey
 /// çizilmez (`PatikaArt.exists`).
+///
+/// ## Karartma
+///
+/// `dimming` manzaranın üstüne koyu orman tonunda bir perde koyar (0 = yok). Keşfet
+/// kartları ve bölüm başlıkları manzaranın üstünde durduğu için orada perde açık:
+/// aydınlık çayır krem yazıyı 2,4:1'e indiriyor ve boyalı kartlarla aynı ağırlıkta
+/// yarışıyordu. Perde her karonun kendisine uygulanır, karoların birbirine
+/// karışması (kenar solması) bozulmaz.
 struct PathLandscapeScene: View {
     var assetName = "journey-world-continuous"
+    var dimming: Double = 0
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -43,6 +52,7 @@ struct PathLandscapeScene: View {
                         Image(decorative: assetName)
                             .resizable()
                             .frame(width: geometry.size.width, height: height)
+                            .overlay { WoodlandStyle.background.opacity(dimming) }
                             .mask {
                                 if index == -1 {
                                     Rectangle()
