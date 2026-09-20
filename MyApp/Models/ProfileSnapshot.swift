@@ -80,10 +80,12 @@ struct ProfileSnapshot: Decodable, Equatable, Sendable {
     let completedStepDates: [Date]
     /// 1 saatlik imzalı adres; fotoğraf yoksa nil.
     let avatarURL: URL?
+    /// Fotoğrafın sunucudaki son değişim zamanı. Eski sunucuda nil.
+    let avatarUpdatedAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case profile, origin, measurements, paths, answers
-        case notes, earnedBadges, completedStepDates, avatarURL
+        case notes, earnedBadges, completedStepDates, avatarURL, avatarUpdatedAt
     }
 
     /// Ben v2 alanları eksik olabilir: istemci, sunucudaki `me-profile` yeniden
@@ -99,5 +101,6 @@ struct ProfileSnapshot: Decodable, Equatable, Sendable {
         earnedBadges = try container.decodeIfPresent([Badge].self, forKey: .earnedBadges) ?? []
         completedStepDates = try container.decodeIfPresent([Date].self, forKey: .completedStepDates) ?? []
         avatarURL = try container.decodeIfPresent(URL.self, forKey: .avatarURL)
+        avatarUpdatedAt = try container.decodeIfPresent(Date.self, forKey: .avatarUpdatedAt)
     }
 }

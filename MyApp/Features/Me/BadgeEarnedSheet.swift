@@ -15,47 +15,56 @@ struct BadgeEarnedSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var appeared = false
 
     var body: some View {
         ZStack {
             WoodlandStyle.background.ignoresSafeArea()
 
-            VStack(spacing: 24) {
-                Spacer(minLength: 8)
-
-                HStack(spacing: 16) {
-                    ForEach(badges) { badge in
-                        BadgeMedallion(id: badge, isEarned: true, size: badges.count > 1 ? 88 : 128)
-                    }
-                }
-                .scaleEffect(appeared || reduceMotion ? 1 : 0.85)
-                .opacity(appeared ? 1 : 0)
-
-                VStack(spacing: 12) {
-                    ForEach(badges) { badge in
-                        VStack(spacing: 4) {
-                            Text(Copy.Me.Badge.title(badge))
-                                .font(Theme.TypeFace.sectionTitle)
-                                .foregroundStyle(Theme.textPrimary.color)
-                            Text(Copy.Me.Badge.earned(badge))
-                                .font(Theme.TypeFace.rowValue)
-                                .foregroundStyle(Theme.textSecondary.color)
+            VStack(spacing: 16) {
+                // Kaydırılabilir ve ortalı: erişilebilir boyutlarda metin yaprağa
+                // sığmazsa kırpılmıyor, düğme yerinde kalıyor.
+                ScrollView {
+                    VStack(spacing: 24) {
+                        HStack(spacing: 16) {
+                            ForEach(badges) { badge in
+                                BadgeMedallion(id: badge, isEarned: true, size: badges.count > 1 ? 88 : 128)
+                            }
                         }
-                    }
-                }
-                .multilineTextAlignment(.center)
-                .opacity(appeared ? 1 : 0)
-                .accessibilityElement(children: .combine)
+                        .scaleEffect(appeared || reduceMotion ? 1 : 0.85)
+                        .opacity(appeared ? 1 : 0)
 
-                Spacer(minLength: 8)
+                        VStack(spacing: 12) {
+                            ForEach(badges) { badge in
+                                VStack(spacing: 4) {
+                                    Text(Copy.Me.Badge.title(badge))
+                                        .font(Theme.TypeFace.sectionTitle)
+                                        .foregroundStyle(Theme.textPrimary.color)
+                                    Text(Copy.Me.Badge.earned(badge))
+                                        .font(Theme.TypeFace.rowValue)
+                                        .foregroundStyle(Theme.textSecondary.color)
+                                }
+                                .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .multilineTextAlignment(.center)
+                        .opacity(appeared ? 1 : 0)
+                        .accessibilityElement(children: .combine)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 24)
+                }
+                .defaultScrollAnchor(.center)
+                .scrollBounceBehavior(.basedOnSize)
+                .scrollIndicators(.hidden)
 
                 PrimaryButton(title: Copy.Button.save, isEnabled: true) { dismiss() }
                     .padding(.bottom, 8)
             }
             .padding(.horizontal, Theme.Spacing.screenMargin)
         }
-        .presentationDetents([.medium])
+        .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.medium])
         .task {
             if reduceMotion {
                 appeared = true

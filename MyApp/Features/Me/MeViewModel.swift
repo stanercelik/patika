@@ -122,7 +122,7 @@ final class MeViewModel {
             let snapshot = try await snapshotRequest
             if !Self.usesDebugRecord {
                 services.profile.apply(snapshot)
-                await services.avatar.reconcile(withServerURL: snapshot.avatarURL)
+                await services.avatar.reconcile(withServerURL: snapshot.avatarURL, updatedAt: snapshot.avatarUpdatedAt)
                 // Rozetler sessizce uzlaşır: kutlama yaprağı yalnızca oturum sonu
                 // ve defterde açılır (BadgeEarnedSheet), sayfayı açmak değil.
                 let awarder = BadgeAwarder(services: services)

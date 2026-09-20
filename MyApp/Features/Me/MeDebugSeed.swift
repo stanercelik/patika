@@ -55,6 +55,21 @@ enum MeDebugSeed {
         }
     }
 
+    /// `-patika-debug-settings-page reminder|name|method` (ayarlar yaprağıyla birlikte).
+    static var settingsPage: String? {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-patika-debug-settings-page"),
+              arguments.index(after: index) < arguments.endIndex
+        else { return nil }
+        return arguments[arguments.index(after: index)].lowercased()
+    }
+
+    /// `-patika-debug-me-tap-journal` — defter kartına dokunulmuş gibi kapak açılışını
+    /// ve zoom geçişini oynatır (rota argümanı kartı atlayıp doğrudan sayfayı açar).
+    static var tapsJournalCard: Bool {
+        ProcessInfo.processInfo.arguments.contains("-patika-debug-me-tap-journal")
+    }
+
     /// `-patika-debug-me-sheet change|settings|support|note|badge`
     /// (`note` ve `badge` defter sayfasında açılır).
     static var sheet: String? {

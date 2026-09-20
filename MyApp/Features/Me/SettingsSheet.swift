@@ -24,6 +24,9 @@ struct SettingsSheet: View {
     @State private var isShowingSupport = false
     @State private var isShowingLinkSheet = false
     @State private var pickedPhoto: PhotosPickerItem?
+    #if DEBUG
+    @State private var isShowingDebugPage = false
+    #endif
 
     init(viewModel: MeViewModel) {
         self.viewModel = viewModel
@@ -76,6 +79,17 @@ struct SettingsSheet: View {
                     await viewModel.setPhoto(data)
                 }
             }
+            #if DEBUG
+            // `-patika-debug-settings-page reminder|name|method` — alt sayfa doğrudan açılır.
+            .task { isShowingDebugPage = MeDebugSeed.settingsPage != nil }
+            .navigationDestination(isPresented: $isShowingDebugPage) {
+                switch MeDebugSeed.settingsPage {
+                case "reminder": ReminderEditor(viewModel: viewModel)
+                case "name": NameEditor(viewModel: viewModel)
+                default: MeasurementMethodView()
+                }
+            }
+            #endif
             .sheet(isPresented: $isShowingLinkSheet) {
                 AccountLinkSheet(viewModel: viewModel)
             }
@@ -314,6 +328,7 @@ struct ReminderEditor: View {
                 Toggle(isOn: $isEnabled) {
                     Text(Copy.Me.reminderToggle)
                 }
+                .settingsFormRow()
                 if isEnabled {
                     DatePicker(selection: $time, displayedComponents: .hourAndMinute) {
                         Text(Copy.Me.reminderTimeLabel)
@@ -321,6 +336,7 @@ struct ReminderEditor: View {
                     .datePickerStyle(.wheel)
                     .labelsHidden()
                     .frame(maxWidth: .infinity)
+                    .settingsFormRow()
                 }
             } footer: {
                 if let caption = viewModel.reminderSourceCaption {
@@ -332,6 +348,7 @@ struct ReminderEditor: View {
                 Section {
                     Text(Copy.Me.reminderDenied)
                         .fixedSize(horizontal: false, vertical: true)
+                        .settingsFormRow()
                     Button {
                         if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
                             openURL(url)
@@ -339,6 +356,7 @@ struct ReminderEditor: View {
                     } label: {
                         Text(Copy.Me.openSettings)
                     }
+                    .settingsFormRow()
                 }
             }
         }
@@ -401,10 +419,12 @@ struct NameEditor: View {
                 .textInputAutocapitalization(.words)
                 .submitLabel(.done)
                 .onSubmit(save)
+                .settingsFormRow()
             }
         }
         .settingsFormStyle()
-        .navigationTitle(Text(Copy.Me.Settings.nameRow))
+        // Kısa başlık: uzun etiket "Bende kalsın" düğmesinin yanında kırpılıyordu.
+        .navigationTitle(Text(Copy.Me.Settings.nameTitle))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
@@ -425,12 +445,17 @@ struct NameEditor: View {
 }
 
 extension View {
-    /// Alt sayfaların `Form`u koyu orman zeminine ve adaçayı satırlara geçer;
-    /// sistem grisi ayarların geri kalanından kopuk duruyordu.
+    /// Alt sayfaların `Form`u koyu orman zeminine geçer; sistem grisi ayarların
+    /// geri kalanından kopuk duruyordu. Satırlar ayrıca `settingsFormRow()` alır:
+    /// `listRowBackground` `Form`a verilince satırlara geçmiyor.
     func settingsFormStyle() -> some View {
         scrollContentBackground(.hidden)
             .background(WoodlandStyle.background.ignoresSafeArea())
-            .listRowBackground(WoodlandStyle.surface)
             .tint(WoodlandStyle.sage)
+    }
+
+    /// `Form` satırı için adaçayı yüzey.
+    func settingsFormRow() -> some View {
+        listRowBackground(WoodlandStyle.surface)
     }
 }

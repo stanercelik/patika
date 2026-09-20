@@ -22,7 +22,7 @@ struct MeBackdrop: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            if showsArtwork && !reduceTransparency && !dynamicTypeSize.isAccessibilitySize {
+            if showsArtwork, !reduceTransparency, !dynamicTypeSize.isAccessibilitySize, PatikaArt.exists("me-backdrop") {
                 // Boyutu şeffaf bir çerçeve belirler, görsel `overlay`de kırpılır:
                 // `scaledToFill` bir görselin ideal genişliği piksel boyutudur ve
                 // yerleşimde durursa üst `ZStack`i (ve sayfayı) ekrandan geniş yapar.

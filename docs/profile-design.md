@@ -1796,11 +1796,12 @@ ikonu (`me-change`), 14 rozet (`badge-*`) ve opsionel `me-backdrop`. Kilitli roz
 görsel istemez: aynı görsel kodda gri tona çevrilip %30 opaklıkla çizilir. Tam
 prompt'lar: `assets/illustrations/me-v2/prompts.md`.
 
-### 21.7 Uygulama durumu (2026-09-19)
+### 21.7 Uygulama durumu (2026-09-20)
 
-Aşama 0–8 kodda bitti; ayrıntı, sapmalar ve sıradaki iş `docs/profile-v2-plan.md`
-başındaki "Uygulama durumu" tablosunda. Sunucu tarafı (migrasyon + Edge Function'lar)
-**henüz uzak projeye dağıtılmadı**. Simülatörde doğrulanan durumlar: B0 (boş), B1
-(dolu), B8 (kriz), AX5'te kimlik kartı, defter kartı, rozet başlığı, anonim satır
-ve ayarlar. Doğrulanmayanlar: gerçek fotoğraf seçimi, kapak açılış animasyonunun
-zamanlaması (yalnızca kod incelemesi), VoiceOver turu.
+Aşama 0–8 bitti; ayrıntı, sapmalar ve doğrulama tablosu `docs/profile-v2-plan.md`
+başındaki "Uygulama durumu" bölümünde. Sunucu 2026-09-20'de dağıtıldı ve canlı duman
+testinden geçti (39/39). Simülatörde varsayılan boyutta ve AX5'te doğrulananlar:
+B0 (boş), B1 (dolu), B8 (kriz), rozet ızgarası ve yaprağı, defter, not yazma,
+ayarlar ve alt sayfaları; ayrıca Reduce Motion, Reduce Transparency ve görsel
+varlıkların yokluğu. Doğrulanmayan: VoiceOver turu ve gerçek cihazda fotoğraf
+seçimi.

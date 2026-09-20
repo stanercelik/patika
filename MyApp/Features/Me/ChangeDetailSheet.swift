@@ -209,39 +209,54 @@ struct ChangeDetailSheet: View {
 }
 
 /// "Nasıl ölçüyoruz" — güvenin kaynağı gizem değil şeffaflık.
+///
+/// Ayarların geri kalanıyla aynı dil: koyu orman zemini, adaçayı kartlar, projenin
+/// tipografi rolleri.
 struct MeasurementMethodView: View {
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                Text(Copy.Me.Method.intro)
-                    .font(.body.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textPrimary.color)
+        ZStack {
+            WoodlandStyle.background.ignoresSafeArea()
 
-                block(title: Copy.Me.Method.layersTitle, lines: [
-                    Copy.Me.Method.emotion,
-                    Copy.Me.Method.behavior,
-                    Copy.Me.Method.selfEfficacy,
-                ])
-                block(title: Copy.Me.Method.rotationTitle, lines: [Copy.Me.Method.rotation])
-                block(title: Copy.Me.Method.clinicalTitle, lines: [Copy.Me.Method.clinical])
+            ScrollView {
+                VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.sectionSpacing) {
+                    Text(Copy.Me.Method.intro)
+                        .font(Theme.TypeFace.rowValue)
+                        .foregroundStyle(Theme.textPrimary.color)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    block(title: Copy.Me.Method.layersTitle, lines: [
+                        Copy.Me.Method.emotion,
+                        Copy.Me.Method.behavior,
+                        Copy.Me.Method.selfEfficacy,
+                    ])
+                    block(title: Copy.Me.Method.rotationTitle, lines: [Copy.Me.Method.rotation])
+                    block(title: Copy.Me.Method.clinicalTitle, lines: [Copy.Me.Method.clinical])
+                }
+                .padding(.horizontal, Theme.Spacing.screenMargin)
+                .padding(.top, 8)
+                .padding(.bottom, 32)
             }
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(Theme.Spacing.screenMargin)
+            .scrollIndicators(.hidden)
         }
         .navigationTitle(Text(Copy.Me.Method.title))
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private func block(title: LocalizedStringResource, lines: [LocalizedStringResource]) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.labelSpacing) {
             Text(title)
-                .font(.title3.weight(Theme.Weight.title))
+                .font(Theme.TypeFace.sectionTitle)
                 .foregroundStyle(Theme.textPrimary.color)
                 .accessibilityAddTraits(.isHeader)
-            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
-                Text(line)
-                    .font(.body.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
+            ProfileCard {
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                        Text(line)
+                            .font(Theme.TypeFace.rowValue)
+                            .foregroundStyle(Theme.textSecondary.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
             }
         }
     }

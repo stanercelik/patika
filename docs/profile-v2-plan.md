@@ -21,27 +21,36 @@ Referanslar Mobbin'den (birebir kopyalanmıyor):
 - Rozetler: stoic.'in sade rozet rafı ([ekran](https://mobbin.com/screens/4f2d0d12-94b1-410a-b34c-e8f1d6f38dbb)) ve Fitbit'in kilitli/açık rozet listesi ([ekran](https://mobbin.com/screens/439e6107-d27c-443f-82eb-90ecc8c09346)).
 - Ayarlar: Tide Guide ([ekran](https://mobbin.com/screens/cce4ab10-6d4a-4f25-a0a4-1b70483ca75c)) ve HYPE ([ekran](https://mobbin.com/screens/3cf1055e-d4d6-489e-9ecc-8930a2aecc76)), sürüm yazısı en altta.
 
-## Uygulama durumu (2026-09-19, akşam)
+## Uygulama durumu (2026-09-20)
 
 | Aşama | Durum | Not |
 |---|---|---|
 | 0 · Kural ve doküman | Bitti | CLAUDE.md, PRD §19, Ton eki, `profile-design` §21, `me-v2/prompts.md`; 18 görsel `Assets.xcassets/Me/` altında |
-| 1 · Sunucu | **Kod bitti, dağıtılmadı** | Migrasyon, `save-note`, `me-profile`/`delete-journal`/`delete-account` güncellemeleri, `_shared/crisis.ts` tek kaynak. Deno 29/29. Uzak projeye **uygulanmadı** ve canlı duman testi yapılmadı |
+| 1 · Sunucu | Bitti, **dağıtıldı** (2026-09-20) | Migrasyon `20260919120000` uygulandı; `save-note` (yeni), `me-profile`, `delete-journal`, `delete-account`, `complete-step`, `update-profile`, `generate-path` dağıtıldı. Deno 29/29; canlı duman testi 37/37 (`scripts/live-smoke-ben-v2.py`) |
 | 2 · İstemci veri katmanı | Bitti | `ProfileRecord` (eski `record.json` okunur), `BadgeCatalog`, `WeeklyRhythm`, `AvatarStore`, `NoteDraftStore`, `BackendClient` uçları. `Tests/BadgeCatalogTests` geçiyor |
 | 3 · "Ben" sayfası | Bitti | Simülatörde doğrulandı: dolu, boş, kriz, AX5 |
 | 4 · Defter sayfası | Bitti | Kâğıt yaprak, not yazma/düzenleme/silme, taslak, iki katmanlı kriz taraması |
 | 5 · Rozet kutlaması | Bitti | Oturum sonu (`PathSessionView`) ve defter; kriz ve Kova C'de açılmaz |
-| 6 · Ayarlar | Bitti | `PatikaSettings` bileşenleri, plandaki bölüm sırası |
+| 6 · Ayarlar | Bitti | `PatikaSettings` bileşenleri, plandaki bölüm sırası; alt sayfaların üçü de (hatırlatma, ad, nasıl ölçüyoruz) aynı zeminde ve adaçayı satırlarda |
 | 7 · Destek yerelleştirme | Bitti | `Support.xcstrings` TR+EN; numara bölgeden, metin `AppLocale`den. ⚠️ Numaralar hâlâ resmî kaynaktan doğrulanmalı |
 | 8 · DEBUG | Bitti | `-patika-debug-me v2full\|v2badges\|v2empty\|v2crisis`, `-patika-debug-me-route journal\|badges`, `-patika-debug-me-sheet note\|badge\|settings\|change\|support` |
 
-**Sıradaki iş (sıra önemli):** (1) migrasyonu ve Edge Function'ları dağıt
-(`supabase db push`, `supabase functions deploy save-note me-profile delete-journal
-delete-account complete-step update-profile generate-path`); (2) canlı duman testi
-(aşağıdaki Doğrulama 3); (3) cihazda gerçek fotoğraf yükleme ve VoiceOver turu.
-İstemci sunucudan önce çıkarsa güvenli: `ProfileSnapshot` yeni alanları
-`decodeIfPresent` ile okuyor, `save-note` yokken not yazma "yeniden dene" der ve
-taslak korunur.
+**Doğrulama durumu (plandaki 7 madde):**
+
+| # | Madde | Sonuç |
+|---|---|---|
+| 1 | `xcodebuild` | Geçti |
+| 2 | Deno testleri | 29/29 |
+| 3 | Canlı duman testi | 39/39 (`scripts/live-smoke-ben-v2.py`); not, kriz, 403, rozet tekilliği, avatar kovası, `avatarUpdatedAt`, hesap silme |
+| 4 | Simülatör turu, varsayılan boyut ve AX5 | Dolu, boş, kriz, rozet ızgarası, defter, rozet yaprağı, not yazma, ayarlar ve üç alt sayfa görüldü. AX5'te üç bozukluk bulunup düzeltildi: rozet yaprağı, defter kartı metni/sırt çakışması, kimlik kartı |
+| 5 | Reduce Motion / Reduce Transparency | Simülatör ayarlarıyla denendi: Reduce Motion'da kapak dönmüyor (çapraz solma), Reduce Transparency'de çayır şeridi yok ve kartlar düz. **VoiceOver denenmedi** |
+| 6 | Görseller olmadan | `-patika-debug-no-art` ile denendi (`PatikaArt`): kimlik kartı baş harfe, rozetler krem diske, defter kâğıdı düz kâğıt rengine, kapak adaçayı karta düşüyor; hiçbir ekran kırılmıyor |
+| 7 | CLAUDE.md | Tarihli bölüm var |
+
+**Sıradaki iş (yalnızca insan/cihaz gerektirenler):** gerçek cihazda fotoğraf
+seçimi ve yükleme (`PhotosPicker` simülatörde de çalışır ama galeriye erişmedim),
+VoiceOver turu (kimlik kartı tek öğe okunmalı, bulanık önizleme okunmamalı),
+Destek numaralarının resmî kaynaktan doğrulanması.
 
 **Plandan sapmalar (bilinçli):**
 
@@ -54,13 +63,18 @@ taslak korunur.
 - Rozetler "Ben" sayfası açılırken **sessizce** uzlaşır (kutlama yok); yaprak yalnızca
   oturum sonunda ve defterde açılır. Sunucuya yazma ateşle-unut; yazılamayanlar bir
   sonraki sayfa yüklemesinde `syncUnsynced` ile yeniden gönderilir.
+- Defter kartına dokununca kapak **hedef sayfada**, kâğıdın üstünde açılır
+  (`JournalCoverOverlay`) ve yakınlaşma geçişiyle aynı anda oynar. İlk sürüm kapağı
+  kartın içinde döndürüyordu; sistemin zoom geçişi kaynağın anlık görüntüsünü
+  kullandığı için dönüş hiç görünmüyordu (ekran kaydından doğrulandı).
 - Anonim hesap satırı plandaki "yolun kaybolmasın" yerine mevcut "Bu kayıt şimdilik
   yalnızca bu telefonda." cümlesini kullanır: kayıp kaçınması üretilmiş kaygıdır.
 
-**Bilinen sınırlar:** profil fotoğrafı başka bir cihazda değiştirilirse bu cihazın
-önbelleği, fotoğraf sunucudan silinene ya da önbellek boşalana kadar eski kalır
-(sunucu fotoğrafın değişim zamanını döndürmüyor). `me-paths-empty` ve
-`me-header-notebook` görselleri artık kullanılmıyor.
+**Bilinen sınırlar:** `me-paths-empty` ve `me-header-notebook` görselleri artık
+kullanılmıyor (silinmedi). Profil fotoğrafı başka bir cihazda değiştirilirse bu
+cihaz bir sonraki "Ben" yüklemesinde yenisini indirir: `me-profile` dosyanın
+değişim zamanını (`avatarUpdatedAt`) döndürüyor ve `AvatarStore` önbellek sürümüyle
+karşılaştırıyor.
 
 ## Onaylanan kararlar (2026-09-19)
 

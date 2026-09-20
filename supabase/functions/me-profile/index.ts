@@ -77,6 +77,8 @@ Deno.serve(async (req) => {
       ? await decryptJSON(statement.data.raw_text_ciphertext)
       : null;
 
+    const avatar = await avatarInfo(adminClient, user.id);
+
     const decryptedAnswers = await Promise.all((answers.data ?? []).map(async (row) => {
       const text = await safeDecrypt(row.answer_ciphertext);
       const step = Array.isArray(row.path_steps) ? row.path_steps[0] : row.path_steps;
@@ -135,7 +137,8 @@ Deno.serve(async (req) => {
       notes: decryptedNotes.filter((item) => item !== null),
       earnedBadges: (badges.data ?? []).map((row) => ({ id: row.badge_id, earnedAt: row.earned_at })),
       completedStepDates: (completedSteps.data ?? []).map((row) => row.completed_at),
-      avatarURL: await avatarSignedURL(adminClient, user.id),
+      avatarURL: avatar?.url ?? null,
+      avatarUpdatedAt: avatar?.updatedAt ?? null,
     });
   } catch (error) {
     const code = error instanceof Error ? error.message : "server_error";
@@ -148,13 +151,22 @@ const avatarSignedURLLifetime = 60 * 60;
 
 /// Fotoğraf yoksa ya da imzalanamazsa `null`: profil fotoğrafı yüzünden bütün
 /// sayfa düşmez, istemci baş harfe döner.
-async function avatarSignedURL(client: SupabaseClient, userId: string): Promise<string | null> {
+///
+/// `updatedAt` dosyanın son değişim zamanı: başka bir cihazda fotoğraf
+/// değiştirildiğinde bu cihazın önbelleği eski kalmasın diye istemci bunu
+/// önbelleğindeki sürümle karşılaştırır.
+async function avatarInfo(
+  client: SupabaseClient,
+  userId: string,
+): Promise<{ url: string; updatedAt: string | null } | null> {
   try {
     const storage = client.storage.from("avatars");
     const { data: files, error: listError } = await storage.list(userId, { limit: 10 });
-    if (listError || !files?.some((file) => file.name === "avatar.jpg")) return null;
+    const file = files?.find((item) => item.name === "avatar.jpg");
+    if (listError || !file) return null;
     const { data, error } = await storage.createSignedUrl(`${userId}/avatar.jpg`, avatarSignedURLLifetime);
-    return error ? null : data.signedUrl;
+    if (error) return null;
+    return { url: data.signedUrl, updatedAt: file.updated_at ?? file.created_at ?? null };
   } catch {
     return null;
   }

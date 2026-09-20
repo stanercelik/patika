@@ -103,7 +103,6 @@ private struct MeContent: View {
     @State private var sheet: MeSheet?
     @State private var isShowingSupport = false
     @State private var isChangeRevealed = true
-    @State private var isOpeningJournal = false
     @State private var scrollOffset: CGFloat = 0
     @State private var isShowingPhotoDialog = false
     @State private var isShowingPhotoPicker = false
@@ -149,8 +148,7 @@ private struct MeContent: View {
                         if !viewModel.isInCrisisMode {
                             JournalCoverCard(
                                 preview: viewModel.journalCardPreview,
-                                isOpening: isOpeningJournal,
-                                onOpen: openJournal
+                                onOpen: { path.append(.journal) }
                             )
                             .matchedTransitionSource(id: Self.journalSourceID, in: zoomNamespace)
                             .id(MeAnchor.journal)
@@ -199,6 +197,9 @@ private struct MeContent: View {
                         case "support": isShowingSupport = true
                         default: break
                         }
+                    }
+                    if MeDebugSeed.tapsJournalCard {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { path.append(.journal) }
                     }
                     guard let anchor = MeDebugSeed.anchor else { return }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
@@ -258,28 +259,8 @@ private struct MeContent: View {
         ) {
             Button(role: .cancel) {} label: { Text(Copy.Button.understood) }
         }
-        .onChange(of: path.isEmpty) { _, isEmpty in
-            // Defterden dönünce kapak yeniden kapanır.
-            if isEmpty { isOpeningJournal = false }
-        }
         .task(id: viewModel.change?.latestMeasurementID) {
             await playChangeRevealIfNeeded()
-        }
-    }
-
-    /// Kapak önce açılır (~420 ms, 800 ms bütçesinin içinde), ardından defter
-    /// sayfasına yakınlaşma geçişi. Reduce Motion'da doğrudan geçiş.
-    private func openJournal() {
-        guard !isOpeningJournal else { return }
-        guard !reduceMotion else {
-            path.append(.journal)
-            return
-        }
-        isOpeningJournal = true
-        Task {
-            try? await Task.sleep(for: .seconds(0.42))
-            guard isOpeningJournal else { return }
-            path.append(.journal)
         }
     }
 
@@ -396,7 +377,7 @@ private struct ChangeSection: View {
     private var card: some View {
         ProfileCard {
             HStack(alignment: .top, spacing: 14) {
-                if !dynamicTypeSize.isAccessibilitySize {
+                if !dynamicTypeSize.isAccessibilitySize, PatikaArt.exists("me-change") {
                     Image(decorative: "me-change")
                         .resizable()
                         .scaledToFit()

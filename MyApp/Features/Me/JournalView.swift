@@ -184,17 +184,16 @@ struct JournalView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background { paper }
+        // Kapak kâğıdın üstünde başlar ve sayfa açılırken (yakınlaşma geçişiyle
+        // aynı anda) sol kenarından açılır.
+        .overlay { JournalCoverOverlay(preview: viewModel.journalCardPreview) }
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .padding(.horizontal, 12)
         .padding(.bottom, 12)
     }
 
     private var paper: some View {
-        Image(decorative: "me-journal-paper")
-            .resizable()
-            .scaledToFill()
-            .overlay(WoodlandStyle.paper.opacity(0.35))
-            .clipped()
+        PatikaPaperTexture()
     }
 
     private func rowInsets(top: CGFloat, bottom: CGFloat) -> EdgeInsets {

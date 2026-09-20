@@ -16,6 +16,23 @@ final class AvatarStore {
     private(set) var image: UIImage?
     @ObservationIgnored private let fileURL: URL?
 
+    /// Önbellekteki fotoğrafın sürümü: sunucudaki değişim zamanı (indirildiyse) ya da
+    /// bu cihazdaki yükleme anı. Tarih, kişisel veri değil; `UserDefaults` yeterli.
+    @ObservationIgnored private static let versionKey = "patika.avatar.version"
+    private var cachedVersion: Date? {
+        get {
+            let value = UserDefaults.standard.double(forKey: Self.versionKey)
+            return value > 0 ? Date(timeIntervalSince1970: value) : nil
+        }
+        set {
+            if let newValue {
+                UserDefaults.standard.set(newValue.timeIntervalSince1970, forKey: Self.versionKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: Self.versionKey)
+            }
+        }
+    }
+
     /// Yüklenen kare kenarı (px). Yüz tanınsın diye yeterli, sunucuya gidecek
     /// veri küçük kalsın diye sınırlı.
     nonisolated static let edge: CGFloat = 512
@@ -68,10 +85,13 @@ final class AvatarStore {
 
     // MARK: - Önbellek
 
-    /// Sunucuya yazılmış fotoğrafı önbelleğe koyar.
-    func cache(_ jpeg: Data) {
+    /// Sunucuya yazılmış fotoğrafı önbelleğe koyar. `version` verilmezse şimdi:
+    /// bu cihazda yüklendi, sunucudaki değişim zamanı buna çok yakın.
+    func cache(_ jpeg: Data, version: Date = .now) {
         guard let decoded = UIImage(data: jpeg) else { return }
         image = decoded
+        // Ephemeral (dosyasız) depo gerçek hesabın sürümünü ezmesin.
+        if fileURL != nil { cachedVersion = version }
         guard let fileURL else { return }
         do {
             try FileManager.default.createDirectory(
@@ -87,21 +107,27 @@ final class AvatarStore {
     func clear() {
         image = nil
         guard let fileURL else { return }
+        cachedVersion = nil
         try? FileManager.default.removeItem(at: fileURL)
     }
 
     /// Sunucudaki durumla uzlaştırır: fotoğraf yoksa önbellek de boşalır (başka
-    /// bir cihazda kaldırılmış olabilir); varsa ve önbellek boşsa indirilir.
-    /// İndirilemezse sessizce baş harfe düşülür — fotoğraf yüzünden hata gösterilmez.
-    func reconcile(withServerURL url: URL?) async {
+    /// bir cihazda kaldırılmış olabilir); varsa ve önbellek boşsa **ya da
+    /// önbellekteki sürüm sunucudakinden eskiyse** indirilir (başka bir cihazda
+    /// değiştirilmiş olabilir). Eski sunucu değişim zamanı döndürmezse yalnızca
+    /// boş önbellek indirilir. İndirilemezse sessizce eldeki fotoğrafa (ya da baş
+    /// harfe) düşülür — fotoğraf yüzünden hata gösterilmez.
+    func reconcile(withServerURL url: URL?, updatedAt: Date? = nil) async {
         guard let url else {
             clear()
             return
         }
-        guard image == nil else { return }
+        if image != nil {
+            guard let updatedAt, let cached = cachedVersion, updatedAt > cached else { return }
+        }
         guard let (data, response) = try? await URLSession.shared.data(from: url),
               (response as? HTTPURLResponse)?.statusCode == 200
         else { return }
-        cache(data)
+        cache(data, version: updatedAt ?? .now)
     }
 }

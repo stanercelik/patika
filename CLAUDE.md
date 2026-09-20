@@ -709,11 +709,23 @@ silindi.
   `_shared/crisis.ts` tek kaynağından geçer; `providers.ts` kendi listesini tutmaz.
 - **Destek al metni** `Support.xcstrings`te: numara cihaz bölgesinden, dil
   `AppLocale.current`ten. Diğer arayüz hâlâ sabit Türkçe.
-- **⚠️ Dağıtılmadı.** Migrasyon `20260919120000_*` ve Edge Function'lar (`save-note`
-  yeni; `me-profile`, `delete-journal`, `delete-account`, `complete-step`,
-  `update-profile`, `generate-path` güncellendi) uzak projeye uygulanmadı; canlı
-  duman testi yapılmadı. İstemci sunucudan önce çıkarsa güvenli (yeni alanlar
-  `decodeIfPresent`, not yazma "yeniden dene" der).
+- **Dağıtıldı (2026-09-20).** Migrasyon `20260919120000_*` ve yedi Edge Function
+  (`save-note` yeni; `me-profile`, `delete-journal`, `delete-account`, `complete-step`,
+  `update-profile`, `generate-path` güncellendi) uzak projede. Canlı duman testi:
+  `python3 scripts/live-smoke-ben-v2.py` (39/39; iki anonim kullanıcı açar ve
+  siler). Hâlâ açık: cihazda gerçek fotoğraf seçimi, VoiceOver turu, Destek
+  numaralarının resmî kaynaktan doğrulanması.
+- **Görsel yoksa ekran kırılmaz:** `PatikaArt.exists(_:)` varlığı sorar; yoksa ya yer
+  kaplamaz ya da adaçayı düz yüzey çizilir (`PatikaPaperTexture`, `BadgeMedallion`,
+  `JournalCoverFace`). `-patika-debug-no-art` bütün görselleri yokmuş gibi gösterir.
+  AX boyutlarında defter kapağı da düz yüzeydir (dekoratif görsel saklanır).
+- **Fotoğraf önbelleği:** `me-profile` `avatarUpdatedAt` döndürür; `AvatarStore`
+  önbellek sürümü sunucudakinden eskiyse yeniden indirir.
+- **`Form` satırları:** `listRowBackground` `Form`a verilince satırlara geçmiyor;
+  her satıra `settingsFormRow()` verilir.
+- **Defter kartı geçişi:** kapak kartta değil **hedef sayfada**, kâğıdın üstünde
+  açılır (`JournalCoverOverlay`) ve zoom geçişiyle aynı anda oynar; sistemin zoom
+  geçişi kaynağın anlık görüntüsünü kullandığı için kartın içindeki dönüş görünmez.
 - **Test:** `Tests/BadgeCatalogTests` (rozet kuralları, haftalık ritim, eski
   `record.json`'ın okunabilmesi). Test hedefi yok, elle derlenir:
 

@@ -9,13 +9,26 @@ struct BadgeMedallion: View {
     var size: CGFloat = 72
 
     var body: some View {
-        Image(decorative: id.assetName)
-            .resizable()
-            .scaledToFit()
-            .frame(width: size, height: size)
-            .saturation(isEarned ? 1 : 0)
-            .opacity(isEarned ? 1 : 0.3)
-            .accessibilityHidden(true)
+        Group {
+            if PatikaArt.exists(id.assetName) {
+                Image(decorative: id.assetName)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                // Görsel yoksa krem disk ve tek simge: raf boş boşluk göstermesin.
+                ZStack {
+                    Circle().fill(WoodlandStyle.paper)
+                    Circle().strokeBorder(WoodlandStyle.ink, lineWidth: 3)
+                    Image(systemName: "leaf")
+                        .font(.system(size: size * 0.36, weight: .semibold))
+                        .foregroundStyle(WoodlandStyle.secondaryInk)
+                }
+            }
+        }
+        .frame(width: size, height: size)
+        .saturation(isEarned ? 1 : 0)
+        .opacity(isEarned ? 1 : 0.3)
+        .accessibilityHidden(true)
     }
 }
 

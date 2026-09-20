@@ -389,6 +389,8 @@ extension Copy {
                 "Adın kaydedilemedi. Bu senin yüzünden değil; yeniden deneyebilirsin."
             static let accountHeader: LocalizedStringResource = "Hesap"
             static let nameRow: LocalizedStringResource = "Sana nasıl hitap edelim"
+            /// Sayfa başlığı: `nameRow` gezinme çubuğunda düğmenin yanında kırpılıyordu.
+            static let nameTitle: LocalizedStringResource = "Adın"
             static let nameNone: LocalizedStringResource = "Ad yok"
             static let namePlaceholder: LocalizedStringResource = "Adın"
             static let nameHint: LocalizedStringResource =
