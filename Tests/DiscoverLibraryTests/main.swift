@@ -41,7 +41,6 @@ func run() throws {
     library.enroll(path, voice: .masculine)
     precondition(library.status(path) == .inProgress(done: 0, total: 7))
     precondition(library.inProgressPaths.map(\.id) == [path.id])
-    precondition(library.activePath?.id == path.id)
     precondition(library.voice(for: path) == .masculine)
     precondition(library.isAvailable(path.steps[0], in: path))
     precondition(!library.isAvailable(path.steps[1], in: path))
@@ -50,20 +49,49 @@ func run() throws {
     library.complete(path.steps[0], in: path)
     precondition(library.isAvailable(path.steps[1], in: path))
     precondition(library.isAvailable(path.steps[0], in: path), "Replay must remain possible")
+    // Katılım Keşfet'te kalır: ikinci patikaya katılmak birincisini bırakmaz ve
+    // ilerlemeler karışmaz.
     let other = library.paths[1]
     library.enroll(other, voice: .feminine)
-    precondition(library.completedCount(path) == 1, "Switching must preserve progress")
-    library.openPersonalPath()
-    precondition(library.activePath == nil)
-    precondition(library.completedCount(path) == 1)
+    precondition(library.isEnrolled(path) && library.isEnrolled(other), "Enrolling a second path must not drop the first")
+    precondition(library.completedCount(path) == 1, "Joining another path must preserve progress")
+    precondition(library.completedCount(other) == 0, "A new enrollment starts empty")
+    precondition(library.voice(for: path) == .masculine && library.voice(for: other) == .feminine, "Voices are per path")
+    precondition(library.inProgressPaths.map(\.id) == [other.id, path.id], "Most recently joined comes first")
+    library.complete(other.steps[0], in: other)
+    library.complete(path.steps[1], in: path)
+    precondition(library.isComplete(other.steps[0], in: other) && !library.isComplete(other.steps[0], in: path), "Step ids never leak between paths")
+    precondition(library.completedCount(path) == 2 && library.completedCount(other) == 1, "Progress stays separate")
+    library.complete(other.steps[0], in: other)
+    precondition(library.completedCount(other) == 1, "Replay is not progress")
+    precondition(library.inProgressPaths.map(\.id) == [path.id, other.id], "Most recent progress comes first")
+    precondition(library.status(other) == .inProgress(done: 1, total: 7))
+    library.enroll(other, voice: .masculine)
+    precondition(library.completedCount(other) == 1, "Enrolling again keeps progress")
+    precondition(library.voice(for: other) == .masculine)
     let restored = DiscoverLibrary(defaults: defaults, bundle: bundle)
-    precondition(restored.completedCount(path) == 1)
+    precondition(restored.completedCount(path) == 2)
+    precondition(restored.completedCount(other) == 1)
     precondition(restored.voice(for: path) == .masculine)
-    precondition(restored.activePath == nil)
+    precondition(restored.inProgressPaths.map(\.id) == [other.id, path.id], "Order survives a relaunch")
     for step in path.steps { restored.complete(step, in: path) }
     precondition(restored.nextStep(path) == nil)
     precondition(restored.completedCount(path) == 7)
     precondition(restored.status(path) == .completed)
+    precondition(restored.inProgressPaths.map(\.id) == [other.id], "A finished path leaves the continue list")
+    // Bu değişiklikten önce yazılmış bir kayıt: hazır patikanın Yolum'u devralmasından
+    // kalan `activeID` okunurken yok sayılır, ilerleme kaybolmaz.
+    let legacy = "DiscoverTests.legacy.\(UUID())"
+    let legacyDefaults = UserDefaults(suiteName: legacy)!
+    defer { legacyDefaults.removePersistentDomain(forName: legacy) }
+    let step = path.steps[0].id
+    legacyDefaults.set(Data("""
+    {"activeID":"\(path.id)","enrollments":{"\(path.id)":{"completed":["\(step)"],"voice":"masculine"}}}
+    """.utf8), forKey: "discover.library.v1")
+    let migrated = DiscoverLibrary(defaults: legacyDefaults, bundle: bundle)
+    precondition(migrated.isEnrolled(path) && migrated.completedCount(path) == 1, "Legacy progress must survive")
+    precondition(migrated.voice(for: path) == .masculine)
+    precondition(migrated.inProgressPaths.map(\.id) == [path.id])
     var raw = try JSONSerialization.jsonObject(with: Data(contentsOf: catalogURL)) as! [String: Any]
     var rawPaths = raw["paths"] as! [[String: Any]]
     rawPaths[1]["category"] = rawPaths[0]["category"]
@@ -71,6 +99,6 @@ func run() throws {
     let duplicate = try makeBundle(catalog: JSONSerialization.data(withJSONObject: raw))
     defer { try? FileManager.default.removeItem(at: duplicate.bundleURL) }
     precondition((try? DiscoverCatalog.load(bundle: duplicate)) == nil, "One path per category")
-    print("PASS: preview gating, missing audio, sections, status, unique categories, sequential steps, replay, switching, persistence, completion")
+    print("PASS: preview gating, missing audio, sections, status, unique categories, sequential steps, replay, multi-enrollment isolation, ordering, legacy record, persistence, completion")
 }
 try MainActor.assumeIsolated { try run() }

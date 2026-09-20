@@ -11,13 +11,15 @@ import SwiftUI
 /// - **Adımlar** "Yolum"un tabela rotasıdır (`DiscoverTrailMap`).
 /// - Katılım alt eylem satırında; ses yoksa düğme kapalı ve gerekçesi yazılı.
 ///   AX boyutlarında eylem sabitlenmez, içerikle kayar.
+/// - **Katılım Keşfet'te kalır**: katılınca ekran değişmez, yalnızca önizleme
+///   canlı duruma döner. Hazır patika Yolum'u devralmaz.
+/// - Oturum `PathSessionView`la açılır (Yolum'la aynı sahne ve motor).
 struct DiscoverPathView: View {
     let path: DiscoverPath
-    /// Katılmadan önce: durum yok, oturum başlatılamaz.
-    let isPreview: Bool
-    var onJoined: () -> Void = {}
 
     @Environment(DiscoverLibrary.self) private var library
+    @Environment(AppServices.self) private var services
+    @Environment(PaletteController.self) private var palette
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
@@ -33,6 +35,10 @@ struct DiscoverPathView: View {
     private static let heroClearance: CGFloat = 176
 
     private var isAccessible: Bool { dynamicTypeSize.isAccessibilitySize }
+
+    /// Katılmadan önce: durum yok, oturum başlatılamaz. Kütüphaneden okunur ki
+    /// katılınca ekran kendiliğinden canlı duruma geçsin.
+    private var isPreview: Bool { !library.isEnrolled(path) }
 
     private var showsHero: Bool {
         !isAccessible && !reduceTransparency && PatikaArt.exists(path.artwork)
@@ -119,11 +125,15 @@ struct DiscoverPathView: View {
             }
         }
         .confirmationDialog(DiscoverCopy.joinTitle, isPresented: $confirmsJoin, titleVisibility: .visible) {
-            Button(DiscoverCopy.join) { library.enroll(path, voice: selectedVoice); onJoined() }
+            Button(DiscoverCopy.join) {
+                library.enroll(path, voice: selectedVoice)
+                expandedStepID = library.nextStep(path)?.id
+            }
             Button(DiscoverCopy.cancel, role: .cancel) {}
         } message: { Text(DiscoverCopy.joinBody) }
         .fullScreenCover(item: $session) { step in
-            DiscoverSessionView(path: path, step: step, library: library)
+            PathSessionView(services: services, preparedPath: path, step: step, library: library)
+                .environment(palette)
         }
         .onAppear {
             selectedVoice = library.voice(for: path)
@@ -135,6 +145,13 @@ struct DiscoverPathView: View {
                args.indices.contains(index + 1), let number = Int(args[index + 1]),
                path.steps.indices.contains(number - 1) {
                 expandedStepID = path.steps[number - 1].id
+            }
+            // `-patika-debug-discover-session <n>`: n. adımın oturumunu doğrudan açar
+            // (katılınmış patikada; katılım için `-patika-debug-discover-enrolled`).
+            if let index = args.firstIndex(of: "-patika-debug-discover-session"),
+               args.indices.contains(index + 1), let number = Int(args[index + 1]),
+               path.steps.indices.contains(number - 1), !isPreview {
+                session = path.steps[number - 1]
             }
             #endif
         }

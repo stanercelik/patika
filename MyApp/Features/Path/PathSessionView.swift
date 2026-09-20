@@ -5,6 +5,9 @@ import SwiftUI
 /// G1 ile aynı sahne (`SessionStageView`), aynı motor ve aynı ses. Farkı sonu:
 /// akış yönlendirmesi yerine adım tamamlanıp ekran kapanıyor; ölçüm günüyse
 /// arada kısa bir ölçüm var.
+///
+/// Keşfet'in hazır patikaları da bu ekranı kullanır (`init(services:preparedPath:step:library:)`):
+/// aynı sahne, aynı kontroller, aynı ses motoru. Onlarda soru, ölçüm ve rozet yok.
 struct PathSessionView: View {
     @Environment(PaletteController.self) private var palette
     @Environment(\.dismiss) private var dismiss
@@ -14,6 +17,15 @@ struct PathSessionView: View {
 
     init(services: AppServices, path: ActivePath, step: PathStepRecord) {
         _viewModel = State(initialValue: PathSessionViewModel(services: services, path: path, step: step))
+    }
+
+    init(services: AppServices, preparedPath: DiscoverPath, step: DiscoverStep, library: DiscoverLibrary) {
+        _viewModel = State(initialValue: PathSessionViewModel(
+            services: services,
+            preparedPath: preparedPath,
+            step: step,
+            library: library
+        ))
     }
 
     var body: some View {
@@ -97,23 +109,69 @@ struct PathSessionView: View {
                     .transition(.onboardingStep(reduceMotion: false))
             }
         case .finished:
-            VStack(spacing: Theme.Spacing.stack) {
-                Spacer()
-                DisplayText(
-                    viewModel.didReachEnd
-                        ? Copy.Session.completedHeadline
-                        : Copy.Session.leftEarlyHeadline,
-                    size: 30
-                )
-                Spacer()
-                PrimaryButton(title: Copy.Path.doneCTA, isEnabled: true) { dismiss() }
-                    .padding(.bottom, 12)
+            if viewModel.isPrepared {
+                preparedFinished
+            } else {
+                VStack(spacing: Theme.Spacing.stack) {
+                    Spacer()
+                    DisplayText(
+                        viewModel.didReachEnd
+                            ? Copy.Session.completedHeadline
+                            : Copy.Session.leftEarlyHeadline,
+                        size: 30
+                    )
+                    Spacer()
+                    PrimaryButton(title: Copy.Path.doneCTA, isEnabled: true) { dismiss() }
+                        .padding(.bottom, 12)
+                }
+                .padding(.horizontal, Theme.Spacing.screenMargin)
             }
-            .padding(.horizontal, Theme.Spacing.screenMargin)
+        case .audioUnavailable:
+            audioUnavailable
         case .crisis:
             // Kriz ekranında hareket yok ve akış durur (PRD §11).
             CrisisView()
         }
+    }
+
+    /// Hazır patikanın sonu. "İlk adım tamam" değil: G2'nin cümlesi yalnızca
+    /// ilk adım içindir. Yarıda bırakılınca "tamam" denmez.
+    private var preparedFinished: some View {
+        VStack(spacing: Theme.Spacing.stack) {
+            Spacer()
+            if viewModel.didReachEnd {
+                Text(verbatim: viewModel.finishedPreparedPath ? DiscoverCopy.allDone : DiscoverCopy.completed)
+                    .font(Theme.TypeFace.coverTitle)
+                    .foregroundStyle(Theme.textPrimary.color)
+                Text(verbatim: viewModel.finishedPreparedPath ? DiscoverCopy.allDoneBody : DiscoverCopy.completedBody)
+                    .font(Theme.TypeFace.rowValue)
+                    .foregroundStyle(Theme.textSecondary.color)
+            } else {
+                DisplayText(Copy.Session.leftEarlyHeadline, size: 30)
+            }
+            Spacer()
+            DiscoverAction(title: DiscoverCopy.close) { dismiss() }
+                .padding(.bottom, 12)
+        }
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+    }
+
+    /// Hazır patikanın kaydı çalınamadı. Adım tamamlanmadı ve kaybolmadı.
+    private var audioUnavailable: some View {
+        VStack(spacing: Theme.Spacing.stack) {
+            Spacer()
+            Text(verbatim: DiscoverCopy.audioUnavailable)
+                .font(Theme.TypeFace.rowValue)
+                .foregroundStyle(Theme.textPrimary.color)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            DiscoverAction(title: DiscoverCopy.retry) { viewModel.retryPrepared() }
+            SecondaryTextButton(title: Copy.Session.leave) { dismiss() }
+                .frame(minHeight: 44)
+            Spacer()
+        }
+        .padding(.horizontal, Theme.Spacing.screenMargin)
     }
 
     @ViewBuilder

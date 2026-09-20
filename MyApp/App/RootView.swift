@@ -31,7 +31,7 @@ struct RootView: View {
     var body: some View {
         TabView(selection: $selection) {
             Tab("Yolum", systemImage: "point.topleft.down.to.point.bottomright.curvepath", value: RootTab.path) {
-                MyPathTab()
+                MyPathView()
             }
             Tab("Keşfet", systemImage: "square.grid.2x2", value: RootTab.discover) {
                 DiscoverView { selection = .path }
@@ -68,19 +68,8 @@ struct RootView: View {
 
 // MARK: - Sekme iskeletleri
 //
-// Yolum `MyPathView`, Ben `MeView`.
-
-struct MyPathTab: View {
-    @Environment(DiscoverLibrary.self) private var library
-    var body: some View {
-        if let path = library.activePath {
-            DiscoverPathView(path: path, isPreview: false)
-                .id(path.id)
-        } else {
-            MyPathView()
-        }
-    }
-}
+// Yolum `MyPathView`, Ben `MeView`. Hazır patikalar Keşfet'te kalır; Yolum yalnızca
+// kişisel patikayı gösterir.
 
 /// Kriz ekranı hariç her yerde kullanılabilir basit yerleşim.
 struct ScreenPlaceholder: View {

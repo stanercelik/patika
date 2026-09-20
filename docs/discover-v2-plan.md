@@ -2,7 +2,8 @@
 
 ## Uygulama durumu (20 Eylül 2026)
 
-**Aşama 0–4 tamam ve simülatörde doğrulandı.** Aşama 5–8 bekliyor.
+**Aşama 0–6 tamam ve simülatörde doğrulandı.** Aşama 7 (7 yeni patikanın içeriği) bekliyor;
+Aşama 8 kısmen: sekiz görsel teslim edildi ama henüz imageset değil (aşağıya bak).
 
 | Aşama | Durum | Not |
 |---|---|---|
@@ -11,6 +12,10 @@
 | 2 Ortak dil | Tamam | `DiscoverStyle` silindi, `Theme.TypeFace`, `PatikaArt.exists` |
 | 3 Ana ekran | Tamam | `DiscoverView`, `DiscoverCards`, paylaşılan `ScrollHidesHeader` ve `PathLandscapeScene` |
 | 4 Detay | Tamam | push + zoom, `DiscoverTrailMap`, paylaşılan `SignpostRoute`, hero |
+| 5 Oturum birleştirme | Tamam | `PathSessionViewModel.Source`, `DiscoverSessionView/ViewModel` silindi |
+| 6 Katılım Keşfet'te | Tamam | Yolum devralması kalktı, çoklu katılım, `recency` sırası |
+| 7 İçerik: 7 yeni patika | Bekliyor | Katalog hâlâ 3 patika (`breath`, `evening`, `focus`) |
+| 8 Görseller + doğrulama | Kısmen | 8 PNG teslim edildi; imageset kaydı, ≤600 KB küçültme ve görsel doğrulama açık |
 
 Plandan sapmalar ve nedenleri:
 
@@ -23,7 +28,7 @@ Plandan sapmalar ve nedenleri:
   Arayüz metni TR olsa bile oturum metni EN kalır.
 - **`isPreview` katılıma bağlı.** Keşfet'ten açılan detay, katılınmış patikada canlı
   durumu (tamamlanan adımlar, sıradaki adım, oturum başlatma) gösterir; katılınmamışta
-  önizlemedir. Katılma hâlâ Yolum'a geçirir — bu aşama 6'da değişecek.
+  önizlemedir. Katılma artık ekranı değiştirmez (aşama 6): önizleme canlı duruma döner.
 - **Detayın kaydırma miktarı `ScrollOffsetBox`ta.** Ekran bu değeri okumaz, yalnızca hero
   okur; her kaydırma pikselinde bütün detay yeniden çizilmez.
 - **Yolum'a dokunuldu (refactor):** başlık kaydırma algılayıcısı, manzara ve rota çizimi
@@ -36,10 +41,41 @@ Plandan sapmalar ve nedenleri:
   bayrağı simülatörün UserDefaults'una yazar). `-patika-debug-discover-preview <id>` artık
   sheet değil push açar.
 
+**Aşama 5–6 sapmaları ve nedenleri:**
+
+- **`PathSessionViewModel` `Source` enum'u aldı** (`.personal` / `.prepared`). Plan "dallar
+  `pathKind == .prepared` ile atlanır" diyordu; ViewModel'in `path`/`step` alanları kişisel
+  tipler (`ActivePath`, `PathStepRecord`) olduğu için dallar tek noktada, `personal` özelliği
+  üzerinden ayrıldı: ağ, ölçüm, rozet, kriz ve soru koduna hazır patikadan girilemiyor.
+- **Hazır patikada sessiz sürüm yok.** Kişisel patikada ses gelmezse oturum sessiz tamamlanır;
+  hazır patikada ses içeriğin kendisi. Kayıt çalınamazsa yeni `Phase.audioUnavailable`
+  ("Bu kayıt açılamadı. İlerlemen değişmedi." + "Yeniden dene") gösterilir ve adım
+  tamamlanmaz. Tamamlanma yalnızca ses gerçekten başlamış ve sonuna kadar gitmişse yazılır
+  (`preparedAudioStarted`). Yeniden deneme için `runner` artık `private(set) var`.
+- **Son adımda "Sıradaki adımın seni bekler" denmez.** Bitiş ekranı patikanın son adımıysa
+  `allDone`/`allDoneBody` metnini kullanır (`finishedPreparedPath`). "İlk adım tamam"
+  (G2 cümlesi) hazır patikada hiç kullanılmaz.
+- **`Saved.activeID` alandan tamamen çıkarıldı**, yok sayma için ayrı kod gerekmedi:
+  `Codable` bilinmeyen anahtarı okurken atlıyor. Eski bir kayıtla test edildi.
+- **"Kaldığın yerden" sırası** `activeID` yerine `Enrollment.recency` ile belirlenir (en son
+  *yeni adım* tamamlayan ya da katılan başta; yeniden dinleme sırayı değiştirmez). Alan
+  opsiyonel: bu alandan önce yazılmış kayıtlar okunabilmeli, aksi hâlde ilerleme kaybolurdu.
+- **Kişisel patika kartı** artık onay diyaloğu açmaz, doğrudan Yolum'a geçirir
+  (`personalConfirm*` metinleri silindi). `joinTitle` "Bu patikaya katılmak ister misin?"
+  oldu; "mevcut patikan" kavramı kalktı.
+- **Hazır patika oturumu profile dokunmaz:** haftalık ritim, rozet ve `ProfileRecord`
+  güncellenmez. Bunun "Ben"deki ritme yansıyıp yansımayacağı ayrı bir ürün kararıdır.
+- **`-patika-debug-discover-session <n>`** katılınmış patikada n. adımın oturumunu doğrudan açar.
+- **Doğrulama komutu düzeltildi:** aşağıdaki `swiftc` satırı `DiscoverSection.swift` ve
+  `DiscoverCopy.swift` olmadan derlenmiyordu; eski ikili dosya kaldığı için test geçmiş
+  görünüyordu. Test çalıştırmadan önce `rm /tmp/discovertest`.
+
 Bilinen sınır: kaydırılan içerik durum çubuğundaki saatin altına giriyor (simülatörde
-üst kenar efekti görünmüyor; Yolum ve Ben'de de aynı). Görsel yükleri gelmeden
-`discover-world` manzarası ve yedi yeni kart görseli doğrulanamadı; ekran varlık yokken
-kırılmıyor (`-patika-debug-no-art` ile doğrulandı).
+üst kenar efekti görünmüyor; Yolum ve Ben'de de aynı). `discover-world` manzarası ve yedi
+yeni kart görseli teslim edildi ama `Assets.xcassets/Discover/` altında düz `.png` olarak
+duruyor; imageset olmadıkları için `UIImage(named:)` bulamıyor ve `PatikaArt.exists` hâlâ
+false döner. Ekran varlık yokken kırılmıyor (`-patika-debug-no-art` ile doğrulandı), bu
+yüzden görseller hiç görünmüyor ama hata da yok.
 
 ---
 
@@ -222,21 +258,21 @@ oturum da `SessionRunner` + `SessionStageView` üzerinden çalışır.
   zamanla ayrışması demekti.
 - [x] Hero görsel `MeBackdrop` fade/parallax matematiğiyle.
 
-### Aşama 5 — Oturum birleştirme (bekliyor)
-- [ ] `DiscoverSessionView.swift` ve `DiscoverSessionViewModel.swift` silinir.
-- [ ] `PathSessionViewModel`'e hazır patika girişi: `DiscoverLibrary.playback(for:in:)`'ten
+### Aşama 5 — Oturum birleştirme (yapıldı)
+- [x] `DiscoverSessionView.swift` ve `DiscoverSessionViewModel.swift` silinir.
+- [x] `PathSessionViewModel`'e hazır patika girişi: `DiscoverLibrary.playback(for:in:)`'ten
   gelen `SessionPlayback` doğrudan verilir (ağ isteği, ölçüm, rozet, `completeStep`
   dalları `pathKind == .prepared` ile atlanır); tamamlanınca
   `library.complete(step, in: path)`.
-- [ ] `SessionArtwork` faz eşlemesi yalnızca görsel için (yukarıdaki sınır).
+- [x] `SessionArtwork` faz eşlemesi yalnızca görsel için (yukarıdaki sınır).
 
-### Aşama 6 — Katılım Keşfet'te kalır (bekliyor)
-- [ ] `RootView.MyPathTab` sadeleşir → `MyPathView()`. `DiscoverView`'ın `onOpenPath`
+### Aşama 6 — Katılım Keşfet'te kalır (yapıldı)
+- [x] `RootView.MyPathTab` sadeleşir → `MyPathView()`. `DiscoverView`'ın `onOpenPath`
   parametresi kişisel kart için kalır, katılım için kalkar.
-- [ ] `DiscoverLibrary`: `Saved.activeID` kullanımdan kalkar (çözümlenir, yok sayılır —
+- [x] `DiscoverLibrary`: `Saved.activeID` kullanımdan kalkar (çözümlenir, yok sayılır —
   eski kurulum kırılmaz); `enrollments` birden fazla aktif kayda izin verir;
   `openPersonalPath()` silinir. Depolama anahtarı `discover.library.v1` **aynı kalır**.
-- [ ] `Tests/DiscoverLibraryTests/main.swift` bu sözleşmeye göre güncellenir + yeni vaka:
+- [x] `Tests/DiscoverLibraryTests/main.swift` bu sözleşmeye göre güncellenir + yeni vaka:
   "iki patikaya aynı anda katılım ilerlemeleri karıştırmaz".
 
 ### Aşama 7 — İçerik: 7 yeni patika (bekliyor)
@@ -262,8 +298,21 @@ oturum da `SessionRunner` + `SessionStageView` üzerinden çalışır.
 > müdahale değildir" sınırı korunur. Yeni metinler klinik gözden geçirme beklemeden
 > yayına alınmaz (PRD-Ek Path Üretimi §2.3 ile aynı süreç kuralı).
 
-### Aşama 8 — Görseller + doğrulama (bekliyor)
+### Aşama 8 — Görseller + doğrulama (kısmen)
 Görseller `MyApp/Assets.xcassets/Discover/` altına **birebir bu adlarla** konur.
+
+- [x] Sekiz görsel üretildi ve `Assets.xcassets/Discover/` altına kondu (`discover-world`,
+  `-beat`, `-pressure`, `-refill`, `-rooms`, `-kinder`, `-carry`, `-unnamed`).
+- [ ] Her biri `discover-*.imageset` klasörüne taşınır (`Contents.json` + `artwork.png`,
+  mevcut `discover-evening.imageset` ile aynı kalıp). Şu an düz `.png`; katalog bunları
+  görmüyor.
+- [ ] Boyut ≤600 KB'a indirilir. Sekizi de ~3 MB (toplam ~24 MB); hedef toplam ≤8 MB.
+- [ ] `discover-world` ölçüsü: istenen 1024×3072, gelen 724×2172 (oran aynı, 1:3). Yeterli
+  netlik mi, simülatörde bakılır.
+- [ ] `discover-world` dikiş kontrolü: üst üste iki kez döşenince görünür kesit var mı,
+  orta %65 kartların altında sakin mi.
+- [ ] Yedi kart görselinin kartta (üstten kırpılma) ve detay hero'sunda görsel doğrulaması.
+- [ ] Aşağıdaki "Doğrulama" tablosundaki açık maddeler.
 
 ---
 
@@ -347,8 +396,11 @@ xcodebuild -project patika.xcodeproj -scheme MyApp \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
 
 # Hazır patika sözleşmesi (test hedefi yok, elle derlenir)
+# Son çalıştırma 20 Eylül 2026: PASS. Katalog aynası: birebir aynı (3 patika).
+rm -f /tmp/discovertest
 swiftc -o /tmp/discovertest MyApp/Content/Tone.swift MyApp/Models/DomainEnums.swift \
   MyApp/Models/SessionManifest.swift MyApp/Features/Discover/DiscoverCatalog.swift \
+  MyApp/Features/Discover/DiscoverSection.swift MyApp/Content/Discover/DiscoverCopy.swift \
   MyApp/Features/Discover/DiscoverLibrary.swift \
   Tests/DiscoverLibraryTests/main.swift && /tmp/discovertest
 
@@ -359,16 +411,22 @@ diff MyApp/Content/Discover/discover-catalog.json \
 
 Simülatörde görsel doğrulama (`xcrun simctl launch booted devplaceholder.X9RQKIJ8.MyApp <bayrak>`):
 
-| Kontrol | Nasıl |
-|---|---|
-| Başlık fontu ve "Explore" etiketinin kalktığı | `-patika-debug-tab kesfet` |
-| Bölümler, şeritler, reveal sırası | aynı |
-| Görsel yokken ekran kırılmıyor | `-patika-debug-no-art` |
-| Kart → detay zoom geçişi | `-patika-debug-discover-preview beat` |
-| AX5'te başlık akışa giriyor, hero ve manzara saklanıyor | `-patika-debug-ax5` |
-| Devam ettiğin bölümü, çoklu katılım | yeni `-patika-debug-discover-enrolled evening,focus` |
-| Yolum kişisel patikada kalıyor (devralma yok) | katılımdan sonra Yolum sekmesi |
-| Reduce Motion / Reduce Transparency / Increase Contrast | Ayarlar > Erişilebilirlik |
+| Kontrol | Nasıl | Durum |
+|---|---|---|
+| Başlık fontu ve "Explore" etiketinin kalktığı | `-patika-debug-tab kesfet` | Tamam |
+| Bölümler, şeritler, reveal sırası | aynı | Tamam |
+| Görsel yokken ekran kırılmıyor | `-patika-debug-no-art` | Tamam |
+| Kart → detay geçişi açılıyor | `-patika-debug-discover-preview evening` | Tamam; zoom animasyonu ekran görüntüsünde görünmez, açık |
+| AX5'te başlık akışa giriyor, hero ve manzara saklanıyor | `-patika-debug-ax5` | Tamam (aşama 0–4) |
+| Devam ettiğin bölümü | `-patika-debug-discover-enrolled evening` | Tamam (1 / 7 kartı) |
+| Aynı anda iki patikaya katılım, ilerlemeler ayrı | `-patika-debug-discover-enrolled evening,focus` | Testte tamam; arayüzde iki kartla henüz bakılmadı |
+| Yolum kişisel patikada kalıyor (devralma yok) | katılımdan sonra Yolum sekmesi | Tamam |
+| Oturum: hazır patika `PathSessionView` ile çalışıyor, bitiş ekranı, ilerleme cihazda | `-patika-debug-discover-session 1` | Tamam, geçici test kayıtlarıyla (repoda yok) |
+| Ses yokken oturum hata ekranı, adım tamamlanmıyor | aynı, gerçek pakette | Tamam |
+| Gerçek ElevenLabs kaydıyla çalma, kilit ekranı, kesinti, arka plan | cihaz | Açık (ses üretimi engeli) |
+| `discover-world` ve yedi kart görseli | imageset'ler eklendikten sonra | Açık (Aşama 8) |
+| Reduce Motion / Reduce Transparency / Increase Contrast | Ayarlar > Erişilebilirlik | Açık |
+| VoiceOver turu | cihaz | Açık |
 
 Kapanmadan önce: `docs/discover-design.md` "Doğrulama" bölümü gerçekte koşturulanlarla
 güncellenir; ses hâlâ üretilmediği için **uçtan uca çalma/tamamlanma doğrulaması açık

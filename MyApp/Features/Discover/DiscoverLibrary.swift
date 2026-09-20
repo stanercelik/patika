@@ -4,14 +4,21 @@ import CryptoKit
 
 /// Prepared content is available offline. Progress belongs to this installation;
 /// it never overwrites the server's personalized path or measurements.
+///
+/// Katılım Keşfet'te kalır: hazır patikalar Yolum'u devralmaz ve aynı anda birden
+/// fazlasına katılınabilir. Her patikanın ilerlemesi kendi kaydında durur.
 @Observable @MainActor
 final class DiscoverLibrary {
     struct Enrollment: Codable {
         var completed: Set<String> = []
         var voice: SessionVoice = .feminine
+        /// Son ilerleme sırası (büyük olan yeni). "Kaldığın yerden" bölümünün
+        /// sırasını verir. Opsiyonel: bu alandan önce yazılmış kayıtlar okunabilmeli.
+        var recency: Int?
     }
+    /// Eski kayıtlardaki `activeID` (hazır patikanın Yolum'u devralması) artık yok;
+    /// alan burada tanımlı olmadığı için okunurken yok sayılır, ilerleme korunur.
     private struct Saved: Codable {
-        var activeID: String?
         var enrollments: [String: Enrollment] = [:]
     }
 
@@ -55,10 +62,7 @@ final class DiscoverLibrary {
            let data = try? Data(contentsOf: url),
            let values = try? JSONDecoder().decode([String: DiscoverRecording].self, from: data) { recordings = values }
         else { recordings = [:] }
-        if !paths.contains(where: { $0.id == saved.activeID }) { saved.activeID = nil }
     }
-
-    var activePath: DiscoverPath? { paths.first { $0.id == saved.activeID } }
 
     /// Boş olmayan bölümler, ekrandaki sırayla.
     var sections: [DiscoverShelf] {
@@ -68,13 +72,16 @@ final class DiscoverLibrary {
         }
     }
 
-    /// Katılıp bitirmediği patikalar; en son katıldığı başta.
+    /// Katılıp bitirmediği patikalar; en son ilerleyen başta, eşitlikte katalog sırası.
     var inProgressPaths: [DiscoverPath] {
-        let unfinished = paths.filter { isEnrolled($0) && nextStep($0) != nil }
-        guard let active = activePath, let index = unfinished.firstIndex(of: active) else { return unfinished }
-        var ordered = unfinished
-        ordered.insert(ordered.remove(at: index), at: 0)
-        return ordered
+        paths.enumerated()
+            .filter { isEnrolled($0.element) && nextStep($0.element) != nil }
+            .sorted { lhs, rhs in
+                let left = saved.enrollments[lhs.element.id]?.recency ?? 0
+                let right = saved.enrollments[rhs.element.id]?.recency ?? 0
+                return left != right ? left > right : lhs.offset < rhs.offset
+            }
+            .map(\.element)
     }
 
     func status(_ path: DiscoverPath) -> Status {
@@ -100,14 +107,18 @@ final class DiscoverLibrary {
         guard paths.contains(where: { $0.id == path.id }) else { return }
         if saved.enrollments[path.id] == nil { saved.enrollments[path.id] = Enrollment(voice: voice) }
         saved.enrollments[path.id]?.voice = voice
-        saved.activeID = path.id
+        touch(path)
         persist()
     }
-    func openPersonalPath() { saved.activeID = nil; persist() }
     func complete(_ step: DiscoverStep, in path: DiscoverPath) {
         guard isAvailable(step, in: path) else { return }
-        saved.enrollments[path.id]?.completed.insert(step.id)
+        // Yeniden dinleme ilerleme değil: sırayı yalnızca yeni bir adım değiştirir.
+        if saved.enrollments[path.id]?.completed.insert(step.id).inserted == true { touch(path) }
         persist()
+    }
+    private func touch(_ path: DiscoverPath) {
+        let latest = saved.enrollments.values.compactMap(\.recency).max() ?? 0
+        saved.enrollments[path.id]?.recency = latest + 1
     }
     func audioIsReady(_ path: DiscoverPath) -> Bool {
         path.steps.allSatisfy { step in

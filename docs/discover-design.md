@@ -113,6 +113,24 @@ yetkili yayıncıyla üretim yeniden çalıştırılmalı, MP3'ler dinlenmeli ve
   gerçek çalma, kesinti, arka plan ve tamamlanma UI akışı henüz doğrulanmadı.
 - Reduce Motion/Transparency cihaz senaryolarının tam uçtan uca kontrolü bekliyor.
 
+### Aşama 5–6 doğrulaması (20 Eylül 2026)
+
+- Hazır oturum artık `PathSessionView` / `PathSessionViewModel` (Yolum'la aynı sahne,
+  kontroller ve motor) üzerinden çalışır; eski `DiscoverSessionView`/`ViewModel` silindi.
+  Tamamlanma yalnızca sesi başlamış ve sonuna kadar dinlenmiş oturumdan yazılır ve cihazda
+  kalır. Kayıt çalınamazsa adım tamamlanmaz, "Yeniden dene" gösterilir.
+- Katılım Keşfet'te kalır; Yolum yalnızca kişisel patikayı gösterir. Birden fazla patikaya
+  aynı anda katılınabilir, ilerlemeler ayrı ve karışmaz; "Kaldığın yerden" en son ilerleyen
+  patikayı başa alır.
+- Test: `Tests/DiscoverLibraryTests` geçti (çoklu katılım yalıtımı, sıra, yeniden dinleme
+  ilerleme sayılmaması, `activeID` içeren eski kaydın okunması, kalıcılık).
+- Simulator (iPhone 17 Pro): ses yokken `audioUnavailable` ekranı; **geçici, repoya girmeyen**
+  test kayıtlarıyla (ffmpeg sinüs MP3'leri, paketin scratch kopyasına eklendi) oturum
+  çalıştı: sahne, iz, 15 sn kontrolleri, bitiş ekranı, adımın cihazda 1/7 olarak kalması,
+  Keşfet'te "Kaldığın yerden" kartı, Yolum'un kişisel patikada kalması.
+- **Hâlâ açık:** gerçek ElevenLabs kayıtlarıyla çalma, kilit ekranı kontrolleri, kesinti ve
+  arka plan, VoiceOver turu. Ses üretimi engeli sürdüğü için bunlar doğrulanmadı.
+
 ### Keşfet v2 doğrulaması (20 Eylül 2026, aşama 0–4)
 
 - `swiftc` ile derlenen hazır patika testi geçti: bölümler, durum, benzersiz kategori,

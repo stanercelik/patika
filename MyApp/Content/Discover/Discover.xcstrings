@@ -381,13 +381,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Make this your current path?"
+            "value" : "Join this path?"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bu, mevcut patikan olsun mu?"
+            "value" : "Bu patikaya katılmak ister misin?"
           }
         }
       }
@@ -524,40 +524,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Senin kelimelerin, senin ritmin. Paylaştıklarınla şekillenen bir yol."
-          }
-        }
-      }
-    },
-    "discover.personalConfirm" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Return to your personal path?"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kişisel patikana dönmek ister misin?"
-          }
-        }
-      }
-    },
-    "discover.personalConfirmBody" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your progress in prepared paths stays on this device. If you do not have a personal path yet, you can create one there."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hazır patikalardaki ilerlemen bu cihazda kalır. Henüz kişisel bir patikan yoksa orada oluşturabilirsin."
           }
         }
       }

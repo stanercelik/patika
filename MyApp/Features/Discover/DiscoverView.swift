@@ -24,11 +24,12 @@ struct DiscoverView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var route: [DiscoverRoute] = []
-    @State private var confirmsPersonal = false
     @State private var headerHeight: CGFloat = 96
     @State private var headerHidden = false
     @Namespace private var zoomNamespace
 
+    /// Kişisel patika kartı: Yolum sekmesine geçirir. Hazır patikaya katılım
+    /// Keşfet'te kalır, buradan çağrılmaz.
     let onOpenPath: () -> Void
 
     var body: some View {
@@ -50,19 +51,12 @@ struct DiscoverView: View {
                 switch route {
                 case .path(let id, let source):
                     if let path = library.paths.first(where: { $0.id == id }) {
-                        DiscoverPathView(path: path, isPreview: !library.isEnrolled(path)) {
-                            self.route.removeAll()
-                            onOpenPath()
-                        }
-                        .navigationTransition(.zoom(sourceID: source, in: zoomNamespace))
+                        DiscoverPathView(path: path)
+                            .navigationTransition(.zoom(sourceID: source, in: zoomNamespace))
                     }
                 }
             }
         }
-        .confirmationDialog(DiscoverCopy.personalConfirm, isPresented: $confirmsPersonal, titleVisibility: .visible) {
-            Button(DiscoverCopy.personalAction) { library.openPersonalPath(); onOpenPath() }
-            Button(DiscoverCopy.cancel, role: .cancel) {}
-        } message: { Text(DiscoverCopy.personalConfirmBody) }
         #if DEBUG
         .task { applyDebugArguments() }
         #endif
@@ -87,7 +81,7 @@ struct DiscoverView: View {
                 }
 
                 continuing
-                DiscoverPersonalCard(action: openPersonalPath)
+                DiscoverPersonalCard(action: onOpenPath)
                     .padding(.horizontal, Theme.Spacing.screenMargin)
                     .woodlandReveal(1)
 
@@ -182,10 +176,6 @@ struct DiscoverView: View {
 
     private func open(_ path: DiscoverPath, source: String) {
         route.append(.path(id: path.id, source: source))
-    }
-
-    private func openPersonalPath() {
-        if library.activePath == nil { onOpenPath() } else { confirmsPersonal = true }
     }
 
     #if DEBUG

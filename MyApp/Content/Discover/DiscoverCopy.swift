@@ -5,8 +5,6 @@ import Foundation
 enum DiscoverCopy {
     static var personalBody: String { localized("discover.personalBody") }
     static var personalAction: String { localized("discover.personalAction") }
-    static var personalConfirm: String { localized("discover.personalConfirm") }
-    static var personalConfirmBody: String { localized("discover.personalConfirmBody") }
     static var cancel: String { localized("discover.cancel") }
     static var collectionNote: String { localized("discover.collectionNote") }
     static var preview: String { localized("discover.preview") }
