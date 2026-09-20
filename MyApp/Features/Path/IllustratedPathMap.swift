@@ -39,21 +39,7 @@ struct IllustratedPathMap: View {
             }
         }
         .padding(.horizontal, Theme.Spacing.screenMargin)
-        .backgroundPreferenceValue(PathStopAnchors.self) { anchors in
-            GeometryReader { geometry in
-                let points = viewModel.steps.compactMap { step -> CGPoint? in
-                    guard let anchor = anchors[step.id] else { return nil }
-                    let rect = geometry[anchor]
-                    return CGPoint(x: rect.midX, y: rect.midY)
-                }
-                let route = continuousRoute(points)
-                route.stroke(WoodlandStyle.ink.opacity(0.22), style: StrokeStyle(lineWidth: 20, lineCap: .round))
-                route.stroke(WoodlandStyle.paper.opacity(0.78), style: StrokeStyle(lineWidth: 11, lineCap: .round))
-                route.stroke(WoodlandStyle.paper.opacity(0.35), style: StrokeStyle(lineWidth: 2, lineCap: .round))
-            }
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
-        }
+        .signpostRoute(ids: viewModel.steps.map(\.id))
     }
 }
 
@@ -118,7 +104,7 @@ private struct IllustratedPathStop: View {
         Button(action: toggle) {
             nodeMark
         }
-        .buttonStyle(PathStopButtonStyle())
+        .buttonStyle(SignpostStopButtonStyle())
         .accessibilityHidden(true)
     }
 
@@ -156,7 +142,7 @@ private struct IllustratedPathStop: View {
             }
         }
         .frame(width: nodeSize + 18, height: nodeSize + 18)
-        .anchorPreference(key: PathStopAnchors.self, value: .bounds) { [step.id: $0] }
+        .signpostNode(id: step.id)
     }
 
     /// Özet ile ayrıntı **aynı** kâğıdın üstünde: açılınca yeni bir kart
@@ -166,7 +152,7 @@ private struct IllustratedPathStop: View {
             Button(action: toggle) {
                 summary
             }
-            .buttonStyle(PathStopButtonStyle())
+            .buttonStyle(SignpostStopButtonStyle())
             .accessibilityElement(children: .combine)
             .accessibilityValue(Text(verbatim: accessibilityState))
             .accessibilityHint(Text(expanded ? Copy.Path.collapseDetails : Copy.Path.expandDetails))
@@ -294,38 +280,5 @@ private struct IllustratedPathStop: View {
     private func toggle() {
         Theme.softHaptic(intensity: 0.25)
         withAnimation(expandAnimation) { viewModel.toggle(step) }
-    }
-}
-
-/// Kapalı duraklar başlığını okunur tutar; açılmadığını kilit ve metin anlatır.
-private struct PathStopButtonStyle: ButtonStyle {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.975 : 1)
-            .opacity(configuration.isPressed ? 0.88 : 1)
-            .animation(.smooth(duration: 0.24), value: configuration.isPressed)
-    }
-}
-
-private struct PathStopAnchors: PreferenceKey {
-    static var defaultValue: [UUID: Anchor<CGRect>] { [:] }
-    static func reduce(value: inout [UUID: Anchor<CGRect>], nextValue: () -> [UUID: Anchor<CGRect>]) {
-        value.merge(nextValue(), uniquingKeysWith: { _, new in new })
-    }
-}
-
-/// Gerçek düğüm merkezleri arasında karo başına tek bir kübik; satır sınırında
-/// köşe oluşmuyor.
-private func continuousRoute(_ points: [CGPoint]) -> Path {
-    Path { path in
-        guard let first = points.first else { return }
-        path.move(to: first)
-        for (start, end) in zip(points, points.dropFirst()) {
-            let middleY = (start.y + end.y) / 2
-            path.addCurve(to: end,
-                          control1: CGPoint(x: start.x, y: middleY),
-                          control2: CGPoint(x: end.x, y: middleY))
-        }
     }
 }

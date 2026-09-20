@@ -3,7 +3,14 @@ import Foundation
 struct DiscoverText: Codable, Equatable, Sendable {
     let en: String
     let tr: String
-    var value: String { en } // Launch language; Turkish content remains paired by stable ID.
+    /// Ekranda okunan metin `AppLocale`e uyar. **Konuşulan metin için kullanılmaz:**
+    /// ses ilk sürümde yalnızca İngilizce, ekrandaki cümle duyulan cümleyle aynı
+    /// olmalı (`DiscoverLibrary.playback`, `value(for:)`).
+    var value: String { value(for: AppLocale.current) }
+
+    func value(for locale: AppLocale) -> String {
+        locale == .turkish ? tr : en
+    }
 }
 
 struct DiscoverStep: Codable, Identifiable, Equatable, Sendable {
@@ -18,6 +25,9 @@ struct DiscoverPath: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let title: DiscoverText
     let summary: DiscoverText
+    /// Patikanın ait olduğu problem kategorisi (A2'deki on kategoriden biri).
+    /// Bölümü (`DiscoverSection`) ve detay ekranının paletini buradan gelir.
+    let category: ProblemCategory
     let artwork: String
     let steps: [DiscoverStep]
 }
@@ -43,6 +53,7 @@ struct DiscoverCatalog: Decodable, Sendable {
         let result = try JSONDecoder().decode(Self.self, from: Data(contentsOf: url))
         guard result.version == 1, !result.paths.isEmpty,
               Set(result.paths.map(\.id)).count == result.paths.count,
+              Set(result.paths.map(\.category)).count == result.paths.count,
               result.paths.allSatisfy({ $0.steps.count == 7 }) else { throw DiscoverError.missingCatalog }
         return result
     }

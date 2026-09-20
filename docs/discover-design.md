@@ -1,4 +1,4 @@
-# Keşfet — 16 Eylül 2026
+# Keşfet — 16 Eylül 2026, v2: 20 Eylül 2026
 
 ## Ürün kontratı
 
@@ -14,7 +14,55 @@ patika sunucuda korunur; hazır patika ilerlemeleri cihazda UserDefaults üzerin
 ayrı saklanır. Bu sürümde hesaplar/cihazlar arasında senkronizasyon yoktur ve
 katılım açıklaması cihazda saklamayı belirtir.
 
-## Görsel yön
+## Keşfet v2 (20 Eylül 2026)
+
+Ben v2 ve Yolum manzara patikasından sonra Keşfet ortak guaj diline taşınıyor.
+Uygulama planı: `docs/discover-v2-plan.md`. Bu bölüm aşağıdaki "Görsel yön"ün
+**yerine geçer**; eski bölüm yalnızca tarihçedir.
+
+Onaylanan kararlar:
+
+1. Kütüphane **10 patika**, A2'deki 10 problem kategorisine birer tane; her biri
+   7 adım. Bugün 3'ü var (`breath`, `evening`, `focus`), kalan 7'nin içeriği
+   plan aşama 7'de yazılır.
+2. Gruplama **bölüm başlıklarıyla dikey akış**, her bölüm yatay kart şeridi.
+   Filtre çipi yok. Bölüm: Yükü hafifletmek (anxiety, anger, exam) · Gün sonu ve
+   dinlenme (sleep, burnout) · Dikkat ve bulunmak (focus, social) · Kendine karşı
+   (selfcrit, grief, unnamed). Patikası olmayan bölüm çizilmez.
+3. Dil `AppLocale.current`e uyar; katalog zaten TR/EN çift. Ses ilk sürümde
+   İngilizce kalır ve ekranda yazılır (`discover.collectionNote`).
+4. Tasarım ve içerik metinleri şimdi, ses üretimi sonra. **Sesi olmayan patika
+   listede görünür, "Yakında" işaretlenir, katılım açılmaz.** Sahte ses, sahte
+   süre, sahte ilerleme yok.
+5. Katılınan hazır patika **Keşfet'te kalır**; Yolum sekmesini devralmaz.
+   Aynı anda birden fazla hazır patikaya katılınabilir. Kişisel patika Yolum'un
+   tek sahibidir. (Uygulama: plan aşama 6.)
+6. Keşfet'e özgü yeni manzara `discover-world`; Yolum'un `journey-world-continuous`
+   görseli paylaşılmaz.
+
+Ekran dili (Yolum ve Ben'le aynı üç katman, `PatikaSurface.swift`):
+
+- **Zemin:** `WoodlandStyle.background` + kullanıcının paletinde düşük genlikli
+  mesh + `discover-world` manzarası (kaydırılan içeriğin arkasında, 24 pt'e kadar
+  parallax).
+- **Kâğıt:** patika kartları krem kâğıt, koyu mürekkep yazı; yazı görselin
+  **üstüne binmez**, görselin altındaki kâğıtta durur.
+- **Cam:** yalnızca yüzen başlık. Aşağı kaydırınca saklanır, yukarı kaydırınca
+  geri gelir.
+- **Yazı:** yalnızca `Theme.TypeFace`. "Explore/Keşfet" üst etiketi çizilmez;
+  başlık cümlesi yüzen başlıktadır.
+- **Detay:** sheet yerine push; kart `matchedTransitionSource`, hedef
+  `.zoom` geçişi (Ben'deki defter geçişiyle aynı). Zemin patikanın **kendi
+  kategorisinin** paletidir, hero görsel `MeBackdrop` matematiğiyle solar.
+  Adımlar Yolum'un tabela rotasıdır; rota çizimi `SignpostRoute` ile paylaşılır.
+- **Erişilebilirlik:** Reduce Motion parallax ve kayan başlığı kapatır, Reduce
+  Transparency ve AX boyutlarında manzara/hero çizilmez ve başlık akışa girer.
+  Görsel yoksa (`PatikaArt.exists`) ekran kırılmaz, yer kaplamaz.
+
+Hazır patikada ölçüm, rozet, kova, kişisel soru ve sunucuya cevap yazımı yoktur;
+bu sınır değişmez. Faz eşlemesi yalnızca oturum görselinin seçimi içindir.
+
+## Görsel yön (16 Eylül — v2 ile geçersiz, tarihçe)
 
 Koyu orman zemini, kırık beyaz tipografi, kayısı vurgular; guaj ve kesilmiş kağıt
 hissinde dört özgün illüstrasyon. Yazı resim üzerine bindirilmez. Önizleme rozeti,
@@ -64,3 +112,14 @@ yetkili yayıncıyla üretim yeniden çalıştırılmalı, MP3'ler dinlenmeli ve
 - Etkileşimli kaydırma/dokunma otomasyonu kullanılamadı; ses üretimi engeli nedeniyle
   gerçek çalma, kesinti, arka plan ve tamamlanma UI akışı henüz doğrulanmadı.
 - Reduce Motion/Transparency cihaz senaryolarının tam uçtan uca kontrolü bekliyor.
+
+### Keşfet v2 doğrulaması (20 Eylül 2026, aşama 0–4)
+
+- `swiftc` ile derlenen hazır patika testi geçti: bölümler, durum, benzersiz kategori,
+  yinelenen kategorinin reddi, önizleme engeli, sıralı açılma, tekrar oynatma, kalıcılık.
+- Simulator derlemesi geçti. iPhone 17 Pro'da doğrulandı: ana ekran (TR), kaydırınca
+  saklanan başlık, detay (hero, palet, rota, genişleyen durak), katılımlı durum ("Kaldığın
+  yerden" kartı, canlı detay), AX5 (ana ekran ve detay), `-patika-debug-no-art`.
+- Doğrulanamayanlar: Reduce Motion / Reduce Transparency / Increase Contrast cihaz
+  senaryoları, VoiceOver turu, yakınlaştırma geçişinin animasyonu (ekran görüntüsü
+  hareketi göstermez), `discover-world` ve yeni kart görselleri (henüz yüklenmedi).

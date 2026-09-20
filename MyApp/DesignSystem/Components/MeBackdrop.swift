@@ -13,24 +13,26 @@ struct MeBackdrop: View {
     /// Kaydırma miktarı (pt). Yukarı kaydırınca pozitif.
     var scrollOffset: CGFloat = 0
     var showsArtwork = true
+    /// Şeridin görseli. "Ben" varsayılanı; Keşfet detayı patikanın kendi görselini
+    /// verir ve aynı fade/parallax matematiğini kullanır.
+    var assetName = "me-backdrop"
+    var height: CGFloat = 260
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    private static let height: CGFloat = 260
-
     var body: some View {
         ZStack(alignment: .top) {
-            if showsArtwork, !reduceTransparency, !dynamicTypeSize.isAccessibilitySize, PatikaArt.exists("me-backdrop") {
+            if showsArtwork, !reduceTransparency, !dynamicTypeSize.isAccessibilitySize, PatikaArt.exists(assetName) {
                 // Boyutu şeffaf bir çerçeve belirler, görsel `overlay`de kırpılır:
                 // `scaledToFill` bir görselin ideal genişliği piksel boyutudur ve
                 // yerleşimde durursa üst `ZStack`i (ve sayfayı) ekrandan geniş yapar.
                 Color.clear
-                    .frame(height: Self.height)
+                    .frame(height: height)
                     .frame(maxWidth: .infinity)
                     .overlay(alignment: .top) {
-                        Image(decorative: "me-backdrop")
+                        Image(decorative: assetName)
                             .resizable()
                             .scaledToFill()
                     }

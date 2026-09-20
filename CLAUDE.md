@@ -58,6 +58,20 @@ Reduce Motion parallax'ı kapatır; Reduce Transparency ve AX boyutlarında düz
 koyu zemine geçilir. Görsel, veri veya ilerleme üretmez; oturum erişimi mevcut
 MyPathViewModel kurallarından gelir. Ayrıntılar: `docs/path-home-design.md`.
 
+## 20 Eylül 2026 — Keşfet v2
+
+Ürün sahibi Keşfet'i Ben v2'nin diline taşımayı ve hazır patika kütüphanesini
+genişletmeyi istedi. Kütüphane 10 patika (kategori başına bir), bölüm başlıklarıyla
+dikey akış; Keşfet'e özgü `discover-world` manzarası, krem kâğıt kartlar, yüzen cam
+başlık; "Explore" üst etiketi kalktı, yazı yalnızca `Theme.TypeFace`. Detay artık
+sheet değil push (zoom geçişi) ve zemini patikanın kategori paletidir. Katılınan
+hazır patika Yolum'u devralmaz, Keşfet'te kalır; birden fazlasına katılınabilir.
+Dil `AppLocale`e uyar; ses hâlâ üretilmediği için sesi olmayan patika "Yakında"
+görünür ve katılım kapalı kalır. Bu karar Keşfet'in önceki sabit-İngilizce ve
+sheet-önizleme kararlarını geçersiz kılar. Plan: `docs/discover-v2-plan.md`;
+tasarım: `docs/discover-design.md`; görseller:
+`assets/illustrations/discover/prompts.md`.
+
 ## Proje durumu
 
 **Patika** (çalışma adı) — kullanıcının derdini kendi kelimeleriyle anlattığı, karşılığında 7/14/21/28 günlük **ölçülen ve biten** bir program aldığı iOS meditasyon/zihinsel iyi oluş uygulaması. Sahibi: Novum Apps.

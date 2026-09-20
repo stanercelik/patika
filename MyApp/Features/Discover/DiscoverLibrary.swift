@@ -15,7 +15,20 @@ final class DiscoverLibrary {
         var enrollments: [String: Enrollment] = [:]
     }
 
+    /// Bir patikanın kartta ve detayda görünen durumu. Renk dışında da okunur:
+    /// her durumun kendi metni var.
+    enum Status: Equatable {
+        /// Sesi pakette yok: listede görünür, katılım kapalı. Sahte ses yok.
+        case comingSoon
+        case available
+        case inProgress(done: Int, total: Int)
+        case completed
+    }
+
     let paths: [DiscoverPath]
+    /// Kayıtların konuşulduğu dil (`catalog.audioLocale`). Oturumda ekrana yazılan
+    /// cümle bu dildedir; arayüz dili değil.
+    let audioLocale: AppLocale
     private let recordings: [String: DiscoverRecording]
     private let defaults: UserDefaults
     private let bundle: Bundle
@@ -30,8 +43,14 @@ final class DiscoverLibrary {
         if let data = defaults.data(forKey: Self.storageKey), let value = try? JSONDecoder().decode(Saved.self, from: data) {
             saved = value
         } else { saved = Saved() }
-        if let catalog = try? DiscoverCatalog.load(bundle: bundle) { paths = catalog.paths }
-        else { paths = []; loadFailed = true }
+        if let catalog = try? DiscoverCatalog.load(bundle: bundle) {
+            paths = catalog.paths
+            audioLocale = AppLocale(rawValue: catalog.audioLocale) ?? .english
+        } else {
+            paths = []
+            audioLocale = .english
+            loadFailed = true
+        }
         if let url = bundle.url(forResource: "discover-audio", withExtension: "json"),
            let data = try? Data(contentsOf: url),
            let values = try? JSONDecoder().decode([String: DiscoverRecording].self, from: data) { recordings = values }
@@ -40,6 +59,30 @@ final class DiscoverLibrary {
     }
 
     var activePath: DiscoverPath? { paths.first { $0.id == saved.activeID } }
+
+    /// Boş olmayan bölümler, ekrandaki sırayla.
+    var sections: [DiscoverShelf] {
+        DiscoverSection.allCases.compactMap { section in
+            let members = paths.filter { $0.section == section }
+            return members.isEmpty ? nil : DiscoverShelf(section: section, paths: members)
+        }
+    }
+
+    /// Katılıp bitirmediği patikalar; en son katıldığı başta.
+    var inProgressPaths: [DiscoverPath] {
+        let unfinished = paths.filter { isEnrolled($0) && nextStep($0) != nil }
+        guard let active = activePath, let index = unfinished.firstIndex(of: active) else { return unfinished }
+        var ordered = unfinished
+        ordered.insert(ordered.remove(at: index), at: 0)
+        return ordered
+    }
+
+    func status(_ path: DiscoverPath) -> Status {
+        if isEnrolled(path) {
+            return nextStep(path) == nil ? .completed : .inProgress(done: completedCount(path), total: path.steps.count)
+        }
+        return audioIsReady(path) ? .available : .comingSoon
+    }
     func isEnrolled(_ path: DiscoverPath) -> Bool { saved.enrollments[path.id] != nil }
     func isComplete(_ step: DiscoverStep, in path: DiscoverPath) -> Bool { saved.enrollments[path.id]?.completed.contains(step.id) == true }
     func completedCount(_ path: DiscoverPath) -> Int { path.steps.filter { isComplete($0, in: path) }.count }
@@ -85,13 +128,13 @@ final class DiscoverLibrary {
             guard let recording = recordings["\(step.id).\(voice.rawValue).\(part)"], let url = resourceURL(recording) else { throw DiscoverError.missingAudio }
             let id = stableUUID(recording.sha256)
             urls[id] = url
-            events.append(.speech(SessionSpeech(source: .block, assetID: id, storagePath: recording.file, text: part == "guidance" ? step.guidance.value : step.closing.value, durationMilliseconds: recording.durationMs)))
+            events.append(.speech(SessionSpeech(source: .block, assetID: id, storagePath: recording.file, text: (part == "guidance" ? step.guidance : step.closing).value(for: audioLocale), durationMilliseconds: recording.durationMs)))
             if index == 0 {
                 events.append(.silence(SessionSilence(breaths: step.quietSeconds / 10, landOn: nil, displayText: DiscoverCopy.quiet)))
             }
         }
         let checkpointID = stableUUID("\(path.id).\(step.id).\(voice.rawValue)")
-        return SessionPlayback(manifest: SessionManifest(version: 1, stepID: checkpointID, pathKind: .prepared, locale: "en", voice: voice, question: nil, events: events), assetURLs: urls)
+        return SessionPlayback(manifest: SessionManifest(version: 1, stepID: checkpointID, pathKind: .prepared, locale: audioLocale.rawValue, voice: voice, question: nil, events: events), assetURLs: urls)
     }
     private func resourceURL(_ recording: DiscoverRecording) -> URL? {
         bundle.url(forResource: (recording.file as NSString).deletingPathExtension, withExtension: "mp3")

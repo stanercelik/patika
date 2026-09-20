@@ -1,60 +1,121 @@
 import SwiftUI
 
+/// Hazır patikanın detayı — Keşfet'ten yakınlaştırma geçişiyle açılır ("Ben"deki
+/// defter geçişiyle aynı) ve katılınmış patikanın canlı hâlini de çizer.
+///
+/// - **Zemin patikanın kendi kategorisinin paletidir** (`Palette.forCategory`):
+///   Keşfet ana ekranı kullanıcının paletini, detay patikanın paletini kullanır.
+/// - **Hero** `MeBackdrop`un fade/parallax matematiğiyle: 220 pt'de söner, en çok
+///   10 pt kayar; Reduce Motion, Reduce Transparency ve AX boyutlarında çizilmez.
+///   Yazı hero'nun üstüne binmez, altındaki zeminde durur.
+/// - **Adımlar** "Yolum"un tabela rotasıdır (`DiscoverTrailMap`).
+/// - Katılım alt eylem satırında; ses yoksa düğme kapalı ve gerekçesi yazılı.
+///   AX boyutlarında eylem sabitlenmez, içerikle kayar.
 struct DiscoverPathView: View {
     let path: DiscoverPath
+    /// Katılmadan önce: durum yok, oturum başlatılamaz.
     let isPreview: Bool
     var onJoined: () -> Void = {}
+
     @Environment(DiscoverLibrary.self) private var library
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     @State private var selectedVoice: SessionVoice = .feminine
     @State private var confirmsJoin = false
     @State private var session: DiscoverStep?
+    @State private var expandedStepID: String?
+    @State private var scroll = ScrollOffsetBox()
+
+    private static let heroHeight: CGFloat = 300
+    /// Hero'nun altında başlığın başladığı yer; ilk ekranda yazı görselin üstüne
+    /// binmesin diye şeridin neredeyse sönmüş kısmına denk gelir.
+    private static let heroClearance: CGFloat = 176
+
+    private var isAccessible: Bool { dynamicTypeSize.isAccessibilitySize }
+
+    private var showsHero: Bool {
+        !isAccessible && !reduceTransparency && PatikaArt.exists(path.artwork)
+    }
 
     var body: some View {
-        ZStack {
-            DiscoverStyle.background.ignoresSafeArea()
+        ZStack(alignment: .top) {
+            WoodlandStyle.background.ignoresSafeArea()
+            BreathingMeshBackground(
+                palette: Palette.forCategory(path.category).nightAdjusted(),
+                safeY: 0.12,
+                breathAmplitude: BreathAmplitude.measurement
+            )
+            .opacity(0.22)
+            .ignoresSafeArea()
+            .accessibilityHidden(true)
+
+            DiscoverHero(box: scroll, assetName: path.artwork, height: Self.heroHeight)
+
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    DiscoverArtwork(name: path.artwork, height: dynamicTypeSize.isAccessibilitySize ? 140 : 230)
-                        .clipShape(RoundedRectangle(cornerRadius: 24))
-                    VStack(alignment: .leading, spacing: 12) {
-                        if isPreview { badge(DiscoverCopy.preview, symbol: "eye") }
-                        Text(path.title.value).font(.largeTitle.weight(Theme.Weight.display))
-                            .foregroundStyle(Theme.textPrimary.color).fixedSize(horizontal: false, vertical: true)
-                        Text(path.summary.value).font(.body.weight(Theme.Weight.body)).foregroundStyle(Theme.textSecondary.color)
-                        Text(DiscoverCopy.duration).font(.footnote.weight(Theme.Weight.emphasis)).foregroundStyle(DiscoverStyle.apricot)
-                        Text(isPreview ? DiscoverCopy.previewNote : DiscoverCopy.offline)
-                            .font(.footnote.weight(Theme.Weight.body)).foregroundStyle(Theme.textSecondary.color)
-                    }
-                    voicePicker
+                VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.sectionSpacing) {
+                    Color.clear.frame(height: showsHero ? Self.heroClearance : 8)
+                    titleBlock.woodlandReveal(0)
                     if !isPreview, library.nextStep(path) == nil {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text(DiscoverCopy.allDone).font(.title2.weight(Theme.Weight.title))
-                            Text(DiscoverCopy.allDoneBody).font(.body.weight(Theme.Weight.body))
-                        }.foregroundStyle(Theme.textPrimary.color)
+                        allDone.woodlandReveal(1)
                     }
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(DiscoverCopy.steps).font(.title2.weight(Theme.Weight.title))
-                            .foregroundStyle(Theme.textPrimary.color).padding(.bottom, 20)
-                        ForEach(Array(path.steps.enumerated()), id: \.element.id) { index, step in
-                            stepRow(step, number: index + 1)
-                        }
+                    voiceRow.woodlandReveal(1)
+                    VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.labelSpacing) {
+                        PatikaSectionLabel(verbatim: DiscoverCopy.steps)
+                            .padding(.horizontal, Theme.Spacing.screenMargin)
+                        DiscoverTrailMap(
+                            path: path,
+                            isPreview: isPreview,
+                            expandedStepID: $expandedStepID,
+                            onStart: { session = $0 }
+                        )
                     }
-                    if isPreview && dynamicTypeSize.isAccessibilitySize { joinControls }
+                    .woodlandReveal(2)
+                    if isPreview && isAccessible {
+                        joinControls.padding(.horizontal, Theme.Spacing.screenMargin)
+                    }
                     if library.saveFailed {
-                        Text(DiscoverCopy.saveError).foregroundStyle(Theme.textPrimary.color)
+                        Text(verbatim: DiscoverCopy.saveError)
+                            .font(Theme.TypeFace.rowValue)
+                            .foregroundStyle(Theme.textPrimary.color)
+                            .padding(.horizontal, Theme.Spacing.screenMargin)
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, isPreview ? 16 : 72)
                 .padding(.bottom, 36)
             }
+            .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                geometry.contentOffset.y + geometry.contentInsets.top
+            } action: { _, offset in
+                scroll.offset = offset
+            }
+            .discoverDebugScroll()
             .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
             .scrollEdgeEffectStyle(.soft, for: .all)
         }
+        // Çubuğun arkası gizlenmiyor: kaydırılan içerik durum çubuğunun ve geri
+        // düğmesinin altına girerken sistemin kaydırma kenarı efekti onu soluyor.
+        .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            if isPreview && !dynamicTypeSize.isAccessibilitySize {
-                joinControls.padding(20).background(DiscoverStyle.background)
+            if isPreview && !isAccessible {
+                joinControls
+                    .padding(.horizontal, Theme.Spacing.screenMargin)
+                    .padding(.top, 32)
+                    .padding(.bottom, 8)
+                    .background {
+                        // Solma düğmenin üstünde biter; düğmenin ve notun arkası opak,
+                        // altındaki durakların yazısı üst üste binmesin.
+                        LinearGradient(
+                            stops: [
+                                .init(color: WoodlandStyle.background.opacity(0), location: 0),
+                                .init(color: WoodlandStyle.background.opacity(0.97), location: 0.4),
+                                .init(color: WoodlandStyle.background.opacity(0.97), location: 1),
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .ignoresSafeArea(edges: .bottom)
+                    }
             }
         }
         .confirmationDialog(DiscoverCopy.joinTitle, isPresented: $confirmsJoin, titleVisibility: .visible) {
@@ -64,95 +125,131 @@ struct DiscoverPathView: View {
         .fullScreenCover(item: $session) { step in
             DiscoverSessionView(path: path, step: step, library: library)
         }
-        .onAppear { selectedVoice = library.voice(for: path) }
+        .onAppear {
+            selectedVoice = library.voice(for: path)
+            if expandedStepID == nil, !isPreview { expandedStepID = library.nextStep(path)?.id }
+            #if DEBUG
+            // `-patika-debug-discover-expanded <n>`: n. adımı (1 tabanlı) açık başlatır.
+            let args = ProcessInfo.processInfo.arguments
+            if let index = args.firstIndex(of: "-patika-debug-discover-expanded"),
+               args.indices.contains(index + 1), let number = Int(args[index + 1]),
+               path.steps.indices.contains(number - 1) {
+                expandedStepID = path.steps[number - 1].id
+            }
+            #endif
+        }
         .onChange(of: selectedVoice) { _, voice in
             if !isPreview { library.selectVoice(voice, for: path) }
         }
     }
 
+    // MARK: Bloklar
+
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if isPreview {
+                Label(DiscoverCopy.preview, systemImage: "eye")
+                    .font(Theme.TypeFace.cardMeta)
+                    .foregroundStyle(WoodlandStyle.apricot)
+            }
+            Text(verbatim: path.title.value)
+                .font(Theme.TypeFace.coverTitle)
+                .foregroundStyle(Theme.textPrimary.color)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+            Text(verbatim: path.summary.value)
+                .font(Theme.TypeFace.rowValue)
+                .foregroundStyle(Theme.textSecondary.color)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(verbatim: DiscoverCopy.duration)
+                .font(Theme.TypeFace.rowCaption)
+                .foregroundStyle(WoodlandStyle.apricot)
+            Text(verbatim: isPreview ? DiscoverCopy.previewNote : DiscoverCopy.offline)
+                .font(Theme.TypeFace.rowCaption)
+                .foregroundStyle(Theme.textSecondary.color)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+    }
+
+    private var allDone: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(verbatim: DiscoverCopy.allDone)
+                .font(Theme.TypeFace.cardTitleProminent)
+                .foregroundStyle(WoodlandStyle.ink)
+            Text(verbatim: DiscoverCopy.allDoneBody)
+                .font(Theme.TypeFace.rowCaption)
+                .foregroundStyle(WoodlandStyle.secondaryInk)
+        }
+        .multilineTextAlignment(.leading)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(PatikaSurfaceMetrics.padding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .paperSurface()
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+        .accessibilityElement(children: .combine)
+    }
+
+    private var voiceRow: some View {
+        let layout = isAccessible
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+            : AnyLayout(HStackLayout(alignment: .center, spacing: 12))
+        return VStack(alignment: .leading, spacing: 6) {
+            layout {
+                Text(verbatim: DiscoverCopy.voice)
+                    .font(Theme.TypeFace.rowTitle)
+                    .foregroundStyle(WoodlandStyle.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                if !isAccessible { Spacer(minLength: 8) }
+                Picker(DiscoverCopy.voice, selection: $selectedVoice) {
+                    Text(verbatim: DiscoverCopy.feminine).tag(SessionVoice.feminine)
+                    Text(verbatim: DiscoverCopy.masculine).tag(SessionVoice.masculine)
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .tint(WoodlandStyle.ink)
+                .frame(minHeight: 44)
+            }
+            Text(verbatim: DiscoverCopy.voiceNote)
+                .font(Theme.TypeFace.rowCaption)
+                .foregroundStyle(WoodlandStyle.secondaryInk)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, PatikaSurfaceMetrics.compactPadding + 2)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, minHeight: PatikaSurfaceMetrics.rowMinHeight, alignment: .leading)
+        .paperSurface(radius: PatikaSurfaceMetrics.compactRadius, isProminent: false)
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+    }
+
+    /// Ses yokken düğme kartlardaki durumla aynı şeyi söyler: "Yakında".
+    private var joinTitle: String {
+        if library.isEnrolled(path) { return DiscoverCopy.continuePath }
+        return library.audioIsReady(path) ? DiscoverCopy.join : DiscoverCopy.comingSoon
+    }
+
     private var joinControls: some View {
         VStack(spacing: 10) {
-            DiscoverAction(title: library.isEnrolled(path) ? DiscoverCopy.continuePath : DiscoverCopy.join, enabled: library.audioIsReady(path)) {
-                confirmsJoin = true
-            }
+            DiscoverAction(title: joinTitle, enabled: library.audioIsReady(path)) { confirmsJoin = true }
             if !library.audioIsReady(path) {
-                Text(DiscoverCopy.audioPreparing)
-                    .font(.footnote)
+                Text(verbatim: DiscoverCopy.audioPreparing)
+                    .font(Theme.TypeFace.rowCaption)
                     .foregroundStyle(Theme.textSecondary.color)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-    }
-
-    private var voicePicker: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(DiscoverCopy.voice).font(.headline.weight(Theme.Weight.title)).foregroundStyle(Theme.textPrimary.color)
-            Picker(DiscoverCopy.voice, selection: $selectedVoice) {
-                Text(DiscoverCopy.feminine).tag(SessionVoice.feminine)
-                Text(DiscoverCopy.masculine).tag(SessionVoice.masculine)
-            }
-            .pickerStyle(.menu)
-            .tint(Theme.textPrimary.color)
-            .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-            .padding(.horizontal, 16)
-            .background(DiscoverStyle.surface, in: RoundedRectangle(cornerRadius: 16))
-            Text(DiscoverCopy.voiceNote).font(.footnote.weight(Theme.Weight.body)).foregroundStyle(Theme.textSecondary.color)
-        }
-    }
-
-    private func stepRow(_ step: DiscoverStep, number: Int) -> some View {
-        let done = library.isComplete(step, in: path)
-        let available = !isPreview && library.isAvailable(step, in: path)
-        return VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top, spacing: 14) {
-                ZStack {
-                    Circle().fill(DiscoverStyle.surface)
-                    if done && !isPreview {
-                        Image(systemName: "checkmark").font(.body.weight(Theme.Weight.action))
-                    } else { Text(number.formatted()).font(.body.weight(Theme.Weight.action)) }
-                }.frame(width: 44, height: 44).foregroundStyle(Theme.textPrimary.color).accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(step.title.value).font(.headline.weight(Theme.Weight.title)).foregroundStyle(Theme.textPrimary.color)
-                        .fixedSize(horizontal: false, vertical: true)
-                    if !isPreview {
-                        Text(done ? DiscoverCopy.done : available ? DiscoverCopy.now : DiscoverCopy.nextLocked)
-                            .font(.caption.weight(Theme.Weight.emphasis)).foregroundStyle(Theme.textSecondary.color)
-                    }
-                }
-                Spacer(minLength: 0)
-                if !isPreview && !available {
-                    Image(systemName: "lock").font(.caption).foregroundStyle(Theme.textSecondary.color).accessibilityHidden(true)
-                }
-            }
-            if available {
-                DiscoverAction(title: done ? DiscoverCopy.replay : DiscoverCopy.start, enabled: library.audioIsReady(path)) { session = step }
-            }
-            Rectangle().fill(.white.opacity(0.08)).frame(height: Theme.Line.journeyConnector).padding(.top, 6)
-        }
-        .padding(.vertical, 12)
-        .accessibilityElement(children: .contain)
-    }
-    private func badge(_ text: String, symbol: String) -> some View {
-        Label(text, systemImage: symbol).font(.caption.weight(Theme.Weight.action))
-            .foregroundStyle(DiscoverStyle.apricot).padding(.horizontal, 12).padding(.vertical, 8)
-            .background(DiscoverStyle.surface, in: Capsule())
     }
 }
 
-struct DiscoverAction: View {
-    let title: String
-    var enabled = true
-    let action: () -> Void
+/// Hero şeridi. Kaydırma kutusunu yalnızca bu görünüm okur (`ScrollOffsetBox`).
+private struct DiscoverHero: View {
+    let box: ScrollOffsetBox
+    let assetName: String
+    let height: CGFloat
+
     var body: some View {
-        Button {
-            Theme.softHaptic(intensity: 0.4)
-            action()
-        } label: {
-            Text(title).font(.body.weight(Theme.Weight.action)).multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .foregroundStyle(enabled ? Color.black : Theme.textSecondary.color)
-                .padding(.horizontal, 20).padding(.vertical, 18)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .background(enabled ? Theme.textPrimary.color : DiscoverStyle.surface, in: Capsule())
-        }.buttonStyle(.calm).disabled(!enabled)
+        MeBackdrop(scrollOffset: box.offset, assetName: assetName, height: height)
     }
 }

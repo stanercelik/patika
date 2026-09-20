@@ -4,6 +4,7 @@
   "paths": [
     {
       "id": "evening",
+      "category": "sleep",
       "title": {
         "en": "Evening, unhurried",
         "tr": "Akşamı yavaşlat"
@@ -130,6 +131,7 @@
     },
     {
       "id": "breath",
+      "category": "anxiety",
       "title": {
         "en": "Room to breathe",
         "tr": "Nefese yer aç"
@@ -256,6 +258,7 @@
     },
     {
       "id": "focus",
+      "category": "focus",
       "title": {
         "en": "One thing at a time",
         "tr": "Bir seferde tek şey"

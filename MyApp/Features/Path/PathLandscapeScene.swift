@@ -15,7 +15,13 @@ import SwiftUI
 /// altına bir** fazladan karo çiziliyor ve sahne artık kırpılmıyor. Bir karo
 /// genişliğin üç katı (~1180 pt) olduğundan, esneme payı ne kadar olursa olsun
 /// görselin bittiği yer görünür alana giremiyor.
+///
+/// Yolum `journey-world-continuous`, Keşfet `discover-world` ile aynı tekniği
+/// kullanır: yalnızca `assetName` değişir. Varlık pakette yoksa hiçbir şey
+/// çizilmez (`PatikaArt.exists`).
 struct PathLandscapeScene: View {
+    var assetName = "journey-world-continuous"
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -25,7 +31,7 @@ struct PathLandscapeScene: View {
         // girmeden alınır.
         let allowsParallax = !reduceMotion
         return GeometryReader { geometry in
-            if !reduceTransparency && !dynamicTypeSize.isAccessibilitySize {
+            if !reduceTransparency && !dynamicTypeSize.isAccessibilitySize && PatikaArt.exists(assetName) {
                 let height = geometry.size.width * 3
                 let overlap = height * 0.12
                 let stride = height - overlap
@@ -34,7 +40,7 @@ struct PathLandscapeScene: View {
                     // -1: içeriğin başlangıcının üstünde kalan karo. Esnemede
                     // görünen yer burası.
                     ForEach(-1..<(count + 1), id: \.self) { index in
-                        Image(decorative: "journey-world-continuous")
+                        Image(decorative: assetName)
                             .resizable()
                             .frame(width: geometry.size.width, height: height)
                             .mask {

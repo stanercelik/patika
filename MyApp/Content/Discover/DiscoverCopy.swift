@@ -1,18 +1,13 @@
 import Foundation
 
-/// Discover launches in English. All interface translations live in Discover.xcstrings.
+/// Arayüz metinleri `AppLocale`e uyar (TR/EN); çeviriler Discover.xcstrings'te.
+/// Ses ilk sürümde yalnızca İngilizce — bu, `DiscoverLibrary.audioLocale`in işi.
 enum DiscoverCopy {
-    static var title: String { localized("discover.title") }
-    static var headline: String { localized("discover.headline") }
-    static var intro: String { localized("discover.intro") }
-    static var personalEyebrow: String { localized("discover.personalEyebrow") }
-    static var personalTitle: String { localized("discover.personalTitle") }
     static var personalBody: String { localized("discover.personalBody") }
     static var personalAction: String { localized("discover.personalAction") }
     static var personalConfirm: String { localized("discover.personalConfirm") }
     static var personalConfirmBody: String { localized("discover.personalConfirmBody") }
     static var cancel: String { localized("discover.cancel") }
-    static var collection: String { localized("discover.collection") }
     static var collectionNote: String { localized("discover.collectionNote") }
     static var preview: String { localized("discover.preview") }
     static var previewNote: String { localized("discover.previewNote") }
@@ -48,7 +43,31 @@ enum DiscoverCopy {
     static var saveError: String { localized("discover.saveError") }
     static var pause: String { localized("discover.pause") }
     static var resume: String { localized("discover.resume") }
+    static var sectionRelief: String { localized("discover.section.relief") }
+    static var sectionRest: String { localized("discover.section.rest") }
+    static var sectionAttention: String { localized("discover.section.attention") }
+    static var sectionToSelf: String { localized("discover.section.toSelf") }
+    static var comingSoon: String { localized("discover.comingSoon") }
+    static var continuing: String { localized("discover.continuing") }
+    static var headerTitle: String { localized("discover.headerTitle") }
+    static var expandHint: String { localized("discover.expandHint") }
+    static var collapseHint: String { localized("discover.collapseHint") }
+    static func progress(done: Int, total: Int) -> String {
+        String(format: localized("discover.progress"), done, total)
+    }
+    static func stepNumber(_ number: Int) -> String {
+        String(format: localized("discover.stepNumber"), number)
+    }
+    /// Çeviriyi `AppLocale`e göre **alt paketten** okur. `String(localized:locale:)`
+    /// yalnızca biçimlendirmeyi etkiliyor, dili seçmiyor: cihaz İngilizce, bölge
+    /// Türkiye iken içerik Türkçe ama arayüz İngilizce çıkıyordu.
     private static func localized(_ key: String) -> String {
-        String(localized: String.LocalizationValue(key), table: "Discover", locale: Locale(identifier: "en"))
+        localizedBundle.localizedString(forKey: key, value: nil, table: "Discover")
+    }
+
+    private static var localizedBundle: Bundle {
+        guard let path = Bundle.main.path(forResource: AppLocale.current.rawValue, ofType: "lproj"),
+              let bundle = Bundle(path: path) else { return .main }
+        return bundle
     }
 }

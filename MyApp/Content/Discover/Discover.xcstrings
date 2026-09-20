@@ -137,19 +137,19 @@
         }
       }
     },
-    "discover.collection" : {
+    "discover.collapseHint" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choose a small beginning"
+            "value" : "Hides details"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Küçük bir başlangıç seç"
+            "value" : "Ayrıntıları gizler"
           }
         }
       }
@@ -167,6 +167,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hazır patikalar · İngilizce ses · İki anlatıcı"
+          }
+        }
+      }
+    },
+    "discover.comingSoon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coming soon"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yakında"
           }
         }
       }
@@ -222,6 +239,23 @@
         }
       }
     },
+    "discover.continuing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Where you left off"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaldığın yerden"
+          }
+        }
+      }
+    },
     "discover.done" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -256,6 +290,23 @@
         }
       }
     },
+    "discover.expandHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows details"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayrıntıları gösterir"
+          }
+        }
+      }
+    },
     "discover.feminine" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -273,36 +324,19 @@
         }
       }
     },
-    "discover.headline" : {
+    "discover.headerTitle" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A little space\nfor yourself."
+            "value" : "A little space for yourself."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kendine küçük\nbir alan."
-          }
-        }
-      }
-    },
-    "discover.intro" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Small practices. A path you can make time for."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Küçük pratikler. Yer açabileceğin bir patika."
+            "value" : "Kendine küçük bir alan."
           }
         }
       }
@@ -528,40 +562,6 @@
         }
       }
     },
-    "discover.personalEyebrow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MADE FOR YOU"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SANA ÖZEL"
-          }
-        }
-      }
-    },
-    "discover.personalTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your own path\nstarts with you."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sana ait bir yol\nseninle başlar."
-          }
-        }
-      }
-    },
     "discover.preview" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -592,6 +592,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bu patikayı önizliyorsun. Oturum başlatmak için önce katıl."
+          }
+        }
+      }
+    },
+    "discover.progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld steps"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld / %2$lld adım"
           }
         }
       }
@@ -698,6 +715,74 @@
         }
       }
     },
+    "discover.section.attention" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attention and presence"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dikkat ve bulunmak"
+          }
+        }
+      }
+    },
+    "discover.section.relief" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lighten the load"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yükü hafifletmek"
+          }
+        }
+      }
+    },
+    "discover.section.rest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End of day and rest"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gün sonu ve dinlenme"
+          }
+        }
+      }
+    },
+    "discover.section.toSelf" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With yourself"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kendine karşı"
+          }
+        }
+      }
+    },
     "discover.start" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -715,6 +800,23 @@
         }
       }
     },
+    "discover.stepNumber" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step %lld"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld. adım"
+          }
+        }
+      }
+    },
     "discover.steps" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -728,23 +830,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bu patikada"
-          }
-        }
-      }
-    },
-    "discover.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Explore"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keşfet"
           }
         }
       }

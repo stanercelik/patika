@@ -9,23 +9,23 @@ struct DiscoverSessionView: View {
     }
     var body: some View {
         ZStack {
-            DiscoverStyle.background.ignoresSafeArea()
+            WoodlandStyle.background.ignoresSafeArea()
             VStack(spacing: 24) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(model.path.title.value).font(.caption.weight(Theme.Weight.emphasis)).foregroundStyle(Theme.textSecondary.color)
-                        Text(model.step.title.value).font(.title3.weight(Theme.Weight.title)).foregroundStyle(Theme.textPrimary.color)
+                        Text(model.path.title.value).font(Theme.TypeFace.cardMeta).foregroundStyle(Theme.textSecondary.color)
+                        Text(model.step.title.value).font(Theme.TypeFace.sectionTitle).foregroundStyle(Theme.textPrimary.color)
                     }
                     Spacer()
                     Button { model.stop(); dismiss() } label: {
-                        Image(systemName: "xmark").font(.body.weight(Theme.Weight.action)).frame(width: 44, height: 44)
+                        Image(systemName: "xmark").font(Theme.TypeFace.action).frame(width: 44, height: 44)
                     }.foregroundStyle(Theme.textPrimary.color).accessibilityLabel(DiscoverCopy.close)
                 }
                 if model.finished {
                     Spacer()
-                    Image(systemName: "checkmark.circle").font(.largeTitle).foregroundStyle(DiscoverStyle.apricot).accessibilityHidden(true)
-                    Text(DiscoverCopy.completed).font(.largeTitle.weight(Theme.Weight.display)).foregroundStyle(Theme.textPrimary.color)
-                    Text(DiscoverCopy.completedBody).font(.body.weight(Theme.Weight.body)).foregroundStyle(Theme.textSecondary.color)
+                    Image(systemName: "checkmark.circle").font(Theme.TypeFace.coverTitle).foregroundStyle(WoodlandStyle.apricot).accessibilityHidden(true)
+                    Text(DiscoverCopy.completed).font(Theme.TypeFace.coverTitle).foregroundStyle(Theme.textPrimary.color)
+                    Text(DiscoverCopy.completedBody).font(Theme.TypeFace.rowValue).foregroundStyle(Theme.textSecondary.color)
                     Spacer()
                     DiscoverAction(title: DiscoverCopy.close) { dismiss() }
                 } else if model.failed {
@@ -44,7 +44,7 @@ struct DiscoverSessionView: View {
                                 DiscoverArtwork(name: model.path.artwork, height: 160)
                                     .clipShape(RoundedRectangle(cornerRadius: 24))
                             }
-                            Text(model.sceneText).font(.title3.weight(Theme.Weight.body))
+                            Text(model.sceneText).font(Theme.TypeFace.product(.title3, Theme.Weight.body))
                                 .foregroundStyle(Theme.textPrimary.color).multilineTextAlignment(.center)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(.vertical, 16)
@@ -53,7 +53,7 @@ struct DiscoverSessionView: View {
                     SessionProgressTrail(progress: model.progress)
                     Button { model.togglePause() } label: {
                         Image(systemName: model.audio.isPlaying ? "pause.fill" : "play.fill")
-                            .font(.title2.weight(Theme.Weight.action)).frame(width: 68, height: 68)
+                            .font(Theme.TypeFace.product(.title2, Theme.Weight.action)).frame(width: 68, height: 68)
                             .foregroundStyle(.black).background(Theme.textPrimary.color, in: Circle())
                     }.buttonStyle(.calm)
                         .accessibilityLabel(model.audio.isPlaying ? DiscoverCopy.pause : DiscoverCopy.resume)

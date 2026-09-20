@@ -26,7 +26,6 @@ struct MyPathView: View {
     @State private var isCreatingPath = false
     @State private var headerHeight: CGFloat = 150
     @State private var headerHidden = false
-    @State private var scrollTracking = PathHeaderScrollTracking()
 
     var body: some View {
         ZStack {
@@ -147,24 +146,7 @@ struct MyPathView: View {
                 .padding(.bottom, 100)
                 .background { PathLandscapeScene() }
             }
-            .onScrollGeometryChange(for: CGFloat.self) { geometry in
-                let offset = geometry.contentOffset.y + geometry.contentInsets.top
-                let maximum = max(0, geometry.contentSize.height - geometry.containerSize.height + geometry.contentInsets.top + geometry.contentInsets.bottom)
-                return min(maximum, max(0, offset))
-            } action: { old, new in
-                let delta = new - old
-                if new < 12 {
-                    scrollTracking.travel = 0
-                    setHeaderHidden(false)
-                } else {
-                    if (delta > 0 && scrollTracking.travel < 0) || (delta < 0 && scrollTracking.travel > 0) {
-                        scrollTracking.travel = 0
-                    }
-                    scrollTracking.travel += delta
-                    if scrollTracking.travel > 28 { setHeaderHidden(true) }
-                    if scrollTracking.travel < -18 { setHeaderHidden(false) }
-                }
-            }
+            .scrollHidesHeader($headerHidden)
             .overlay(alignment: .top) {
                 if !dynamicTypeSize.isAccessibilitySize {
                     journeyHeader(path)
@@ -192,13 +174,6 @@ struct MyPathView: View {
         }
     }
 
-    private func setHeaderHidden(_ hidden: Bool) {
-        guard headerHidden != hidden else { return }
-        withAnimation(reduceMotion ? .easeOut(duration: 0.18) : Theme.Motion.headerReveal) {
-            headerHidden = hidden
-        }
-    }
-
     private func journeyHeader(_ path: ActivePath) -> some View {
         PathHomeHeader(
             title: path.title,
@@ -221,9 +196,3 @@ struct MyPathView: View {
 }
 
 extension PathStepRecord: Identifiable {}
-
-/// Gesture bookkeeping is intentionally not observable: only visibility changes
-/// invalidate the screen, rather than rebuilding all stops on every scroll pixel.
-private final class PathHeaderScrollTracking {
-    var travel: CGFloat = 0
-}

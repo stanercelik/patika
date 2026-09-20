@@ -117,11 +117,24 @@ extension View {
 /// Büyük harfli üst etiket yok (`profile-design.md` §9.3): Türkçede büyük harf
 /// dönüşümü yerel ayar ister (i → İ) ve sakin bir ekranda bağırır.
 struct PatikaSectionLabel: View {
-    let title: LocalizedStringResource
-    var actionTitle: LocalizedStringResource?
-    var action: (() -> Void)?
+    private let title: Text
+    private let actionTitle: LocalizedStringResource?
+    private let action: (() -> Void)?
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    init(title: LocalizedStringResource, actionTitle: LocalizedStringResource? = nil, action: (() -> Void)? = nil) {
+        self.title = Text(title)
+        self.actionTitle = actionTitle
+        self.action = action
+    }
+
+    /// Çevrilmiş metni zaten `String` olarak taşıyan yüzeyler için (Keşfet).
+    init(verbatim title: String, actionTitle: LocalizedStringResource? = nil, action: (() -> Void)? = nil) {
+        self.title = Text(verbatim: title)
+        self.actionTitle = actionTitle
+        self.action = action
+    }
 
     private var layout: AnyLayout {
         dynamicTypeSize.isAccessibilitySize
@@ -131,7 +144,7 @@ struct PatikaSectionLabel: View {
 
     var body: some View {
         layout {
-            Text(title)
+            title
                 .font(Theme.TypeFace.sectionTitle)
                 .foregroundStyle(Theme.textPrimary.color)
                 .accessibilityAddTraits(.isHeader)
