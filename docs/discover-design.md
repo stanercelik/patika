@@ -2,8 +2,8 @@
 
 ## Ürün kontratı
 
-Kullanıcının açık talebiyle hazır patika kütüphanesi uygulanır: Evening, unhurried;
-Room to breathe; One thing at a time. Her biri yedi özgün adım içerir. Bunlar
+Kullanıcının açık talebiyle hazır patika kütüphanesi uygulanır. Kütüphane v2'de on patikadır,
+A2'deki on problem kategorisinin her biri için bir tane. Her biri yedi özgün adım içerir. Bunlar
 kişiselleştirilmiş program veya klinik müdahale değildir. Gün bekleme zorunluluğu
 yoktur; sonraki adım ses gerçekten tamamlanınca açılır. Uygulamayı kapatma oturum
 sonunda birincil çıkıştır. Tekrar oynatma mümkündür.
@@ -83,8 +83,8 @@ Mobbin araştırması (hiyerarşi ve illüstrasyonun içerikteki rolü; birebir 
 Her metin sabit ID altında en/tr çifti içerir. `Discover.xcstrings` arayüz çevirilerini
 tutar. İlk sürüm bilinçli olarak İngilizcedir; uygulama genelinin dil geçişi ayrı iştir.
 
-İki anlatıcı için 84 ses referansı, ortak kapanışlar sayesinde 44 benzersiz kayıt
-üretilir. Sunucu mevcut ElevenLabs ses kimliklerini ve eleven_v3 modelini kullanır.
+İki anlatıcı için 280 ses referansı (10 patika x 7 adım x 2 anlatıcı x 2 parça), ortak
+kapanışlar sayesinde 142 benzersiz kayıt üretilir. Sunucu mevcut ElevenLabs ses kimliklerini ve eleven_v3 modelini kullanır.
 Ses + 40 saniyelik gerçek sessizlik + kapanış SessionManifest ile oynatılır.
 İlerleme ayrı sayaçtan değil SessionAudioPlayer'ın ses zamanından hesaplanır.
 
@@ -112,6 +112,16 @@ yetkili yayıncıyla üretim yeniden çalıştırılmalı, MP3'ler dinlenmeli ve
 - Etkileşimli kaydırma/dokunma otomasyonu kullanılamadı; ses üretimi engeli nedeniyle
   gerçek çalma, kesinti, arka plan ve tamamlanma UI akışı henüz doğrulanmadı.
 - Reduce Motion/Transparency cihaz senaryolarının tam uçtan uca kontrolü bekliyor.
+
+### Aşama 7 doğrulaması (20 Eylül 2026)
+
+- Yedi yeni patika (`beat`, `pressure`, `refill`, `rooms`, `kinder`, `carry`, `unnamed`) ve
+  49 adım eklendi; katalog 10 patika, 70 adım. Sunucu kopyası birebir aynı.
+- `Tests/DiscoverLibraryTests` içerik kurallarını da denetler (yasaklı ifade, adım kimliği,
+  ortak kapanış, sessizlik süresi, TTS için rakam/çizgi yok) ve geçti.
+- Simulator: dört bölüm ve on kart görünür; yeni kartlar görselsiz ("Yakında").
+- **Açık:** metinlerin klinik gözden geçirmesi (özellikle `carry`, `kinder`, `unnamed`). Üç
+  patikanın son adımında destek yönlendirmesi cümlesi var, bir ürün kararı olarak bekliyor.
 
 ### Aşama 5–6 doğrulaması (20 Eylül 2026)
 

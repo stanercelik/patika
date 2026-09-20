@@ -2,8 +2,9 @@
 
 ## Uygulama durumu (20 Eylül 2026)
 
-**Aşama 0–6 tamam ve simülatörde doğrulandı.** Aşama 7 (7 yeni patikanın içeriği) bekliyor;
-Aşama 8 kısmen: sekiz görsel teslim edildi ama henüz imageset değil (aşağıya bak).
+**Aşama 0–7 tamam.** Aşama 7'nin metinleri yazıldı ve kataloğa girdi, ama **klinik gözden
+geçirme beklemeden yayına alınmaz** (aşağıya bak). Aşama 8 kısmen: sekiz görsel teslim edildi
+ama henüz imageset değil.
 
 | Aşama | Durum | Not |
 |---|---|---|
@@ -14,7 +15,7 @@ Aşama 8 kısmen: sekiz görsel teslim edildi ama henüz imageset değil (aşağ
 | 4 Detay | Tamam | push + zoom, `DiscoverTrailMap`, paylaşılan `SignpostRoute`, hero |
 | 5 Oturum birleştirme | Tamam | `PathSessionViewModel.Source`, `DiscoverSessionView/ViewModel` silindi |
 | 6 Katılım Keşfet'te | Tamam | Yolum devralması kalktı, çoklu katılım, `recency` sırası |
-| 7 İçerik: 7 yeni patika | Bekliyor | Katalog hâlâ 3 patika (`breath`, `evening`, `focus`) |
+| 7 İçerik: 7 yeni patika | Tamam | Katalog 10 patika, 70 adım; klinik inceleme açık |
 | 8 Görseller + doğrulama | Kısmen | 8 PNG teslim edildi; imageset kaydı, ≤600 KB küçültme ve görsel doğrulama açık |
 
 Plandan sapmalar ve nedenleri:
@@ -275,7 +276,7 @@ oturum da `SessionRunner` + `SessionStageView` üzerinden çalışır.
 - [x] `Tests/DiscoverLibraryTests/main.swift` bu sözleşmeye göre güncellenir + yeni vaka:
   "iki patikaya aynı anda katılım ilerlemeleri karıştırmaz".
 
-### Aşama 7 — İçerik: 7 yeni patika (bekliyor)
+### Aşama 7 — İçerik: 7 yeni patika (yapıldı, klinik inceleme açık)
 `MyApp/Content/Discover/discover-catalog.json` + **birebir aynısı**
 `supabase/functions/render-discover-audio/catalog.json`. Her adım TR/EN `guidance`
 (~270-320 karakter) + paylaşılan `closing` + `quietSeconds: 40`.
@@ -292,6 +293,38 @@ oturum da `SessionRunner` + `SessionStageView` üzerinden çalışır.
 | `kinder` | selfcrit | Kendine daha yumuşak | Kinder to yourself | Kendine karşı |
 | `carry` | grief | Yanında taşımak | Carrying it with you | Kendine karşı |
 | `unnamed` | unnamed | Adını koyamadığında | When you can't name it | Kendine karşı |
+
+- [x] `beat`, `pressure`, `refill`, `rooms`, `kinder`, `carry`, `unnamed`: her biri 7 adım, her
+  adım TR/EN başlık + `guidance` (EN 265-312, TR 230-330 karakter), paylaşılan `closing`,
+  `quietSeconds: 40`. Adım kimlikleri `<patika>-<n>`.
+- [x] `discover-catalog.json` ve `supabase/functions/render-discover-audio/catalog.json` birebir
+  aynı (`diff` boş). Var olan üç patikanın içeriği değişmedi; yalnızca sıraları plandaki raf
+  sırasına çekildi (`breath, beat, pressure, evening, refill, focus, rooms, kinder, carry,
+  unnamed`).
+- [x] `Tests/DiscoverLibraryTests` içerik kurallarını denetler: on patika ve on kategori, dört
+  bölüm ve raf sırası, adım kimliği biçimi ve tekilliği, kapanışın ortak olması, sessizliğin
+  tam nefes döngüsü olması, yasaklı ifade yok (TR ve EN), konuşulan metinde rakam ve uzun
+  çizgi yok (TTS), EN uzunluk aralığı.
+- [ ] **Klinik gözden geçirme.** Metinler insan incelemesinden geçmedi. Özellikle `carry`
+  (kayıp), `kinder` ve `unnamed`. Ses üretiminden önce gözden geçirilmeli; render hattı
+  metni olduğu gibi seslendirir.
+
+**Yazım kararları (Aşama 7):**
+
+- **Ton yönü mevcut üç patikayla aynı:** kısa emirler, "gerekmiyor" izni, dönülecek sağlam
+  bir yer (ayaklar, nefes, ses) ve sessizliğe geçen son cümle. Rahatsız edebilecek her pratikte
+  çıkış cümlesi var ("rahatsız ediyorsa atla ve ayaklarını fark et").
+- **Söz verilmez, teşhis konmaz:** "geçecek", "iyileşeceksin", tedavi ve klinik dil yok.
+  `carry` "kaybı bırakmak", "kabullenmek" ya da yas evreleri dilini kullanmaz, iyileşme takvimi
+  vaat etmez ("bir takvime uymaz" der) ve duyguyu küçültmeye çalışmaz; yaklaşma mesafesini
+  kullanıcıya bırakır ("ne kadar yaklaşacağına sen karar verirsin").
+- **Üç patikanın son adımında destek yönlendirmesi var:** `refill-7`, `carry-7`, `unnamed-7`
+  "güvendiğin biriyle ya da bir uzmanla konuşmak iyi bir sonraki adım olabilir" der. Bu bir
+  ürün kararı; istenmezse cümle kaldırılır ve ilgili adım yeniden seslendirilir.
+- **Ses sayısı:** 10 patika için 280 ses referansı (70 adım x 2 anlatıcı x 2 parça), ortak
+  kapanış sayesinde 142 benzersiz kayıt (önceden 84 referans, 44 kayıt).
+- **`discover.duration`** ("7 adım · Her biri yaklaşık 2 dk") yeni adımlar aynı yapıda
+  olduğu için değişmedi; gerçek süreler ses üretilince ölçülmeli.
 
 > Metinler `Tone.swift` yasaklı ifade taramasından geçmeli ve teşhis/garanti dili
 > içermemeli. `docs/discover-design.md`'deki "kişiselleştirilmiş program veya klinik
@@ -424,6 +457,7 @@ Simülatörde görsel doğrulama (`xcrun simctl launch booted devplaceholder.X9R
 | Oturum: hazır patika `PathSessionView` ile çalışıyor, bitiş ekranı, ilerleme cihazda | `-patika-debug-discover-session 1` | Tamam, geçici test kayıtlarıyla (repoda yok) |
 | Ses yokken oturum hata ekranı, adım tamamlanmıyor | aynı, gerçek pakette | Tamam |
 | Gerçek ElevenLabs kaydıyla çalma, kilit ekranı, kesinti, arka plan | cihaz | Açık (ses üretimi engeli) |
+| On patika, dört bölüm, yeni kartlar (görselsiz) | `-patika-debug-tab kesfet` | Tamam |
 | `discover-world` ve yedi kart görseli | imageset'ler eklendikten sonra | Açık (Aşama 8) |
 | Reduce Motion / Reduce Transparency / Increase Contrast | Ayarlar > Erişilebilirlik | Açık |
 | VoiceOver turu | cihaz | Açık |

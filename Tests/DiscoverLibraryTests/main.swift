@@ -16,6 +16,32 @@ func makeBundle(catalog: Data) throws -> Bundle {
     return Bundle(url: temp)!
 }
 
+/// Katalog metinlerinin kuralları: yasaklı ifade yok, adım kimlikleri kararlı, kapanış ortak.
+/// Kapanışın ortak olması ses kayıtlarının tekrar üretilmemesini sağlar; sessizlik nefes
+/// döngüsüne (10 sn) bölünebilir olmalı (`SessionSilence.breaths`).
+@MainActor
+func checkContent(_ paths: [DiscoverPath]) throws {
+    let closing = paths[0].steps[0].closing
+    var seen = Set<String>()
+    for path in paths {
+        for (index, step) in path.steps.enumerated() {
+            precondition(step.id == "\(path.id)-\(index + 1)", "Step ids are `<path>-<n>` and never change: \(step.id)")
+            precondition(seen.insert(step.id).inserted, "Duplicate step id \(step.id)")
+            precondition(step.closing == closing, "Closing is shared so audio is rendered once: \(step.id)")
+            precondition(step.quietSeconds > 0 && step.quietSeconds % 10 == 0, "Quiet time is whole breath cycles: \(step.id)")
+            for text in [step.guidance, step.closing, step.title] {
+                precondition(!text.en.isEmpty && !text.tr.isEmpty, "Both languages are required: \(step.id)")
+                for value in [text.en, text.tr] {
+                    precondition(BannedPhrases.check(value).isEmpty, "Banned phrase in \(step.id): \(BannedPhrases.check(value))")
+                    precondition(!value.contains("\u{2014}") && value.rangeOfCharacter(from: .decimalDigits) == nil,
+                                 "Spoken text avoids dashes and digits (TTS): \(step.id)")
+                }
+            }
+            precondition((200...340).contains(step.guidance.en.count), "English guidance length: \(step.id) \(step.guidance.en.count)")
+        }
+    }
+}
+
 @MainActor
 func run() throws {
     let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
@@ -26,10 +52,13 @@ func run() throws {
     let defaults = UserDefaults(suiteName: suite)!
     defer { defaults.removePersistentDomain(forName: suite) }
     let library = DiscoverLibrary(defaults: defaults, bundle: bundle)
-    precondition(library.paths.count == 3)
+    precondition(library.paths.count == 10, "One path per problem category")
+    precondition(Set(library.paths.map(\.category)) == Set(ProblemCategory.allCases), "Every category has a path")
     precondition(library.audioLocale == .english, "Recordings are English; on-screen spoken text must follow them")
     precondition(library.paths.allSatisfy { library.status($0) == .comingSoon }, "No audio ships, so nothing may look joinable")
-    precondition(library.sections.map { $0.section } == [.relief, .rest, .attention], "Empty sections are not drawn")
+    precondition(library.sections.map { $0.section } == [.relief, .rest, .attention, .toSelf], "All four sections are drawn, in screen order")
+    precondition(library.sections.map { $0.paths.map(\.id) } == [["breath", "beat", "pressure"], ["evening", "refill"], ["focus", "rooms"], ["kinder", "carry", "unnamed"]], "Shelf order")
+    try checkContent(library.paths)
     precondition(Set(ProblemCategory.allCases.map { DiscoverSection(category: $0) }) == Set(DiscoverSection.allCases), "Every section must be reachable")
     precondition(library.inProgressPaths.isEmpty)
     let path = library.paths[0]
@@ -99,6 +128,6 @@ func run() throws {
     let duplicate = try makeBundle(catalog: JSONSerialization.data(withJSONObject: raw))
     defer { try? FileManager.default.removeItem(at: duplicate.bundleURL) }
     precondition((try? DiscoverCatalog.load(bundle: duplicate)) == nil, "One path per category")
-    print("PASS: preview gating, missing audio, sections, status, unique categories, sequential steps, replay, multi-enrollment isolation, ordering, legacy record, persistence, completion")
+    print("PASS: preview gating, missing audio, sections, content rules, status, unique categories, sequential steps, replay, multi-enrollment isolation, ordering, legacy record, persistence, completion")
 }
 try MainActor.assumeIsolated { try run() }
