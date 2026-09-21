@@ -177,5 +177,5 @@ yetkili yayıncıyla üretim yeniden çalıştırılmalı, MP3'ler dinlenmeli ve
   bölümleri sessizlikten sonra ilerliyor, ilerleme çubuğu akıyor (ses simülatörde yakalanamaz;
   tempo `Tests/SessionSchedulerTests`te dalga formundan). Seviye yayılımı 31 dosyada 0,9 LU
   (medyan -16,2 LUFS), true-peak en çok -1,5 dBFS.
-- Açık: kalan 9 patikanın sesi (kullanıcı örneği dinledikten sonra), `discover.duration` metni
-  "About 4 min each".
+- Tamamlandı: 10 patikanın tamamı üretildi (286 kayıt, 18 MB, seviye yayılımı 1,0 LU),
+  `discover.duration` "About 4 min each".

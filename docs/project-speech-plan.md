@@ -511,14 +511,17 @@ Bunun yerine metinler tek kataloğa toplandı (bkz. CLAUDE.md, 21 Eylül 2026).
 
 | Aşama | Durum |
 | --- | --- |
-| 0 Gerçek süreler | Tamam: `mp3.ts`, lead/tail sessizlik, istemci ölçümü (`SessionAudioPlayer`) |
-| 1 Şema | Tamam: DTO, doğrulama, `SessionTimeline`, `SessionPacing`, `SessionManifestScript` |
-| 2 Sunucu | Kod tamam, **dağıtılmadı**. `alignedSilenceMs` yazıldı, worker'a bağlı değil (gerekçe CLAUDE.md) |
+| 0 Gerçek süreler | Tamam ve dağıtıldı |
+| 1 Şema | Tamam ve dağıtıldı |
+| 2 Sunucu | Tamam ve dağıtıldı. `alignedSilenceMs` yazıldı, worker'a bağlı değil (gerekçe CLAUDE.md) |
 | 3 Oynatma | Tamam: `SessionScheduler`, dalga formu testleri |
-| 4 Keşfet | Katalog v2, istemci, render script, LFS tamam. **Yalnızca `breath` üretildi** |
-| 5 Blok render | Script tamam; yalnızca `breath.extendedExhale.en.v1` (örnek) üretildi, yükleme yapılmadı |
-| 6 Dinleme testi | Dosyalar hazır (`build/listening-test/`), **ürün sahibinin kulağı bekleniyor** |
-| 7 Politika sürümü | `TTS_POLICY_VERSION = patika-v3-paced-2026-09-21` kodda, dağıtım blok yüklemesine bağlı |
+| 4 Keşfet | Tamam: katalog v2, 10 patikanın 286 kaydı üretildi, LFS |
+| 5 Blok render | Tamam: 39 kayıt üretildi ve yüklendi (hizmet anahtarsız, Supabase CLI) |
+| 6 Dinleme testi | Tamam: 800 ve 1500 ms beğenildi, 1500 seçildi |
+| 7 Politika sürümü | Dağıtıldı: `patika-v3-paced-2026-09-21` |
+
+Ek olarak bulunan ve düzeltilen eski hatalar: `eleven_v3` istek dikişi (`unsupported_model`) ve
+`audio_assets` kısmi indeks conflict hedefi (42P10). İki nefes bloğu gerçek sayımla yeniden yazıldı.
 
 Sapmalar: (1) sessizlik kademeleri planla aynı; `SessionScheduler` ayrı dosya (test edilebilirlik
 için); (2) `render_script_contract_test.ts` ek olarak depoda gizli anahtar taraması yapıyor;

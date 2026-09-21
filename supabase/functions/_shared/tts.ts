@@ -138,6 +138,41 @@ export function languageCode(locale: string): string {
   return locale.toLowerCase().startsWith("tr") ? "tr" : "en";
 }
 
+/// Sağlayıcıya giden gövde. `eleven_v3` istek dikişini (`previous_text` / `next_text`)
+/// **desteklemiyor** ve `400 unsupported_model` dönüyor (canlıda ölçüldü, 2026-09-21):
+/// kişisel slot sesi bu yüzden hiç üretilemiyordu. v3'te komşu bağlam gönderilmez;
+/// parça sınırındaki ton tutarlılığı ses kimliği + sabit ayarlarla sağlanıyor.
+/// Desteklemeyen bir model (ör. `eleven_multilingual_v2`) seçilirse bağlam gider.
+export function speechRequestBody(input: {
+  text: string;
+  modelId: string;
+  locale: string;
+  previousText?: string | null;
+  nextText?: string | null;
+}) {
+  const stitching = !input.modelId.startsWith("eleven_v3");
+  return {
+    text: input.text,
+    model_id: input.modelId,
+    language_code: languageCode(input.locale),
+    previous_text: stitching ? sanitizeSpeechText(input.previousText ?? "") || undefined : undefined,
+    next_text: stitching ? sanitizeSpeechText(input.nextText ?? "") || undefined : undefined,
+    voice_settings: {
+      // v3 kararlılığı üç kademe: 0.0 Creative, 0.5 Natural, 1.0 Robust.
+      // Meditasyonda Creative eleniyor (halüsinasyon riski), Robust ise
+      // sesi düzleştiriyor. Natural, orijinal kayda en yakın olan.
+      stability: 0.5,
+      similarity_boost: 0.8,
+      // Abartı yok (Ton eki §2). Meditasyonda üslup vurgusu istemiyoruz.
+      style: 0.0,
+      use_speaker_boost: true,
+    },
+    // Sayı ve kısaltmalar sesli okunsun: "22:30" ekranda böyle yazılıyor
+    // ama kulakta "yirmi iki otuz" olmalı.
+    apply_text_normalization: "auto",
+  };
+}
+
 export async function synthesize(request: SpeechRequest): Promise<SpeechResult> {
   if (!ttsConfigured()) throw new Error("provider_configuration_required");
   const key = Deno.env.get("ELEVENLABS_API_KEY")!;
@@ -163,26 +198,13 @@ export async function synthesize(request: SpeechRequest): Promise<SpeechResult> 
           "Content-Type": "application/json",
           "Accept": "application/json",
         },
-        body: JSON.stringify({
+        body: JSON.stringify(speechRequestBody({
           text,
-          model_id: modelId,
-          language_code: languageCode(request.locale),
-          previous_text: sanitizeSpeechText(request.previousText ?? "") || undefined,
-          next_text: sanitizeSpeechText(request.nextText ?? "") || undefined,
-          voice_settings: {
-            // v3 kararlılığı üç kademe: 0.0 Creative, 0.5 Natural, 1.0 Robust.
-            // Meditasyonda Creative eleniyor (halüsinasyon riski), Robust ise
-            // sesi düzleştiriyor. Natural, orijinal kayda en yakın olan.
-            stability: 0.5,
-            similarity_boost: 0.8,
-            // Abartı yok (Ton eki §2). Meditasyonda üslup vurgusu istemiyoruz.
-            style: 0.0,
-            use_speaker_boost: true,
-          },
-          // Sayı ve kısaltmalar sesli okunsun: "22:30" ekranda böyle yazılıyor
-          // ama kulakta "yirmi iki otuz" olmalı.
-          apply_text_normalization: "auto",
-        }),
+          modelId,
+          locale: request.locale,
+          previousText: request.previousText,
+          nextText: request.nextText,
+        })),
       },
     );
 

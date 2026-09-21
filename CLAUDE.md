@@ -26,9 +26,10 @@ metinlerin tek yerde toplanmasını istedi. Bu, önceki "sabit Türkçe arayüz"
   `_shared/crisis.ts` **aynı ifade kümesini ve aynı normalizasyonu** (kesme işareti düşer,
   tire boşluk olur) kullanır; ayrışmayı `crisis_contract_test.ts` yakalar. Vaka tablosu:
   `Tests/CrisisClassifierTests`. Türkçe ifadeler korunuyor.
-- **Tek ses = kadın.** E4 akıştan çıktı (`commitTonePreference` sesi `.feminine`e sabitler;
-  `e4Voice` durumu ve `VoiceChoiceView` ikinci ses gelirse dönmek için duruyor). Keşfet'te ve
-  Ben'de ses seçimi yok. Kayıt anahtarları ses adını taşımaya devam eder.
+- **Tek ses = kadın; adım uzunluğu kullanıcıya sorulmuyor.** E4 (ses) ve E2 (uzunluk) onboarding'den
+  **silindi** (ürün sahibi kararı: uzunluğu biz ayarlıyoruz). Uzunluk taslağın varsayılanı (10 dk),
+  ses `commitTonePreference`te `.feminine`e yazılır; E bölümü artık E1 (saat) + E3 (ton). Keşfet'te ve
+  Ben'de ses/uzunluk satırı yok. Sunucu ve oturum bu alanları okumaya devam eder.
 - **Oturum tempo düzeltmesi (K1-K6, `docs/PRD-Ek-Oturum-Motoru-ve-JIT.md` §2).** Üç kademe:
   *join* (~350 ms, **olay değil**, sonraki konuşmanın `leadInMs`i), *beat* (yazılan `ms`,
   nefese yuvarlanmaz), *practice* (nefes katı, bloğun kendi periyoduyla: kutu nefesi 16 sn).
@@ -62,13 +63,24 @@ metinlerin tek yerde toplanmasını istedi. Bu, önceki "sabit Türkçe arayüz"
   `npx --yes deno test --no-prompt --allow-read --allow-env --allow-net supabase/functions/tests/`
   (`--no-prompt` şart, yoksa izin sorusunda asılı kalır). `JourneyRoutePatternTests` bu işten
   önce de bayattı (tip artık yok).
-- **Bekleyen dağıtım (yapılmadı):** yeni migrasyonlar (`20260921090000` metrik sütunları →
-  fonksiyonlar → `20260921100000` bekleme + CHECK → `20260921100100` manifest geçersizleştirme)
-  ve fonksiyonlar. `TTS_POLICY_VERSION` artışı tüm ses önbelleğini ıskalatır: **blok
-  kütüphanesi yerelde render edilip yüklenmeden dağıtılmamalı**, yoksa iki kez ödenir.
-  Bekleme süresi (`ms`) **dinleme testine bağlı**: `build/listening-test/` içindeki dosyalar
-  (`old-10s`, `beat-800ms`, `beat-1500ms`, `beat-2500ms`); seçilen değer
-  `20260921100000_block_script_pacing.sql` içinde şimdilik 1500 ms.
+- **Dağıtıldı (2026-09-21).** Migrasyonlar `20260921090000`, `100000`, `100100`, `110000` uygulandı;
+  tüm fonksiyonlar dağıtıldı; `render-discover-audio` uzaktan silindi; 39 blok sesi yüklendi.
+  Bekleme **1500 ms** (ürün sahibi dinleme testinde 800 ve 1500'ü beğendi). Canlı uçtan uca:
+  `python3 scripts/live-smoke-audio.py` (15/15: İngilizce patika, ses kuyruğu, manifest sözleşmesi,
+  açık kovadaki blok sesi). Yapılan canlı düzeltmeler, ikisi de kişisel slot sesini hiç
+  üretilemez kılan **eski** hatalardı (geçersiz anahtar yüzünden görünmemişti):
+  1. `eleven_v3` `previous_text`/`next_text` (istek dikişi) kabul etmiyor -> `400 unsupported_model`.
+     `speechRequestBody` v3'te bağlam göndermez.
+  2. `audio_assets` upsert'inin conflict hedefi **kısmi** indeksle eşleşmiyordu (42P10 ->
+     `database_write_failed`); indeks koşulsuz yeniden kuruldu (`20260921110000`).
+- **Nefes blokları gerçek sayımla yazıldı** (yalnızca İngilizce, `version 2`): `breath.extendedExhale`
+  (3 döngü, alma ve **verme** sayımı) ve `breath.box` (2 döngü, her parça tam 4 sn = 16 sn).
+  Sayım cümleleri ölçülerek seçildi; bekleme ölçülen konuşma süresini tamamlar. Ekrandaki nefes
+  hâlâ 10 sn'lik sabit döngü ve bu bloklarla senkron değil, bu yüzden bloklar ekrana atıf yapmaz
+  (yalnızca `breath.awareness` "ekrandaki hareketi takip et" der, faz bağımsız).
+  Manifest `ms >= 250` ister (SQL CHECK ve doğrulama); 200 ms'lik bir bekleme migrasyonu düşürdü.
+- **Keşfet sesi tam:** 10 patika, 286 kayıt, 18 MB, seviye yayılımı 1,0 LU, hepsi Git LFS'te.
+  Render'da ElevenLabs eşzamanlılık sınırı 3 (`--workers 2` kullan). Kalan kota ~27 bin karakter.
 
 ## 16 Eylül 2026 — Yolum düzenlemesi
 

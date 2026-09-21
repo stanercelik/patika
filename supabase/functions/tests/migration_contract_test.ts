@@ -1,5 +1,6 @@
 import {
   assert,
+  assertEquals,
   assertMatch,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 
@@ -42,8 +43,13 @@ Deno.test("pacing migration turns single-breath beats into written milliseconds"
   // Kasten bir fazda biten bekleme (landOn) ve gerçek pratik duraklamaları korunur.
   assertMatch(sql, /"breaths":1,"landOn":"exhale"/);
   assertMatch(sql, /"breaths":4,"landOn":"exhale"/);
-  // Eski seed'ler düzenlenmez; blok sürümü artmaz (ses yeniden render edilmez).
-  assert(!/set\s+version/i.test(sql));
+  // Eski seed'ler düzenlenmez. Sürüm yalnızca metni değişen iki İngilizce blokta artar
+  // (bekleme düzeltmesi metne dokunmaz, ses yeniden render edilmez); onların eski sesi silinir.
+  const bumped = [...sql.matchAll(/set version = (\d+),[\s\S]*?where id = '([^']+)'/g)].map((m) => m[2]).sort();
+  assertEquals(bumped, ["breath.box.en.v1", "breath.extendedExhale.en.v1"]);
+  assertMatch(sql, /delete from public\.block_audio\s+where block_id in \('breath\.extendedExhale\.en\.v1', 'breath\.box\.en\.v1'\)/);
+  // Yeniden yazılan bloklarda sayım gerçekten söyleniyor (verme dahil).
+  assertMatch(sql, /Out\.\.\. two\.\.\. three\.\.\. four\.\.\. five\.\.\. six\.\.\. seven\./);
 });
 
 Deno.test("pacing migration updates rows before adding the CHECK constraint", async () => {
@@ -64,4 +70,19 @@ Deno.test("silence metrics migration is additive and nullable", async () => {
   assertMatch(sql, /add column lead_silence_ms integer/i);
   assertMatch(sql, /add column tail_silence_ms integer/i);
   assert(!/not null/i.test(sql));
+});
+
+Deno.test("every written silence in the pacing migration respects the schema bounds", async () => {
+  const sql = await migration("20260921100000_block_script_pacing.sql");
+  const scripts = [...sql.matchAll(/\$json\$(\[[\s\S]*?\])\$json\$/g)].map((match) => JSON.parse(match[1]));
+  assert(scripts.length > 0);
+  for (const script of scripts) {
+    for (const entry of script) {
+      if (entry.type !== "silence") continue;
+      // ms XOR breaths, ms 250..300000 (SQL CHECK ve manifest doğrulamasının aynısı)
+      assert((entry.ms === undefined) !== (entry.breaths === undefined), JSON.stringify(entry));
+      if (entry.ms !== undefined) assert(entry.ms >= 250 && entry.ms <= 300_000, `ms out of range: ${entry.ms}`);
+      if (entry.breaths !== undefined) assert(entry.breaths >= 1 && entry.breaths <= 60);
+    }
+  }
 });

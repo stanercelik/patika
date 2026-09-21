@@ -43,3 +43,23 @@ Deno.test("rendition hashes are deterministic and policy-sensitive", async () =>
   assertNotEquals(first, await renditionHash({ ...base, prosody: "whisper" }));
 });
 
+
+import { speechRequestBody } from "../_shared/tts.ts";
+
+Deno.test("eleven_v3 requests never carry request stitching (provider rejects it)", () => {
+  const body = speechRequestBody({
+    text: "Rest here.", modelId: "eleven_v3", locale: "en-US", previousText: "Before.", nextText: "After.",
+  });
+  assertEquals("previous_text" in body && body.previous_text !== undefined, false);
+  assertEquals(body.next_text, undefined);
+  assertEquals(body.language_code, "en");
+  assertEquals(body.voice_settings.stability, 0.5);
+});
+
+Deno.test("models that support stitching still receive neighbouring text", () => {
+  const body = speechRequestBody({
+    text: "Rest here.", modelId: "eleven_multilingual_v2", locale: "en", previousText: "Before.", nextText: "After.",
+  });
+  assertEquals(body.previous_text, "Before.");
+  assertEquals(body.next_text, "After.");
+});

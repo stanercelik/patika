@@ -48,32 +48,14 @@ enum BannedPhrases {
     static let all: [String] = english + turkish
 
     static let english: [String] = [
-        "great job",           // abartılı övgü → sahte hissettirir
-        "well done!",
-        "congratulations",
-        "we miss you",         // suçluluk üretir
-        "lose your streak",    // kayıp kaçınması — PRD karar #5
-        "losing your streak",
-        "streak",
-        "days left",           // aciliyet baskısı
-        "hurry up",
-        "hurry!",
-        "limited time",
-        "other users",         // sosyal kıyaslama — bu kitlede toksik
-        "don't worry",         // kaygılı kişiye söylenecek en işe yaramaz cümle
-        "do not worry",
+        "great job",        // abartılı övgü → sahte hissettirir
+        "well done",
+        "streak",           // kayıp kaçınması — PRD karar #5
+        "we miss you",      // suçluluk üretir
+        "don't worry",      // kaygılı kişiye söylenecek en işe yaramaz cümle
         "calm down",
-        "you'll get through this", // garanti verilemez
-        "you will get through this",
-        "you failed",          // PRD karar #2
-        "you've failed",
-        "failure",
-        // Tıbbi iddia — mağaza reddi ve düzenleyici risk (PRD §4, §14.3)
-        "clinically proven",
-        "cure",
-        "heals you",
-        "replaces therapy",
-        "instead of therapy",
+        "you failed",       // PRD karar #2
+        "clinically proven", // tıbbi iddia — mağaza reddi ve düzenleyici risk
     ]
 
     static let turkish: [String] = [

@@ -55,16 +55,23 @@ BUCKET = "block_audio"
 
 
 def load_blocks(locale: str) -> list[dict]:
-    """Seed migrasyonlarından bloklar. Bekleme düzeltmesi yalnızca `silence` girdilerine
-    dokunuyor; `fixed` metinleri ve dizin sırası aynı, yani seed okumak yeterli."""
-    blocks = []
+    """Seed migrasyonlarındaki bloklar + sonraki migrasyonların `update public.blocks` düzeltmeleri.
+    Canlıda hangi metin varsa o render edilir: bekleme düzeltmesi yalnızca `silence` girdilerine,
+    yeniden yazımlar ise `script` ve `version`a dokunuyor."""
+    blocks: dict[str, dict] = {}
     for path in SEEDS:
         sql = path.read_text()
         for m in re.finditer(r"\('([A-Za-z0-9._]+)',\s*(\d+),\s*'(tr|en)'(.*?)\$json\$(\[.*?\])\$json\$", sql, re.S):
             bid, version, loc, _, script = m.groups()
-            if loc == locale:
-                blocks.append({"id": bid, "version": int(version), "locale": loc, "script": json.loads(script)})
-    return blocks
+            blocks[bid] = {"id": bid, "version": int(version), "locale": loc, "script": json.loads(script)}
+    for path in sorted((ROOT / "supabase/migrations").glob("2026092*_block_script_*.sql")):
+        for m in re.finditer(r"update public\.blocks set (?P<set>.*?)script = \$json\$(?P<script>\[.*?\])\$json\$\s*where id = '(?P<id>[^']+)'", path.read_text(), re.S):
+            block = blocks[m["id"]]
+            block["script"] = json.loads(m["script"])
+            version = re.search(r"version = (\d+)", m["set"])
+            if version:
+                block["version"] = int(version.group(1))
+    return [b for b in blocks.values() if b["locale"] == locale]
 
 
 def jobs_for(blocks: list[dict], voice: str) -> dict[str, dict]:
@@ -119,7 +126,7 @@ def upload(metas: list[dict]) -> None:
     rows = []
     for meta in metas:
         storage_path = f"{meta['locale']}/{meta['voice']}/{meta['hash']}.mp3"
-        done = cli("storage", "cp", "--linked", "--content-type", "audio/mpeg",
+        done = cli("--experimental", "storage", "cp", "--linked", "--content-type", "audio/mpeg",
                    str(ROOT / meta["path"]), f"ss:///{BUCKET}/{storage_path}")
         if done.returncode != 0 and "already exists" not in (done.stderr + done.stdout).lower():
             raise tts.RenderError(f"yükleme başarısız {storage_path}: {(done.stderr or done.stdout)[:200]}")
