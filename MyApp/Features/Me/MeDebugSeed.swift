@@ -119,8 +119,8 @@ enum MeDebugSeed {
     private static let day1: TimeInterval = 24 * 60 * 60
     private static let pathID = UUID()
     private static let stepTitles = [
-        "Nefesle yere inmek", "Zihnin sesini fark etmek", "Düşünceden ayrışma",
-        "Bedeni taramak", "Akşamı yavaşlatmak", "Kaygıya yer açmak", "Küçük bir deneme",
+        "Nefesle yere inmek", "Zihnin sesini fark etmek", "Stepping back from thoughts",
+        "Bedeni taramak", "Slowing the evening", "Making room for anxiety", "A small experiment",
     ]
 
     static func record(for scenario: Scenario) -> ProfileRecord? {
@@ -135,15 +135,15 @@ enum MeDebugSeed {
         record.reminder.isEnabled = scenario != .pending
         record.journal.append(contentsOf: [
             reflection(
-                "Telefonu bıraktığımda ilk kez sessizlik rahatsız etmedi.",
-                question: "Bugün zihnin en çok nereye kaçtı?",
+                "When I put the phone down, the quiet didn't bother me for the first time.",
+                question: "Where did your mind run to the most today?",
                 day: 8,
-                title: "Düşünceden ayrışma",
+                title: "Stepping back from thoughts",
                 at: now.addingTimeInterval(-1 * day1)
             ),
             reflection(
-                "Nefesi saymak işe yaradı ama yarısında yine yarını düşünmeye başladım.",
-                question: "Nefese dönmek ne kadar kolaydı?",
+                "Counting breaths worked, but halfway through I started thinking about tomorrow again.",
+                question: "How easy was it to return to the breath?",
                 day: 4,
                 title: "Bedeni taramak",
                 at: now.addingTimeInterval(-5 * day1)
@@ -185,7 +185,7 @@ enum MeDebugSeed {
                     endedAt: now.addingTimeInterval(-1 * day1),
                     status: .completed,
                     bucket: .clearProgress,
-                    headlineChange: "Uykuya dalma süren %41 kısaldı."
+                    headlineChange: "Your time to fall asleep got 41% shorter."
                 ),
                 PathArchiveEntry(
                     id: UUID(),
@@ -213,13 +213,13 @@ enum MeDebugSeed {
         record.notes = [
             JournalNote(
                 id: UUID(),
-                body: "Bugün yürüyüşten sonra omuzlarım gevşedi. Sebebini bilmiyorum ama kalsın.",
+                body: "My shoulders loosened after today's walk. I don't know why, but let it stay.",
                 createdAt: now.addingTimeInterval(-2 * day1),
                 updatedAt: now.addingTimeInterval(-2 * day1)
             ),
             JournalNote(
                 id: UUID(),
-                body: "Akşam telefonu erken bıraktım. Uyumadan önce kafamdaki gürültü biraz azaldı.",
+                body: "I put the phone down early this evening. The noise in my head eased a little before sleep.",
                 createdAt: now.addingTimeInterval(-6 * 60 * 60),
                 updatedAt: now.addingTimeInterval(-6 * 60 * 60)
             ),

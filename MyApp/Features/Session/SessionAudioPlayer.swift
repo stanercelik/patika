@@ -12,6 +12,21 @@ import Observation
 /// sessizlikleri. Sessizlik TTS'e hiç gitmiyor — istemcide zamanlanıyor.
 /// Marjın tamamı buna bağlı (PRD §13.3).
 ///
+/// ## Sıralı zamanlama, mutlak değil
+///
+/// Her dosya tek `AVAudioPlayerNode`'a **mutlak** zamanla verilirse, beklenenden
+/// uzun bir dosya sonrasını sessizce iter ve saat kendi fikrinde kalır: metin
+/// sesin önüne geçer, iki dosya çakışır. Burada akışın kendisi çizelgedir ve
+/// hepsi `at: nil` ile arka arkaya sıralanır:
+///
+///     [giriş tamponu][orta segment][çıkış tamponu][sessizlik tamponları][giriş]...
+///
+/// Çakışma yapısal olarak imkânsız. Çizelge, dosyalar yüklenip **ölçüldükten**
+/// sonra kurulur; manifestin `durationMs`i yalnızca bir planlama değeridir.
+///
+/// Fade'ler yalnızca **kenar** tamponlarında (600/250 ms) uygulanır: ortası
+/// dosyadan doğrudan çalar. Tamamen fade'lenmiş PCM oturum başına 60-75 MB tutardı.
+///
 /// ## Kesinti oturumu bitirmez
 ///
 /// Telefon görüşmesi, kulaklığın çıkması ya da uygulamanın kapanması oturumu
@@ -40,13 +55,20 @@ final class SessionAudioPlayer {
     private let engine = AVAudioEngine()
     private let voice = AVAudioPlayerNode()
     private let mixer = AVAudioMixerNode()
-    private var isGraphBuilt = false
+    /// Bağlı grafiğin biçimi. Biçim değişirse (farklı örnekleme hızlı ikinci oturum)
+    /// grafik yeniden bağlanır; eski bağlantı formatı sessizce kullanılmaz.
+    private var graphFormat: AVAudioFormat?
     private var files: [AVAudioFile] = []
     /// Sarma zaman çizelgesini yeniden kurar; yüklenen dosyalar ve biçim bu
     /// yüzden oynatma boyunca elde tutuluyor.
     private var timeline: SessionTimeline?
     private var loadedFiles: [UUID: AVAudioFile] = [:]
     private var format: AVAudioFormat?
+    /// Ölçülmüş dosya sürelerinden kurulan çizelge. Ekran sahneleri **bundan**
+    /// türetilir (`SessionRunner.audioDidStart`): ses ve ekran aynı sayıyı okur.
+    private(set) var resolvedTimeline: SessionTimeline?
+    /// Son kurulan çizelgenin başladığı an; `playerTime` bu ofsete göre okunur.
+    private var scheduleOrigin: TimeInterval = 0
     private var completionTask: Task<Void, Never>?
     private var envelope = SessionEnvelope()
     private var onFinish: (@MainActor () -> Void)?
@@ -84,7 +106,6 @@ final class SessionAudioPlayer {
         state = .loading
 
         do {
-            let timeline = SessionTimeline(manifest: playback.manifest)
             var loaded: [UUID: AVAudioFile] = [:]
             for event in playback.manifest.events {
                 guard case .speech(let speech) = event,
@@ -96,12 +117,24 @@ final class SessionAudioPlayer {
             guard let format = loaded.values.first?.processingFormat else {
                 throw BackendError.unavailable(status: -1, code: "audio_assets_missing")
             }
+            // Tek node tek biçim çalar. Farklı biçimli dosya karışırsa zamanlama
+            // tanımsız olur; sessizce çalmak yerine oturum sessiz sürüme düşer.
+            guard loaded.values.allSatisfy({ $0.processingFormat == format }) else {
+                throw BackendError.unavailable(status: -1, code: "audio_format_mismatch")
+            }
+
+            // Önce ÖLÇ, sonra çizelgeyi kur. `durationMs` dosyanın baş/son
+            // sessizliğini içermiyordu: eski sıralamada (çizelge dosyalardan önce)
+            // uzun bir dosya sonrasını itiyordu.
+            let measured = loaded.mapValues { TimeInterval($0.length) / $0.processingFormat.sampleRate }
+            let timeline = SessionTimeline(manifest: playback.manifest, measured: measured)
 
             try configureSession()
             buildGraph(format: format)
             observeInterruptions()
             files = Array(loaded.values)
             self.timeline = timeline
+            self.resolvedTimeline = timeline
             self.loadedFiles = loaded
             self.format = format
             duration = timeline.duration
@@ -124,42 +157,16 @@ final class SessionAudioPlayer {
         }
     }
 
-    /// Zaman çizelgesini `start` anından itibaren kurar.
-    ///
-    /// `start` bir konuşmanın **ortasına** düşerse o parça baştan değil kaldığı
-    /// yerden çalar (`scheduleSegment`): yarısı dinlenmiş bir cümleyi baştan
-    /// duymak kullanıcıya kesintiyi ikinci kez hatırlatıyordu.
+    // MARK: - Çizelge
+
     private func schedule(
         timeline: SessionTimeline,
         files: [UUID: AVAudioFile],
         format: AVAudioFormat,
         from start: TimeInterval
     ) {
-        for entry in timeline.entries {
-            guard case .speech(let speech) = entry.event,
-                  let file = files[speech.assetID],
-                  entry.end > start
-            else { continue }
-
-            let when = AVAudioTime(
-                sampleTime: AVAudioFramePosition((max(0, entry.start - start) * format.sampleRate).rounded()),
-                atRate: format.sampleRate
-            )
-            if entry.start >= start {
-                voice.scheduleFile(file, at: when, completionCallbackType: .dataConsumed) { _ in }
-            } else {
-                let skipped = AVAudioFramePosition(((start - entry.start) * file.processingFormat.sampleRate).rounded())
-                let remaining = AVAudioFrameCount(max(0, file.length - skipped))
-                guard remaining > 0 else { continue }
-                voice.scheduleSegment(
-                    file,
-                    startingFrame: skipped,
-                    frameCount: remaining,
-                    at: when,
-                    completionCallbackType: .dataConsumed
-                ) { _ in }
-            }
-        }
+        scheduleOrigin = start
+        SessionScheduler(voice: voice).schedule(timeline: timeline, files: files, format: format, from: start)
     }
 
     func pause() {
@@ -237,6 +244,7 @@ final class SessionAudioPlayer {
         files.removeAll()
         loadedFiles.removeAll()
         timeline = nil
+        resolvedTimeline = nil
         format = nil
         elapsed = 0
         accumulated = 0
@@ -327,9 +335,18 @@ final class SessionAudioPlayer {
     }
 
     private func buildGraph(format: AVAudioFormat) {
-        guard !isGraphBuilt else { return }
-        engine.attach(voice)
-        engine.attach(mixer)
+        // Aynı biçimde kurulu grafik yeniden kullanılır. Biçim farklıysa (başka
+        // örnekleme hızlı ikinci oturum) eski bağlantı formatıyla çalmak tanımsızdı;
+        // motor bu noktada durdurulmuş (`stop`) olduğundan yeniden bağlanabilir.
+        if let graphFormat {
+            guard graphFormat != format else { return }
+            mixer.removeTap(onBus: 0)
+            engine.disconnectNodeOutput(voice)
+            engine.disconnectNodeOutput(mixer)
+        } else {
+            engine.attach(voice)
+            engine.attach(mixer)
+        }
         engine.connect(voice, to: mixer, format: format)
         engine.connect(mixer, to: engine.mainMixerNode, format: format)
         mixer.outputVolume = 0.85
@@ -344,7 +361,7 @@ final class SessionAudioPlayer {
             Task { @MainActor [weak self] in self?.receiveEnergy(normalized) }
         }
         engine.prepare()
-        isGraphBuilt = true
+        graphFormat = format
     }
 
     private func receiveEnergy(_ target: Double) {
@@ -367,9 +384,28 @@ final class SessionAudioPlayer {
         }
     }
 
+    /// Oynatıcı düğümünün gerçekten çaldığı an (çizelge saniyesi). Yoksa nil.
+    private func renderedElapsed() -> TimeInterval? {
+        guard let nodeTime = voice.lastRenderTime, nodeTime.isSampleTimeValid,
+              let playerTime = voice.playerTime(forNodeTime: nodeTime),
+              playerTime.sampleTime >= 0, playerTime.sampleRate > 0
+        else { return nil }
+        return scheduleOrigin + TimeInterval(playerTime.sampleTime) / playerTime.sampleRate
+    }
+
+    /// Yeniden bağlanmayan tek sapma kaynağı: monotonik saat ile gerçek çalma
+    /// aynı hızda akmıyor (uyku, çıkış aygıtı saati). Saniyede bir gerçeğe bakılır;
+    /// 150 ms'den fazla ayrışırsa saat düzeltilir.
+    private static let driftTolerance: TimeInterval = 0.15
+
     private func tick() {
         guard state == .playing, let clockOrigin else { return }
-        elapsed = min(duration, accumulated + seconds(since: clockOrigin))
+        var current = accumulated + seconds(since: clockOrigin)
+        if let rendered = renderedElapsed(), abs(rendered - current) > Self.driftTolerance {
+            accumulated += rendered - current
+            current = rendered
+        }
+        elapsed = min(duration, max(0, current))
         // Uygulama kapanırsa son kayıt buradan kalır; her karede yazmıyor.
         if Int(elapsed * 10) % 50 == 0 { saveCheckpoint() }
     }

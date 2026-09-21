@@ -163,3 +163,19 @@ yetkili yayıncıyla üretim yeniden çalıştırılmalı, MP3'ler dinlenmeli ve
 - Doğrulanamayanlar: Reduce Motion / Reduce Transparency / Increase Contrast cihaz
   senaryoları, VoiceOver turu, yakınlaştırma geçişinin animasyonu (ekran görüntüsü
   hareketi göstermez), `discover-world` ve yeni kart görselleri (henüz yüklenmedi).
+
+
+## Güncelleme — 21 Eylül 2026: v2 katalog, tek ses, yerel render
+
+- Katalog `version: 2`: adım `segments` + `closing`, sessizlik yazılan `quietMs` (nefese yuvarlanmaz).
+- MVP yalnızca İngilizce ve tek (kadın) ses. Ses seçici kalktı; `render-discover-audio` edge
+  fonksiyonu kaldırıldı, üretim `scripts/render-discover-audio.py` ile yerelde.
+- Çalma: her bölüm ayrı kayıt, aralarındaki sessizlik istemcide gerçek sessizlik tamponu; son
+  yönerge duraklama boyunca ekranda kalır (`displayText` yok).
+- Boyut ölçüldü: 31 kayıt / 2,1 MB; tam katalog ~286 kayıt / ~20 MB, ~20 bin karakter.
+- Doğrulama günlüğü: `breath` patikası Türkçe cihaz diliyle simülatörde katılınabilir, oturum
+  bölümleri sessizlikten sonra ilerliyor, ilerleme çubuğu akıyor (ses simülatörde yakalanamaz;
+  tempo `Tests/SessionSchedulerTests`te dalga formundan). Seviye yayılımı 31 dosyada 0,9 LU
+  (medyan -16,2 LUFS), true-peak en çok -1,5 dBFS.
+- Açık: kalan 9 patikanın sesi (kullanıcı örneği dinledikten sonra), `discover.duration` metni
+  "About 4 min each".

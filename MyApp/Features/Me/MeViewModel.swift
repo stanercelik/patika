@@ -60,7 +60,7 @@ final class MeViewModel {
 
     struct PreferenceItem: Identifiable, Equatable {
         enum Kind: String {
-            case reminder, sessionLength, tone, voice
+            case reminder, tone
         }
 
         let kind: Kind
@@ -473,15 +473,10 @@ final class MeViewModel {
                 : String(localized: Copy.Me.reminderOffValue),
             caption: reminderSourceCaption
         )]
-        if let length = record.sessionLength {
-            items.append(PreferenceItem(kind: .sessionLength, value: String(localized: Copy.Me.minutes(length.minutes)), caption: nil))
-        }
         if let tone = record.tone {
             items.append(PreferenceItem(kind: .tone, value: String(localized: tone.label), caption: nil))
         }
-        if let voice = record.voice {
-            items.append(PreferenceItem(kind: .voice, value: String(localized: voice.label), caption: nil))
-        }
+        // Adım uzunluğu ve ses gösterilmiyor: ikisi de kullanıcı tercihi değil (2026-09-21).
         return items
     }
 

@@ -33,11 +33,11 @@ enum PathPreviewFixture {
         let titles = [
             "Nefesle yere inmek",
             "Zihnin sesini fark etmek",
-            "Düşünceyle arana küçük bir mesafe koymak",
-            "Bedeninde olanlara yavaşça yer açmak",
-            "Günün içinde kendine dönebildiğin küçük bir alan",
+            "Putting a small distance between you and the thought",
+            "Slowly making room for what is in your body",
+            "A small space in the day where you can return to yourself",
             "Kendi ritmini bulmak",
-            "Başladığın yere yeniden bakmak"
+            "Looking again at where you started"
         ]
         let steps = (0..<length).map { index in
             PathStepRecord(
@@ -46,7 +46,7 @@ enum PathPreviewFixture {
                 question: nil, completedAt: index < completed ? Date(timeIntervalSince1970: 1) : nil
             )
         }
-        return ActivePath(id: UUID(), kind: .personalized, title: "Kendine dönen bir yol", steps: steps)
+        return ActivePath(id: UUID(), kind: .personalized, title: "A path back to yourself", steps: steps)
     }()
 }
 

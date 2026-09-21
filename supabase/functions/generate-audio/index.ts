@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
       locale,
       voice,
       modelId: DEFAULT_TTS_MODEL,
-      prosody: "manifest-v1",
+      prosody: "manifest-v2",
     });
     const { data: readyManifest } = await adminClient.from("session_manifests")
       .select("id").eq("path_step_id", step.id).eq("rendition_hash", digest).maybeSingle();

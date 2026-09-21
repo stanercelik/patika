@@ -103,12 +103,8 @@ struct OnboardingContainerView: View {
                 .id(index)
         case .e1Reminder:
             ReminderTimeView(flow: flow)
-        case .e2SessionLength:
-            SessionLengthView(flow: flow)
         case .e3Tone:
             TonePreferenceView(flow: flow)
-        case .e4Voice:
-            VoiceChoiceView(flow: flow)
         case .f1Generation:
             GenerationView(flow: flow)
         case .f2Roadmap:
@@ -139,7 +135,7 @@ struct NotYetBuiltView: View {
             Text(verbatim: step)
                 .font(.title2.weight(Theme.Weight.title))
                 .foregroundStyle(Theme.textPrimary.color)
-            Text(verbatim: "Bu adım henüz yazılmadı.")
+            Text(.onboardingStepNotWritten)
                 .font(.body.weight(Theme.Weight.body))
                 .foregroundStyle(Theme.textSecondary.color)
         }
@@ -155,13 +151,10 @@ struct CrisisView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
             Spacer()
-            Text(verbatim: "Yazdığın şey ciddi ve önemli.")
+            Text(.crisisHeadline)
                 .font(.title2.weight(Theme.Weight.title))
                 .foregroundStyle(Theme.textPrimary.color)
-            Text(verbatim: """
-                Bu uygulama bu konuda sana yardımcı olabilecek doğru yer değil — \
-                ama yardım alabileceğin yerler var.
-                """)
+            Text(.crisisBody)
                 .font(.body.weight(Theme.Weight.body))
                 .foregroundStyle(Theme.textSecondary.color)
             Spacer()

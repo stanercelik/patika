@@ -22,8 +22,8 @@ struct IntensityScale: View {
     let selection: Double?
     let onSelect: (Double) -> Void
 
-    var lowLabel: LocalizedStringResource = "Hiç yok"
-    var highLabel: LocalizedStringResource = "Çok güçlü"
+    var lowLabel: LocalizedStringResource = .intensityScaleLow
+    var highLabel: LocalizedStringResource = .intensityScaleHigh
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .body) private var maximumBarHeight: CGFloat = 56
@@ -68,8 +68,8 @@ struct IntensityScale: View {
                 .animation(reduceMotion ? nil : Theme.Motion.crossFade, value: selectedStep)
         }
         .accessibilityElement()
-        .accessibilityLabel("Şiddet ölçeği, sıfırdan ona")
-        .accessibilityValue(selectedStep.map { Text(verbatim: "\($0)") } ?? Text("seçilmedi"))
+        .accessibilityLabel(.intensityScaleAccessibility)
+        .accessibilityValue(selectedStep.map { Text(verbatim: "\($0)") } ?? Text(.intensityScaleNotSelected))
         .accessibilityAdjustableAction { direction in
             let current = selectedStep ?? 0
             switch direction {

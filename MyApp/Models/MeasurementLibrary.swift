@@ -99,9 +99,9 @@ enum MeasurementLibrary {
         id: "emotion.intensity",
         layer: .emotion,
         prompts: [
-            .a: "Son 3 günde bu his ne kadar güçlüydü?",
-            .b: "Son 3 günde bu his seni ne kadar zorladı?",
-            .c: "Son 3 günde bunun şiddeti ne kadardı?",
+            .a: .measurementLibraryIntensityA,
+            .b: .measurementLibraryIntensityB,
+            .c: .measurementLibraryIntensityC,
         ],
         // İpucu yok: ölçeğin iki ucundaki etiketler ("Hiç yok" / "Çok güçlü")
         // aynı şeyi zaten söylüyor, sorunun altına bir kez daha yazmak ekranı
@@ -115,17 +115,17 @@ enum MeasurementLibrary {
         id: "emotion.frequency",
         layer: .emotion,
         prompts: [
-            .a: "Gün içinde bu duygu kaç kez kapını çaldı?",
-            .b: "Son günlerde bu his gün içinde ne sıklıkta geldi?",
-            .c: "Bu his gün boyunca kaç kez ortaya çıktı?",
+            .a: .measurementLibraryFrequencyA,
+            .b: .measurementLibraryFrequencyB,
+            .c: .measurementLibraryFrequencyC,
         ],
         hint: nil,
         style: .choice([
-            .init(value: 0, label: "Hiç"),
-            .init(value: 1, label: "Günde 1–2 kez"),
-            .init(value: 2, label: "Günde 3–5 kez"),
-            .init(value: 3, label: "Günde 6–10 kez"),
-            .init(value: 4, label: "Neredeyse sürekli"),
+            .init(value: 0, label: .measurementLibraryFrequency1),
+            .init(value: 1, label: .measurementLibraryFrequency2),
+            .init(value: 2, label: .measurementLibraryFrequency3),
+            .init(value: 3, label: .measurementLibraryFrequency4),
+            .init(value: 4, label: .measurementLibraryFrequency5),
         ]),
         higherMeansBetter: false
     )
@@ -138,17 +138,17 @@ enum MeasurementLibrary {
         id: "behavior.sleepLatency",
         layer: .behavior,
         prompts: [
-            .a: "Dün gece uykuya dalman ne kadar sürdü?",
-            .b: "Dün gece yatağa girdikten sonra ne kadar uyanık kaldın?",
-            .c: "Dün gece uykuya geçmen ne kadar zaman aldı?",
+            .a: .measurementLibrarySleepLatencyA,
+            .b: .measurementLibrarySleepLatencyB,
+            .c: .measurementLibrarySleepLatencyC,
         ],
         hint: nil,
         style: .choice([
-            .init(value: 0, label: "15 dakikadan az"),
-            .init(value: 1, label: "15–30 dakika"),
-            .init(value: 2, label: "30–60 dakika"),
-            .init(value: 3, label: "1–2 saat"),
-            .init(value: 4, label: "2 saatten fazla"),
+            .init(value: 0, label: .measurementLibrarySleepLatency1),
+            .init(value: 1, label: .measurementLibrarySleepLatency2),
+            .init(value: 2, label: .measurementLibrarySleepLatency3),
+            .init(value: 3, label: .measurementLibrarySleepLatency4),
+            .init(value: 4, label: .measurementLibrarySleepLatency5),
         ]),
         higherMeansBetter: false
     )
@@ -157,16 +157,16 @@ enum MeasurementLibrary {
         id: "behavior.avoidanceCount",
         layer: .behavior,
         prompts: [
-            .a: "Son bir haftada bu yüzden ertelediğin ya da kaçındığın kaç şey oldu?",
-            .b: "Son bir haftada bu yüzden yapmaktan vazgeçtiğin kaç şey oldu?",
-            .c: "Son bir haftada bu yüzden geri çektiğin kaç iş oldu?",
+            .a: .measurementLibraryAvoidanceCountA,
+            .b: .measurementLibraryAvoidanceCountB,
+            .c: .measurementLibraryAvoidanceCountC,
         ],
         hint: nil,
         style: .choice([
-            .init(value: 0, label: "Hiç"),
+            .init(value: 0, label: .measurementLibraryAvoidanceCount1),
             .init(value: 1, label: "1–2"),
             .init(value: 2, label: "3–5"),
-            .init(value: 3, label: "5'ten fazla"),
+            .init(value: 3, label: .measurementLibraryAvoidanceCount2),
         ]),
         higherMeansBetter: false
     )
@@ -184,13 +184,13 @@ enum MeasurementLibrary {
             MeasurementItem(
                 id: "behavior.nightWakings",
                 layer: .behavior,
-                prompts: [.a: "Dün gece kaç kez uyandın?"],
+                prompts: [.a: .measurementLibraryBehaviorItemSleep1],
                 hint: nil,
                 style: .choice([
-                    .init(value: 0, label: "Hiç uyanmadım"),
-                    .init(value: 1, label: "1 kez"),
-                    .init(value: 2, label: "2–3 kez"),
-                    .init(value: 3, label: "3'ten fazla"),
+                    .init(value: 0, label: .measurementLibraryBehaviorItemSleep2),
+                    .init(value: 1, label: .measurementLibraryBehaviorItemSleep3),
+                    .init(value: 2, label: .measurementLibraryBehaviorItemSleep4),
+                    .init(value: 3, label: .measurementLibraryBehaviorItemSleep5),
                 ]),
                 higherMeansBetter: false
             )
@@ -198,13 +198,13 @@ enum MeasurementLibrary {
             MeasurementItem(
                 id: "behavior.missedStudySessions",
                 layer: .behavior,
-                prompts: [.a: "Son bir haftada kaç çalışma seansını kaçırdın?"],
+                prompts: [.a: .measurementLibraryBehaviorItemExamFocus1],
                 hint: nil,
                 style: .choice([
-                    .init(value: 0, label: "Hiç"),
+                    .init(value: 0, label: .measurementLibraryBehaviorItemExamFocus2),
                     .init(value: 1, label: "1–2"),
                     .init(value: 2, label: "3–5"),
-                    .init(value: 3, label: "5'ten fazla"),
+                    .init(value: 3, label: .measurementLibraryBehaviorItemExamFocus3),
                 ]),
                 higherMeansBetter: false
             )
@@ -212,13 +212,13 @@ enum MeasurementLibrary {
             MeasurementItem(
                 id: "behavior.declinedInvitations",
                 layer: .behavior,
-                prompts: [.a: "Son bir haftada kaç daveti geri çevirdin?"],
+                prompts: [.a: .measurementLibraryBehaviorItemSocial1],
                 hint: nil,
                 style: .choice([
-                    .init(value: 0, label: "Hiç"),
-                    .init(value: 1, label: "1 tane"),
-                    .init(value: 2, label: "2–3 tane"),
-                    .init(value: 3, label: "3'ten fazla"),
+                    .init(value: 0, label: .measurementLibraryBehaviorItemSocial2),
+                    .init(value: 1, label: .measurementLibraryBehaviorItemSocial3),
+                    .init(value: 2, label: .measurementLibraryBehaviorItemSocial4),
+                    .init(value: 3, label: .measurementLibraryBehaviorItemSocial5),
                 ]),
                 higherMeansBetter: false
             )
@@ -226,13 +226,13 @@ enum MeasurementLibrary {
             MeasurementItem(
                 id: "behavior.breaksTaken",
                 layer: .behavior,
-                prompts: [.a: "Son bir haftada gün içinde kaç kez gerçekten mola verebildin?"],
+                prompts: [.a: .measurementLibraryBehaviorItemBurnout1],
                 hint: nil,
                 style: .choice([
-                    .init(value: 0, label: "Hiç"),
-                    .init(value: 1, label: "1–2 kez"),
-                    .init(value: 2, label: "3–5 kez"),
-                    .init(value: 3, label: "Neredeyse her gün"),
+                    .init(value: 0, label: .measurementLibraryBehaviorItemBurnout2),
+                    .init(value: 1, label: .measurementLibraryBehaviorItemBurnout3),
+                    .init(value: 2, label: .measurementLibraryBehaviorItemBurnout4),
+                    .init(value: 3, label: .measurementLibraryBehaviorItemBurnout5),
                 ]),
                 // Tek ters yönlü madde: burada yüksek cevap iyi habere işaret.
                 higherMeansBetter: true
@@ -241,13 +241,13 @@ enum MeasurementLibrary {
             MeasurementItem(
                 id: "behavior.regrettedReactions",
                 layer: .behavior,
-                prompts: [.a: "Son bir haftada sonradan pişman olduğun kaç tepkin oldu?"],
+                prompts: [.a: .measurementLibraryBehaviorItemAnger1],
                 hint: nil,
                 style: .choice([
-                    .init(value: 0, label: "Hiç"),
+                    .init(value: 0, label: .measurementLibraryBehaviorItemAnger2),
                     .init(value: 1, label: "1–2"),
                     .init(value: 2, label: "3–5"),
-                    .init(value: 3, label: "5'ten fazla"),
+                    .init(value: 3, label: .measurementLibraryBehaviorItemAnger3),
                 ]),
                 higherMeansBetter: false
             )
@@ -255,13 +255,13 @@ enum MeasurementLibrary {
             MeasurementItem(
                 id: "behavior.disruptedDays",
                 layer: .behavior,
-                prompts: [.a: "Son bir haftada kaç gün bu yüzden gününün akışı bozuldu?"],
+                prompts: [.a: .measurementLibraryBehaviorItemAnxietySelfcritGriefUnnamed1],
                 hint: nil,
                 style: .choice([
-                    .init(value: 0, label: "Hiç"),
-                    .init(value: 1, label: "1–2 gün"),
-                    .init(value: 2, label: "3–5 gün"),
-                    .init(value: 3, label: "Neredeyse her gün"),
+                    .init(value: 0, label: .measurementLibraryBehaviorItemAnxietySelfcritGriefUnnamed2),
+                    .init(value: 1, label: .measurementLibraryBehaviorItemAnxietySelfcritGriefUnnamed3),
+                    .init(value: 2, label: .measurementLibraryBehaviorItemAnxietySelfcritGriefUnnamed4),
+                    .init(value: 3, label: .measurementLibraryBehaviorItemAnxietySelfcritGriefUnnamed5),
                 ]),
                 higherMeansBetter: false
             )
@@ -277,9 +277,9 @@ enum MeasurementLibrary {
         id: "selfEfficacy.knowsWhatToDo",
         layer: .selfEfficacy,
         prompts: [
-            .a: "Bu his geldiğinde ne yapacağımı biliyorum.",
-            .b: "Bu his geldiğinde başvurabileceğim bir yol var.",
-            .c: "Bu his geldiğinde neyin işe yaradığını biliyorum.",
+            .a: .measurementLibraryKnowsWhatToDoA,
+            .b: .measurementLibraryKnowsWhatToDoB,
+            .c: .measurementLibraryKnowsWhatToDoC,
         ],
         hint: nil,
         style: .choice(agreementOptions),
@@ -290,9 +290,9 @@ enum MeasurementLibrary {
         id: "selfEfficacy.believesChangePossible",
         layer: .selfEfficacy,
         prompts: [
-            .a: "Bu durumun değişebileceğine inanıyorum.",
-            .b: "Bunun zamanla değişebileceğini düşünüyorum.",
-            .c: "Bu durumun daha iyiye gidebileceğine inanıyorum.",
+            .a: .measurementLibraryBelievesChangePossibleA,
+            .b: .measurementLibraryBelievesChangePossibleB,
+            .c: .measurementLibraryBelievesChangePossibleC,
         ],
         hint: nil,
         style: .choice(agreementOptions),
@@ -308,17 +308,17 @@ enum MeasurementLibrary {
         id: "behavior.dailyImpact",
         layer: .behavior,
         prompts: [
-            .a: "Bu, günlük hayatını ne kadar etkiliyor?",
-            .b: "Bu, gündelik işlerini ne kadar aksatıyor?",
-            .c: "Bu, günlük düzenini ne kadar etkiliyor?",
+            .a: .measurementLibraryDailyImpactA,
+            .b: .measurementLibraryDailyImpactB,
+            .c: .measurementLibraryDailyImpactC,
         ],
         hint: nil,
         style: .choice([
-            .init(value: 0, label: "Hiç etkilemiyor"),
-            .init(value: 1, label: "Biraz"),
-            .init(value: 2, label: "Orta düzeyde"),
-            .init(value: 3, label: "Epeyce"),
-            .init(value: 4, label: "Çok etkiliyor"),
+            .init(value: 0, label: .measurementLibraryDailyImpact1),
+            .init(value: 1, label: .measurementLibraryDailyImpact2),
+            .init(value: 2, label: .measurementLibraryDailyImpact3),
+            .init(value: 3, label: .measurementLibraryDailyImpact4),
+            .init(value: 4, label: .measurementLibraryDailyImpact5),
         ]),
         higherMeansBetter: false
     )
@@ -326,11 +326,11 @@ enum MeasurementLibrary {
     /// 1–5 katılım ölçeği. "Kararsızım" ortada duruyor ve dürüst bir cevap —
     /// kullanıcıyı bir yöne itmemek için tarafsız ifade edildi.
     static let agreementOptions: [MeasurementOption] = [
-        .init(value: 0, label: "Hiç katılmıyorum"),
-        .init(value: 1, label: "Pek katılmıyorum"),
-        .init(value: 2, label: "Kararsızım"),
-        .init(value: 3, label: "Katılıyorum"),
-        .init(value: 4, label: "Tamamen katılıyorum"),
+        .init(value: 0, label: .measurementLibraryAgreementOptions1),
+        .init(value: 1, label: .measurementLibraryAgreementOptions2),
+        .init(value: 2, label: .measurementLibraryAgreementOptions3),
+        .init(value: 3, label: .measurementLibraryAgreementOptions4),
+        .init(value: 4, label: .measurementLibraryAgreementOptions5),
     ]
 
     /// D1'in ölçek sınırları.

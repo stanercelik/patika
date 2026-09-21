@@ -18,10 +18,10 @@ extension OnboardingDraft {
         draft.gender = .man
         draft.ageRange = .twentyFiveToThirtyFour
         draft.categories = [category]
-        draft.problemText = "Geceleri yatağa girince kafam durmuyor, uyumam saatler sürüyor."
+        draft.problemText = "My mind won't stop when I get into bed at night, and falling asleep takes hours."
         draft.duration = .months
         draft.timing = .bedtime
-        draft.avoidanceText = "Akşamları arkadaşlarla buluşmayı erteliyorum."
+        draft.avoidanceText = "I keep putting off meeting friends in the evening."
         draft.previousAttempts = [.otherApps, .youtube]
         draft.currentMood = .heavy
         draft.tonePreference = .calmAndShort
@@ -89,7 +89,6 @@ extension OnboardingStep {
         case "d0": self = .d0MeasurementIntro
         case "d1": self = .dMeasurement(1)
         case "e1": self = .e1Reminder
-        case "e4": self = .e4Voice
         case "f1": self = .f1Generation
         case "f2": self = .f2Roadmap
         case "g1": self = .g1FirstSession
@@ -163,13 +162,13 @@ struct OnboardingDebugSkipButton: View {
 
     var body: some View {
         Menu {
-            Button("F1 · Üretim") { flow.debugJump(to: .f1Generation) }
-            Button("G1 · İlk oturum") { flow.debugJump(to: .g1FirstSession) }
-            Button("G2 · Oturum sonu") { flow.debugJump(to: .g2SessionComplete) }
-            Button("H1 · Hesap") { flow.debugJump(to: .h1Account) }
+            Button("F1 · Generation") { flow.debugJump(to: .f1Generation) }
+            Button("G1 · First session") { flow.debugJump(to: .g1FirstSession) }
+            Button("G2 · Session end") { flow.debugJump(to: .g2SessionComplete) }
+            Button("H1 · Account") { flow.debugJump(to: .h1Account) }
             Divider()
-            Button("D1 · Ölçüm") { flow.debugJump(to: .dMeasurement(1)) }
-            Button("E1 · Tercihler") { flow.debugJump(to: .e1Reminder) }
+            Button("D1 · Measurement") { flow.debugJump(to: .dMeasurement(1)) }
+            Button("E1 · Preferences") { flow.debugJump(to: .e1Reminder) }
         } label: {
             Image(systemName: "forward.end.alt")
                 .font(.footnote.weight(Theme.Weight.action))
@@ -177,7 +176,7 @@ struct OnboardingDebugSkipButton: View {
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
-        .accessibilityLabel("Geliştirici: akışı ileri sar")
+        .accessibilityLabel("Developer: fast-forward the flow")
     }
 }
 #endif

@@ -197,7 +197,7 @@ struct DiscoverView: View {
             let steps = value(after: "-patika-debug-discover-progress").flatMap(Int.init) ?? 0
             for id in ids.split(separator: ",") {
                 guard let path = library.paths.first(where: { $0.id == id }) else { continue }
-                library.enroll(path, voice: .feminine)
+                library.enroll(path)
                 for step in path.steps.prefix(steps) { library.complete(step, in: path) }
             }
         }

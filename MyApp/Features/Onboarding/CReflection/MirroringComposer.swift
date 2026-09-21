@@ -52,26 +52,26 @@ enum MirroringComposer {
         return result
     }
 
-    /// "Yatağa girdiğinde zihnin durmuyor."
+    /// "When you get into bed, your mind won't stop."
     private static func situationSentence(for draft: OnboardingDraft) -> AttributedString {
         let predicate = String(localized: draft.primaryCategory.mirrorPhrase)
 
         var sentence: String
         if let timing = draft.timing {
-            sentence = "\(String(localized: timing.mirrorPhrase)) \(predicate)"
+            sentence = String(localized: .onboardingMirroringSituation(String(localized: timing.mirrorPhrase), predicate))
         } else {
             sentence = predicate
         }
         return AttributedString(capitalizingFirstLetter(sentence) + ".")
     }
 
-    /// "Bu **aylardır** sürüyor." Ayrı cümle — ekranda bir öncekinden sonra belirir.
+    /// "This has been going on **for months**." Ayrı cümle — ekranda bir öncekinden sonra belirir.
     private static func durationSentence(for draft: OnboardingDraft) -> AttributedString? {
         guard let duration = draft.duration?.mirrorPhrase else { return nil }
         var paragraph = AttributedString(localized: Copy.Onboarding.mirroringDurationLead)
         paragraph += AttributedString(" ")
         paragraph += emphasized(String(localized: duration))
-        paragraph += AttributedString(" ")
+        // Kuyruk kendi noktalamasını taşır ("."), araya boşluk girmez.
         paragraph += AttributedString(localized: Copy.Onboarding.mirroringDurationTail)
         return paragraph
     }

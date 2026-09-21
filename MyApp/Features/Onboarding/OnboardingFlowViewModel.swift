@@ -36,13 +36,11 @@ enum OnboardingStep: Equatable {
     /// D1–D8. `index` 1 tabanlı ve `OnboardingDraft.measurementItems`
     /// dizisindeki sırayı gösterir.
     case dMeasurement(Int)
-    // E — Tercihler (3 ekran). Üçünün de ürün davranışında görünür karşılığı var.
+    // E — Tercihler (2 ekran). İkisinin de ürün davranışında görünür karşılığı var.
+    // E2 (adım uzunluğu) ve E4 (rehber sesi) 2026-09-21'de kaldırıldı: uzunluğu ürün
+    // sahibi ayarlıyor (varsayılan 10 dk), MVP tek ses (kadın).
     case e1Reminder
-    case e2SessionLength
     case e3Tone
-    /// E4 — rehber sesi. PRD'de yok, sonradan eklendi (ürün sahibi kararı,
-    /// 2026-09-09): ses kimliği kullanıcının en uzun temas ettiği yer.
-    case e4Voice
     // F — Üretim ve teslim. PRD'de 4 ekran; F2 ile F3 **birleştirildi**
     // (ürün sahibi kararı, 2026-09-09), yani 3 ekran.
     case f1Generation
@@ -81,11 +79,9 @@ enum OnboardingStep: Equatable {
         // sorulmadığı için iz solar — tıpkı C bölümünde olduğu gibi.
         case .dMeasurement(let index):
             Double(index) / Double(MeasurementPoint.baseline.questionCount)
-        // E kendi ölçeğiyle yeniden başlar — üç ekranlık kısa bir bölüm.
-        case .e1Reminder: 1.0 / 4.0
-        case .e2SessionLength: 2.0 / 4.0
-        case .e3Tone: 3.0 / 4.0
-        case .e4Voice: 1.0
+        // E kendi ölçeğiyle yeniden başlar — iki ekranlık kısa bir bölüm.
+        case .e1Reminder: 1.0 / 2.0
+        case .e3Tone: 1.0
         case .a1Welcome, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
              .c4HonestExpectation, .d0MeasurementIntro, .f1Generation, .f2Roadmap,
              .g1FirstSession, .g2SessionComplete, .h1Account, .crisis: nil
@@ -422,24 +418,15 @@ final class OnboardingFlowViewModel {
     func commitReminder(hour: Int, minute: Int) {
         draft.reminderHour = hour
         draft.reminderMinute = minute
-        advance(to: .e2SessionLength)
-    }
-
-    func commitSessionLength(_ length: SessionLength) {
-        draft.sessionLength = length
         advance(to: .e3Tone)
     }
 
     func commitTonePreference(_ tone: TonePreference) {
         draft.tonePreference = tone
-        advance(to: .e4Voice)
-    }
-
-    /// E4 — rehber sesi. Ton (E3) metnin nasıl **yazıldığını**, ses kimliği
-    /// nasıl **okunduğunu** belirliyor; ikisi ayrı karar ve ikisi de gerçekten
-    /// ürünün davranışını değiştiriyor.
-    func commitVoicePreference(_ voice: VoicePreference) {
-        draft.voicePreference = voice
+        // Adım uzunluğu ve ses kullanıcıya sorulmuyor (2026-09-21): uzunluk taslağın
+        // varsayılanı (10 dk, `SessionLength.standard`), ses MVP'nin tek sesi. Sunucu ve
+        // oturum bu alanları okumaya devam ediyor.
+        draft.voicePreference = .feminine
         advance(to: .f1Generation)
     }
 

@@ -90,7 +90,7 @@ struct MyPathView: View {
             )
             #if DEBUG
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                Button("Tasarım önizlemesi · örnek patika") {
+                Button("Design preview · sample path") {
                     viewModel?.showDesignPreview()
                 }
                 .font(.caption.weight(Theme.Weight.emphasis))
@@ -122,7 +122,7 @@ struct MyPathView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     #if DEBUG
                     if viewModel?.isDesignPreview == true {
-                        Text("Tasarım önizlemesi · örnek veriler")
+                        Text("Design preview · sample data")
                             .font(.caption.weight(Theme.Weight.emphasis))
                             .foregroundStyle(Theme.textSecondary.color)
                     }

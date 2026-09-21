@@ -30,13 +30,13 @@ struct RootView: View {
 
     var body: some View {
         TabView(selection: $selection) {
-            Tab("Yolum", systemImage: "point.topleft.down.to.point.bottomright.curvepath", value: RootTab.path) {
+            Tab(.tabPath, systemImage: "point.topleft.down.to.point.bottomright.curvepath", value: RootTab.path) {
                 MyPathView()
             }
-            Tab("Keşfet", systemImage: "square.grid.2x2", value: RootTab.discover) {
+            Tab(.tabDiscover, systemImage: "square.grid.2x2", value: RootTab.discover) {
                 DiscoverView { selection = .path }
             }
-            Tab("Ben", systemImage: "person", value: RootTab.me) {
+            Tab(.tabMe, systemImage: "person", value: RootTab.me) {
                 MeTab()
             }
         }

@@ -35,8 +35,8 @@ struct PathProgressBar: View {
         .frame(height: Theme.Line.progressTrack)
         .animation(reduceMotion ? nil : Theme.Motion.progress, value: clamped)
         .accessibilityElement()
-        .accessibilityLabel("İlerleme")
-        .accessibilityValue(Text("yüzde \(Int(clamped * 100))"))
+        .accessibilityLabel(.commonProgress)
+        .accessibilityValue(Text(.commonPercent(Int(clamped * 100))))
     }
 }
 

@@ -79,7 +79,7 @@ final class GenerationViewModel {
                     ?? String(describing: error)
                 task = nil
                 #if DEBUG
-                print("[patika] path üretimi başarısız: \(failureDetail ?? "?")")
+                print("[patika] path generation failed: \(failureDetail ?? "?")")
                 #endif
             }
         }

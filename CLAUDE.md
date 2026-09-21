@@ -2,6 +2,74 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 21 Eylül 2026 — yalnızca İngilizce MVP, tek ses, tek metin kataloğu, oturum tempo düzeltmesi
+
+Ürün sahibi MVP'yi **yalnızca İngilizce ve yalnızca kadın sesiyle** çıkarmaya karar verdi;
+metinlerin tek yerde toplanmasını istedi. Bu, önceki "sabit Türkçe arayüz", "TR + EN ses",
+"iki ses seçimi (E4)" ve "Keşfet ses seçici" kararlarını geçersiz kılar.
+
+- **Dil tek noktadan:** `AppLocale.current` sabit `.english`. Cihaz Türkçe olsa da arayüz,
+  Keşfet, ses ve sunucuya giden dil İngilizce (simülatörde `-AppleLanguages (tr)` ile
+  doğrulandı). Türkçeyi geri açmak: `current`i cihaz diline bağla + kataloğa `tr` ekle.
+- **Metnin tek yeri `MyApp/Content/Localizable.xcstrings`** (kaynak dil İngilizce, 700+ kayıt,
+  hepsi `extractionState: manual`, çünkü Xcode yalnızca manuel kayıtlar için sembol üretiyor).
+  Kodda metin yazılmaz: `Text(.tabPath)`, `LocalizedStringResource.authApple`. `Copy.*`
+  **sıfır metinli** bir ad alanı ön yüzüdür (`static let apple: LocalizedStringResource = .authApple`);
+  yeni metin katalogda başlar, `Copy` yalnızca gruplama gerekiyorsa ona işaret eder.
+  Xcode dışında `swiftc` ile derlenen testler için sembol örtüsü katalogdan üretilir:
+  `python3 scripts/generate-string-symbol-shim.py` (`bash scripts/run-swift-tests.sh` bunu kendi yapar).
+  Kuralları `Tests/LocalizationCatalogTests` denetler: manuel kayıt, yasaklı ifade (İngilizce
+  `BannedPhrases`), emoji, yer tutucu tutarlılığı. Çoğul metinler katalogda `variations.plural`.
+  `#Preview` ve yalnızca DEBUG olan geliştirici metinleri katalog dışı, doğrudan İngilizce.
+- **Kriz ön filtresi İngilizce geldi.** Önceki liste ağırlıklı Türkçeydi; İngilizce-only bir
+  uygulamada bu bir güvenlik açığıydı. Cihazdaki `CrisisClassifier` ve sunucudaki
+  `_shared/crisis.ts` **aynı ifade kümesini ve aynı normalizasyonu** (kesme işareti düşer,
+  tire boşluk olur) kullanır; ayrışmayı `crisis_contract_test.ts` yakalar. Vaka tablosu:
+  `Tests/CrisisClassifierTests`. Türkçe ifadeler korunuyor.
+- **Tek ses = kadın.** E4 akıştan çıktı (`commitTonePreference` sesi `.feminine`e sabitler;
+  `e4Voice` durumu ve `VoiceChoiceView` ikinci ses gelirse dönmek için duruyor). Keşfet'te ve
+  Ben'de ses seçimi yok. Kayıt anahtarları ses adını taşımaya devam eder.
+- **Oturum tempo düzeltmesi (K1-K6, `docs/PRD-Ek-Oturum-Motoru-ve-JIT.md` §2).** Üç kademe:
+  *join* (~350 ms, **olay değil**, sonraki konuşmanın `leadInMs`i), *beat* (yazılan `ms`,
+  nefese yuvarlanmaz), *practice* (nefes katı, bloğun kendi periyoduyla: kutu nefesi 16 sn).
+  Manifest `version: 1`de kaldı, tüm yeni alanlar opsiyonel ve eklemeli; eski manifestler çalışır.
+  Ses ve ekran **aynı** `SessionTimeline`ı okur; çizelge dosyalar yüklenip **ölçüldükten**
+  sonra kurulur (`durationMs` yalnızca planlama). Oynatma sıralıdır, mutlak zaman yok
+  (`SessionScheduler`: kenar fade tamponları + dosyadan çalan orta segment + gerçek sessizlik
+  tamponları), bu yüzden çakışma yapısal olarak imkânsız. `Tests/SessionSchedulerTests` bunu
+  `AVAudioEngine` çevrimdışı işlemeyle **dalga formu** üstünden doğrular.
+  Sunucu: `mp3.ts` (gerçek süre), lead/tail sessizlik, `joinLeadInMs`, `breathMsFor`.
+  > **`landOn` sunucuda çözülmüyor, bilerek.** `alignedSilenceMs` yazıldı ve test edildi ama
+  > worker'a bağlı değil: arka plan nefesi duvar saatinden akıyor (`BreathingMeshBackground`),
+  > oturum saatine kilitli değil. Kilit yokken sanal fazla süreyi kaydırmak hiçbir şey
+  > kazandırmayıp süreyi ±yarım nefes oynatırdı. Bağlamak için önce mesh nefes saati
+  > oturum çizelgesine kilitlenmeli.
+- **Keşfet v2.** Katalog `version: 2`: adım = `segments: [{text, quietMs}]` + ortak `closing`;
+  çoğu adımın süresi sessizliktir (~3 dk sessizlik, ~1 dk konuşma). Yeni metin yazılmadı,
+  mevcut `guidance` cümle sınırlarından bölündü. `DiscoverText.tr` isteğe bağlı ve boş.
+  Sesler **yerelde** üretilir: `scripts/render-discover-audio.py` (kırpma, iki geçişli -16 LUFS,
+  15 ms tıklama önleyici, 64 kbps mono; ham ses `build/` altında önbelleklenir, son işlem
+  değişirse yeniden ödenmez). Anahtar yalnızca `ELEVENLABS_API_KEY` ortam değişkeninden gelir;
+  depoda anahtar olmadığını bir Deno testi tarar. `render-discover-audio` edge fonksiyonu
+  depodan kaldırıldı (uzaktaki kopyası her çağrıda 403 döner, silinebilir).
+  Ses dosyaları Git LFS'te (`.gitattributes`). Tam katalog (286 kayıt, ~20 bin karakter) tek
+  ses/tek dil ile ~20 MB. **Şu an yalnızca `breath` patikası üretildi** (örnek).
+- **Blok kütüphanesi** `scripts/render-block-audio.py` ile yerelde render edilip Supabase CLI ile
+  (`supabase storage cp --linked`, `supabase db query --linked`, hizmet anahtarı gerekmez)
+  yüklenir. Sunucunun `renditionHash`i ile bire bir aynı özet: Python-Deno eşitliği
+  `Tests` altındaki altın vektörlerle sınanır.
+- **Test komutları.** Swift: `bash scripts/run-swift-tests.sh`. Deno:
+  `npx --yes deno test --no-prompt --allow-read --allow-env --allow-net supabase/functions/tests/`
+  (`--no-prompt` şart, yoksa izin sorusunda asılı kalır). `JourneyRoutePatternTests` bu işten
+  önce de bayattı (tip artık yok).
+- **Bekleyen dağıtım (yapılmadı):** yeni migrasyonlar (`20260921090000` metrik sütunları →
+  fonksiyonlar → `20260921100000` bekleme + CHECK → `20260921100100` manifest geçersizleştirme)
+  ve fonksiyonlar. `TTS_POLICY_VERSION` artışı tüm ses önbelleğini ıskalatır: **blok
+  kütüphanesi yerelde render edilip yüklenmeden dağıtılmamalı**, yoksa iki kez ödenir.
+  Bekleme süresi (`ms`) **dinleme testine bağlı**: `build/listening-test/` içindeki dosyalar
+  (`old-10s`, `beat-800ms`, `beat-1500ms`, `beat-2500ms`); seçilen değer
+  `20260921100000_block_script_pacing.sql` içinde şimdilik 1500 ms.
+
 ## 16 Eylül 2026 — Yolum düzenlemesi
 
 Ürün sahibinin son talebiyle Yolum başlığı sabit olmaktan çıkarıldı; kaydırma ile

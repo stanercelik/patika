@@ -23,7 +23,6 @@ struct DiscoverPathView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
-    @State private var selectedVoice: SessionVoice = .feminine
     @State private var confirmsJoin = false
     @State private var session: DiscoverStep?
     @State private var expandedStepID: String?
@@ -65,7 +64,6 @@ struct DiscoverPathView: View {
                     if !isPreview, library.nextStep(path) == nil {
                         allDone.woodlandReveal(1)
                     }
-                    voiceRow.woodlandReveal(1)
                     VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.labelSpacing) {
                         PatikaSectionLabel(verbatim: DiscoverCopy.steps)
                             .padding(.horizontal, Theme.Spacing.screenMargin)
@@ -126,7 +124,7 @@ struct DiscoverPathView: View {
         }
         .confirmationDialog(DiscoverCopy.joinTitle, isPresented: $confirmsJoin, titleVisibility: .visible) {
             Button(DiscoverCopy.join) {
-                library.enroll(path, voice: selectedVoice)
+                library.enroll(path)
                 expandedStepID = library.nextStep(path)?.id
             }
             Button(DiscoverCopy.cancel, role: .cancel) {}
@@ -136,7 +134,6 @@ struct DiscoverPathView: View {
                 .environment(palette)
         }
         .onAppear {
-            selectedVoice = library.voice(for: path)
             if expandedStepID == nil, !isPreview { expandedStepID = library.nextStep(path)?.id }
             #if DEBUG
             // `-patika-debug-discover-expanded <n>`: n. adımı (1 tabanlı) açık başlatır.
@@ -154,9 +151,6 @@ struct DiscoverPathView: View {
                 session = path.steps[number - 1]
             }
             #endif
-        }
-        .onChange(of: selectedVoice) { _, voice in
-            if !isPreview { library.selectVoice(voice, for: path) }
         }
     }
 
@@ -206,38 +200,6 @@ struct DiscoverPathView: View {
         .paperSurface()
         .padding(.horizontal, Theme.Spacing.screenMargin)
         .accessibilityElement(children: .combine)
-    }
-
-    private var voiceRow: some View {
-        let layout = isAccessible
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
-            : AnyLayout(HStackLayout(alignment: .center, spacing: 12))
-        return VStack(alignment: .leading, spacing: 6) {
-            layout {
-                Text(verbatim: DiscoverCopy.voice)
-                    .font(Theme.TypeFace.rowTitle)
-                    .foregroundStyle(WoodlandStyle.ink)
-                    .fixedSize(horizontal: false, vertical: true)
-                if !isAccessible { Spacer(minLength: 8) }
-                Picker(DiscoverCopy.voice, selection: $selectedVoice) {
-                    Text(verbatim: DiscoverCopy.feminine).tag(SessionVoice.feminine)
-                    Text(verbatim: DiscoverCopy.masculine).tag(SessionVoice.masculine)
-                }
-                .pickerStyle(.menu)
-                .labelsHidden()
-                .tint(WoodlandStyle.ink)
-                .frame(minHeight: 44)
-            }
-            Text(verbatim: DiscoverCopy.voiceNote)
-                .font(Theme.TypeFace.rowCaption)
-                .foregroundStyle(WoodlandStyle.secondaryInk)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(.horizontal, PatikaSurfaceMetrics.compactPadding + 2)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, minHeight: PatikaSurfaceMetrics.rowMinHeight, alignment: .leading)
-        .paperSurface(radius: PatikaSurfaceMetrics.compactRadius, isProminent: false)
-        .padding(.horizontal, Theme.Spacing.screenMargin)
     }
 
     /// Ses yokken düğme kartlardaki durumla aynı şeyi söyler: "Yakında".

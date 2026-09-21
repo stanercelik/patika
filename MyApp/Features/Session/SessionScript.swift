@@ -108,35 +108,12 @@ enum SessionScript {
         return opening + technique + closing
     }
 
-    static func build(from manifest: SessionManifest) -> [SessionSegment] {
-        var lastText = ""
-        return manifest.events.enumerated().map { index, event in
-            switch event {
-            case .speech(let speech):
-                lastText = speech.text
-                let kind: SessionSegment.Kind = speech.source == .personal ? .bridge : .technique
-                return SessionSegment(
-                    id: "speech.\(speech.assetID.uuidString)",
-                    text: speech.text,
-                    kind: kind,
-                    duration: TimeInterval(speech.durationMilliseconds) / 1_000
-                )
-            case .gap(let milliseconds):
-                return SessionSegment(
-                    id: "gap.\(index)",
-                    text: lastText,
-                    kind: .bridge,
-                    duration: TimeInterval(milliseconds) / 1_000
-                )
-            case .silence(let silence):
-                if let displayText = silence.displayText { lastText = displayText }
-                return SessionSegment(
-                    id: "silence.\(index)",
-                    text: lastText,
-                    kind: .technique,
-                    duration: TimeInterval(silence.breaths) * BreathCycle.period
-                )
-            }
-        }
+    /// Manifest tabanlı sahneler `SessionManifestScript`te (saf, UI bağımsız).
+    static func build(from manifest: SessionManifest, measured: [UUID: TimeInterval] = [:]) -> [SessionSegment] {
+        SessionManifestScript.segments(from: manifest, measured: measured)
+    }
+
+    static func build(from timeline: SessionTimeline) -> [SessionSegment] {
+        SessionManifestScript.segments(from: timeline)
     }
 }

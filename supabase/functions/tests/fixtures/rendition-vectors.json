@@ -1,0 +1,71 @@
+{
+  "policy": "patika-v3-paced-2026-09-21",
+  "voice_settings": {
+    "stability": 0.5,
+    "similarity_boost": 0.8,
+    "style": 0,
+    "use_speaker_boost": true
+  },
+  "edge_rendition_hash": [
+    {
+      "input": {
+        "text": "Let your breath arrive in its own way.",
+        "locale": "en",
+        "voice": "feminine",
+        "model": "eleven_v3",
+        "prosody": null,
+        "previous_text": null,
+        "next_text": null
+      },
+      "hash": "702d725c9837147f9aaedd17157c16a53d15ae3f503da85ee1179d324c137529"
+    },
+    {
+      "input": {
+        "text": "  Notice   where you feel it — at the nose, [chest], {belly}.  ",
+        "locale": "en-US",
+        "voice": "feminine",
+        "model": "eleven_v3",
+        "prosody": null,
+        "previous_text": null,
+        "next_text": null
+      },
+      "hash": "85414e3a0315991c2a4b43655f2eca58deedff8c1b49eac220af70d770402c86"
+    },
+    {
+      "input": {
+        "text": "Nefesini değiştirmeye çalışma.",
+        "locale": "tr-TR",
+        "voice": "masculine",
+        "model": "eleven_v3",
+        "prosody": null,
+        "previous_text": null,
+        "next_text": null
+      },
+      "hash": "890a8541d963a71c3641b0de1faafedae87207083f485d0f0fcb5c8b7e34c1f7"
+    },
+    {
+      "input": {
+        "text": "Rest here.",
+        "locale": "en",
+        "voice": "feminine",
+        "model": "eleven_v3",
+        "prosody": "soft",
+        "previous_text": "Before.",
+        "next_text": "After <b>this</b>."
+      },
+      "hash": "ae7c9bb6994b0f06978aac3d0fca2b3c1f33edf759f251ad35d1e8d05451dbb1"
+    },
+    {
+      "input": {
+        "text": "A line with a\ttab and\nnewline.",
+        "locale": "de",
+        "voice": "masculine",
+        "model": "eleven_v3",
+        "prosody": "whisper",
+        "previous_text": null,
+        "next_text": null
+      },
+      "hash": "3d7add80d0f3353f73be6163893670e1864937c72caaa0d17f51485ed02a7a70"
+    }
+  ]
+}

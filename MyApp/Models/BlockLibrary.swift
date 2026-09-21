@@ -65,26 +65,26 @@ nonisolated enum BlockLibrary {
 
     static let breathAwareness = SessionBlock(
         id: "breath.awareness.v1",
-        title: "Nefesi fark etmek",
+        title: .blockLibraryBreathAwarenessTitle,
         cues: [
             .init(
                 id: "breath.settle",
-                text: "Oturduğun yerde biraz yerleş. Gözlerini kapatmak istersen kapat, istemezsen bir noktaya bak.",
+                text: .blockLibraryBreathAwarenessCue1,
                 breaths: 2
             ),
             .init(
                 id: "breath.notice",
-                text: "Nefesini değiştirmeye çalışma. Sadece nereden geçtiğini fark et — burnundan mı, göğsünden mi.",
+                text: .blockLibraryBreathAwarenessCue2,
                 breaths: 3
             ),
             .init(
                 id: "breath.follow",
-                text: "Şimdi ekrandaki hareketi takip et. Genişlerken al, daralırken bırak.",
+                text: .blockLibraryBreathAwarenessCue3,
                 breaths: 4
             ),
             .init(
                 id: "breath.longer",
-                text: "Verirken biraz daha uzat. Acele yok; nefes kendi hızını bulur.",
+                text: .blockLibraryBreathAwarenessCue4,
                 breaths: 4
             ),
         ]
@@ -92,26 +92,26 @@ nonisolated enum BlockLibrary {
 
     static let bodyGrounding = SessionBlock(
         id: "body.grounding.v1",
-        title: "Bedene dönmek",
+        title: .blockLibraryBodyGroundingTitle,
         cues: [
             .init(
                 id: "body.contact",
-                text: "Ayaklarının zeminle, sırtının arkasındaki yüzeyle temas ettiği yeri fark et.",
+                text: .blockLibraryBodyGroundingCue1,
                 breaths: 3
             ),
             .init(
                 id: "body.scan",
-                text: "Omuzlarına gel. Kalkıksa bırak, bırakmıyorsa zorlama — fark etmek de yeterli.",
+                text: .blockLibraryBodyGroundingCue2,
                 breaths: 3
             ),
             .init(
                 id: "body.jaw",
-                text: "Çeneni ve alnını kontrol et. Sıkılıysa gevşesin.",
+                text: .blockLibraryBodyGroundingCue3,
                 breaths: 3
             ),
             .init(
                 id: "body.whole",
-                text: "Bir an için bedenini bir bütün olarak hisset. Bir yeri düzeltmen gerekmiyor.",
+                text: .blockLibraryBodyGroundingCue4,
                 breaths: 3
             ),
         ]
@@ -119,21 +119,21 @@ nonisolated enum BlockLibrary {
 
     static let reflectionNotice = SessionBlock(
         id: "reflection.notice.v1",
-        title: "Fark ettiğini adlandırmak",
+        title: .blockLibraryReflectionNoticeTitle,
         cues: [
             .init(
                 id: "reflect.name",
-                text: "Şu an içeride ne varsa ona bir ad ver. Gerginlik, yorgunluk, huzursuzluk — hangisiyse.",
+                text: .blockLibraryReflectionNoticeCue1,
                 breaths: 3
             ),
             .init(
                 id: "reflect.allow",
-                text: "Adını koyduğun şeyi değiştirmeye çalışma. Bugünlük fark etmiş olmak yeterli.",
+                text: .blockLibraryReflectionNoticeCue2,
                 breaths: 3
             ),
             .init(
                 id: "reflect.return",
-                text: "Dikkatin dağıldıysa sorun değil — dağılması normal. Nefese geri dön.",
+                text: .blockLibraryReflectionNoticeCue3,
                 breaths: 3
             ),
         ]

@@ -202,9 +202,7 @@ struct SettingsSheet: View {
     private static func label(for kind: MeViewModel.PreferenceItem.Kind) -> LocalizedStringResource {
         switch kind {
         case .reminder: Copy.Me.reminderLabel
-        case .sessionLength: Copy.Me.sessionLengthLabel
         case .tone: Copy.Me.toneLabel
-        case .voice: Copy.Me.voiceLabel
         }
     }
 

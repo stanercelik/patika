@@ -11,7 +11,6 @@ import CryptoKit
 final class DiscoverLibrary {
     struct Enrollment: Codable {
         var completed: Set<String> = []
-        var voice: SessionVoice = .feminine
         /// Son ilerleme sırası (büyük olan yeni). "Kaldığın yerden" bölümünün
         /// sırasını verir. Opsiyonel: bu alandan önce yazılmış kayıtlar okunabilmeli.
         var recency: Int?
@@ -36,6 +35,10 @@ final class DiscoverLibrary {
     /// Kayıtların konuşulduğu dil (`catalog.audioLocale`). Oturumda ekrana yazılan
     /// cümle bu dildedir; arayüz dili değil.
     let audioLocale: AppLocale
+    /// MVP tek ses: kadın sesi (ürün sahibi kararı, 2026-09-21). Ses seçimi arayüzden
+    /// kalktı; kayıt anahtarları ses adını taşımaya devam ediyor, ikinci ses
+    /// eklenirse katalog ve dosyalar yeniden üretilmeden genişler.
+    static let voice: SessionVoice = .feminine
     private let recordings: [String: DiscoverRecording]
     private let defaults: UserDefaults
     private let bundle: Bundle
@@ -97,16 +100,9 @@ final class DiscoverLibrary {
     func isAvailable(_ step: DiscoverStep, in path: DiscoverPath) -> Bool {
         isEnrolled(path) && (isComplete(step, in: path) || nextStep(path)?.id == step.id)
     }
-    func voice(for path: DiscoverPath) -> SessionVoice { saved.enrollments[path.id]?.voice ?? .feminine }
-    func selectVoice(_ voice: SessionVoice, for path: DiscoverPath) {
-        guard saved.enrollments[path.id] != nil else { return }
-        saved.enrollments[path.id]?.voice = voice
-        persist()
-    }
-    func enroll(_ path: DiscoverPath, voice: SessionVoice) {
+    func enroll(_ path: DiscoverPath) {
         guard paths.contains(where: { $0.id == path.id }) else { return }
-        if saved.enrollments[path.id] == nil { saved.enrollments[path.id] = Enrollment(voice: voice) }
-        saved.enrollments[path.id]?.voice = voice
+        if saved.enrollments[path.id] == nil { saved.enrollments[path.id] = Enrollment() }
         touch(path)
         persist()
     }
@@ -120,32 +116,52 @@ final class DiscoverLibrary {
         let latest = saved.enrollments.values.compactMap(\.recency).max() ?? 0
         saved.enrollments[path.id]?.recency = latest + 1
     }
+    /// Kayıt anahtarı: `<adım>.<dil>.<ses>.<parça>`. Dil ve ses anahtarda: sonradan
+    /// eklenen bir dil ya da ses mevcut kayıtlarla karışmaz.
+    private func recordingKey(_ step: DiscoverStep, part: String) -> String {
+        "\(step.id).\(audioLocale.rawValue).\(Self.voice.rawValue).\(part)"
+    }
+
     func audioIsReady(_ path: DiscoverPath) -> Bool {
         path.steps.allSatisfy { step in
-            [SessionVoice.feminine, .masculine].allSatisfy { voice in
-                ["guidance", "closing"].allSatisfy { part in
-                    guard let recording = recordings["\(step.id).\(voice.rawValue).\(part)"] else { return false }
-                    return recording.durationMs > 0 && resourceURL(recording) != nil
-                }
+            step.parts.allSatisfy { part in
+                guard let recording = recordings[recordingKey(step, part: part)] else { return false }
+                return recording.durationMs > 0 && resourceURL(recording) != nil
             }
         }
     }
+
+    /// Adımı bir manifeste çevirir: bölüm, yazılan sessizlik, bölüm, ... kapanış.
+    ///
+    /// Sessizlik `ms` ile yazılır (nefes sayısıyla değil) ve `displayText` taşımaz:
+    /// son yönerge duraklama boyunca ekranda kalır, kullanıcı ne yaptığını görür.
     func playback(for step: DiscoverStep, in path: DiscoverPath) throws -> SessionPlayback {
         guard isAvailable(step, in: path) else { throw DiscoverError.notEnrolled }
-        let voice = voice(for: path)
         var urls: [UUID: URL] = [:]
         var events: [SessionEvent] = []
-        for (index, part) in ["guidance", "closing"].enumerated() {
-            guard let recording = recordings["\(step.id).\(voice.rawValue).\(part)"], let url = resourceURL(recording) else { throw DiscoverError.missingAudio }
+        func speech(part: String, text: String) throws {
+            guard let recording = recordings[recordingKey(step, part: part)], let url = resourceURL(recording) else { throw DiscoverError.missingAudio }
             let id = stableUUID(recording.sha256)
             urls[id] = url
-            events.append(.speech(SessionSpeech(source: .block, assetID: id, storagePath: recording.file, text: (part == "guidance" ? step.guidance : step.closing).value(for: audioLocale), durationMilliseconds: recording.durationMs)))
-            if index == 0 {
-                events.append(.silence(SessionSilence(breaths: step.quietSeconds / 10, landOn: nil, displayText: DiscoverCopy.quiet)))
-            }
+            events.append(.speech(SessionSpeech(source: .block, assetID: id, storagePath: recording.file, text: text, durationMilliseconds: recording.durationMs)))
         }
-        let checkpointID = stableUUID("\(path.id).\(step.id).\(voice.rawValue)")
-        return SessionPlayback(manifest: SessionManifest(version: 1, stepID: checkpointID, pathKind: .prepared, locale: audioLocale.rawValue, voice: voice, question: nil, events: events), assetURLs: urls)
+        for (index, segment) in step.segments.enumerated() {
+            try speech(part: "segment-\(index)", text: segment.text.value(for: audioLocale))
+            events.append(.silence(SessionSilence(
+                milliseconds: segment.quietMs,
+                breaths: max(1, Int((Double(segment.quietMs) / Double(SessionPacing.defaultBreathMilliseconds)).rounded())),
+                landOn: nil,
+                displayText: nil
+            )))
+        }
+        try speech(part: "closing", text: step.closing.value(for: audioLocale))
+        // Dil ve ses kayıt noktasında: dil değiştiren kullanıcı başka zamanlı bir
+        // kayıtta yanlış konumdan devam etmesin.
+        let checkpointID = stableUUID("\(path.id).\(step.id).\(audioLocale.rawValue).\(Self.voice.rawValue)")
+        return SessionPlayback(
+            manifest: SessionManifest(version: 1, stepID: checkpointID, pathKind: .prepared, locale: audioLocale.rawValue, voice: Self.voice, question: nil, breathMilliseconds: SessionPacing.defaultBreathMilliseconds, events: events),
+            assetURLs: urls
+        )
     }
     private func resourceURL(_ recording: DiscoverRecording) -> URL? {
         bundle.url(forResource: (recording.file as NSString).deletingPathExtension, withExtension: "mp3")

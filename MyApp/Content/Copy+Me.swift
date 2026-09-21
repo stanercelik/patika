@@ -8,45 +8,45 @@ import Foundation
 extension Copy {
 
     enum Me {
-        static let screenTitle: LocalizedStringResource = "Ben"
+        static let screenTitle: LocalizedStringResource = .meScreenTitle
 
         // MARK: Başlık
 
-        static let noActivePath: LocalizedStringResource = "Şu an bir yolda değilsin."
-        static let pathFinishedHeader: LocalizedStringResource = "Yolun tamamlandı."
+        static let noActivePath: LocalizedStringResource = .meNoActivePath
+        static let pathFinishedHeader: LocalizedStringResource = .mePathFinishedHeader
         static let offlineHeader: LocalizedStringResource =
-            "Bağlantı gelince yolun burada görünecek."
-        static func stepPosition(day: Int) -> LocalizedStringResource { "\(day). adım" }
+            .meOfflineHeader
+        static func stepPosition(day: Int) -> LocalizedStringResource { .meStepPosition(day) }
 
         // MARK: Ne değişti
 
-        static let changeTitle: LocalizedStringResource = "Ne değişti"
-        static let changeOpenHint: LocalizedStringResource = "Ayrıntıyı açar"
+        static let changeTitle: LocalizedStringResource = .meChangeTitle
+        static let changeOpenHint: LocalizedStringResource = .meChangeOpenHint
         /// Beklenti durumu. Kilit, bulanıklık, "1/7" yok: saklanan bir şey değil,
         /// henüz ortada olmayan bir şey var.
         static func changePending(stepDay: Int) -> LocalizedStringResource {
-            "İlk karşılaştırma \(stepDay). adımda. O güne kadar ölçecek bir fark yok."
+            .meChangePending(stepDay)
         }
         static func baselineLegendPending(date: String) -> LocalizedStringResource {
-            "Başlangıcın · \(date)"
+            .meBaselineLegendPending(date)
         }
         static func baselineLegendCompared(point: String) -> LocalizedStringResource {
-            "Başlangıcın · son ölçüm: \(point)"
+            .meBaselineLegendCompared(point)
         }
         static let baselineProvisional: LocalizedStringResource =
-            "Başlangıcın şimdilik tek ölçüme dayanıyor; karşılaştırma biraz oynayabilir."
+            .meBaselineProvisional
 
-        static let pointBaseline: LocalizedStringResource = "Başlangıç"
-        static let pointFinal: LocalizedStringResource = "Son"
-        static func pointStep(day: Int) -> LocalizedStringResource { "\(day). adım" }
+        static let pointBaseline: LocalizedStringResource = .mePointBaseline
+        static let pointFinal: LocalizedStringResource = .mePointFinal
+        static func pointStep(day: Int) -> LocalizedStringResource { .mePointStep(day) }
 
         /// Kısa katman adları — segment seçici ve satırlar. Uzun adlar
         /// `MeasurementLayer.label`da.
         static func layerShort(_ layer: MeasurementLayer) -> LocalizedStringResource {
             switch layer {
-            case .emotion: "Duygu"
-            case .behavior: "Davranış"
-            case .selfEfficacy: "Öz-yeterlik"
+            case .emotion: .meLayerShortEmotion
+            case .behavior: .meLayerShortBehavior
+            case .selfEfficacy: .meLayerShortSelfEfficacy
             }
         }
 
@@ -57,18 +57,18 @@ extension Copy {
             _ direction: MeasurementComparison.Direction
         ) -> LocalizedStringResource {
             switch (layer, direction) {
-            case (_, .unchanged): "aynı"
-            case (.emotion, .improved): "hafifledi"
-            case (.emotion, .worsened): "ağırlaştı"
-            case (.behavior, .improved): "azaldı"
-            case (.behavior, .worsened): "arttı"
-            case (.selfEfficacy, .improved): "güçlendi"
-            case (.selfEfficacy, .worsened): "zayıfladı"
+            case (_, .unchanged): .meDirectionWordUnchanged
+            case (.emotion, .improved): .meDirectionWordEmotionImproved
+            case (.emotion, .worsened): .meDirectionWordEmotionWorsened
+            case (.behavior, .improved): .meDirectionWordBehaviorImproved
+            case (.behavior, .worsened): .meDirectionWordBehaviorWorsened
+            case (.selfEfficacy, .improved): .meDirectionWordSelfEfficacyImproved
+            case (.selfEfficacy, .worsened): .meDirectionWordSelfEfficacyWorsened
             }
         }
 
         static func layerAccessibility(layer: String, word: String) -> LocalizedStringResource {
-            "\(layer): \(word), başlangıcına göre"
+            .meLayerAccessibility(layer, word)
         }
 
         // Cümle parçaları (profile-design §12.2). Süreç kipi yolun ortasında
@@ -80,21 +80,21 @@ extension Copy {
             finished: Bool
         ) -> LocalizedStringResource {
             switch (layer, direction, finished) {
-            case (.emotion, .improved, false): "Duygunun şiddeti hafifliyor."
-            case (.emotion, .improved, true): "Duygunun şiddeti hafifledi."
-            case (.emotion, .unchanged, false): "Duygunun şiddeti başladığın yerde."
-            case (.emotion, .unchanged, true): "Duygunun şiddeti başladığın yerde kaldı."
-            case (.emotion, .worsened, _): "Duygunun şiddeti başlangıcından ağır."
-            case (.behavior, .improved, false): "Kaçınman azalıyor."
-            case (.behavior, .improved, true): "Kaçınman azaldı."
-            case (.behavior, .unchanged, false): "Kaçınman başladığın yerde."
-            case (.behavior, .unchanged, true): "Kaçınman başladığın yerde kaldı."
-            case (.behavior, .worsened, _): "Kaçınman başlangıcından fazla."
-            case (.selfEfficacy, .improved, false): "Baş edebileceğine dair inancın güçleniyor."
-            case (.selfEfficacy, .improved, true): "Baş edebileceğine dair inancın güçlendi."
-            case (.selfEfficacy, .unchanged, false): "Baş edebileceğine dair inancın başladığın yerde."
-            case (.selfEfficacy, .unchanged, true): "Baş edebileceğine dair inancın başladığın yerde kaldı."
-            case (.selfEfficacy, .worsened, _): "Baş edebileceğine dair inancın başlangıcından zayıf."
+            case (.emotion, .improved, false): .meFragmentEmotionImprovedFalse
+            case (.emotion, .improved, true): .meFragmentEmotionImprovedTrue
+            case (.emotion, .unchanged, false): .meFragmentEmotionUnchangedFalse
+            case (.emotion, .unchanged, true): .meFragmentEmotionUnchangedTrue
+            case (.emotion, .worsened, _): .meFragmentEmotionWorsened
+            case (.behavior, .improved, false): .meFragmentBehaviorImprovedFalse
+            case (.behavior, .improved, true): .meFragmentBehaviorImprovedTrue
+            case (.behavior, .unchanged, false): .meFragmentBehaviorUnchangedFalse
+            case (.behavior, .unchanged, true): .meFragmentBehaviorUnchangedTrue
+            case (.behavior, .worsened, _): .meFragmentBehaviorWorsened
+            case (.selfEfficacy, .improved, false): .meFragmentSelfEfficacyImprovedFalse
+            case (.selfEfficacy, .improved, true): .meFragmentSelfEfficacyImprovedTrue
+            case (.selfEfficacy, .unchanged, false): .meFragmentSelfEfficacyUnchangedFalse
+            case (.selfEfficacy, .unchanged, true): .meFragmentSelfEfficacyUnchangedTrue
+            case (.selfEfficacy, .worsened, _): .meFragmentSelfEfficacyWorsened
             }
         }
 
@@ -104,131 +104,128 @@ extension Copy {
         ) -> LocalizedStringResource {
             switch (direction, finished) {
             case (.improved, _):
-                "Üç katmanda da başladığın yerden farklı bir yerdesin."
+                .meUniformChangeImproved
             case (.unchanged, false):
-                "Şimdilik üç katman da başladığın yerde. Bu, yolun ortasında sık görülür."
+                .meUniformChangeUnchangedFalse
             case (.unchanged, true):
-                "Üç katman da başladığın yerde kaldı."
+                .meUniformChangeUnchangedTrue
             case (.worsened, _):
-                "Üç katmanda da başlangıcından ağır bir yerdesin. Bunu konuşmak istersen Destek al burada."
+                .meUniformChangeWorsened
             }
         }
 
         // MARK: Değişim ayrıntısı
 
-        static let layerPickerLabel: LocalizedStringResource = "Katman"
+        static let layerPickerLabel: LocalizedStringResource = .meLayerPickerLabel
         static func chartBetter(_ layer: MeasurementLayer) -> LocalizedStringResource {
             switch layer {
-            case .emotion: "daha hafif"
-            case .behavior: "daha az kaçınma"
-            case .selfEfficacy: "daha güçlü"
+            case .emotion: .meChartBetterEmotion
+            case .behavior: .meChartBetterBehavior
+            case .selfEfficacy: .meChartBetterSelfEfficacy
             }
         }
         static func chartWorse(_ layer: MeasurementLayer) -> LocalizedStringResource {
             switch layer {
-            case .emotion: "daha ağır"
-            case .behavior: "daha çok kaçınma"
-            case .selfEfficacy: "daha zayıf"
+            case .emotion: .meChartWorseEmotion
+            case .behavior: .meChartWorseBehavior
+            case .selfEfficacy: .meChartWorseSelfEfficacy
             }
         }
-        static let chartBaseline: LocalizedStringResource = "Başlangıcın"
-        static let chartXAxis: LocalizedStringResource = "Ölçüm"
-        static let chartYAxis: LocalizedStringResource = "Başlangıca göre"
-        static let chartBaselinePoint: LocalizedStringResource = "başlangıç çizgisi"
-        static let mostChanged: LocalizedStringResource = "En çok değişen"
-        static let leastChanged: LocalizedStringResource = "En az değişen"
-        static let howWeMeasure: LocalizedStringResource = "Nasıl ölçüyoruz"
+        static let chartBaseline: LocalizedStringResource = .meChartBaseline
+        static let chartXAxis: LocalizedStringResource = .meChartXAxis
+        static let chartYAxis: LocalizedStringResource = .meChartYAxis
+        static let chartBaselinePoint: LocalizedStringResource = .meChartBaselinePoint
+        static let mostChanged: LocalizedStringResource = .meMostChanged
+        static let leastChanged: LocalizedStringResource = .meLeastChanged
+        static let howWeMeasure: LocalizedStringResource = .meHowWeMeasure
 
         // MARK: Defter
 
-        static let journalTitle: LocalizedStringResource = "Defter"
-        static let journalAll: LocalizedStringResource = "Tümü"
+        static let journalTitle: LocalizedStringResource = .meJournalTitle
+        static let journalAll: LocalizedStringResource = .meJournalAll
         static func journalOrigin(date: String) -> LocalizedStringResource {
-            "Başlangıçta · \(date)"
+            .meJournalOrigin(date)
         }
         static func journalAvoidance(date: String) -> LocalizedStringResource {
-            "Başlangıçta, kaçındığın şey · \(date)"
+            .meJournalAvoidance(date)
         }
         static func journalAfterStep(day: Int, date: String) -> LocalizedStringResource {
-            "\(day). adımdan sonra · \(date)"
+            .meJournalAfterStep(day, date)
         }
         static func journalQuestion(_ question: String) -> LocalizedStringResource {
-            "Soru: \(question)"
+            .meJournalQuestion(question)
         }
         static let journalEmpty: LocalizedStringResource =
-            "Adımların sonunda yazdıkların burada birikecek. Yazmak zorunda değilsin."
-        static let journalHidden: LocalizedStringResource = "Gizli · göstermek için dokun"
-        static let journalDelete: LocalizedStringResource = "Sil"
-        static let journalDeleteTitle: LocalizedStringResource = "Bu cümle silinsin mi?"
+            .meJournalEmpty
+        static let journalHidden: LocalizedStringResource = .meJournalHidden
+        static let journalDelete: LocalizedStringResource = .meJournalDelete
+        static let journalDeleteTitle: LocalizedStringResource = .meJournalDeleteTitle
         static let journalDeleteBody: LocalizedStringResource =
-            "Bu cümle kalıcı olarak silinir. Yolun değişmez."
+            .meJournalDeleteBody
         static let journalDeleteOriginBody: LocalizedStringResource =
-            "Başlangıçta yazdığın cümleler birlikte kalıcı olarak silinir. Yolun değişmez."
+            .meJournalDeleteOriginBody
         static let journalDeleteFailed: LocalizedStringResource =
-            "Silme tamamlanamadı. Bu senin yüzünden değil; cümle yerinde duruyor, yeniden deneyebilirsin."
-        static let reminderOffValue: LocalizedStringResource = "Kapalı"
-        static let thisWeek: LocalizedStringResource = "Bu hafta"
-        static let lastWeek: LocalizedStringResource = "Geçen hafta"
-        static let today: LocalizedStringResource = "Bugün"
-        static let yesterday: LocalizedStringResource = "Dün"
+            .meJournalDeleteFailed
+        static let reminderOffValue: LocalizedStringResource = .meReminderOffValue
+        static let thisWeek: LocalizedStringResource = .meThisWeek
+        static let lastWeek: LocalizedStringResource = .meLastWeek
+        static let today: LocalizedStringResource = .meToday
+        static let yesterday: LocalizedStringResource = .meYesterday
 
         // MARK: Yürüdüğün yollar
 
-        static let pathsTitle: LocalizedStringResource = "Yürüdüğün yollar"
-        static let pathJustStarted: LocalizedStringResource = "Yola yeni çıktın"
-        static func pathActive(walked: Int) -> LocalizedStringResource { "Yoldasın · \(walked) adım" }
-        static let pathCompleted: LocalizedStringResource = "Tamamlandı"
+        static let pathsTitle: LocalizedStringResource = .mePathsTitle
+        static let pathJustStarted: LocalizedStringResource = .mePathJustStarted
+        static func pathActive(walked: Int) -> LocalizedStringResource { .mePathActive(walked) }
+        static let pathCompleted: LocalizedStringResource = .mePathCompleted
         /// Yapılanı say, yapılmayanı sayma (İ2): "13 adım kaldı" yazılmaz.
-        static func pathStopped(walked: Int) -> LocalizedStringResource { "\(walked) adım yürüdün" }
-        static let pathStoppedDetail: LocalizedStringResource = "Yol kayıtlı duruyor."
-        static let pathClearProgress: LocalizedStringResource = "Belirgin bir fark oluştu"
-        static let pathPartialProgress: LocalizedStringResource = "Bazı şeyler değişti"
-        static func pathDays(_ days: Int) -> LocalizedStringResource { "\(days) gün" }
-        static func pathSteps(_ steps: Int) -> LocalizedStringResource { "\(steps) adım" }
+        static func pathStopped(walked: Int) -> LocalizedStringResource { .mePathStopped(walked) }
+        static let pathStoppedDetail: LocalizedStringResource = .mePathStoppedDetail
+        static let pathClearProgress: LocalizedStringResource = .mePathClearProgress
+        static let pathPartialProgress: LocalizedStringResource = .mePathPartialProgress
+        static func pathDays(_ days: Int) -> LocalizedStringResource { .mePathDays(days) }
+        static func pathSteps(_ steps: Int) -> LocalizedStringResource { .mePathSteps(steps) }
         static func pathDateRange(start: String, end: String) -> LocalizedStringResource {
             "\(start) – \(end)"
         }
-        static let pathJournalTitle: LocalizedStringResource = "Bu yolda yazdıkların"
+        static let pathJournalTitle: LocalizedStringResource = .mePathJournalTitle
         static func sealAccessibility(title: String, detail: String) -> LocalizedStringResource {
-            "\(title) yolu. \(detail)"
+            .meSealAccessibility(title, detail)
         }
 
         // MARK: Sana göre ayarlananlar
 
-        static let preferencesTitle: LocalizedStringResource = "Sana göre ayarlananlar"
-        static let reminderLabel: LocalizedStringResource = "Hatırlatma"
+        static let preferencesTitle: LocalizedStringResource = .mePreferencesTitle
+        static let reminderLabel: LocalizedStringResource = .meReminderLabel
         /// Sorduğumuz her şeyin karşılığı görünür olmalı: saat, kullanıcının B3
         /// cevabından geldiyse bu satır onu söyler.
         static func reminderSource(_ answer: String) -> LocalizedStringResource {
-            "“\(answer)” dediğin için"
+            .meReminderSource(answer)
         }
-        static let reminderOff: LocalizedStringResource = "Henüz açık değil"
-        static let reminderToggle: LocalizedStringResource = "Günlük hatırlatma"
-        static let reminderTimeLabel: LocalizedStringResource = "Saat"
+        static let reminderOff: LocalizedStringResource = .meReminderOff
+        static let reminderToggle: LocalizedStringResource = .meReminderToggle
+        static let reminderTimeLabel: LocalizedStringResource = .meReminderTimeLabel
         static let reminderDenied: LocalizedStringResource =
-            "Bildirim izni kapalı. İstersen telefonunun ayarlarından açabilirsin; hatırlatma o zamana kadar kapalı kalır."
-        static let openSettings: LocalizedStringResource = "Ayarları aç"
-        static let sessionLengthLabel: LocalizedStringResource = "Adım uzunluğu"
-        static func minutes(_ minutes: Int) -> LocalizedStringResource { "\(minutes) dakika" }
-        static let toneLabel: LocalizedStringResource = "Anlatım"
-        static let voiceLabel: LocalizedStringResource = "Rehber sesi"
+            .meReminderDenied
+        static let openSettings: LocalizedStringResource = .meOpenSettings
+        static let toneLabel: LocalizedStringResource = .meToneLabel
         /// Uzunluk, ton ve ses path üretilirken sunucuya gidiyor; sonradan
         /// değiştirmenin bir karşılığı henüz yok. Değişmiyormuş gibi davranan bir
         /// düğme koymak yerine bunu söylüyoruz.
         static let preferencesFootnote: LocalizedStringResource =
-            "Adım uzunluğu, anlatım ve ses bu yol kurulurken seçildi. Yeni bir yolda yeniden seçebilirsin."
+            .mePreferencesFootnote
 
         // MARK: Kimlik kartı (Ben v2)
 
-        static let settingsButton: LocalizedStringResource = "Ayarlar"
-        static let photoTitle: LocalizedStringResource = "Profil fotoğrafı"
-        static let photoChoose: LocalizedStringResource = "Fotoğraf seç"
-        static let photoRemove: LocalizedStringResource = "Fotoğrafı kaldır"
+        static let settingsButton: LocalizedStringResource = .meSettingsButton
+        static let photoTitle: LocalizedStringResource = .mePhotoTitle
+        static let photoChoose: LocalizedStringResource = .mePhotoChoose
+        static let photoRemove: LocalizedStringResource = .mePhotoRemove
         static let photoFailed: LocalizedStringResource =
-            "Fotoğraf kaydedilemedi. Bu senin yüzünden değil; yeniden deneyebilirsin."
-        static let photoAccessibility: LocalizedStringResource = "Profil fotoğrafı"
+            .mePhotoFailed
+        static let photoAccessibility: LocalizedStringResource = .mePhotoAccessibility
         static func weekDays(_ count: Int) -> LocalizedStringResource {
-            "bu hafta \(count) gün"
+            .meWeekDays(count)
         }
         /// Kimlik kartı VoiceOver'da tek öğe: ad, yol, adım ve faz, hafta.
         static func identityAccessibility(parts: [String]) -> LocalizedStringResource {
@@ -238,34 +235,34 @@ extension Copy {
         // MARK: Defter kartı
 
         static let journalCardInvite: LocalizedStringResource =
-            "İç dünyana ait notları burada biriktirebilirsin."
-        static let journalCardWrite: LocalizedStringResource = "İlk notunu yaz"
-        static let journalCardOpenHint: LocalizedStringResource = "Defteri açar"
-        static let journalCardLabel: LocalizedStringResource = "Defter"
+            .meJournalCardInvite
+        static let journalCardWrite: LocalizedStringResource = .meJournalCardWrite
+        static let journalCardOpenHint: LocalizedStringResource = .meJournalCardOpenHint
+        static let journalCardLabel: LocalizedStringResource = .meJournalCardLabel
 
         // MARK: Defter sayfası ve not yazma
 
-        static let journalNewNote: LocalizedStringResource = "Yeni not"
-        static let journalEditNote: LocalizedStringResource = "Notu düzenle"
-        static let journalEdit: LocalizedStringResource = "Düzenle"
-        static func journalNoteCaption(date: String) -> LocalizedStringResource { "Notun · \(date)" }
-        static let journalOwnNote: LocalizedStringResource = "Kendi notun"
-        static let notePlaceholder: LocalizedStringResource = "Yazmak istediğin ne varsa."
+        static let journalNewNote: LocalizedStringResource = .meJournalNewNote
+        static let journalEditNote: LocalizedStringResource = .meJournalEditNote
+        static let journalEdit: LocalizedStringResource = .meJournalEdit
+        static func journalNoteCaption(date: String) -> LocalizedStringResource { .meJournalNoteCaption(date) }
+        static let journalOwnNote: LocalizedStringResource = .meJournalOwnNote
+        static let notePlaceholder: LocalizedStringResource = .meNotePlaceholder
         static func noteRemaining(_ count: Int) -> LocalizedStringResource {
-            "\(count) karakter kaldı"
+            .meNoteRemaining(count)
         }
-        static let noteLimitReached: LocalizedStringResource = "Not sınırına geldin."
+        static let noteLimitReached: LocalizedStringResource = .meNoteLimitReached
         static let noteSaveFailed: LocalizedStringResource =
-            "Yazdığın kaybolmadı. Bu senin yüzünden değil; yeniden deneyebilirsin."
+            .meNoteSaveFailed
 
         // MARK: Rozetler
 
-        static let badgesTitle: LocalizedStringResource = "Rozetler"
-        static let badgesAll: LocalizedStringResource = "Tümü"
-        static let badgesFirstHint: LocalizedStringResource = "İlk adımı attığında burada"
-        static let badgeLockedLabel: LocalizedStringResource = "Henüz kazanılmadı"
+        static let badgesTitle: LocalizedStringResource = .meBadgesTitle
+        static let badgesAll: LocalizedStringResource = .meBadgesAll
+        static let badgesFirstHint: LocalizedStringResource = .meBadgesFirstHint
+        static let badgeLockedLabel: LocalizedStringResource = .meBadgeLockedLabel
         static func badgeAccessibility(title: String, detail: String, earned: Bool) -> LocalizedStringResource {
-            earned ? "\(title). \(detail)" : "\(title), henüz kazanılmadı. \(detail)"
+            earned ? "\(title). \(detail)" : .meBadgeAccessibility(title, detail)
         }
 
         /// Rozet adı, kazanıldığında söylenen tek cümle ve kazanma koşulu.
@@ -276,40 +273,40 @@ extension Copy {
         enum Badge {
             static func title(_ id: BadgeID) -> LocalizedStringResource {
                 switch id {
-                case .firstStep: "İlk adım"
-                case .phaseRelief: "Rahatlama"
-                case .phaseAwareness: "Farkındalık"
-                case .phaseSkill: "Beceri"
-                case .phaseBehavior: "Davranış"
-                case .phaseClosing: "Kapanış"
-                case .pathComplete: "Yolun sonu"
-                case .measureDay7: "7. adım ölçümü"
-                case .measureDay14: "14. adım ölçümü"
-                case .week3: "Haftada 3 gün"
-                case .week5: "Haftada 5 gün"
-                case .week7: "Haftada 7 gün"
-                case .noteFirst: "İlk not"
-                case .note10: "On not"
+                case .firstStep: .meBadgeTitleFirstStep
+                case .phaseRelief: .meBadgeTitlePhaseRelief
+                case .phaseAwareness: .meBadgeTitlePhaseAwareness
+                case .phaseSkill: .meBadgeTitlePhaseSkill
+                case .phaseBehavior: .meBadgeTitlePhaseBehavior
+                case .phaseClosing: .meBadgeTitlePhaseClosing
+                case .pathComplete: .meBadgeTitlePathComplete
+                case .measureDay7: .meBadgeTitleMeasureDay7
+                case .measureDay14: .meBadgeTitleMeasureDay14
+                case .week3: .meBadgeTitleWeek3
+                case .week5: .meBadgeTitleWeek5
+                case .week7: .meBadgeTitleWeek7
+                case .noteFirst: .meBadgeTitleNoteFirst
+                case .note10: .meBadgeTitleNote10
                 }
             }
 
             /// Kazanıldığında rozet yaprağında yazan cümle.
             static func earned(_ id: BadgeID) -> LocalizedStringResource {
                 switch id {
-                case .firstStep: "İlk adımı attın."
-                case .phaseRelief: "İlk fazı geride bıraktın."
-                case .phaseAwareness: "Farkındalık fazını geride bıraktın."
-                case .phaseSkill: "Beceri fazını geride bıraktın."
-                case .phaseBehavior: "Davranış fazını geride bıraktın."
-                case .phaseClosing: "Kapanış adımını tamamladın."
-                case .pathComplete: "Yolu sonuna kadar yürüdün."
-                case .measureDay7: "7. adımdaki ölçüme katıldın."
-                case .measureDay14: "14. adımdaki ölçüme katıldın."
-                case .week3: "Bir haftada 3 gün adım attın."
-                case .week5: "Bir haftada 5 gün adım attın."
-                case .week7: "Bir haftada 7 gün adım attın."
-                case .noteFirst: "Defterine ilk notunu yazdın."
-                case .note10: "Defterine on not yazdın."
+                case .firstStep: .meBadgeEarnedFirstStep
+                case .phaseRelief: .meBadgeEarnedPhaseRelief
+                case .phaseAwareness: .meBadgeEarnedPhaseAwareness
+                case .phaseSkill: .meBadgeEarnedPhaseSkill
+                case .phaseBehavior: .meBadgeEarnedPhaseBehavior
+                case .phaseClosing: .meBadgeEarnedPhaseClosing
+                case .pathComplete: .meBadgeEarnedPathComplete
+                case .measureDay7: .meBadgeEarnedMeasureDay7
+                case .measureDay14: .meBadgeEarnedMeasureDay14
+                case .week3: .meBadgeEarnedWeek3
+                case .week5: .meBadgeEarnedWeek5
+                case .week7: .meBadgeEarnedWeek7
+                case .noteFirst: .meBadgeEarnedNoteFirst
+                case .note10: .meBadgeEarnedNote10
                 }
             }
 
@@ -317,177 +314,165 @@ extension Copy {
             /// "3/5" yok: sayaç, geri sayan bir sayıyla aynı baskıyı kurar.
             static func howToEarn(_ id: BadgeID) -> LocalizedStringResource {
                 switch id {
-                case .firstStep: "İlk adımı tamamladığında."
-                case .phaseRelief: "Rahatlama fazının adımlarını tamamladığında."
-                case .phaseAwareness: "Farkındalık fazının adımlarını tamamladığında."
-                case .phaseSkill: "Beceri fazının adımlarını tamamladığında."
-                case .phaseBehavior: "Davranış fazının adımlarını tamamladığında."
-                case .phaseClosing: "Kapanış adımını tamamladığında."
-                case .pathComplete: "Yolun son adımını tamamladığında."
-                case .measureDay7: "7. adımdaki ölçüme katıldığında."
-                case .measureDay14: "14. adımdaki ölçüme katıldığında."
-                case .week3: "Bir takvim haftasında 3 gün adım attığında."
-                case .week5: "Bir takvim haftasında 5 gün adım attığında."
-                case .week7: "Bir takvim haftasında 7 gün adım attığında."
-                case .noteFirst: "Defterine ilk notunu yazdığında."
-                case .note10: "Defterine on not yazdığında."
+                case .firstStep: .meBadgeHowToEarnFirstStep
+                case .phaseRelief: .meBadgeHowToEarnPhaseRelief
+                case .phaseAwareness: .meBadgeHowToEarnPhaseAwareness
+                case .phaseSkill: .meBadgeHowToEarnPhaseSkill
+                case .phaseBehavior: .meBadgeHowToEarnPhaseBehavior
+                case .phaseClosing: .meBadgeHowToEarnPhaseClosing
+                case .pathComplete: .meBadgeHowToEarnPathComplete
+                case .measureDay7: .meBadgeHowToEarnMeasureDay7
+                case .measureDay14: .meBadgeHowToEarnMeasureDay14
+                case .week3: .meBadgeHowToEarnWeek3
+                case .week5: .meBadgeHowToEarnWeek5
+                case .week7: .meBadgeHowToEarnWeek7
+                case .noteFirst: .meBadgeHowToEarnNoteFirst
+                case .note10: .meBadgeHowToEarnNote10
                 }
             }
 
             static func family(_ family: BadgeID.Family) -> LocalizedStringResource {
                 switch family {
-                case .path: "Yol"
-                case .measurement: "Ölçüm"
-                case .streak: "Hafta"
-                case .journal: "Defter"
+                case .path: .meBadgeFamilyPath
+                case .measurement: .meBadgeFamilyMeasurement
+                case .streak: .meBadgeFamilyStreak
+                case .journal: .meBadgeFamilyJournal
                 }
             }
         }
 
         // MARK: Destek, uygulama, hesap
 
-        static let supportTitle: LocalizedStringResource = "Destek al"
-        static let supportSubtitle: LocalizedStringResource = "Konuşabileceğin biri, şimdi."
-        static let settingsRow: LocalizedStringResource = "Ayarlar ve gizlilik"
-        static let anonymousTitle: LocalizedStringResource = "Bu kayıt şimdilik yalnızca bu telefonda."
-        static let linkAccount: LocalizedStringResource = "Hesaba bağla"
+        static let supportTitle: LocalizedStringResource = .meSupportTitle
+        static let supportSubtitle: LocalizedStringResource = .meSupportSubtitle
+        static let settingsRow: LocalizedStringResource = .meSettingsRow
+        static let anonymousTitle: LocalizedStringResource = .meAnonymousTitle
+        static let linkAccount: LocalizedStringResource = .meLinkAccount
         static let anonymousBody: LocalizedStringResource =
-            "Hesaba bağlarsan telefon değişince kaybolmaz."
+            .meAnonymousBody
         static func version(_ version: String, build: String) -> LocalizedStringResource {
-            "Patika \(version) (\(build))"
+            .meVersion(version, build)
         }
 
         enum Settings {
-            static let title: LocalizedStringResource = "Ayarlar ve gizlilik"
-            static let reminderHeader: LocalizedStringResource = "Hatırlatma"
+            static let title: LocalizedStringResource = .meSettingsTitle
+            static let reminderHeader: LocalizedStringResource = .meSettingsReminderHeader
             static let notificationPrivacy: LocalizedStringResource =
-                "Bildirim metni hiçbir zaman yolunun adını ya da derdini içermez."
-            static let privacyHeader: LocalizedStringResource = "Gizlilik"
-            static let appLock: LocalizedStringResource = "Uygulama kilidi"
+                .meSettingsNotificationPrivacy
+            static let privacyHeader: LocalizedStringResource = .meSettingsPrivacyHeader
+            static let appLock: LocalizedStringResource = .meSettingsAppLock
             static let appLockFooter: LocalizedStringResource =
-                "Açılırken Face ID ya da parola ister."
+                .meSettingsAppLockFooter
             static let appLockUnavailable: LocalizedStringResource =
-                "Bu telefonda parola kurulu olmadığı için kilit açılamıyor."
-            static let hideJournal: LocalizedStringResource = "Cümlelerimi Ben sekmesinde gizle"
-            static let analytics: LocalizedStringResource = "Kullanım verisi paylaş"
+                .meSettingsAppLockUnavailable
+            static let hideJournal: LocalizedStringResource = .meSettingsHideJournal
+            static let analytics: LocalizedStringResource = .meSettingsAnalytics
             static let analyticsFooter: LocalizedStringResource =
-                "Hangi dokunuşların işe yaradığını anlamamıza yardım eder. Yazdıkların ve ölçümlerin hiçbir zaman buna dahil değildir."
-            static let dataHeader: LocalizedStringResource = "Verim"
-            static let export: LocalizedStringResource = "Bu cihazdaki kaydını indir"
-            static let exportPreview: LocalizedStringResource = "Patika kaydı"
+                .meSettingsAnalyticsFooter
+            static let dataHeader: LocalizedStringResource = .meSettingsDataHeader
+            static let export: LocalizedStringResource = .meSettingsExport
+            static let exportPreview: LocalizedStringResource = .meSettingsExportPreview
             static let exportFooter: LocalizedStringResource =
-                "Cümlelerin, ölçüm cevapların ve tercihlerin tek bir dosyada."
-            static let deleteJournal: LocalizedStringResource = "Cümlelerimi sil"
+                .meSettingsExportFooter
+            static let deleteJournal: LocalizedStringResource = .meSettingsDeleteJournal
             static let deleteJournalTitle: LocalizedStringResource =
-                "Defterdeki bütün cümleler silinsin mi?"
+                .meSettingsDeleteJournalTitle
             static let deleteJournalBody: LocalizedStringResource =
-                "Cümleler kalıcı olarak silinir. Yolun ve ölçümlerin kalır."
-            static let deleteAccount: LocalizedStringResource = "Hesabı ve bütün verileri sil"
+                .meSettingsDeleteJournalBody
+            static let deleteAccount: LocalizedStringResource = .meSettingsDeleteAccount
             static let deleteAccountTitle: LocalizedStringResource =
-                "Hesabın ve bütün verilerin silinsin mi?"
+                .meSettingsDeleteAccountTitle
             static let deleteAccountBody: LocalizedStringResource =
-                "Yolun, cümlelerin, ölçümlerin ve kayıtların kalıcı olarak silinir. Bu geri alınamaz."
+                .meSettingsDeleteAccountBody
             static let deleteAccountFailed: LocalizedStringResource =
-                "Silme tamamlanamadı. Bu senin yüzünden değil; hiçbir şey silinmedi, yeniden deneyebilirsin."
+                .meSettingsDeleteAccountFailed
             static let nameFailed: LocalizedStringResource =
-                "Adın kaydedilemedi. Bu senin yüzünden değil; yeniden deneyebilirsin."
-            static let accountHeader: LocalizedStringResource = "Hesap"
-            static let nameRow: LocalizedStringResource = "Sana nasıl hitap edelim"
+                .meSettingsNameFailed
+            static let accountHeader: LocalizedStringResource = .meSettingsAccountHeader
+            static let nameRow: LocalizedStringResource = .meSettingsNameRow
             /// Sayfa başlığı: `nameRow` gezinme çubuğunda düğmenin yanında kırpılıyordu.
-            static let nameTitle: LocalizedStringResource = "Adın"
-            static let nameNone: LocalizedStringResource = "Ad yok"
-            static let namePlaceholder: LocalizedStringResource = "Adın"
+            static let nameTitle: LocalizedStringResource = .meSettingsNameTitle
+            static let nameNone: LocalizedStringResource = .meSettingsNameNone
+            static let namePlaceholder: LocalizedStringResource = .meSettingsNamePlaceholder
             static let nameHint: LocalizedStringResource =
-                "İstersen boş bırakabilirsin. Ad yalnızca birkaç yerde kullanılıyor."
-            static let linkedRow: LocalizedStringResource = "Bağlı hesap"
-            static let linkedYes: LocalizedStringResource = "Bağlı"
-            static let linkedNo: LocalizedStringResource = "Yalnızca bu telefon"
-            static let aboutHeader: LocalizedStringResource = "Hakkında"
-            static let versionRow: LocalizedStringResource = "Sürüm"
-            static let irreversibleHeader: LocalizedStringResource = "Geri alınamaz"
-            static let eraseLocal: LocalizedStringResource = "Bu cihazdaki kaydı sil"
+                .meSettingsNameHint
+            static let linkedRow: LocalizedStringResource = .meSettingsLinkedRow
+            static let linkedYes: LocalizedStringResource = .meSettingsLinkedYes
+            static let linkedNo: LocalizedStringResource = .meSettingsLinkedNo
+            static let aboutHeader: LocalizedStringResource = .meSettingsAboutHeader
+            static let versionRow: LocalizedStringResource = .meSettingsVersionRow
+            static let irreversibleHeader: LocalizedStringResource = .meSettingsIrreversibleHeader
+            static let eraseLocal: LocalizedStringResource = .meSettingsEraseLocal
             static let eraseFooter: LocalizedStringResource =
-                "Defterin, ölçüm cevapların ve tercihlerin bu telefondan silinir. Sunucudaki yolun etkilenmez."
-            static let eraseTitle: LocalizedStringResource = "Bu cihazdaki kayıt silinsin mi?"
+                .meSettingsEraseFooter
+            static let eraseTitle: LocalizedStringResource = .meSettingsEraseTitle
         }
 
         enum Method {
-            static let title: LocalizedStringResource = "Nasıl ölçüyoruz"
+            static let title: LocalizedStringResource = .meMethodTitle
             static let intro: LocalizedStringResource =
-                "Ölçüm bir sınav değil. Aynı soruları belli adımlarda yeniden soruyoruz ve cevaplarını yalnızca kendi başlangıcınla karşılaştırıyoruz."
-            static let layersTitle: LocalizedStringResource = "Üç katman"
+                .meMethodIntro
+            static let layersTitle: LocalizedStringResource = .meMethodLayersTitle
             static let emotion: LocalizedStringResource =
-                "Duygu şiddeti · %30 — zorlandığın şeyin ne kadar ağır geldiği ve ne sıklıkla geldiği."
+                .meMethodEmotion
             static let behavior: LocalizedStringResource =
-                "Davranış · %40 — kaçınma ve gündelik hayata etkisi. En sağlam katman, çünkü yapılan şeyi soruyor."
+                .meMethodBehavior
             static let selfEfficacy: LocalizedStringResource =
-                "Öz-yeterlik · %30 — ne yapacağını bildiğin ve değişimin mümkün olduğuna inandığın ölçü."
-            static let rotationTitle: LocalizedStringResource = "Neden sorular biraz farklı"
+                .meMethodSelfEfficacy
+            static let rotationTitle: LocalizedStringResource = .meMethodRotationTitle
             static let rotation: LocalizedStringResource =
-                "İnsanlar önceki cevaplarını hatırlar. Bu yüzden her ölçümde aynı şeyi farklı bir cümleyle soruyoruz; hesap aynı kalıyor."
-            static let clinicalTitle: LocalizedStringResource = "Neden klinik bir ölçek değil"
+                .meMethodRotation
+            static let clinicalTitle: LocalizedStringResource = .meMethodClinicalTitle
             static let clinical: LocalizedStringResource =
-                "Klinik ölçekler teşhis için yapılmış. Burada teşhis yok; amaç yalnızca kendi değişimini görmen. Sonuç hiçbir zaman başka biriyle karşılaştırılmıyor."
+                .meMethodClinical
         }
     }
 
     /// Destek al — 🔴 Nötr kademe. Süsleme yok, hareket yok, satış yok.
     ///
-    /// Metinler `Support.xcstrings`te (TR + EN). **Numara cihaz bölgesinden**
-    /// (`SupportResources.lines`), **metnin dili uygulama dilinden**
-    /// (`AppLocale.current`): Almanya'da Türkçe kullanan biri TelefonSeelsorge'yi
-    /// Türkçe açıklamayla görür. Arayüzün geri kalanı hâlâ sabit Türkçe; bu ekran
-    /// kriz anında bir kullanıcının anlayacağı dilde durmalı.
+    /// Metinler `Localizable.xcstrings`te. **Numara cihaz bölgesinden**
+    /// (`SupportResources.lines`); metin dili şimdilik yalnızca İngilizce.
     enum Support {
-        private static func text(_ key: String.LocalizationValue) -> LocalizedStringResource {
-            LocalizedStringResource(
-                key,
-                table: "Support",
-                locale: Locale(identifier: AppLocale.current.rawValue)
-            )
-        }
-
-        static var title: LocalizedStringResource { text("support.title") }
-        static var body: LocalizedStringResource { text("support.body") }
-        static var call: LocalizedStringResource { text("support.call") }
-        static var close: LocalizedStringResource { text("support.close") }
-        /// "ALO 183, 183. Aramak için dokun." Cümle parçaları katalogdan, birleşim
-        /// burada: katalog anahtarında enterpolasyon yok.
+        static var title: LocalizedStringResource { .supportTitle }
+        static var body: LocalizedStringResource { .supportBody }
+        static var call: LocalizedStringResource { .supportCall }
+        static var close: LocalizedStringResource { .supportClose }
+        /// "ALO 183, 183. Tap to call." Cümle parçaları katalogdan, birleşim burada.
         static func callAccessibility(name: String, number: String) -> String {
-            "\(name), \(number). \(String(localized: text("support.tapToCall")))"
+            "\(name), \(number). \(String(localized: .supportTapToCall))"
         }
-        static var directory: LocalizedStringResource { text("support.directory") }
-        static var notEmergencyService: LocalizedStringResource { text("support.notEmergencyService") }
-        static var emergencyName: LocalizedStringResource { text("support.emergency.name") }
-        static var emergencyDetail: LocalizedStringResource { text("support.emergency.detail") }
-        static var trSocialSupportName: LocalizedStringResource { text("support.tr.socialSupport.name") }
-        static var trSocialSupportDetail: LocalizedStringResource { text("support.tr.socialSupport.detail") }
-        static var deTelefonSeelsorgeName: LocalizedStringResource { text("support.de.telefonSeelsorge.name") }
-        static var deTelefonSeelsorgeDetail: LocalizedStringResource { text("support.de.telefonSeelsorge.detail") }
-        static var us988Name: LocalizedStringResource { text("support.us.988.name") }
-        static var us988Detail: LocalizedStringResource { text("support.us.988.detail") }
-        static var gbSamaritansName: LocalizedStringResource { text("support.gb.samaritans.name") }
-        static var gbSamaritansDetail: LocalizedStringResource { text("support.gb.samaritans.detail") }
+        static var directory: LocalizedStringResource { .supportDirectory }
+        static var notEmergencyService: LocalizedStringResource { .supportNotEmergencyService }
+        static var emergencyName: LocalizedStringResource { .supportEmergencyName }
+        static var emergencyDetail: LocalizedStringResource { .supportEmergencyDetail }
+        static var trSocialSupportName: LocalizedStringResource { .supportTrSocialSupportName }
+        static var trSocialSupportDetail: LocalizedStringResource { .supportTrSocialSupportDetail }
+        static var deTelefonSeelsorgeName: LocalizedStringResource { .supportDeTelefonSeelsorgeName }
+        static var deTelefonSeelsorgeDetail: LocalizedStringResource { .supportDeTelefonSeelsorgeDetail }
+        static var us988Name: LocalizedStringResource { .supportUs988Name }
+        static var us988Detail: LocalizedStringResource { .supportUs988Detail }
+        static var gbSamaritansName: LocalizedStringResource { .supportGbSamaritansName }
+        static var gbSamaritansDetail: LocalizedStringResource { .supportGbSamaritansDetail }
     }
 
     /// Yol içi ölçüm — 🟠 Sakin. Sınav değil; skor ve yorum yok.
     enum PathMeasurement {
         static func introHeadline(_ count: Int) -> LocalizedStringResource {
-            "Kısa bir ölçüm: \(count) soru."
+            .pathMeasurementIntroHeadline(count)
         }
         static let introBody: LocalizedStringResource =
-            "İlk günkü sorular, biraz farklı cümlelerle. Cevapların yalnızca kendi başlangıcınla karşılaştırılıyor."
-        static let introCTA: LocalizedStringResource = "Başlayalım"
+            .pathMeasurementIntroBody
+        static let introCTA: LocalizedStringResource = .pathMeasurementIntroCTA
         static let saveError: LocalizedStringResource =
-            "Cevapların kaybolmadı, senin yüzünden değil. Bağlantıyı kontrol edip yeniden deneyebilirsin."
+            .pathMeasurementSaveError
         static let completionError: LocalizedStringResource =
-            "Adımın kaydedilemedi. Bu senin yüzünden değil; yeniden deneyebilirsin."
+            .pathMeasurementCompletionError
     }
 
     enum AppLock {
-        static let title: LocalizedStringResource = "Kaydın kilitli."
-        static let body: LocalizedStringResource = "Açmak için kimliğini doğrula."
-        static let unlock: LocalizedStringResource = "Kilidi aç"
-        static let reason: LocalizedStringResource = "Kaydını yalnızca senin açabilmen için"
+        static let title: LocalizedStringResource = .appLockTitle
+        static let body: LocalizedStringResource = .appLockBody
+        static let unlock: LocalizedStringResource = .appLockUnlock
+        static let reason: LocalizedStringResource = .appLockReason
     }
 }

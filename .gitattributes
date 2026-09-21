@@ -1,0 +1,2 @@
+# Keşfet ses kayıtları büyük ikili dosya; Git LFS ile saklanır (2026-09-21).
+MyApp/Resources/DiscoverAudio/*.mp3 filter=lfs diff=lfs merge=lfs -text
