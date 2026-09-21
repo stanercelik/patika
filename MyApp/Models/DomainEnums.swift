@@ -567,14 +567,6 @@ enum SessionLength: Int, CaseIterable, Codable, Sendable, Identifiable {
     /// Önerilen seçenek E2'de önceden seçili gelir. Varsayılan yanlılığı burada
     /// serbest; **ödeme ve abonelik kararlarında** yasak (PRD-Ek 5.6).
     var isRecommended: Bool { self == .standard }
-
-    var label: LocalizedStringResource {
-        switch self {
-        case .short: .sessionLengthLabelShort
-        case .standard: .sessionLengthLabelStandard
-        case .deep: .sessionLengthLabelDeep
-        }
-    }
 }
 
 /// E4 — rehber sesin kimliği (ürün sahibi kararı, 2026-09-09).
@@ -601,13 +593,6 @@ enum VoicePreference: String, Codable, Sendable, CaseIterable, Identifiable {
     case feminine, masculine
 
     var id: String { rawValue }
-
-    var label: LocalizedStringResource {
-        switch self {
-        case .feminine: .voicePreferenceLabelFeminine
-        case .masculine: .voicePreferenceLabelMasculine
-        }
-    }
 
     /// Önizleme dosyasının uygulama paketindeki adı. Dile göre değişir —
     /// aynı ses iki dilde farklı duyuluyor ve kullanıcı kendi dilinde

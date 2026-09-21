@@ -35,6 +35,7 @@ struct ComparisonColumns: View {
     /// tek kelimelik satırlar bile üç satıra sarıyor. O boyutlarda karşılaştırma
     /// alt alta iki bloğa dönüşür — aynı bilgi, kırılmayan yerleşim.
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.patikaInk) private var ink
 
     private var pairs: [(theirs: LocalizedStringResource, ours: LocalizedStringResource)] {
         zip(theirs, ours).map { ($0, $1) }
@@ -58,17 +59,17 @@ struct ComparisonColumns: View {
             // aynı anda beliriyor.
             GridRow {
                 columnTitle(theirsTitle, symbol: "xmark", isPrimary: false)
-                    .sequentialReveal(revealStartIndex)
+                    .statementReveal(revealStartIndex)
                 columnTitle(oursTitle, symbol: "checkmark", isPrimary: true)
-                    .sequentialReveal(revealStartIndex)
+                    .statementReveal(revealStartIndex)
             }
 
             ForEach(Array(pairs.enumerated()), id: \.offset) { index, pair in
                 GridRow {
                     cell(pair.theirs, isPrimary: false)
-                        .sequentialReveal(revealStartIndex + 1 + index)
+                        .statementReveal(revealStartIndex + 1 + index)
                     cell(pair.ours, isPrimary: true)
-                        .sequentialReveal(revealStartIndex + 1 + index)
+                        .statementReveal(revealStartIndex + 1 + index)
                 }
             }
         }
@@ -78,7 +79,7 @@ struct ComparisonColumns: View {
             // ancak tahminle çizilebilirdi. Çizgi tam ortada duruyor çünkü iki
             // sütun da genişliği eşit paylaşıyor.
             Rectangle()
-                .fill(Theme.textPrimary.color.opacity(0.14))
+                .fill(ink.primary.opacity(0.14))
                 .frame(width: 1)
                 .padding(.vertical, 2)
         }
@@ -97,14 +98,14 @@ struct ComparisonColumns: View {
                 .font(.subheadline.weight(Theme.Weight.action))
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .foregroundStyle(Theme.textPrimary.color.opacity(isPrimary ? 1.0 : 0.55))
+        .foregroundStyle(ink.primary.opacity(isPrimary ? 1.0 : 0.55))
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func cell(_ text: LocalizedStringResource, isPrimary: Bool) -> some View {
         Text(text)
             .font(.subheadline.weight(isPrimary ? Theme.Weight.emphasis : Theme.Weight.body))
-            .foregroundStyle(Theme.textPrimary.color.opacity(isPrimary ? 0.95 : 0.58))
+            .foregroundStyle(ink.primary.opacity(isPrimary ? 0.95 : 0.58))
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -115,9 +116,9 @@ struct ComparisonColumns: View {
     private var stacked: some View {
         VStack(alignment: .leading, spacing: 18) {
             block(title: theirsTitle, symbol: "xmark", lines: theirs, isPrimary: false)
-                .sequentialReveal(revealStartIndex)
+                .statementReveal(revealStartIndex)
             block(title: oursTitle, symbol: "checkmark", lines: ours, isPrimary: true)
-                .sequentialReveal(revealStartIndex + 1)
+                .statementReveal(revealStartIndex + 1)
         }
     }
 

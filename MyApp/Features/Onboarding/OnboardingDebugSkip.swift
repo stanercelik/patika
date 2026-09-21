@@ -82,13 +82,25 @@ extension OnboardingFlowViewModel {
 extension OnboardingStep {
     init?(debugName: String) {
         switch debugName.lowercased() {
+        case "identity", "name", "gender", "age": self = .identity
+        case "commit": self = .commitment
+        case "price": self = .price
+        case "h2": self = .h2Priming
         case "a2": self = .a2Categories
         case "b1": self = .b1ProblemText
+        case "b2": self = .b2Duration
+        case "b3": self = .b3Timing
+        case "b4": self = .b4Avoidance
+        case "b5": self = .b5PreviousAttempts
+        case "b6": self = .b6CurrentMood
         case "c1": self = .c1Mirroring
         case "c2": self = .c2NotAlone
+        case "c3": self = .c3PathNotLibrary
+        case "c4": self = .c4HonestExpectation
         case "d0": self = .d0MeasurementIntro
         case "d1": self = .dMeasurement(1)
         case "e1": self = .e1Reminder
+        case "e3": self = .e3Tone
         case "f1": self = .f1Generation
         case "f2": self = .f2Roadmap
         case "g1": self = .g1FirstSession

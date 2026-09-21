@@ -139,6 +139,7 @@ enum Copy {
             .onboardingNameHint
         static let namePlaceholder: LocalizedStringResource = .onboardingNamePlaceholder
         static let nameSkip: LocalizedStringResource = .onboardingNameSkip
+        static let nameFirstCTA: LocalizedStringResource = .onboardingNameFirstCTA
 
         static let genderHeadline: LocalizedStringResource = .onboardingGenderHeadline
         static let ageHeadline: LocalizedStringResource = .onboardingAgeHeadline
@@ -312,6 +313,10 @@ enum Copy {
         /// onaylatmak**, boş bir alan doldurtmak değil.
         static func reminderHeadline(_ time: String) -> LocalizedStringResource {
             .onboardingReminderHeadline(time)
+        }
+        /// H2. Saat cümlenin içinde: izin, ne alacağını görmüş kullanıcıdan isteniyor.
+        static func notificationPrimingHeadline(_ time: String) -> LocalizedStringResource {
+            .notificationPrimingHeadline(time)
         }
         static let reminderAccept: LocalizedStringResource = .onboardingReminderAccept
         static let reminderChange: LocalizedStringResource = .onboardingReminderChange

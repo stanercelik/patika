@@ -217,18 +217,7 @@ private struct PathMeasurementQuestionView: View {
     var body: some View {
         OnboardingQuestionLayout(headline: question.prompt, hint: question.hint) {
             VStack(alignment: .leading, spacing: 20) {
-                if question.usesIntensityScale {
-                    IntensityScale(selection: question.value) { question.select($0) }
-                        .padding(.top, 4)
-                } else {
-                    VStack(spacing: 10) {
-                        ForEach(question.options) { option in
-                            ChoiceRow(label: option.label, isSelected: question.isSelected(option)) {
-                                question.select(option.value)
-                            }
-                        }
-                    }
-                }
+                MeasurementAnswerView(question: question)
 
                 if session.showsError {
                     Text(Copy.PathMeasurement.saveError)

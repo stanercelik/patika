@@ -21,7 +21,23 @@ struct TonePreferenceView: View {
             headline: Copy.Onboarding.toneHeadline,
             hint: Copy.Onboarding.toneHint
         ) {
-            ChoiceList(viewModel: viewModel)
+            // Her tonun gerçek bir örnek cümlesi: "sıcak" ya da "kısa" gibi sıfatların
+            // nasıl duyulduğunu kullanıcı bilmiyor; cümleyi görüp seçiyor. Sıra ima
+            // eden bir kaydırıcı değil, çünkü üç ton sıralı değil, üç ayrı tercih.
+            VStack(alignment: .leading, spacing: 10) {
+                Text(.tonePreferenceSampleLabel)
+                    .font(.footnote.weight(Theme.Weight.emphasis))
+                    .foregroundStyle(WoodlandStyle.secondaryInk)
+                ForEach(viewModel.options) { tone in
+                    ChoiceRow(
+                        label: tone.label,
+                        isSelected: viewModel.isSelected(tone),
+                        detail: tone.sample
+                    ) {
+                        viewModel.select(tone)
+                    }
+                }
+            }
         } footer: {
             OnboardingQuestionFooter(
                 primaryTitle: Copy.Button.next,
@@ -29,6 +45,17 @@ struct TonePreferenceView: View {
                 isPrimaryEnabled: viewModel.canContinue,
                 primaryAction: { viewModel.submit() }
             )
+        }
+    }
+}
+
+extension TonePreference {
+    /// Ekrandaki örnek; gerçek anlatımın kendisi değil, tonun nasıl duyulacağının göstergesi.
+    var sample: LocalizedStringResource {
+        switch self {
+        case .calmAndShort: .tonePreferenceSampleCalmAndShort
+        case .moreGuiding: .tonePreferenceSampleMoreGuiding
+        case .infoOnly: .tonePreferenceSampleInfoOnly
         }
     }
 }

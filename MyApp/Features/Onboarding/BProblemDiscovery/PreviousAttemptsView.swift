@@ -46,15 +46,17 @@ struct PreviousAttemptsView: View {
 /// süsleme değil; kullanıcının en olası endişesine ("bunu bırakmam mı gerekiyor?")
 /// sorulmadan verilen cevap.
 private struct TherapyNote: View {
+    @Environment(\.patikaInk) private var ink
+
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "info.circle")
                 .font(.footnote.weight(Theme.Weight.action))
-                .foregroundStyle(Theme.textSecondary.color)
+                .foregroundStyle(ink.secondary)
 
             Text(Copy.Onboarding.attemptsTherapyNote)
                 .font(.footnote.weight(Theme.Weight.body))
-                .foregroundStyle(Theme.textSecondary.color)
+                .foregroundStyle(ink.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.top, 2)

@@ -541,6 +541,78 @@
         }
       }
     },
+    "commitment.body": {
+      "extractionState": "manual",
+      "comment": "Taahhüt ekranı gövdesi",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don't have to fix it. You only have to take the first step, at your own pace."
+          }
+        }
+      }
+    },
+    "commitment.headline": {
+      "extractionState": "manual",
+      "comment": "Taahhüt ekranı başlığı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One promise, to yourself."
+          }
+        }
+      }
+    },
+    "commitment.leadAvoidance": {
+      "extractionState": "manual",
+      "comment": "Taahhüt: kullanıcının kaçınma cümlesinin üst etiketi",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you said you keep putting off"
+          }
+        }
+      }
+    },
+    "commitment.leadProblem": {
+      "extractionState": "manual",
+      "comment": "Taahhüt: kullanıcının kendi cümlesinin üst etiketi",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you told me"
+          }
+        }
+      }
+    },
+    "commitment.slide": {
+      "extractionState": "manual",
+      "comment": "Taahhüt kaydırıcısı etiketi",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slide to take the first step"
+          }
+        }
+      }
+    },
+    "commitment.slideAccessibility": {
+      "extractionState": "manual",
+      "comment": "Taahhüt kaydırıcısı VoiceOver etkinleştirmesi",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take the first step"
+          }
+        }
+      }
+    },
     "common.back": {
       "extractionState": "manual",
       "comment": "OnboardingHeader.swift",
@@ -5233,6 +5305,78 @@
         }
       }
     },
+    "notificationPriming.allow": {
+      "extractionState": "manual",
+      "comment": "H2 birincil düğme",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow reminders"
+          }
+        }
+      }
+    },
+    "notificationPriming.headline": {
+      "extractionState": "manual",
+      "comment": "H2 başlık; %@ saat",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A quiet reminder at %@?"
+          }
+        }
+      }
+    },
+    "notificationPriming.noGuilt": {
+      "extractionState": "manual",
+      "comment": "H2 suçlamama sözü",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missing a day loses nothing, and we never send a message about what you missed."
+          }
+        }
+      }
+    },
+    "notificationPriming.previewAccessibility": {
+      "extractionState": "manual",
+      "comment": "H2 önizleme VoiceOver etiketi",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Example notification: Today's step is ready."
+          }
+        }
+      }
+    },
+    "notificationPriming.previewApp": {
+      "extractionState": "manual",
+      "comment": "H2 bildirim önizlemesi uygulama adı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patika"
+          }
+        }
+      }
+    },
+    "notificationPriming.previewTime": {
+      "extractionState": "manual",
+      "comment": "H2 bildirim önizlemesi zaman",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "now"
+          }
+        }
+      }
+    },
     "onboarding.ageHeadline": {
       "extractionState": "manual",
       "comment": "Copy.swift · static let ageHeadline: LocalizedStringResource = \"Kaç yaşındasın?\"",
@@ -5901,6 +6045,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "How you feel right now is reflected in the color of the background."
+          }
+        }
+      }
+    },
+    "onboarding.nameFirstCTA": {
+      "extractionState": "manual",
+      "comment": "Kimlik kartı: ad çözülmeden pasif düğme metni",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell us your name, or skip it"
           }
         }
       }
@@ -6769,6 +6925,138 @@
         }
       }
     },
+    "price.decision": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı: karar anı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After your day-7 measurement you decide whether to continue. Not before."
+          }
+        }
+      }
+    },
+    "price.free": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı: ücretsiz kapsam",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your first six steps, every measurement, and Get support are free."
+          }
+        }
+      }
+    },
+    "price.headline": {
+      "extractionState": "manual",
+      "comment": "Fiyat şeffaflığı başlığı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing is charged today."
+          }
+        }
+      }
+    },
+    "price.option.monthly": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı: aylık adı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monthly, with memory across paths"
+          }
+        }
+      }
+    },
+    "price.option.monthly.price": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı: aylık fiyat. Yayından önce StoreKit ürününden okunmalı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "€12.99 a month"
+          }
+        }
+      }
+    },
+    "price.option.single": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı: tek patika adı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One path"
+          }
+        }
+      }
+    },
+    "price.option.single.price": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı: tek patika fiyatı. Yayından önce StoreKit ürününden okunmalı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "€14.99"
+          }
+        }
+      }
+    },
+    "price.option.yearly": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı: yıllık adı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yearly"
+          }
+        }
+      }
+    },
+    "price.option.yearly.price": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı: yıllık fiyat. Yayından önce StoreKit ürününden okunmalı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "€79 a year"
+          }
+        }
+      }
+    },
+    "price.optionsHeader": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı seçenek başlığı",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you continue"
+          }
+        }
+      }
+    },
+    "price.promise": {
+      "extractionState": "manual",
+      "comment": "Fiyat ekranı: Kova C sözü (PRD 7.9)",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If your measurements show no progress, continuing is free, up to two times."
+          }
+        }
+      }
+    },
     "problemCategory.commonalityLine.anger": {
       "extractionState": "manual",
       "comment": "DomainEnums.swift · var commonalityLine: LocalizedStringResource {",
@@ -7477,6 +7765,42 @@
         }
       }
     },
+    "problemDuration.slider.accessibility": {
+      "extractionState": "manual",
+      "comment": "B2 kaydırıcı VoiceOver etiketi",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How long it has been"
+          }
+        }
+      }
+    },
+    "problemDuration.slider.high": {
+      "extractionState": "manual",
+      "comment": "DurationSlider.swift · B2 kaydırıcı sağ ucu",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Years"
+          }
+        }
+      }
+    },
+    "problemDuration.slider.low": {
+      "extractionState": "manual",
+      "comment": "DurationSlider.swift · B2 kaydırıcı sol ucu",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days"
+          }
+        }
+      }
+    },
     "problemTiming.label.bedtime": {
       "extractionState": "manual",
       "comment": "DomainEnums.swift · var label: LocalizedStringResource {",
@@ -7653,6 +7977,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "You didn't name a particular time; the evening hour suits most people."
+          }
+        }
+      }
+    },
+    "reminderDial.accessibility": {
+      "extractionState": "manual",
+      "comment": "E1 kadran VoiceOver etiketi",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminder time"
+          }
+        }
+      }
+    },
+    "reminderDial.accessibilityHint": {
+      "extractionState": "manual",
+      "comment": "E1 kadran VoiceOver ipucu",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe up or down to change the time by 15 minutes."
           }
         }
       }
@@ -8041,42 +8389,6 @@
         }
       }
     },
-    "sessionLength.label.deep": {
-      "extractionState": "manual",
-      "comment": "DomainEnums.swift · var label: LocalizedStringResource {",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "15 minutes · deep"
-          }
-        }
-      }
-    },
-    "sessionLength.label.short": {
-      "extractionState": "manual",
-      "comment": "DomainEnums.swift · var label: LocalizedStringResource {",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "5 minutes · short and simple"
-          }
-        }
-      }
-    },
-    "sessionLength.label.standard": {
-      "extractionState": "manual",
-      "comment": "DomainEnums.swift · var label: LocalizedStringResource {",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "10 minutes · recommended"
-          }
-        }
-      }
-    },
     "support.body": {
       "extractionState": "manual",
       "comment": "Support / crisis screen (neutral tone: no decoration)",
@@ -8353,26 +8665,50 @@
         }
       }
     },
-    "voicePreference.label.feminine": {
+    "tonePreference.sample.calmAndShort": {
       "extractionState": "manual",
-      "comment": "DomainEnums.swift · var label: LocalizedStringResource {",
+      "comment": "E3 örnek cümle",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Voice A"
+            "value": "Breathe in slowly. And out. There is nothing else to do right now."
           }
         }
       }
     },
-    "voicePreference.label.masculine": {
+    "tonePreference.sample.infoOnly": {
       "extractionState": "manual",
-      "comment": "DomainEnums.swift · var label: LocalizedStringResource {",
+      "comment": "E3 örnek cümle",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Voice B"
+            "value": "This exercise lengthens your exhale, which slows your heart rate. Follow the count on the screen."
+          }
+        }
+      }
+    },
+    "tonePreference.sample.moreGuiding": {
+      "extractionState": "manual",
+      "comment": "E3 örnek cümle",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let your attention rest on your breath. If it wanders, that is fine. Bring it back to the next slow exhale."
+          }
+        }
+      }
+    },
+    "tonePreference.sampleLabel": {
+      "extractionState": "manual",
+      "comment": "E3 örnek cümle üst etiketi",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It might sound like this"
           }
         }
       }

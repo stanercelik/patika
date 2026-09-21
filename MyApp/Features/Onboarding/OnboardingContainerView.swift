@@ -10,6 +10,8 @@ import SwiftUI
 struct OnboardingContainerView: View {
     @Environment(PaletteController.self) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var flow: OnboardingFlowViewModel
 
     init(palette: PaletteController, services: AppServices, onFinished: @escaping () -> Void) {
@@ -29,8 +31,14 @@ struct OnboardingContainerView: View {
                 safeY: flow.step.backgroundSafeY,
                 breathAmplitude: breathAmplitude,
                 voiceEnergy: flow.sessionVoiceEnergy,
+                scrimStrength: flow.step.backgroundScrimStrength,
                 boostsFrameRate: palette.isTransitioning || flow.step == .f2Roadmap
             )
+
+            if let scene = flow.step.sceneArtwork, showsScene(scene) {
+                OnboardingSceneBackdrop(artwork: scene)
+                    .transition(.opacity)
+            }
 
             VStack(spacing: 0) {
                 OnboardingHeader(
@@ -43,6 +51,7 @@ struct OnboardingContainerView: View {
                 // yerleşimi sabit tutar, VStack olsa yükseklik farkı zıplatırdı.
                 ZStack {
                     content
+                        .environment(\.onboardingSurface, flow.step.surfaceStyle)
                         .transition(.onboardingStep(reduceMotion: reduceMotion))
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -60,64 +69,12 @@ struct OnboardingContainerView: View {
         .animation(Theme.Motion.crossFade, value: flow.step)
     }
 
-    @ViewBuilder
-    private var content: some View {
-        switch flow.step {
-        case .a1Welcome:
-            WelcomeView(flow: flow)
-        case .identityName:
-            NameView(flow: flow)
-        case .identityGender:
-            GenderView(flow: flow)
-        case .identityAge:
-            AgeRangeView(flow: flow)
-        case .a2Categories:
-            CategorySelectionView(flow: flow)
-        case .b1ProblemText:
-            ProblemTextView(flow: flow)
-        case .b2Duration:
-            DurationView(flow: flow)
-        case .b3Timing:
-            TimingView(flow: flow)
-        case .b4Avoidance:
-            AvoidanceView(flow: flow)
-        case .b5PreviousAttempts:
-            PreviousAttemptsView(flow: flow)
-        case .b6CurrentMood:
-            CurrentMoodView(flow: flow)
-        case .c1Mirroring:
-            MirroringView(flow: flow)
-        case .c2NotAlone:
-            NotAloneView(flow: flow)
-        case .c3PathNotLibrary:
-            PathNotLibraryView(flow: flow)
-        case .c4HonestExpectation:
-            HonestExpectationView(flow: flow)
-        case .d0MeasurementIntro:
-            MeasurementIntroView(flow: flow)
-        case .dMeasurement(let index):
-            // Sekiz soru aynı görünüm tipinden çiziliyor; kimlik verilmezse
-            // SwiftUI ekranı yerinde tutup yalnızca içeriğini değiştiriyor —
-            // ne geçiş oynuyor ne de soru ViewModel'i yenileniyor.
-            MeasurementQuestionView(flow: flow, index: index)
-                .id(index)
-        case .e1Reminder:
-            ReminderTimeView(flow: flow)
-        case .e3Tone:
-            TonePreferenceView(flow: flow)
-        case .f1Generation:
-            GenerationView(flow: flow)
-        case .f2Roadmap:
-            RoadmapView(flow: flow)
-        case .g1FirstSession:
-            FirstSessionView(flow: flow)
-        case .g2SessionComplete:
-            SessionCompleteView(flow: flow)
-        case .h1Account:
-            AccountLinkView(flow: flow)
-        case .crisis:
-            CrisisView()
-        }
+    private var content: some View { OnboardingStepContentView(flow: flow) }
+
+    /// Reduce Transparency ve erişilebilirlik boyutlarında sahne yerine düz zemin: üstündeki
+    /// başlık ve düğme her koşulda okunmalı, manzaranın güzelliği bunun için feda edilir.
+    private func showsScene(_ scene: OnboardingArtwork) -> Bool {
+        scene.isAvailable && !reduceTransparency && !dynamicTypeSize.isAccessibilitySize
     }
 
     /// Genlik ekran grubuna ait bir özellik; kabuk yalnızca okuyor.
@@ -191,6 +148,7 @@ struct OnboardingPreviewHost<Content: View>: View {
             BreathingMeshBackground(
                 palette: palette.current,
                 safeY: step.backgroundSafeY,
+                scrimStrength: step.backgroundScrimStrength,
                 boostsFrameRate: palette.isTransitioning || step == .f2Roadmap
             )
             VStack(spacing: 0) {
@@ -200,6 +158,7 @@ struct OnboardingPreviewHost<Content: View>: View {
                     onBack: {}
                 )
                 content(flow)
+                    .environment(\.onboardingSurface, step.surfaceStyle)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
@@ -208,6 +167,72 @@ struct OnboardingPreviewHost<Content: View>: View {
         .task {
             palette.select(draft.categories)
             palette.setMood(draft.currentMood)
+        }
+    }
+}
+
+/// Adımdan ekrana eşleme — kabuk ve DEBUG galerisi aynı yerden okur, iki liste ayrışmasın.
+struct OnboardingStepContentView: View {
+    let flow: OnboardingFlowViewModel
+
+    var body: some View {
+        switch flow.step {
+        case .a1Welcome:
+            WelcomeView(flow: flow)
+        case .identity:
+            IdentityView(flow: flow)
+        case .a2Categories:
+            CategorySelectionView(flow: flow)
+        case .b1ProblemText:
+            ProblemTextView(flow: flow)
+        case .b2Duration:
+            DurationView(flow: flow)
+        case .b3Timing:
+            TimingView(flow: flow)
+        case .b4Avoidance:
+            AvoidanceView(flow: flow)
+        case .b5PreviousAttempts:
+            PreviousAttemptsView(flow: flow)
+        case .b6CurrentMood:
+            CurrentMoodView(flow: flow)
+        case .c1Mirroring:
+            MirroringView(flow: flow)
+        case .c2NotAlone:
+            NotAloneView(flow: flow)
+        case .c3PathNotLibrary:
+            PathNotLibraryView(flow: flow)
+        case .c4HonestExpectation:
+            HonestExpectationView(flow: flow)
+        case .commitment:
+            CommitmentView(flow: flow)
+        case .d0MeasurementIntro:
+            MeasurementIntroView(flow: flow)
+        case .dMeasurement(let index):
+            // Sekiz soru aynı görünüm tipinden çiziliyor; kimlik verilmezse
+            // SwiftUI ekranı yerinde tutup yalnızca içeriğini değiştiriyor —
+            // ne geçiş oynuyor ne de soru ViewModel'i yenileniyor.
+            MeasurementQuestionView(flow: flow, index: index)
+                .id(index)
+        case .e1Reminder:
+            ReminderTimeView(flow: flow)
+        case .e3Tone:
+            TonePreferenceView(flow: flow)
+        case .f1Generation:
+            GenerationView(flow: flow)
+        case .f2Roadmap:
+            RoadmapView(flow: flow)
+        case .g1FirstSession:
+            FirstSessionView(flow: flow)
+        case .g2SessionComplete:
+            SessionCompleteView(flow: flow)
+        case .price:
+            PriceView(flow: flow)
+        case .h2Priming:
+            NotificationPrimingView(flow: flow)
+        case .h1Account:
+            AccountLinkView(flow: flow)
+        case .crisis:
+            CrisisView()
         }
     }
 }

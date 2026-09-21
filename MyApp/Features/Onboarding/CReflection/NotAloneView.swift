@@ -17,7 +17,7 @@ struct NotAloneView: View {
             action: { flow.finishNotAlone() }
         ) {
             StatementParagraph(flow.draft.primaryCategory.commonalityLine)
-                .sequentialReveal(1)
+                .statementReveal(1)
 
             // Birbirine karışan yapraklar ve ortak akış; sayı veya insan
             // figürü üzerinden sosyal kanıt ima etmez.
@@ -26,10 +26,10 @@ struct NotAloneView: View {
                 height: 292,
                 accessibilityHeight: 194
             )
-            .sequentialReveal(2)
+            .statementReveal(2)
 
             StatementParagraph(Copy.Onboarding.notAloneResearchLine)
-                .sequentialReveal(3)
+                .statementReveal(3)
         }
     }
 }

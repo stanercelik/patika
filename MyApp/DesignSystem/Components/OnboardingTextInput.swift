@@ -15,20 +15,23 @@ struct OnboardingTextInput: View {
     var lineRange: ClosedRange<Int> = 4...9
     /// Ad alanında kelime başı büyük harf; cümle alanlarında cümle başı.
     var capitalization: TextInputAutocapitalization = .sentences
+    /// Kullanıcının kendi sözü serif ile yazılır (`Theme.Voice.user`); nil ise ürünün sesi.
+    var font: Font?
 
     @FocusState private var isFocused: Bool
+    @Environment(\.patikaInk) private var ink
 
     var body: some View {
         TextField(
             "",
             text: $text,
             prompt: Text(placeholder)
-                .foregroundStyle(Theme.textSecondary.color),
+                .foregroundStyle(ink.secondary),
             axis: .vertical
         )
-        .font(.body.weight(Theme.Weight.body))
-        .foregroundStyle(Theme.textPrimary.color)
-        .tint(Theme.textPrimary.color)
+        .font(font ?? .body.weight(Theme.Weight.body))
+        .foregroundStyle(ink.primary)
+        .tint(ink.primary)
         .lineSpacing(3)
         .lineLimit(lineRange)
         .textInputAutocapitalization(capitalization)
@@ -41,7 +44,13 @@ struct OnboardingTextInput: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 18)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background { CalmSurface(isEmphasized: isFocused) }
+        .background {
+            if ink == .ink {
+                PaperInsetSurface(isEmphasized: isFocused)
+            } else {
+                CalmSurface(isEmphasized: isFocused)
+            }
+        }
         .accessibilityLabel(Text(placeholder))
         .animation(Theme.Motion.crossFade, value: isFocused)
     }

@@ -20,7 +20,7 @@ struct MirroringView: View {
 
             ForEach(Array(paragraphs.prefix(insertionIndex).enumerated()), id: \.offset) { index, paragraph in
                 StatementParagraph(paragraph)
-                    .sequentialReveal(1 + index)
+                    .statementReveal(1 + index)
             }
 
             // Durum ve süre birlikte okunduktan sonra: görsel bu iki parçayı
@@ -30,11 +30,11 @@ struct MirroringView: View {
                 height: 282,
                 accessibilityHeight: 194
             )
-            .sequentialReveal(1 + insertionIndex)
+            .statementReveal(1 + insertionIndex)
 
             ForEach(Array(paragraphs.dropFirst(insertionIndex).enumerated()), id: \.offset) { index, paragraph in
                 StatementParagraph(paragraph)
-                    .sequentialReveal(2 + insertionIndex + index)
+                    .statementReveal(2 + insertionIndex + index)
             }
         }
     }

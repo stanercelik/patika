@@ -14,6 +14,10 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
     private let content: Content
     private let footer: Footer
 
+    /// Adımın malzemesi kabuktan gelir; varsayılan `.ground` olduğu için bunu hiç
+    /// kurmayan çağıranlar (`PathSessionView`) değişmez.
+    @Environment(\.onboardingSurface) private var surface
+
     init(
         headline: LocalizedStringResource,
         hint: LocalizedStringResource? = nil,
@@ -50,6 +54,7 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
                     content
                         .padding(.top, questionToAnswerGap)
                 }
+                .onboardingSurfaceCard(surface)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, Theme.Spacing.screenMargin)
                 .padding(.top, 14)

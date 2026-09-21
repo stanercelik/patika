@@ -29,7 +29,7 @@ run MeasurementScoring $M/Content/Tone.swift $M/Models/DomainEnums.swift $M/Mode
 run BadgeCatalog $M/Content/Tone.swift $M/Models/DomainEnums.swift $M/Models/ProfileRecord.swift $M/Models/ProfileSnapshot.swift \
   $M/Models/BadgeCatalog.swift $M/Models/WeeklyRhythm.swift $M/Models/PathPlan.swift $M/Models/SessionManifest.swift \
   $M/Features/Session/SessionPacing.swift $M/Models/MeasurementLibrary.swift $M/Models/MeasurementScoring.swift \
-  $M/Infrastructure/Backend/RetryPolicy.swift $M/Infrastructure/Backend/BackendError.swift $M/Infrastructure/Backend/BackendClient.swift \
+  $M/Infrastructure/Backend/RetryPolicy.swift $M/Infrastructure/Backend/BackendError.swift $M/Infrastructure/Backend/AudioStatus.swift $M/Infrastructure/Backend/BackendClient.swift \
   $M/Features/Onboarding/OnboardingDraft.swift $SHIM Tests/BadgeCatalogTests/main.swift
 run SessionPacing $M/Models/SessionManifest.swift $M/Features/Session/SessionTimeline.swift $M/Features/Session/SessionPacing.swift \
   $M/Features/Session/SessionSegment.swift $M/Features/Session/SessionManifestScript.swift Tests/SessionPacingTests/main.swift
@@ -44,6 +44,8 @@ run CrisisClassifier $M/Features/Onboarding/BProblemDiscovery/CrisisClassifier.s
 run LocalizationCatalog $M/Content/Tone.swift Tests/LocalizationCatalogTests/main.swift
 run SessionEnvelope $M/Features/Session/SessionEnvelope.swift Tests/SessionEnvelopeTests/main.swift
 run RetryPolicy $M/Infrastructure/Backend/RetryPolicy.swift $M/Infrastructure/Backend/BackendError.swift Tests/RetryPolicyTests/main.swift
+run AudioReadiness $M/Infrastructure/Backend/AudioStatus.swift $M/Features/Session/AudioReadiness.swift Tests/AudioReadinessTests/main.swift
 run ExpectationCurveModel $M/DesignSystem/Components/ExpectationCurveModel.swift Tests/ExpectationCurveModelTests/main.swift
+run Contrast $M/DesignSystem/RGB.swift $M/DesignSystem/Palette.swift $M/Content/Tone.swift $M/Models/DomainEnums.swift $SHIM Tests/ContrastTests/main.swift
 # JourneyRoutePatternTests bayat: JourneyRoutePattern tipi artık kodda yok (bu işten önce de böyleydi).
 exit $FAIL

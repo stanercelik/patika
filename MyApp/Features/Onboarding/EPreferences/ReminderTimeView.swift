@@ -20,6 +20,12 @@ struct ReminderTimeView: View {
 
     @State private var time: Date
     @State private var isEditing = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
+
+    /// Sürükleme yardımcı teknoloji için bir cevap yolu değil: erişilebilirlik
+    /// boyutlarında ve VoiceOver açıkken kadran yerine tekerlek gelir.
+    private var usesDial: Bool { !dynamicTypeSize.isAccessibilitySize && !voiceOverEnabled }
 
     init(flow: OnboardingFlowViewModel) {
         self.flow = flow
@@ -37,7 +43,16 @@ struct ReminderTimeView: View {
             hint: flow.draft.timing?.reminderReason
         ) {
             VStack(alignment: .leading, spacing: 16) {
-                if isEditing {
+                if usesDial {
+                    // Öneri halkada içi boş bir işaretle görünür; onaylamak tek dokunuş,
+                    // sürüklemek isteğe bağlı.
+                    RadialClockDial(
+                        hour: components.hour ?? 22,
+                        minute: components.minute ?? 30,
+                        suggestionHour: flow.suggestedReminderHour,
+                        onChange: { time = Self.date(hour: $0, minute: $1) }
+                    )
+                } else if isEditing {
                     DatePicker(
                         String(localized: Copy.Onboarding.reminderPickerLabel),
                         selection: $time,
@@ -45,6 +60,8 @@ struct ReminderTimeView: View {
                     )
                     .datePickerStyle(.wheel)
                     .labelsHidden()
+                    // Kâğıtta koyu metin: uygulama koyu şemaya sabit, tekerlek açık şemayla çizilir.
+                    .environment(\.colorScheme, .light)
                     .frame(maxWidth: .infinity)
                     .transition(.opacity)
                 } else {
@@ -63,6 +80,10 @@ struct ReminderTimeView: View {
                 primaryAction: { commit() }
             )
         }
+    }
+
+    private var components: DateComponents {
+        Calendar.current.dateComponents([.hour, .minute], from: time)
     }
 
     private var formattedTime: String {

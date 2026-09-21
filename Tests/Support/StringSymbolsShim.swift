@@ -48,6 +48,12 @@ extension LocalizedStringResource {
     static var buttonStart: LocalizedStringResource { LocalizedStringResource("button.start") }
     static var buttonUnderstood: LocalizedStringResource { LocalizedStringResource("button.understood") }
     static var clinicalDisclaimer: LocalizedStringResource { LocalizedStringResource("clinicalDisclaimer") }
+    static var commitmentBody: LocalizedStringResource { LocalizedStringResource("commitment.body") }
+    static var commitmentHeadline: LocalizedStringResource { LocalizedStringResource("commitment.headline") }
+    static var commitmentLeadAvoidance: LocalizedStringResource { LocalizedStringResource("commitment.leadAvoidance") }
+    static var commitmentLeadProblem: LocalizedStringResource { LocalizedStringResource("commitment.leadProblem") }
+    static var commitmentSlide: LocalizedStringResource { LocalizedStringResource("commitment.slide") }
+    static var commitmentSlideAccessibility: LocalizedStringResource { LocalizedStringResource("commitment.slideAccessibility") }
     static var commonBack: LocalizedStringResource { LocalizedStringResource("common.back") }
     static func commonPercent(_ arg1: Int) -> LocalizedStringResource { LocalizedStringResource("common.percent") }
     static var commonProgress: LocalizedStringResource { LocalizedStringResource("common.progress") }
@@ -433,6 +439,12 @@ extension LocalizedStringResource {
     static var notificationMissedFewDays: LocalizedStringResource { LocalizedStringResource("notification.missedFewDays") }
     static var notificationMissedOneDay: LocalizedStringResource { LocalizedStringResource("notification.missedOneDay") }
     static var notificationPathWaiting: LocalizedStringResource { LocalizedStringResource("notification.pathWaiting") }
+    static var notificationPrimingAllow: LocalizedStringResource { LocalizedStringResource("notificationPriming.allow") }
+    static func notificationPrimingHeadline(_ arg1: String) -> LocalizedStringResource { LocalizedStringResource("notificationPriming.headline") }
+    static var notificationPrimingNoGuilt: LocalizedStringResource { LocalizedStringResource("notificationPriming.noGuilt") }
+    static var notificationPrimingPreviewAccessibility: LocalizedStringResource { LocalizedStringResource("notificationPriming.previewAccessibility") }
+    static var notificationPrimingPreviewApp: LocalizedStringResource { LocalizedStringResource("notificationPriming.previewApp") }
+    static var notificationPrimingPreviewTime: LocalizedStringResource { LocalizedStringResource("notificationPriming.previewTime") }
     static var onboardingAgeHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.ageHeadline") }
     static var onboardingAttemptsHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.attemptsHeadline") }
     static var onboardingAttemptsHint: LocalizedStringResource { LocalizedStringResource("onboarding.attemptsHint") }
@@ -489,6 +501,7 @@ extension LocalizedStringResource {
     static func onboardingMirroringSituation(_ arg1: String, _ arg2: String) -> LocalizedStringResource { LocalizedStringResource("onboarding.mirroringSituation") }
     static var onboardingMoodHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.moodHeadline") }
     static var onboardingMoodHint: LocalizedStringResource { LocalizedStringResource("onboarding.moodHint") }
+    static var onboardingNameFirstCTA: LocalizedStringResource { LocalizedStringResource("onboarding.nameFirstCTA") }
     static var onboardingNameHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.nameHeadline") }
     static var onboardingNameHint: LocalizedStringResource { LocalizedStringResource("onboarding.nameHint") }
     static var onboardingNamePlaceholder: LocalizedStringResource { LocalizedStringResource("onboarding.namePlaceholder") }
@@ -561,6 +574,17 @@ extension LocalizedStringResource {
     static var previousAttemptLabelTherapyOngoing: LocalizedStringResource { LocalizedStringResource("previousAttempt.label.therapyOngoing") }
     static var previousAttemptLabelTherapyPast: LocalizedStringResource { LocalizedStringResource("previousAttempt.label.therapyPast") }
     static var previousAttemptLabelYoutube: LocalizedStringResource { LocalizedStringResource("previousAttempt.label.youtube") }
+    static var priceDecision: LocalizedStringResource { LocalizedStringResource("price.decision") }
+    static var priceFree: LocalizedStringResource { LocalizedStringResource("price.free") }
+    static var priceHeadline: LocalizedStringResource { LocalizedStringResource("price.headline") }
+    static var priceOptionMonthly: LocalizedStringResource { LocalizedStringResource("price.option.monthly") }
+    static var priceOptionMonthlyPrice: LocalizedStringResource { LocalizedStringResource("price.option.monthly.price") }
+    static var priceOptionSingle: LocalizedStringResource { LocalizedStringResource("price.option.single") }
+    static var priceOptionSinglePrice: LocalizedStringResource { LocalizedStringResource("price.option.single.price") }
+    static var priceOptionYearly: LocalizedStringResource { LocalizedStringResource("price.option.yearly") }
+    static var priceOptionYearlyPrice: LocalizedStringResource { LocalizedStringResource("price.option.yearly.price") }
+    static var priceOptionsHeader: LocalizedStringResource { LocalizedStringResource("price.optionsHeader") }
+    static var pricePromise: LocalizedStringResource { LocalizedStringResource("price.promise") }
     static var problemCategoryCommonalityLineAnger: LocalizedStringResource { LocalizedStringResource("problemCategory.commonalityLine.anger") }
     static var problemCategoryCommonalityLineAnxiety: LocalizedStringResource { LocalizedStringResource("problemCategory.commonalityLine.anxiety") }
     static var problemCategoryCommonalityLineBurnout: LocalizedStringResource { LocalizedStringResource("problemCategory.commonalityLine.burnout") }
@@ -620,6 +644,9 @@ extension LocalizedStringResource {
     static var problemDurationMirrorPhraseFewWeeks: LocalizedStringResource { LocalizedStringResource("problemDuration.mirrorPhrase.fewWeeks") }
     static var problemDurationMirrorPhraseMonths: LocalizedStringResource { LocalizedStringResource("problemDuration.mirrorPhrase.months") }
     static var problemDurationMirrorPhraseYears: LocalizedStringResource { LocalizedStringResource("problemDuration.mirrorPhrase.years") }
+    static var problemDurationSliderAccessibility: LocalizedStringResource { LocalizedStringResource("problemDuration.slider.accessibility") }
+    static var problemDurationSliderHigh: LocalizedStringResource { LocalizedStringResource("problemDuration.slider.high") }
+    static var problemDurationSliderLow: LocalizedStringResource { LocalizedStringResource("problemDuration.slider.low") }
     static var problemTimingLabelBedtime: LocalizedStringResource { LocalizedStringResource("problemTiming.label.bedtime") }
     static var problemTimingLabelDaytime: LocalizedStringResource { LocalizedStringResource("problemTiming.label.daytime") }
     static var problemTimingLabelEvening: LocalizedStringResource { LocalizedStringResource("problemTiming.label.evening") }
@@ -635,6 +662,8 @@ extension LocalizedStringResource {
     static var problemTimingReminderReasonEvening: LocalizedStringResource { LocalizedStringResource("problemTiming.reminderReason.evening") }
     static var problemTimingReminderReasonMorning: LocalizedStringResource { LocalizedStringResource("problemTiming.reminderReason.morning") }
     static var problemTimingReminderReasonNoPattern: LocalizedStringResource { LocalizedStringResource("problemTiming.reminderReason.noPattern") }
+    static var reminderDialAccessibility: LocalizedStringResource { LocalizedStringResource("reminderDial.accessibility") }
+    static var reminderDialAccessibilityHint: LocalizedStringResource { LocalizedStringResource("reminderDial.accessibilityHint") }
     static var reminderFrequencyLabelDaily: LocalizedStringResource { LocalizedStringResource("reminderFrequency.label.daily") }
     static var reminderFrequencyLabelNever: LocalizedStringResource { LocalizedStringResource("reminderFrequency.label.never") }
     static var reminderFrequencyLabelOnlyWhenMissed: LocalizedStringResource { LocalizedStringResource("reminderFrequency.label.onlyWhenMissed") }
@@ -667,9 +696,6 @@ extension LocalizedStringResource {
     static var sessionFeedbackLabelCouldNotFocus: LocalizedStringResource { LocalizedStringResource("sessionFeedback.label.couldNotFocus") }
     static var sessionFeedbackLabelHelped: LocalizedStringResource { LocalizedStringResource("sessionFeedback.label.helped") }
     static var sessionFeedbackLabelStruggled: LocalizedStringResource { LocalizedStringResource("sessionFeedback.label.struggled") }
-    static var sessionLengthLabelDeep: LocalizedStringResource { LocalizedStringResource("sessionLength.label.deep") }
-    static var sessionLengthLabelShort: LocalizedStringResource { LocalizedStringResource("sessionLength.label.short") }
-    static var sessionLengthLabelStandard: LocalizedStringResource { LocalizedStringResource("sessionLength.label.standard") }
     static var supportBody: LocalizedStringResource { LocalizedStringResource("support.body") }
     static var supportCall: LocalizedStringResource { LocalizedStringResource("support.call") }
     static var supportClose: LocalizedStringResource { LocalizedStringResource("support.close") }
@@ -693,6 +719,8 @@ extension LocalizedStringResource {
     static var tonePreferenceLabelCalmAndShort: LocalizedStringResource { LocalizedStringResource("tonePreference.label.calmAndShort") }
     static var tonePreferenceLabelInfoOnly: LocalizedStringResource { LocalizedStringResource("tonePreference.label.infoOnly") }
     static var tonePreferenceLabelMoreGuiding: LocalizedStringResource { LocalizedStringResource("tonePreference.label.moreGuiding") }
-    static var voicePreferenceLabelFeminine: LocalizedStringResource { LocalizedStringResource("voicePreference.label.feminine") }
-    static var voicePreferenceLabelMasculine: LocalizedStringResource { LocalizedStringResource("voicePreference.label.masculine") }
+    static var tonePreferenceSampleCalmAndShort: LocalizedStringResource { LocalizedStringResource("tonePreference.sample.calmAndShort") }
+    static var tonePreferenceSampleInfoOnly: LocalizedStringResource { LocalizedStringResource("tonePreference.sample.infoOnly") }
+    static var tonePreferenceSampleMoreGuiding: LocalizedStringResource { LocalizedStringResource("tonePreference.sample.moreGuiding") }
+    static var tonePreferenceSampleLabel: LocalizedStringResource { LocalizedStringResource("tonePreference.sampleLabel") }
 }

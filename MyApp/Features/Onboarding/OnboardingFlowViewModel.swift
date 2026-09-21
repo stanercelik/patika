@@ -15,9 +15,9 @@ enum OnboardingStep: Equatable {
     // Kimlik — PRD'de yok, sonradan eklendi (ürün sahibi kararı, 2026-09-08).
     // A1'in **sonrasında**: kanca ekranı markanın ilk izlenimi, önüne form
     // koyulmaz. A2'nin **öncesinde**: hitap adı akışın geri kalanında kullanılıyor.
-    case identityName
-    case identityGender
-    case identityAge
+    // Üç ekran tek kartta birleşti (2026-09-21, docs/onboarding-redesign.md): cinsiyet ve
+    // yaş ürünün hiçbir davranışını değiştirmiyor, iki tam ekran bir istatistiğe gidiyordu.
+    case identity
     case a2Categories
     // B — Problem keşfi (6 ekran)
     case b1ProblemText
@@ -31,6 +31,8 @@ enum OnboardingStep: Equatable {
     case c2NotAlone
     case c3PathNotLibrary
     case c4HonestExpectation
+    /// Taahhüt anı (2026-09-21): kullanıcının kendi cümlesinin üstünde bir kaydırma.
+    case commitment
     // D — Baseline ölçüm (9 ekran: giriş + 8 soru). Atlanamayan tek bölüm.
     case d0MeasurementIntro
     /// D1–D8. `index` 1 tabanlı ve `OnboardingDraft.measurementItems`
@@ -48,7 +50,10 @@ enum OnboardingStep: Equatable {
     // G — İlk değer / aha momenti (2 ekran, PRD-Ek Onboarding §8)
     case g1FirstSession
     case g2SessionComplete
-    // H — hesap baglama. Bildirim izni sonraki uygulama diliminde eklenecek.
+    /// F4 — fiyat şeffaflığı, G2'den sonra (2026-09-21). Ödeme istemez, yalnızca söyler.
+    case price
+    // H — bildirim ön hazırlığı ve hesap bağlama.
+    case h2Priming
     case h1Account
     // Kriz sinyali: akış buraya düşer ve devam etmez.
     case crisis
@@ -64,15 +69,14 @@ enum OnboardingStep: Equatable {
         // Soru bölümü kimlik ekranlarıyla birlikte 10 ekran: iz onların da
         // sorulduğunu gösteriyor, yoksa üç ekran boyunca hiç ilerlemiyor gibi
         // görünüyordu.
-        case .identityName: 1.0 / 10.0
-        case .identityGender: 2.0 / 10.0
-        case .identityAge: 3.0 / 10.0
-        case .a2Categories: 4.0 / 10.0
-        case .b1ProblemText: 5.0 / 10.0
-        case .b2Duration: 6.0 / 10.0
-        case .b3Timing: 7.0 / 10.0
-        case .b4Avoidance: 8.0 / 10.0
-        case .b5PreviousAttempts: 9.0 / 10.0
+        // Kimlik tek ekran olunca soru bölümü 8 ekran: kimlik + A2 + B1–B6.
+        case .identity: 1.0 / 8.0
+        case .a2Categories: 2.0 / 8.0
+        case .b1ProblemText: 3.0 / 8.0
+        case .b2Duration: 4.0 / 8.0
+        case .b3Timing: 5.0 / 8.0
+        case .b4Avoidance: 6.0 / 8.0
+        case .b5PreviousAttempts: 7.0 / 8.0
         case .b6CurrentMood: 1.0
         // D kendi ölçeğiyle yeniden başlar: soru bölümünün izi B6'da dolmuştu,
         // ölçüm ayrı bir bölüm ve kendi uzunluğu var. Giriş ekranında (D0) soru
@@ -83,8 +87,8 @@ enum OnboardingStep: Equatable {
         case .e1Reminder: 1.0 / 2.0
         case .e3Tone: 1.0
         case .a1Welcome, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
-             .c4HonestExpectation, .d0MeasurementIntro, .f1Generation, .f2Roadmap,
-             .g1FirstSession, .g2SessionComplete, .h1Account, .crisis: nil
+             .c4HonestExpectation, .commitment, .d0MeasurementIntro, .f1Generation, .f2Roadmap,
+             .g1FirstSession, .g2SessionComplete, .price, .h2Priming, .h1Account, .crisis: nil
         }
     }
 
@@ -96,10 +100,42 @@ enum OnboardingStep: Equatable {
     /// gerekirdi, ikisi de kullanıcıya açıklanamaz.
     var canGoBack: Bool {
         switch self {
+        // Fiyat ve H2'de geri yok: G2'ye dönmek, bitmiş oturumun özetini yeniden açardı.
         case .a1Welcome, .f1Generation, .f2Roadmap, .g1FirstSession, .g2SessionComplete,
-             .h1Account, .crisis: false
+             .price, .h2Priming, .h1Account, .crisis: false
         default: true
         }
+    }
+
+    /// Adımın malzemesi (docs/onboarding-redesign.md, Bölüm 2.2). Görsel politika
+    /// `backgroundSafeY` ve `breathAmplitude` gibi burada, sıradaki enum'da durur;
+    /// kabuk yalnızca okur ve 20 çağrı noktası değişmez.
+    var surfaceStyle: OnboardingSurfaceStyle {
+        switch self {
+        // Zemin katmanında yalnızca A2, B6 ve D1–D8 kalır: onların cevabı arka planın kendisi
+        // (A2 paleti, B6 ruh hâli) ya da ölçüm aracı.
+        case .identity, .b1ProblemText, .b2Duration, .b3Timing, .b4Avoidance, .b5PreviousAttempts,
+             .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation, .commitment,
+             .d0MeasurementIntro, .e1Reminder, .e3Tone, .price, .h2Priming, .h1Account: .paper
+        default: .ground
+        }
+    }
+
+    /// Tam ekran sahne zemini olan adımlar: opak guaj mesh'in yerine geçer. Görsel yoksa
+    /// (henüz üretilmedi ya da `-patika-debug-no-art`) mesh ve mevcut yerleşim kalır.
+    var sceneArtwork: OnboardingArtwork? {
+        switch self {
+        case .a1Welcome: .threshold
+        default: nil
+        }
+    }
+
+    /// Metin bandının karartma gücü. Scrim koyu zeminde açık metni okunur tutmak
+    /// için vardı; kâğıt kartın altında görünmez ve tek etkisi mesh'i kısmak olur —
+    /// A2 ve B6'nın paleti göstermek için ihtiyaç duyduğu şeyin tam tersi
+    /// (docs/onboarding-redesign.md, Bölüm 2.4).
+    var backgroundScrimStrength: Float {
+        surfaceStyle == .paper ? 0.06 : 0.45
     }
 
     /// Metin bandının dikey merkezi — ekran bazlı değerler Görsel Sistem eki §7'de.
@@ -162,6 +198,15 @@ final class OnboardingFlowViewModel {
     /// F1'de başlatılan ses üretimi. Görev tutuluyor ki ekran değişince iptal
     /// edilebilsin ve iki kez başlatılmasın.
     private var audioPreparation: Task<Void, Never>?
+    /// F1 ve G1 aynı ses isteği için **aynı** anahtarı kullanır: sunucu idempotency'yi
+    /// (kullanıcı, anahtar) çiftine göre tutuyor, yeni bir anahtar ikinci bir iş ve
+    /// ikinci bir TTS faturası demek.
+    private let firstStepAudioKey = UUID()
+    /// Bir ses isteği sunucuya gerçekten gönderildi mi (yanıt ne olursa olsun)?
+    private var didRequestFirstStepAudio = false
+    /// Sağlayıcı sunucuda yok ya da seslendirilecek metin yok (503/422): tekrar
+    /// denemek anlamsız, G1 sessiz sürüme düşer.
+    private(set) var isFirstStepAudioUnavailable = false
     /// 1. adımın sunucudaki satır kimliği — G1 sesi bununla arıyor, G2 de
     /// tamamlanmayı bununla yazıyor.
     private(set) var firstStepId: UUID?
@@ -203,7 +248,7 @@ final class OnboardingFlowViewModel {
             return false
         }
         services.observability.capture(.onboardingStarted)
-        advance(to: .identityName)
+        advance(to: .identity)
         return true
     }
 
@@ -212,8 +257,11 @@ final class OnboardingFlowViewModel {
     /// Ad da serbest metin — "kullanıcının yazdığı **her** serbest metin
     /// sınıflandırıcıdan geçer" kuralının istisnası yok. Ad alanına kriz sinyali
     /// yazılması beklenmiyor ama kuralın istisnası olduğu an kural değildir.
-    func commitName(_ text: String) {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    ///
+    /// Ad boşsa isimsiz devam eder: isimsiz sürüm eksik bir sürüm değil. Cinsiyet ve
+    /// yaş cevapsızsa `undisclosed`.
+    func commitIdentity(name: String, gender: Gender, ageRange: AgeRange) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if CrisisClassifier.evaluate(trimmed).hasSignal {
             flagCrisis()
@@ -221,23 +269,8 @@ final class OnboardingFlowViewModel {
         }
 
         draft.name = trimmed.isEmpty ? nil : trimmed
-        advance(to: .identityGender)
-    }
-
-    /// "İsim vermek istemiyorum". Akışın hiçbir yeri kapanmaz; metinler
-    /// isimsiz sürümlerine düşer.
-    func skipName() {
-        draft.name = nil
-        advance(to: .identityGender)
-    }
-
-    func commitGender(_ gender: Gender) {
         draft.gender = gender
-        advance(to: .identityAge)
-    }
-
-    func commitAgeRange(_ range: AgeRange) {
-        draft.ageRange = range
+        draft.ageRange = ageRange
         advance(to: .a2Categories)
     }
 
@@ -359,6 +392,11 @@ final class OnboardingFlowViewModel {
     }
 
     func finishHonestExpectation() {
+        advance(to: .commitment)
+    }
+
+    /// Söz saklanmaz ve kimseye gitmez: karşılığı bir ürün davranışı değil, bir an.
+    func finishCommitment() {
         advance(to: .d0MeasurementIntro)
     }
 
@@ -480,15 +518,38 @@ final class OnboardingFlowViewModel {
                 )
                 firstStepId = step.id
                 guard step.audioStatus == .pending else { return }
-                _ = try await services.backend.requestAudioWithRetry(
-                    pathStepId: step.id,
-                    accessToken: token,
-                    idempotencyKey: UUID()
-                )
+                try await requestFirstStepAudio(stepId: step.id, accessToken: token)
             } catch {
                 services.observability.capture(.audioGeneration)
             }
         }
+    }
+
+    /// G1 adımı hâlâ `pending` görüyorsa çağrılır: F1'in isteği ya sunucuya
+    /// ulaşmadı ya da başarısız oldu.
+    ///
+    /// Önce F1'in görevini bekler — isteği uçuştayken ikinci bir istek aynı iş için
+    /// ikinci bir kuyruk mesajı demek (`enqueue_audio_job`), yani iki işçinin aynı
+    /// slotları aynı anda seslendirmesi. F1 isteği yaptıysa burada hiçbir şey yapılmaz.
+    func requestFirstStepAudioIfStillPending(stepId: UUID) async {
+        await audioPreparation?.value
+        guard !didRequestFirstStepAudio else { return }
+        do {
+            let token = try await services.auth.validAccessToken()
+            try await requestFirstStepAudio(stepId: stepId, accessToken: token)
+        } catch {
+            services.observability.capture(.audioGeneration)
+        }
+    }
+
+    private func requestFirstStepAudio(stepId: UUID, accessToken: String) async throws {
+        didRequestFirstStepAudio = true
+        let outcome = try await services.backend.requestAudioWithRetry(
+            pathStepId: stepId,
+            accessToken: accessToken,
+            idempotencyKey: firstStepAudioKey
+        )
+        if case .unavailable = outcome { isFirstStepAudioUnavailable = true }
     }
 
     func generatePath(idempotencyKey: UUID) async throws -> PathGenerationResult {
@@ -577,8 +638,29 @@ final class OnboardingFlowViewModel {
         sessionVoiceEnergy = min(max(value, 0), 1)
     }
 
-    /// G2'nin "Devam"ı.
+    /// G2'nin "Devam"ı. Sıra: fiyat şeffaflığı, bildirim ön hazırlığı, hesap.
     func finishSessionSummary() {
+        advance(to: .price)
+    }
+
+    func finishPrice() {
+        advance(to: .h2Priming)
+    }
+
+    /// H2. İzin yalnızca "İzin ver" ile ve ekranda ne alınacağı görüldükten sonra istenir
+    /// (`ReminderScheduler.apply` sistem penceresini o an açar). Reddetmek ya da izin
+    /// verilmemesi akışı durdurmaz: hatırlatma kapalı kalır, Ben sekmesi ayarlardan açmayı
+    /// gösterir. Kayıt önce kurulur ki hatırlatma satırı E1'in saatini taşısın.
+    func finishReminderPriming(enable: Bool) async {
+        if enable {
+            services.profile.recordOnboarding(draft)
+            if var reminder = services.profile.record?.reminder {
+                reminder.isEnabled = true
+                let outcome = await ReminderScheduler.apply(reminder)
+                if outcome == .denied { reminder.isEnabled = false }
+                services.profile.setReminder(reminder)
+            }
+        }
         advance(to: .h1Account)
     }
 

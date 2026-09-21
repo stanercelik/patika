@@ -2,6 +2,75 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 21 Eylül 2026 — onboarding yeniden tasarımı (orman dili, ifade eden girdiler, yeni akış)
+
+Plan ve gerekçeler: `docs/onboarding-redesign.md`. Ürün sahibi kapsamı genişletti:
+ekranlar birleştirilebilir/kesilebilir/eklenebilir, onboarding'de fiyat şeffaflığı ve
+gamification serbest. İki sınır kalır: **uydurma yorum ya da kullanıcı sayısı yok**,
+**kriz yolu bozulmaz**. Baseline ölçümü 8 maddesiyle kalır.
+
+- **Üç katman:** zemin (tam güçte `BreathingMeshBackground`) → kâğıt (krem `paperSurface()`,
+  yalnızca okuma/cevap yüzeyi) → sahne (tam ekran guaj). Onboarding'de **A2 ve B6 zemin
+  katmanında kalır**: A2 paleti, B6 ruh hâlini arka plana yazar; önlerine kart koymak
+  neden-sonucu koparır. Me (0,16) ve Keşfet (0,58) mesh'i dekor olarak kısıyordu, burada
+  arka plan içeriktir; o kompozisyonlar miras alınmaz.
+- **`CalmSurface` değişmez.** `PathSessionView` (oturumun ortası) onun tüketicisi; yerinde
+  yeniden biçimlendirmek çalışan meditasyonun ortasına krem kart koyar. Kâğıt ikizleri
+  eklenir, `OnboardingSurfaceStyle` ortam değeri varsayılanı `.ground`.
+- **Ses yarışı düzeltildi (2026-09-21).** F1 sesi "ateşle ve unut" istiyor; G1'e istek
+  ulaşmadan gelen kullanıcı adımı `pending` görüyordu ve eski döngü `pending`i bitiş
+  sayıp kalıcı olarak vazgeçiyordu (oturum sonsuza dek sessiz). `AudioReadiness.wait`
+  `pending`i bekler, hâlâ `pending` ise isteği **bir kez** kendisi atar. F1 ve G1 aynı
+  idempotency anahtarını paylaşır (sunucu (kullanıcı, anahtar) çiftine bakıyor; yeni anahtar
+  ikinci bir TTS faturası) ve G1 istek atmadan önce F1 görevini bekler (uçuştaki isteğe
+  ikinci kuyruk mesajı iki işçiyi aynı slotlara sokardı). `failed` bitiştir; 503/422
+  (sağlayıcı yok) beklemeyi keser. `live-smoke-audio.py` sesi yoklamadan **önce**
+  istediği için bu yarışı hiç görmüyordu; regresyon testi `Tests/AudioReadinessTests`.
+- **Ölçüm aracı zamanlar arası aynı kalır.** `PathMeasurementQuestionView` gün 7/14/son
+  ölçümünü aynı ViewModel'le toplar; D ekranı yalnızca onboarding'de değişirse baseline
+  ile takip farklı araçla toplanır ve gün 7 "iyileşmesi"nin bir kısmı araç farkı olur.
+  D ekranları iki yerde birlikte, ortak bir cevap görünümüyle değişir.
+- **Uygulama durumu (2026-09-21, akşam).** Kodda bitti: Faz 1-6 ve 8-10 (aşağıdaki sapmalarla).
+  Kâğıt katmanı: kimlik (3 ekran tek kartta), B1-B5, C1-C4, taahhüt, D0, E1, E3, fiyat, H2.
+  Zeminde kalan: A2, B6, D1-D8. Yeni: `TickRuler`, `DualStatementSlider` (B2 ve yaş),
+  `CommitmentSlide`, `RadialClockDial` (E1), `MeasurementAnswerView` (onboarding D ve yol içi
+  ölçümün **tek** cevap alanı), `MoodScale` sürüklemesi (B6 arka planı parmağın altında
+  boyar), F4 fiyat şeffaflığı (G2 sonrası), H2 bildirim ön hazırlığı (`ReminderScheduler`).
+  Akış: A1, kimlik, A2, B, C, **taahhüt**, D, E, F, G, **fiyat, H2**, H1. DEBUG: bütün adımlar
+  `OnboardingGallery` önizlemesinde; `-patika-debug-step identity|commit|price|h2|e3|b2`.
+- **Planla ayrıldığım yerler ve nedenleri.**
+  1. **D2-D8 cetvele çevrilmedi.** Kova etiketleri cümle uzunluğunda ve aracın parçası; cetvel
+     yalnızca seçili etiketi gösterirdi, kullanıcı cevaplamadan önce seçenek metnini göremezdi.
+     Bu baseline ile gün-7 arasındaki tek karşılaştırmayı değiştirirdi. Yalnızca cevap alanı
+     iki çağrı yerinde birleşti. `IntensityScale` (D1) dokunulmadı.
+  2. **E3 kaydırıcı değil.** `TonePreference` sıralı değil (kısa/sakin, yönlendirici, yalnızca
+     bilgi); kaydırıcı olmayan bir sırayı ima eder. Plandaki asıl niyet, her tonun gerçek örnek
+     cümlesi, `ChoiceRow(detail:)` ile yapıldı.
+  3. **B3 kadran değil.** `ProblemTiming` numaralandırılmış bir küme; kadranın açısını
+     kovaya eşlemek sunucu sözleşmesini riske atar. Kadran yalnızca E1'de. Erişilebilirlik
+     boyutlarında ve VoiceOver açıkken tekerlek (açık şemayla) kullanılır.
+  4. **A1 sahnesi geldi, yol animasyonu silindi.** Görsel `onboarding-threshold` ile tam ekran
+     sahne çizilir (kabuk zemini + alt karartma). Sahne yoksa (Reduce Transparency, AX boyutu,
+     `-patika-debug-no-art`) çıplak mesh, başlık ve düğme kalır. `PathDrawAnimation` planın
+     dediği gibi silindi; "marka kimliği yol animasyonu" notu (A1 satırları) geçersiz.
+  5. **Fiyat ekranındaki rakamlar PRD §12.1'den, katalogda sabit metin.** Paywall **RevenueCat** ile yapılacak
+     (ürün sahibi kararı, 2026-09-22; Stack kararındaki "StoreKit 2 birincil" bununla geçersiz). Yayından önce RevenueCat
+     offering'inden okunmalı ve birincil pazar kararı (PRD §18, açık soru 2) verilmeli: €12.99
+     Türkiye için yüksek. Taahhüdün cevabı saklanmıyor ve sunucuya gitmiyor.
+  6. **Kontrol edilmedi:** sürükleme jestleri (cetvel, kaydırıcı, kadran, ruh hâli) derlendi ve
+     statik çizildi, parmakla sürülmedi (test hedefi ve dokunma enjeksiyonu yok). Görsel
+     tabanlı kontrast ölçümü (zemin ekranları) yok; `Tests/ContrastTests` yalnızca değer
+     düzeyinde. Yeni 10 guaj parçası üretildi ve projeye alındı (2026-09-22, kaynaklar `assets/illustrations/onboarding/`, uygulamaya içerik sınırına kırpılmış 1200 px kopyalar; F2 görseli hâlâ canlı mesh üstünde, sahne zemini yok).
+- **Tuzak: bir yaprak bileşen mürekkebi kendi çağıranından okuyamaz.** Kâğıt kartın içindeki
+  bir metin `@Environment(\.patikaInk)`i **çağıran ekranda** okursa `.light` görür (ekran
+  kartın dışında durur) ve kâğıtta açık renkle görünmez kalır. Ekranlarda `.inkStyle(.primary)`
+  kullanılır (değiştirici değeri kendi hiyerarşisinden okur).
+- **Tuzak: Xcode `Localizable.xcstrings`i kirletir.** Derleme, kaynaktaki düz `Text("...")`
+  sabitlerinden `extractionState`sız kayıtlar ekleyip dosyayı yeniden biçimler; bu hem
+  `generate-string-symbol-shim.py`yi çökertir hem katalog testini kırar. `xcodebuild`e
+  `SWIFT_EMIT_LOC_STRINGS=NO` verilirse dosyaya dokunmaz. Bilinen kaynaklar: `JourneyMap.swift`
+  (Türkçe düz metin), yaş aralığı ve `MeasurementLibrary` etiketleri.
+
 ## 21 Eylül 2026 — yalnızca İngilizce MVP, tek ses, tek metin kataloğu, oturum tempo düzeltmesi
 
 Ürün sahibi MVP'yi **yalnızca İngilizce ve yalnızca kadın sesiyle** çıkarmaya karar verdi;
@@ -293,7 +362,9 @@ Bu bir düzeltmedir (ürün sahibi kararı, 2026-09-08): önceden her ekran kend
 
 ### C bölümünde cümleler tek tek belirir
 
-C ekranlarındaki her paragraf `.sequentialReveal(index)` ile sırayla süzülür (400 ms giriş + adım başına 1,5 sn, her biri 700 ms'de solarak ve 8 pt aşağıdan). Aralık 1 sn'den 1,5 sn'ye çıkarıldı (ürün sahibi kararı, 2026-09-08): bir saniye önceki cümleyi bitirmeye yetmiyor, sonraki cümle okuma sürerken belirip gözü aşağı çekiyordu. Beklemek zorunlu değil — CTA baştan basılabilir. Gerekçe (ürün sahibi kararı, 2026-09-08): aynı anda basılan 3–4 cümle "duvar" gibi görünüyor ve göz nereden başlayacağını bilemiyor; bir saniyelik ritim her cümleye kısa bir okuma payı bırakıyor. Reduce Motion'da kayma yok, yalnızca solma.
+> **Geri alındı (2026-09-21):** C ekranları artık cümle cümle beklemiyor; ürün sahibi bekleyişi uygulamanın yavaş olması gibi okudu. Kâğıt ekranlar `statementReveal` ile `woodlandReveal` kullanır (0,045 sn adım, en fazla 5 adım; sayısı dinamik olan C1 paragrafları için tavan şart). `sequentialReveal` ve 1,5 sn yalnızca zemin malzemesinde, yani `PathSessionView`da kalır (D0 kâğıda alındı). Aşağıdaki paragraf o tarihe kadarki gerekçeyi taşır.
+
+C ekranlarındaki her paragraf `.sequentialReveal(index)` ile sırayla süzülürdü (400 ms giriş + adım başına 1,5 sn, her biri 700 ms'de solarak ve 8 pt aşağıdan). Aralık 1 sn'den 1,5 sn'ye çıkarıldı (ürün sahibi kararı, 2026-09-08): bir saniye önceki cümleyi bitirmeye yetmiyor, sonraki cümle okuma sürerken belirip gözü aşağı çekiyordu. Beklemek zorunlu değil — CTA baştan basılabilir. Gerekçe (ürün sahibi kararı, 2026-09-08): aynı anda basılan 3–4 cümle "duvar" gibi görünüyor ve göz nereden başlayacağını bilemiyor; bir saniyelik ritim her cümleye kısa bir okuma payı bırakıyor. Reduce Motion'da kayma yok, yalnızca solma.
 
 Gecikmeler `Theme.Motion.revealDelay(_:)` üzerinden hesaplanır — sıraya dahil olmayan ama sırayı bekleyen öğeler (C4 grafiği) de aynı fonksiyonu kullanır, böylece iki hareket yarışmaz. C3'ün iki sütunu istisnadır: bir satırın iki yanı **aynı** indeksi alır, çünkü karşılaştırma çiftin birlikte görülmesiyle kuruluyor.
 
@@ -404,7 +475,7 @@ G1 artık `NotYetBuiltView` değil. Akış: F1'de path üretilir ve **1. adımı
 
 > **Simülatör tuzağı:** `simctl uninstall` sonrası `cfprefsd` eski `UserDefaults` değerlerini yeni kuruluma servis etmeye devam ediyor; onboarding tamamlanmış görünüp uygulama doğrudan `RootView` açılıyor. Gerçekten sıfırdan denemek için `xcrun simctl erase <udid>` gerekiyor.
 
-**Onboarding durumu:** A bölümü (A1 kanca + A2 kategori seçimi), **B bölümü (B1–B6 problem keşfi)**, **C bölümü (C1–C4 yansıtma)**, **D bölümü (D0 giriş + D1–D8 baseline ölçüm)** **E bölümü (E1–E3 tercihler)** ve **F bölümü (F1 üretim + F2 yol haritası)** çalışıyor; canlı palet geçişi, ruh hâline göre renk kayması, kategoriye göre placeholder rotasyonu, B5'in koşullu terapi notu, C3'ün koşullu atlanması, cümle cümle beliren C metinleri, C3'ün iki sütunu, C4'ün kompakt grafiği, D bölümünün sekiz sorusu, isimli hitap, E1'in önerilen saati, F1'in işaretlenen izi ve F2'nin yol haritası simülatörde doğrulandı. A2'de 10 seçeneğin tamamı varsayılan metin boyutunda kaydırmasız görünür; `ScrollView` yalnızca büyük Dynamic Type boyutlarında devreye girer. A1'de kelime markası yok — marka kimliği yol animasyonunun kendisi olacak. H bölümünün kalanı (H2, H3) yazılmadı; `OnboardingStep.g1FirstSession` ve `g2SessionComplete` çalışıyor (yukarıya bak); H bölümünde yalnızca H1 var, H2 (bildirim ön hazırlığı) ve H3 yazılmadı. **F4 (fiyat şeffaflığı) yersiz kaldı** — aşağıya bak.
+**Onboarding durumu:** A bölümü (A1 kanca + A2 kategori seçimi), **B bölümü (B1–B6 problem keşfi)**, **C bölümü (C1–C4 yansıtma)**, **D bölümü (D0 giriş + D1–D8 baseline ölçüm)** **E bölümü (E1–E3 tercihler)** ve **F bölümü (F1 üretim + F2 yol haritası)** çalışıyor; canlı palet geçişi, ruh hâline göre renk kayması, kategoriye göre placeholder rotasyonu, B5'in koşullu terapi notu, C3'ün koşullu atlanması, cümle cümle beliren C metinleri, C3'ün iki sütunu, C4'ün kompakt grafiği, D bölümünün sekiz sorusu, isimli hitap, E1'in önerilen saati, F1'in işaretlenen izi ve F2'nin yol haritası simülatörde doğrulandı. A2'de 10 seçeneğin tamamı varsayılan metin boyutunda kaydırmasız görünür; `ScrollView` yalnızca büyük Dynamic Type boyutlarında devreye girer. A1'de kelime markası yok; açılış manzarası (`onboarding-threshold`) markanın ilk izlenimi (yol animasyonu 2026-09-22'de silindi). H bölümünün kalanı (H2, H3) yazılmadı; `OnboardingStep.g1FirstSession` ve `g2SessionComplete` çalışıyor (yukarıya bak); H bölümünde yalnızca H1 var, H2 (bildirim ön hazırlığı) ve H3 yazılmadı. **F4 (fiyat şeffaflığı) yersiz kaldı** — aşağıya bak.
 
 B bölümünün ürün kuralları enum'lara gömüldü: `ProblemTiming.suggestedReminderHour` (B3 → E1 varsayılan saati), `PreviousAttempt.showsLibraryComparison` (C3'ün koşulu), `PreviousAttempt.requiresTherapyAwareTone` (terapi tonu), `PreviousAttempt.isExclusive` ("Hiçbir şey" çelişkisi), `MoodLevel.suggestsGentlerStart`. Ekranlar bu kararları `if` ile hesaplamaz.
 
@@ -760,7 +831,7 @@ Metinlerin tamamı `String Catalog` + sunucu override ile remote config'ten yön
 
 ## Stack kararları (PRD §13)
 
-iOS-only SwiftUI native (cross-platform **bilinçli olarak reddedildi** — iş mantığı sunucuda, paylaşılmayan kısım ses motoru + shader, yani RN'in en zayıf yeri) · `AVAudioEngine` · `MeshGradient` + Metal · Rive (opsiyonel; SwiftUI `Path` + `trim` alternatifi var) · SwiftData (yerel) · Node/Python + Postgres (backend) · Sign in with Apple birincil · **StoreKit 2** (RevenueCat opsiyonel; tek platformda ana faydası yok) · PostHog/Amplitude.
+iOS-only SwiftUI native (cross-platform **bilinçli olarak reddedildi** — iş mantığı sunucuda, paylaşılmayan kısım ses motoru + shader, yani RN'in en zayıf yeri) · `AVAudioEngine` · `MeshGradient` + Metal · Rive (opsiyonel; SwiftUI `Path` + `trim` alternatifi var) · SwiftData (yerel) · Node/Python + Postgres (backend) · Sign in with Apple birincil · **RevenueCat** (ürün sahibi kararı, 2026-09-22; PRD'nin "StoreKit 2, RevenueCat opsiyonel" satırını geçersiz kılar; paywall henüz yazılmadı) · PostHog/Amplitude.
 
 Android Faz 4'e ertelendi ve üç koşullu bir karar kapısına bağlandı (D30 ≥%25, LTV > CAC, ayrı kaynak). Kod yazarken backend/blok kütüphanesi/ölçüm mantığı yeniden kullanılabilir kalmalı.
 

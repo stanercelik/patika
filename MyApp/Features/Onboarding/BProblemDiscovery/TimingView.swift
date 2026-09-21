@@ -21,7 +21,10 @@ struct TimingView: View {
             headline: Copy.Onboarding.timingHeadline,
             hint: Copy.Onboarding.timingHint
         ) {
-            ChoiceList(viewModel: viewModel)
+            VStack(spacing: 18) {
+                OnboardingArtworkView(artwork: .timeOfDay, height: 120)
+                ChoiceList(viewModel: viewModel)
+            }
         } footer: {
             OnboardingQuestionFooter(
                 primaryTitle: Copy.Button.next,

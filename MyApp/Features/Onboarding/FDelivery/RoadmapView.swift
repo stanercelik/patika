@@ -74,7 +74,12 @@ struct RoadmapView: View {
                     // Görsel başlıkla kartın arasında, ikisinden de belirgin bir
                     // boşlukla ayrılmış: haritanın kendisi bir liste ve listeye
                     // yapışık bir görsel onu satır gibi gösterirdi.
-                    OnboardingIllustration(name: PatikaArtwork.trail.rawValue, height: 208, accessibilityHeight: 120)
+                    OnboardingIllustration(
+                        // Yolun hazır parçası gelene kadar mevcut iz görseli.
+                        name: OnboardingArtwork.pathReady.isAvailable ? OnboardingArtwork.pathReady.rawValue : PatikaArtwork.trail.rawValue,
+                        height: 208,
+                        accessibilityHeight: 120
+                    )
                         .frame(maxWidth: .infinity)
                         .padding(.top, 20)
                         .padding(.bottom, 22)

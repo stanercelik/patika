@@ -1,6 +1,12 @@
 import SwiftUI
 
 /// B2 — "Bu ne kadar zamandır böyle?" (PRD-Ek Onboarding §3.2)
+///
+/// Süre sıralı bir cevap: dört durağı olan bir cetvel. `DualStatementSlider` sayı
+/// değil kova üretir (`ProblemDuration`), sunucu sözleşmesi aynı kalır.
+///
+/// "Emin değilim" bir süre değil, dürüst bir cevap: cetvelin durağı olamaz, altında
+/// ayrı bir satır olarak durur ve seçilince cetvelin iğnesi kalkar.
 struct DurationView: View {
     @State private var viewModel: SingleChoiceStepViewModel<ProblemDuration>
 
@@ -13,9 +19,26 @@ struct DurationView: View {
         )
     }
 
+    private var ordered: [ProblemDuration] { ProblemDuration.allCases.filter { $0 != .unsure } }
+
     var body: some View {
         OnboardingQuestionLayout(headline: Copy.Onboarding.durationHeadline) {
-            ChoiceList(viewModel: viewModel)
+            VStack(spacing: 22) {
+                DualStatementSlider(
+                    options: ordered,
+                    selection: viewModel.selection.flatMap { ordered.contains($0) ? $0 : nil },
+                    onSelect: { viewModel.select($0) },
+                    lowStatement: .problemDurationSliderLow,
+                    highStatement: .problemDurationSliderHigh,
+                    accessibilityLabel: .problemDurationSliderAccessibility
+                )
+                ChoiceRow(
+                    label: ProblemDuration.unsure.label,
+                    isSelected: viewModel.isSelected(.unsure)
+                ) {
+                    viewModel.select(.unsure)
+                }
+            }
         } footer: {
             OnboardingQuestionFooter(
                 primaryTitle: Copy.Button.next,
@@ -27,7 +50,7 @@ struct DurationView: View {
     }
 }
 
-/// Tek seçimlik cevap listesi. Üç ekran (B2, B3 ve sonra E bölümü) aynı yerleşimi
+/// Tek seçimlik cevap listesi. Üç ekran (B3 ve E bölümü) aynı yerleşimi
 /// paylaşıyor; ayrı ayrı yazmak üçünün zamanla birbirinden ayrışması demek.
 struct ChoiceList<Option: OnboardingChoice>: View {
     let viewModel: SingleChoiceStepViewModel<Option>

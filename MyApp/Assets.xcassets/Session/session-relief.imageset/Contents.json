@@ -1,17 +1,9 @@
 {
   "images" : [
     {
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "illustration-c2-common.png",
+      "filename" : "session-relief.png",
       "idiom" : "universal",
       "scale" : "2x"
-    },
-    {
-      "idiom" : "universal",
-      "scale" : "3x"
     }
   ],
   "info" : {
@@ -19,6 +11,7 @@
     "version" : 1
   },
   "properties" : {
+    "preserves-vector-representation" : false,
     "template-rendering-intent" : "original"
   }
 }

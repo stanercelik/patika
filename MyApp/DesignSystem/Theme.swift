@@ -176,9 +176,16 @@ enum Theme {
         ///
         /// 1.0'dan 1.5'e çıkarıldı (ürün sahibi kararı, 2026-09-08): bir saniye,
         /// önceki cümleyi okuyup bitirmeye yetmiyordu — sonraki cümle okuma
-        /// devam ederken beliriyor ve gözü aşağı çekiyordu. Ritmi yavaşlatmak bu
-        /// ekranlarda maliyetsiz, çünkü CTA baştan beri basılabilir durumda:
-        /// beklemek isteyen bekliyor, istemeyen geçiyor.
+        /// devam ederken beliriyor ve gözü aşağı çekiyordu.
+        ///
+        /// **2026-09-21: C bölümü artık bunu kullanmıyor.** Ürün sahibi kararı
+        /// geri aldı: cümle cümle bekleme uygulamanın yavaş olduğu hissini
+        /// veriyordu. Kâğıt ekranlar `woodlandReveal` (0,045 sn adım, en fazla 5
+        /// adım) kullanır (`statementReveal`). Bu değer yalnızca zemin
+        /// malzemesinde kalan tek tüketici için duruyor: `PathSessionView`
+        /// (oturumun ortası, bilerek dokunulmadı; D0 kâğıda alındı). O da geçerse
+        /// `revealStagger` ve `sequentialReveal` silinmeli; ikisi de silinene kadar
+        /// bu değeri geri yükseltmek C'yi etkilemez.
         static let revealStagger: Double = 1.50
         /// Her cümlenin kendi solması. Kısa olursa "belirdi" okunmaz, uzun
         /// olursa takılmış gibi durur.
@@ -330,7 +337,9 @@ private struct SequentialReveal: ViewModifier {
 }
 
 extension View {
-    /// C bölümünün cümle cümle belirmesi. `index` sıradaki yerdir, 0'dan başlar.
+    /// Cümle cümle belirme, okuma temposunda (1,5 sn adım). **C bölümü artık
+    /// kullanmaz** (2026-09-21, bkz. `revealStagger`); C ekranları
+    /// `statementReveal` ile malzemeyi izler. `index` sıradaki yerdir, 0'dan başlar.
     func sequentialReveal(_ index: Int) -> some View {
         modifier(SequentialReveal(index: index, stagger: nil))
     }
