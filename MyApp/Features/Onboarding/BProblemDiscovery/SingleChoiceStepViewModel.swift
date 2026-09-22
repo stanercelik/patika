@@ -16,6 +16,7 @@ extension Gender: OnboardingChoice {}
 extension AgeRange: OnboardingChoice {}
 extension ProblemDuration: OnboardingChoice {}
 extension ProblemTiming: OnboardingChoice {}
+extension PreviousAttempt: OnboardingChoice {}
 extension MoodLevel: OnboardingChoice {}
 
 /// B2, B3 ve B6 gibi "birini seç" ekranlarının ortak ViewModel'i.

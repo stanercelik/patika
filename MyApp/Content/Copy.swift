@@ -192,6 +192,8 @@ enum Copy {
 
         static let attemptsHeadline: LocalizedStringResource = .onboardingAttemptsHeadline
         static let attemptsHint: LocalizedStringResource = .onboardingAttemptsHint
+        static let attemptsOtherPlaceholder: LocalizedStringResource = .onboardingAttemptsOtherPlaceholder
+        static let attemptsOtherRequired: LocalizedStringResource = .onboardingAttemptsOtherRequired
         /// Terapi devam ediyorsa gösterilir. Ürün terapinin yerine geçme imasında
         /// **asla** bulunmaz (PRD §4) — bu cümle o sınırı açıkça çiziyor.
         static let attemptsTherapyNote: LocalizedStringResource =

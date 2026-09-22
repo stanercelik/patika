@@ -457,6 +457,8 @@ extension LocalizedStringResource {
     static var onboardingAgeHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.ageHeadline") }
     static var onboardingAttemptsHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.attemptsHeadline") }
     static var onboardingAttemptsHint: LocalizedStringResource { LocalizedStringResource("onboarding.attemptsHint") }
+    static var onboardingAttemptsOtherPlaceholder: LocalizedStringResource { LocalizedStringResource("onboarding.attemptsOtherPlaceholder") }
+    static var onboardingAttemptsOtherRequired: LocalizedStringResource { LocalizedStringResource("onboarding.attemptsOtherRequired") }
     static var onboardingAttemptsTherapyNote: LocalizedStringResource { LocalizedStringResource("onboarding.attemptsTherapyNote") }
     static var onboardingAvoidanceHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.avoidanceHeadline") }
     static var onboardingAvoidanceHint: LocalizedStringResource { LocalizedStringResource("onboarding.avoidanceHint") }

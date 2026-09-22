@@ -22,6 +22,30 @@ check(ReactiveSceneState.time(for: .evening) == .evening, "evening")
 check(ReactiveSceneState.time(for: .bedtime) == .night, "bedtime")
 check(ReactiveSceneState.time(for: .noPattern) == .neutral, "no pattern")
 
+await MainActor.run {
+    var committedAttempts: ([PreviousAttempt], String?)?
+    var crisisFlagged = false
+    let attempts = PreviousAttemptsViewModel(
+        selection: [],
+        otherText: "",
+        commit: { committedAttempts = ($0, $1) },
+        flagCrisis: { crisisFlagged = true }
+    )
+    attempts.toggle(.nothing)
+    attempts.toggle(.youtube)
+    check(attempts.selection == [.youtube], "nothing must remain exclusive")
+    attempts.toggle(.other)
+    attempts.otherText = "  I tried journaling  "
+    attempts.continueTapped()
+    check(committedAttempts?.1 == "I tried journaling", "trimmed Other text must commit")
+
+    committedAttempts = nil
+    attempts.otherText = "I want to die"
+    attempts.continueTapped()
+    check(crisisFlagged, "Other text must be crisis screened")
+    check(committedAttempts == nil, "crisis text must not commit")
+}
+
 if !failures.isEmpty {
     failures.forEach { print($0) }
     fatalError("\(failures.count) onboarding interaction checks failed")

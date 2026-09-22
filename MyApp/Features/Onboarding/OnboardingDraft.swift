@@ -29,6 +29,7 @@ struct OnboardingDraft: Equatable, Sendable {
     var timing: ProblemTiming?
     var avoidanceText: String?
     var previousAttempts: [PreviousAttempt] = []
+    var previousAttemptOtherText: String?
     var currentMood: MoodLevel?
 
     // MARK: - D · Baseline ölçüm

@@ -5521,6 +5521,30 @@
         }
       }
     },
+    "onboarding.attemptsOtherPlaceholder" : {
+      "comment" : "PreviousAttemptsView.swift · private Other response",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What else did you try?"
+          }
+        }
+      }
+    },
+    "onboarding.attemptsOtherRequired" : {
+      "comment" : "PreviousAttemptsView.swift · inline validation",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Write a few words, or deselect Other."
+          }
+        }
+      }
+    },
     "onboarding.attemptsTherapyNote" : {
       "comment" : "Copy.swift · static let attemptsTherapyNote: LocalizedStringResource =",
       "extractionState" : "manual",

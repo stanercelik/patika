@@ -399,8 +399,9 @@ final class OnboardingFlowViewModel {
 
     // MARK: - B5 · Daha önce ne denedin?
 
-    func commitPreviousAttempts(_ attempts: [PreviousAttempt]) {
+    func commitPreviousAttempts(_ attempts: [PreviousAttempt], otherText: String? = nil) {
         draft.previousAttempts = attempts
+        draft.previousAttemptOtherText = otherText
         advance(to: .b6CurrentMood)
     }
 

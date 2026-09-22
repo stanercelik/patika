@@ -5,7 +5,12 @@ struct PreviousAttemptsView: View {
     @State private var viewModel: PreviousAttemptsViewModel
 
     init(flow: OnboardingFlowViewModel) {
-        self._viewModel = State(initialValue: PreviousAttemptsViewModel(flow: flow))
+        self._viewModel = State(initialValue: PreviousAttemptsViewModel(
+            selection: flow.draft.previousAttempts,
+            otherText: flow.draft.previousAttemptOtherText ?? "",
+            commit: { flow.commitPreviousAttempts($0, otherText: $1) },
+            flagCrisis: { flow.flagCrisis() }
+        ))
     }
 
     var body: some View {
@@ -14,12 +19,22 @@ struct PreviousAttemptsView: View {
             hint: Copy.Onboarding.attemptsHint
         ) {
             VStack(alignment: .leading, spacing: 10) {
-                ForEach(viewModel.options) { option in
-                    ChoiceRow(
-                        label: option.label,
-                        isSelected: viewModel.isSelected(option)
-                    ) {
-                        viewModel.toggle(option)
+                AdaptiveChoiceGrid(
+                    options: viewModel.options,
+                    isSelected: { viewModel.isSelected($0) },
+                    onSelect: { viewModel.toggle($0) }
+                )
+
+                if viewModel.isSelected(.other) {
+                    OnboardingTextInput(
+                        text: $viewModel.otherText,
+                        placeholder: Copy.Onboarding.attemptsOtherPlaceholder,
+                        lineRange: 1...1
+                    )
+                    if viewModel.showsOtherRequired {
+                        Text(Copy.Onboarding.attemptsOtherRequired)
+                            .font(.footnote.weight(Theme.Weight.body))
+                            .inkStyle(.secondary)
                     }
                 }
 
