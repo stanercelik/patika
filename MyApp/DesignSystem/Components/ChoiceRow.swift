@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Tek ya da çoklu seçim satırı (B2, B3, B5, E bölümü).
+/// Tek ya da çoklu seçim satırı (B2, B3, B5).
 ///
 /// Seçili durum **üç sinyalle birden** anlatılır — dolgu, kenarlık ve metin
 /// ağırlığı. Renk tek başına anlam taşımaz (Ton eki §7); renk körü bir kullanıcı
@@ -8,8 +8,6 @@ import SwiftUI
 struct ChoiceRow: View {
     let label: LocalizedStringResource
     let isSelected: Bool
-    /// Etiketin altında ikincil yazı: E3'te her tonun gerçek bir örnek cümlesi.
-    var detail: LocalizedStringResource?
     let action: () -> Void
 
     /// Kartın içindeyse (`patikaInk == .ink`) kâğıt ikizine devreder; koyu yüzeyde
@@ -18,7 +16,7 @@ struct ChoiceRow: View {
 
     var body: some View {
         if ink == .ink {
-            PaperChoiceRow(label: label, isSelected: isSelected, detail: detail, action: action)
+            PaperChoiceRow(label: label, isSelected: isSelected, action: action)
         } else {
             darkRow
         }
@@ -30,20 +28,13 @@ struct ChoiceRow: View {
             action()
         } label: {
             HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(label)
-                        .font(
-                            .body.weight(isSelected ? Theme.Weight.action : Theme.Weight.emphasis)
-                        )
-                        .foregroundStyle(Theme.textPrimary.color)
-                    if let detail {
-                        Text(detail)
-                            .font(.subheadline.weight(Theme.Weight.body))
-                            .foregroundStyle(Theme.textSecondary.color)
-                    }
-                }
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
+                Text(label)
+                    .font(
+                        .body.weight(isSelected ? Theme.Weight.action : Theme.Weight.emphasis)
+                    )
+                    .foregroundStyle(Theme.textPrimary.color)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Spacer(minLength: 0)
 
@@ -62,7 +53,7 @@ struct ChoiceRow: View {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: .neutral, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(spacing: 10) {
             ChoiceRow(label: "Birkaç gündür", isSelected: false) {}
             ChoiceRow(label: "Aylardır", isSelected: true) {}

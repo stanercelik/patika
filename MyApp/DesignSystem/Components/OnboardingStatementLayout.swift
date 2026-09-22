@@ -30,28 +30,38 @@ struct OnboardingStatementLayout<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    DisplayText(headline, size: 30)
-                        .statementReveal(0)
-                    content
-                }
-                .onboardingSurfaceCard(surface)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Theme.Spacing.screenMargin)
-                .padding(.top, 14)
-                .padding(.bottom, 16)
+        // Footer `safeAreaInset` ile veriliyor — bkz. `OnboardingQuestionLayout` (2026-09-22
+        // klavye/taşma düzeltmesi, docs/onboarding-redesign.md Faz 5). C ekranlarında metin
+        // alanı yok ama aynı yapı korunuyor: B6'dan C1'e geçerken CTA aynı yükseklikte kalmalı.
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                DisplayText(headline, size: 30)
+                    .statementReveal(0)
+                content
             }
-            .scrollIndicators(.hidden)
-            .scrollBounceBehavior(.basedOnSize)
-
+            .onboardingSurfaceCard(surface)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.top, 14)
+            .padding(.bottom, 16)
+        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             OnboardingQuestionFooter(
                 primaryTitle: ctaTitle,
                 primaryAction: action
             )
             .padding(.horizontal, Theme.Spacing.screenMargin)
             .padding(.bottom, 12)
+            .background {
+                LinearGradient(
+                    colors: [.clear, WoodlandStyle.background.opacity(0.85), WoodlandStyle.background],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .padding(.top, -24)
+            }
         }
     }
 }

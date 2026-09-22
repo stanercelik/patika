@@ -9,7 +9,6 @@ import SwiftUI
 /// Keşfet'in hazır patikaları da bu ekranı kullanır (`init(services:preparedPath:step:library:)`):
 /// aynı sahne, aynı kontroller, aynı ses motoru. Onlarda soru, ölçüm ve rozet yok.
 struct PathSessionView: View {
-    @Environment(PaletteController.self) private var palette
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: PathSessionViewModel
@@ -30,13 +29,19 @@ struct PathSessionView: View {
 
     var body: some View {
         ZStack {
-            BreathingMeshBackground(
-                palette: palette.current,
-                safeY: 0.5,
-                breathAmplitude: viewModel.breathAmplitude,
-                voiceEnergy: viewModel.runner.audio.audioEnergy
-            )
-            .ignoresSafeArea()
+            // Kriz ekranında dekoratif sahne yok; kalanında `bg-session` — G1'le aynı
+            // sahne, aynı motor (docs/onboarding-redesign.md, Faz 7).
+            if viewModel.phase == .crisis {
+                WoodlandStyle.background.ignoresSafeArea()
+            } else {
+                OnboardingSceneLayer(artwork: .session)
+                // Yalnızca hazırlanırken: `.running`da faz görseli zaten nefesle ölçekleniyor
+                // (`SessionArtworkView`), ikisi aynı anda ekrandaysa iki ayrı nefes hareketi
+                // çakışıyordu (G1'de simülatörde ölçüldü, bkz. `FirstSessionView`).
+                if viewModel.phase == .preparing {
+                    BreathOrb(amplitude: viewModel.breathAmplitude, voiceEnergy: viewModel.runner.audio.audioEnergy)
+                }
+            }
 
             content
         }

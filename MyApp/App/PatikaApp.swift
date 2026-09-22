@@ -3,7 +3,6 @@ import SwiftData
 
 @main
 struct PatikaApp: App {
-    @State private var paletteController = PaletteController()
     @State private var appState = AppState()
     @State private var services = AppServices.live()
     @State private var discoverLibrary = DiscoverLibrary()
@@ -52,18 +51,17 @@ struct PatikaApp: App {
             Group {
                 if !isEntryPrepared || !isOnboardingStateResolved {
                     ZStack {
-                        Palette.neutral.background.color.ignoresSafeArea()
+                        WoodlandStyle.background.ignoresSafeArea()
                         ProgressView().tint(Theme.textPrimary.color)
                     }
                 } else if appState.hasCompletedOnboarding || Self.opensRootDirectly {
                     RootView()
                 } else {
-                    OnboardingContainerView(palette: paletteController, services: services) {
+                    OnboardingContainerView(services: services) {
                         appState.hasCompletedOnboarding = true
                     }
                 }
             }
-            .environment(paletteController)
             .environment(appState)
             .environment(services)
             .environment(discoverLibrary)
@@ -81,14 +79,8 @@ struct PatikaApp: App {
                     await adoptExistingPathIfAny()
                 }
                 isOnboardingStateResolved = true
-                // Palet uygulama yeniden açıldığında nötre düşüyordu: kategori ve
-                // ruh hâli yalnızca onboarding belleğinde duruyordu.
-                if let record = services.profile.record, !record.categories.isEmpty {
-                    paletteController.select(record.categories)
-                    paletteController.setMood(record.mood)
-                }
                 #if DEBUG
-                await DebugDirectEntry.prepareIfNeeded(services: services, palette: paletteController)
+                await DebugDirectEntry.prepareIfNeeded(services: services)
                 isEntryPrepared = true
                 #endif
             }

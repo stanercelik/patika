@@ -10,24 +10,26 @@ kenarlar. Bu, önceki "tek mürekkepli, monokrom kırık beyaz" brief'inin yerin
 brief gerçek zeminin paletle değiştiği bir dönemden kalmaydı ve bu dosyanın eski
 sürümü hâlâ onu buyuruyordu. Yeni parçalar tam da bu çizgide durduğu için düzeltildi.
 
-### Renkli guaj nerede durabilir
+### Gradyan kalktı (22 Eylül 2026 kararı) — renkli guaj artık nerede durabilir
+
+`MeshGradient` + Metal shader + 10 kategori paleti tamamen kaldırıldı
+(`docs/onboarding-redesign.md`). "Canlı kategori mesh'i" diye bir şey artık yok;
+onun yerini **tam ekran opak guaj sahneler** aldı — A2'den B6'ya kadar sahne
+kategoriye göre değişir, bu işi eskiden canlı palet yapıyordu.
 
 | Nerede | Ne durabilir |
 | --- | --- |
 | **Kâğıt kart** (krem `#EDE7D9`) | Renkli, şeffaf alfalı guaj kesit |
-| **Karartılmış sahne zemini** | Tam ekran opak guaj manzara; üstünde açık tonlu şeffaf parça |
-| **Canlı kategori mesh'i** | Hiçbir görsel |
-
-Sebebi: onboarding'de A2'nin paleti ve B6'nın ruh hâli **arka planın kendisi**. Renkli opak
-bir parça mesh'in üstünde yüzerse paleti ezer ya da onunla çakışır.
+| **Tam ekran sahne zemini** (artık **her** onboarding ekranında) | Tam ekran **opak** guaj manzara; kodda düz bir perde (`WoodlandStyle.background.opacity(dimming)`) bindirilir |
 
 ## Klasörler
 
 | Klasör | İçerik | Prompt'lar |
 | --- | --- | --- |
 | `gouache/` | Ortak aile: yansıtma, aidiyet, sığınak, iz, dinlenme, defter; Yolum dünyası | `prompts.json`, `world-prompts.json` |
-| `onboarding/` | Onboarding yeniden tasarımının 10 yeni parçası | `prompts.md` |
-| `session/` | Oturum ekranı (faz bazlı) | `prompts.md` |
+| `onboarding/` | Kâğıt kart içi 9 şeffaf kesit (isim, B3, C3, C4, taahhüt, D0, F2, H2, H1) | `prompts.md` |
+| `scenes/` | **16 tam ekran opak sahne** (6 bölüm + 10 kategori) — henüz üretilmedi | `prompts.md` |
+| `session/` | Oturum ekranı faz görselleri (`session-trailhead` vb.) | `prompts.md` |
 | `discover/` | Keşfet v2 kart görselleri ve manzara | `prompts.md` |
 | `me/`, `me-v2/`, `journey/` | Ben sekmesi ve Yolum faz görselleri | kendi klasöründe |
 | `c1-mirror/`, `c2-common/`, `f2-path-ready/` | **Eski kaynaklar.** C1 ve C2 artık `illustration-reflection` ve `illustration-belonging` kullanıyor; buradaki iki imageset silindi (yetimdi). Kaynak PNG'ler tarihçe için durur | — |
@@ -44,8 +46,8 @@ bir parça mesh'in üstünde yüzerse paleti ezer ya da onunla çakışır.
 ## Görsel yokken ne olur
 
 Hiçbir şey kırılmaz. Her yerleşim önce `PatikaArt.exists(_:)` ile varlığı sorar; yoksa
-görsel yer kaplamaz ya da düz yüzey çizilir. Onboarding'de A1, görsel gelene kadar yol
-animasyonunu kullanır. Görselleri istediğin sırayla, tek tek ekleyebilirsin.
+görsel yer kaplamaz (kâğıt içi kesit) ya da düz `WoodlandStyle.background`'a düşer (tam
+ekran sahne, `OnboardingSceneLayer`). Görselleri istediğin sırayla, tek tek ekleyebilirsin.
 
 ## Ortak kurallar
 

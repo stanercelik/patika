@@ -27,17 +27,27 @@ struct FirstSessionView: View {
     }
 
     var body: some View {
-        Group {
-            switch viewModel.phase {
-            case .preparing:
-                preparing
-            case .running:
-                running
-            case .completed:
-                // Bitiş ekranı artık burada değil, G2'de. Oturum biter bitmez
-                // akış ilerliyor; arada bir kare boş kalmasın diye son sahne
-                // yerinde duruyor.
-                running
+        ZStack {
+            // Kabuk zaten `bg-session` sahnesini çiziyor (`OnboardingFlowViewModel.currentScene`).
+            // Küre yalnızca **hazırlanırken** görünür: `.running`da faz görseli zaten nefesle
+            // ölçekleniyor (`SessionArtworkView`), ikisi aynı anda ekrandaysa iki ayrı nefes
+            // hareketi birbiriyle yarışıyor ve görsel olarak çakışıyordu (simülatörde ölçüldü).
+            if viewModel.phase == .preparing {
+                BreathOrb(amplitude: BreathAmplitude.session, voiceEnergy: flow.sessionVoiceEnergy)
+            }
+
+            Group {
+                switch viewModel.phase {
+                case .preparing:
+                    preparing
+                case .running:
+                    running
+                case .completed:
+                    // Bitiş ekranı artık burada değil, G2'de. Oturum biter bitmez
+                    // akış ilerliyor; arada bir kare boş kalmasın diye son sahne
+                    // yerinde duruyor.
+                    running
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

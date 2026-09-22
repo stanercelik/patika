@@ -11,7 +11,6 @@ import SwiftUI
 struct PaperChoiceRow: View {
     let label: LocalizedStringResource
     let isSelected: Bool
-    var detail: LocalizedStringResource?
     let action: () -> Void
 
     var body: some View {
@@ -20,18 +19,11 @@ struct PaperChoiceRow: View {
             action()
         } label: {
             HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(label)
-                        .font(.body.weight(isSelected ? Theme.Weight.action : Theme.Weight.emphasis))
-                        .foregroundStyle(WoodlandStyle.ink)
-                    if let detail {
-                        Text(detail)
-                            .font(.subheadline.weight(Theme.Weight.body))
-                            .foregroundStyle(WoodlandStyle.secondaryInk)
-                    }
-                }
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
+                Text(label)
+                    .font(.body.weight(isSelected ? Theme.Weight.action : Theme.Weight.emphasis))
+                    .foregroundStyle(WoodlandStyle.ink)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Spacer(minLength: 0)
 
@@ -92,7 +84,7 @@ struct PaperSelectionMark: View {
 
 #Preview("Kâğıt seçim satırları") {
     ZStack {
-        BreathingMeshBackground(palette: .neutral, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(alignment: .leading, spacing: 10) {
             PaperChoiceRow(label: "Birkaç gündür", isSelected: false) {}
             PaperChoiceRow(label: "Aylardır", isSelected: true) {}

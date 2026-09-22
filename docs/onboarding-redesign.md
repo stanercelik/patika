@@ -1,5 +1,15 @@
 # Onboarding redesign — woodland language, expressive inputs, restructured flow
 
+> **Partially superseded (22 Sep 2026).** The product owner removed gradients app-wide;
+> see `CLAUDE.md`'s "22 Eylül 2026 — gradyan kaldırıldı" entry for the full decision log.
+> This invalidates every mention below of `BreathingMeshBackground` "at full strength",
+> the category palette, A2/B6 staying on live mesh because "the background is content",
+> and the merged three-screen identity card (`IdentityView`) — identity is three separate
+> screens again (`NameView`, `GenderView`, `AgeRangeView`). The paper-vs-ground split this
+> document introduces is still correct in spirit; it's now paper-vs-**scene** (a full-bleed
+> gouache image replaces the mesh everywhere, including A2/B6, whose "content" is now a
+> per-category scene rather than a live-tinted mesh).
+
 ## Context
 
 The app's visual language moved on twice (Discover v2, Me v2, Path) and onboarding never

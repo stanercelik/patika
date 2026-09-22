@@ -114,7 +114,7 @@ struct IntensityScale: View {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: .neutral, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(spacing: 48) {
             IntensityScale(selection: nil) { _ in }
             IntensityScale(selection: 7) { _ in }

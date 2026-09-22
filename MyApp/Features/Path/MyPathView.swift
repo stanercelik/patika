@@ -16,7 +16,6 @@ import SwiftUI
 /// Kaçırılan gün hiçbir şeyi geri almıyor: ekranda ne seri, ne "bugün de kaçtı",
 /// ne yüzde. Tek söylenen, sıradaki adımın hazır olduğu.
 struct MyPathView: View {
-    @Environment(PaletteController.self) private var palette
     @Environment(AppServices.self) private var services
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -30,14 +29,6 @@ struct MyPathView: View {
     var body: some View {
         ZStack {
             WoodlandStyle.background.ignoresSafeArea()
-            BreathingMeshBackground(
-                palette: palette.current,
-                safeY: 0.12,
-                breathAmplitude: BreathAmplitude.measurement
-            )
-            .opacity(0.20)
-            .ignoresSafeArea()
-            .accessibilityHidden(true)
             content
         }
         .task {
@@ -47,7 +38,7 @@ struct MyPathView: View {
         .fullScreenCover(isPresented: $isCreatingPath, onDismiss: {
             Task { await viewModel?.load() }
         }) {
-            OnboardingContainerView(palette: palette, services: services) {
+            OnboardingContainerView(services: services) {
                 isCreatingPath = false
             }
             .safeAreaInset(edge: .top, alignment: .leading, spacing: 0) {
@@ -62,7 +53,6 @@ struct MyPathView: View {
         .fullScreenCover(item: $runningStep) { step in
             if let path = viewModel?.path {
                 PathSessionView(services: services, path: path, step: step)
-                    .environment(palette)
             }
         }
         .onChange(of: runningStep) { old, new in
@@ -97,7 +87,7 @@ struct MyPathView: View {
                 .foregroundStyle(Theme.textSecondary.color)
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .padding(.vertical, 4)
-                .background(Palette.neutral.background.color)
+                .background(WoodlandStyle.background)
             }
             #endif
         case .failed:

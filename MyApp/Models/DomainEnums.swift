@@ -368,6 +368,13 @@ enum MoodLevel: Int, CaseIterable, Codable, Sendable, Identifiable {
     var suggestsGentlerStart: Bool {
         rawValue <= 2
     }
+
+    /// B6'nın arka plan karşılığı (gradyan kalktı, 2026-09-22): sahne perdesi ağır
+    /// kademede koyulaşır, sakin kademede açılır. Önceden bu iş palet tonlamasıydı
+    /// (sarı↔lacivert ekseni); artık tek değişken düz bir karartma oranı.
+    var sceneDimming: Double {
+        0.50 - Double(rawValue - 1) * 0.06
+    }
 }
 
 // MARK: - Path

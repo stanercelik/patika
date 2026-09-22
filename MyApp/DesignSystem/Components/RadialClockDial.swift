@@ -119,7 +119,7 @@ struct RadialClockDial: View {
 
 #Preview("Kadran") {
     ZStack {
-        BreathingMeshBackground(palette: .neutral, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         RadialClockDial(hour: 22, minute: 30, suggestionHour: 21, onChange: { _, _ in })
             .padding(PatikaSurfaceMetrics.padding)
             .paperSurface()

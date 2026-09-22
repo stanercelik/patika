@@ -15,9 +15,10 @@ enum OnboardingStep: Equatable {
     // Kimlik — PRD'de yok, sonradan eklendi (ürün sahibi kararı, 2026-09-08).
     // A1'in **sonrasında**: kanca ekranı markanın ilk izlenimi, önüne form
     // koyulmaz. A2'nin **öncesinde**: hitap adı akışın geri kalanında kullanılıyor.
-    // Üç ekran tek kartta birleşti (2026-09-21, docs/onboarding-redesign.md): cinsiyet ve
-    // yaş ürünün hiçbir davranışını değiştirmiyor, iki tam ekran bir istatistiğe gidiyordu.
-    case identity
+    // 2026-09-22: her soru kendi sayfasında — üç ayrı ekran (bkz. karar günlüğü).
+    case identityName
+    case identityGender
+    case identityAge
     case a2Categories
     // B — Problem keşfi (6 ekran)
     case b1ProblemText
@@ -40,9 +41,9 @@ enum OnboardingStep: Equatable {
     case dMeasurement(Int)
     // E — Tercihler (2 ekran). İkisinin de ürün davranışında görünür karşılığı var.
     // E2 (adım uzunluğu) ve E4 (rehber sesi) 2026-09-21'de kaldırıldı: uzunluğu ürün
-    // sahibi ayarlıyor (varsayılan 10 dk), MVP tek ses (kadın).
+    // sahibi ayarlıyor (varsayılan 10 dk), MVP tek ses (kadın). E3 (ton) 2026-09-22'de
+    // kaldırıldı — E bölümü artık yalnızca E1.
     case e1Reminder
-    case e3Tone
     // F — Üretim ve teslim. PRD'de 4 ekran; F2 ile F3 **birleştirildi**
     // (ürün sahibi kararı, 2026-09-09), yani 3 ekran.
     case f1Generation
@@ -69,23 +70,24 @@ enum OnboardingStep: Equatable {
         // Soru bölümü kimlik ekranlarıyla birlikte 10 ekran: iz onların da
         // sorulduğunu gösteriyor, yoksa üç ekran boyunca hiç ilerlemiyor gibi
         // görünüyordu.
-        // Kimlik tek ekran olunca soru bölümü 8 ekran: kimlik + A2 + B1–B6.
-        case .identity: 1.0 / 8.0
-        case .a2Categories: 2.0 / 8.0
-        case .b1ProblemText: 3.0 / 8.0
-        case .b2Duration: 4.0 / 8.0
-        case .b3Timing: 5.0 / 8.0
-        case .b4Avoidance: 6.0 / 8.0
-        case .b5PreviousAttempts: 7.0 / 8.0
+        // Soru bölümü 10 ekran: kimlik (3, ayrı sayfa) + A2 + B1–B6.
+        case .identityName: 1.0 / 10.0
+        case .identityGender: 2.0 / 10.0
+        case .identityAge: 3.0 / 10.0
+        case .a2Categories: 4.0 / 10.0
+        case .b1ProblemText: 5.0 / 10.0
+        case .b2Duration: 6.0 / 10.0
+        case .b3Timing: 7.0 / 10.0
+        case .b4Avoidance: 8.0 / 10.0
+        case .b5PreviousAttempts: 9.0 / 10.0
         case .b6CurrentMood: 1.0
         // D kendi ölçeğiyle yeniden başlar: soru bölümünün izi B6'da dolmuştu,
         // ölçüm ayrı bir bölüm ve kendi uzunluğu var. Giriş ekranında (D0) soru
         // sorulmadığı için iz solar — tıpkı C bölümünde olduğu gibi.
         case .dMeasurement(let index):
             Double(index) / Double(MeasurementPoint.baseline.questionCount)
-        // E kendi ölçeğiyle yeniden başlar — iki ekranlık kısa bir bölüm.
-        case .e1Reminder: 1.0 / 2.0
-        case .e3Tone: 1.0
+        // E artık tek ekran (E3 kaldırıldı); dolu iz onaylandığını gösterir.
+        case .e1Reminder: 1.0
         case .a1Welcome, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
              .c4HonestExpectation, .commitment, .d0MeasurementIntro, .f1Generation, .f2Roadmap,
              .g1FirstSession, .g2SessionComplete, .price, .h2Priming, .h1Account, .crisis: nil
@@ -107,55 +109,16 @@ enum OnboardingStep: Equatable {
         }
     }
 
-    /// Adımın malzemesi (docs/onboarding-redesign.md, Bölüm 2.2). Görsel politika
-    /// `backgroundSafeY` ve `breathAmplitude` gibi burada, sıradaki enum'da durur;
-    /// kabuk yalnızca okur ve 20 çağrı noktası değişmez.
+    /// Adımın malzemesi (docs/onboarding-redesign.md, Bölüm 2.2/Faz 2). Kabuk yalnızca okur.
     var surfaceStyle: OnboardingSurfaceStyle {
         switch self {
-        // Zemin katmanında yalnızca A2, B6 ve D1–D8 kalır: onların cevabı arka planın kendisi
-        // (A2 paleti, B6 ruh hâli) ya da ölçüm aracı.
-        case .identity, .b1ProblemText, .b2Duration, .b3Timing, .b4Avoidance, .b5PreviousAttempts,
-             .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation, .commitment,
-             .d0MeasurementIntro, .e1Reminder, .e3Tone, .price, .h2Priming, .h1Account: .paper
-        default: .ground
-        }
-    }
-
-    /// Tam ekran sahne zemini olan adımlar: opak guaj mesh'in yerine geçer. Görsel yoksa
-    /// (henüz üretilmedi ya da `-patika-debug-no-art`) mesh ve mevcut yerleşim kalır.
-    var sceneArtwork: OnboardingArtwork? {
-        switch self {
-        case .a1Welcome: .threshold
-        default: nil
-        }
-    }
-
-    /// Metin bandının karartma gücü. Scrim koyu zeminde açık metni okunur tutmak
-    /// için vardı; kâğıt kartın altında görünmez ve tek etkisi mesh'i kısmak olur —
-    /// A2 ve B6'nın paleti göstermek için ihtiyaç duyduğu şeyin tam tersi
-    /// (docs/onboarding-redesign.md, Bölüm 2.4).
-    var backgroundScrimStrength: Float {
-        surfaceStyle == .paper ? 0.06 : 0.45
-    }
-
-    /// Metin bandının dikey merkezi — ekran bazlı değerler Görsel Sistem eki §7'de.
-    var backgroundSafeY: Float {
-        switch self {
-        case .a1Welcome: 0.72   // başlık alt yarıda
-        case .crisis: 0.40
-        // C ekranlarında soru yok, paragraf var: metin bandı soru ekranlarından
-        // uzun ve biraz daha aşağı iniyor.
-        case .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation,
-             .d0MeasurementIntro: 0.30
-        // F1'de metin en üstte ve tek: iz aşağı doğru iniyor, arka planın açık
-        // bandı onun altında kalmalı. F2 uzun bir liste; scrim üst şeride.
-        case .f1Generation: 0.16
-        case .f2Roadmap: 0.14
-        // G1'de tek bir cümle ekranın ortasında duruyor; açık bant onun altında.
-        case .g1FirstSession: 0.50
-        // G2 oturumdan çıkış: metin bloğu alt yarıda, A1'in kanca yerleşimi gibi.
-        case .g2SessionComplete: 0.62
-        default: 0.18           // soru ekranlarında metin üstte
+        // A2 ve B6 kartsız kalır: cevabın karşılığı sahnenin kendisi (kategori sahnesi,
+        // ruh hâline göre perde) ve önüne kart koymak neden-sonucu koparırdı.
+        case .identityName, .identityGender, .identityAge, .b1ProblemText, .b2Duration, .b3Timing,
+             .b4Avoidance, .b5PreviousAttempts, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
+             .c4HonestExpectation, .commitment, .d0MeasurementIntro, .e1Reminder, .price,
+             .h2Priming, .h1Account: .paper
+        default: .plain
         }
     }
 
@@ -186,8 +149,6 @@ final class OnboardingFlowViewModel {
     private(set) var step: OnboardingStep = .a1Welcome
     private(set) var draft = OnboardingDraft()
 
-    /// Palet, kategori seçimiyle canlı değişir (Görsel Sistem eki §6.4).
-    private let palette: PaletteController
     /// Oturum ekranı da aynı istemcileri kullanıyor (ses üretimi, imzalı adres);
     /// ikinci bir servis kabı kurmak yerine akışınki paylaşılıyor.
     let services: AppServices
@@ -212,16 +173,18 @@ final class OnboardingFlowViewModel {
     private(set) var firstStepId: UUID?
     /// G1 sonuna kadar dinlendi mi? G2'nin metnini bu belirliyor.
     private(set) var didCompleteFirstSession = false
-    /// Oturumdaki ses zarfı. Yalnızca dekoratif mesh bunu okur; analitiğe ve
+    /// Oturumdaki ses zarfı. Yalnızca dekoratif nefes küresi bunu okur; analitiğe ve
     /// kalıcı depoya gitmez.
     private(set) var sessionVoiceEnergy: Double = 0
+    /// A2'de henüz commit edilmemiş canlı seçim — `currentScene` bunu taslaktan önce okur.
+    private var previewedCategories: [ProblemCategory] = []
+    /// B6'da henüz commit edilmemiş canlı seçim — `currentSceneDimming` bunu okur.
+    private var previewedMood: MoodLevel?
 
     init(
-        palette: PaletteController,
         services: AppServices,
         onFinished: @escaping () -> Void = {}
     ) {
-        self.palette = palette
         self.services = services
         self.onFinished = onFinished
     }
@@ -238,6 +201,49 @@ final class OnboardingFlowViewModel {
         step = previous
     }
 
+    // MARK: - Sahne (docs/onboarding-redesign.md, Faz 2)
+    //
+    // Gradyan kalktı (2026-09-22): arka plan artık bölüm başına tam ekran bir guaj
+    // sahnesi. A2'den B6'ya kadar sahne **kategoriye göre** değişir — eskiden bu işi
+    // canlı palet yapıyordu; kategori bilinmeden önce ve C'den sonra bölüm sahnesi
+    // kullanılır. Sahne enum'da değil burada hesaplanıyor çünkü taslağa (ve A2/B6'nın
+    // henüz commit edilmemiş canlı seçimine) bakması gerekiyor.
+
+    /// Adımın sahnesi. Kriz ekranında hiç sahne yok (`nil`); kalanında görsel eksikse
+    /// `OnboardingSceneLayer` düz zemine düşer, hiçbir ekran kırılmaz.
+    var currentScene: OnboardingArtwork? {
+        switch step {
+        case .a1Welcome: .threshold
+        case .identityName, .identityGender, .identityAge: .gathering
+        case .a2Categories, .b1ProblemText, .b2Duration, .b3Timing, .b4Avoidance, .b5PreviousAttempts,
+             .b6CurrentMood:
+            (previewedCategories.first ?? draft.categories.first).map(OnboardingArtwork.category)
+                ?? .categoryUnnamed
+        case .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation, .commitment:
+            .reflection
+        case .d0MeasurementIntro, .dMeasurement:
+            .measure
+        case .e1Reminder, .f1Generation, .f2Roadmap:
+            .prepare
+        case .g1FirstSession:
+            .session
+        case .g2SessionComplete, .price, .h2Priming, .h1Account:
+            .settle
+        case .crisis:
+            nil
+        }
+    }
+
+    /// Sahne perdesi. Yalnızca B6'da ruh hâline göre değişir — ağır kademede daha koyu,
+    /// sakin kademede daha açık; ekranı ayrıca kısıp yavaşlatmak "neşelen" demenin görsel
+    /// karşılığı olurdu, o yüzden yalnızca perde değişir (Görsel Sistem eki §3.4'ün
+    /// gradyansız karşılığı). Kalan her yerde sabit.
+    var currentSceneDimming: Double {
+        let base = 0.34
+        guard step == .b6CurrentMood, let mood = previewedMood ?? draft.currentMood else { return base }
+        return mood.sceneDimming
+    }
+
     // MARK: - A1
 
     /// A1'de "Başlayalım" da "atla" da aynı yere gider — A2 atlanamaz, çünkü
@@ -248,19 +254,22 @@ final class OnboardingFlowViewModel {
             return false
         }
         services.observability.capture(.onboardingStarted)
-        advance(to: .identity)
+        advance(to: .identityName)
         return true
     }
 
     // MARK: - Kimlik
+    //
+    // Üç ayrı ekran (2026-09-22, docs/onboarding-redesign.md, Faz 4): her soru kendi
+    // sayfasında. Cinsiyet ve yaş ürünün hiçbir davranışını değiştirmiyor, ama her ikisi
+    // de tek başına bir sayfa — "her soru kendi sayfasında" kuralının istisnası yok.
 
     /// Ad da serbest metin — "kullanıcının yazdığı **her** serbest metin
     /// sınıflandırıcıdan geçer" kuralının istisnası yok. Ad alanına kriz sinyali
     /// yazılması beklenmiyor ama kuralın istisnası olduğu an kural değildir.
     ///
-    /// Ad boşsa isimsiz devam eder: isimsiz sürüm eksik bir sürüm değil. Cinsiyet ve
-    /// yaş cevapsızsa `undisclosed`.
-    func commitIdentity(name: String, gender: Gender, ageRange: AgeRange) {
+    /// Ad boşsa isimsiz devam eder: isimsiz sürüm eksik bir sürüm değil.
+    func commitName(_ name: String) {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if CrisisClassifier.evaluate(trimmed).hasSignal {
@@ -269,7 +278,23 @@ final class OnboardingFlowViewModel {
         }
 
         draft.name = trimmed.isEmpty ? nil : trimmed
+        advance(to: .identityGender)
+    }
+
+    /// "İsim vermek istemiyorum". Akışın hiçbir yeri kapanmaz.
+    func skipName() {
+        draft.name = nil
+        advance(to: .identityGender)
+    }
+
+    /// Cinsiyet cevapsız kalabilir ve `undisclosed` yazılır — karşılığı olmayan bir
+    /// soruyu (`identityStatsNote`) varmış gibi sunmuyoruz.
+    func commitGender(_ gender: Gender) {
         draft.gender = gender
+        advance(to: .identityAge)
+    }
+
+    func commitAgeRange(_ ageRange: AgeRange) {
         draft.ageRange = ageRange
         advance(to: .a2Categories)
     }
@@ -278,13 +303,14 @@ final class OnboardingFlowViewModel {
 
     func commitCategories(_ categories: [ProblemCategory]) {
         draft.categories = categories
-        palette.select(categories)
+        previewedCategories = []
         advance(to: .b1ProblemText)
     }
 
-    /// Kategori seçimi değiştikçe arka plan anında tepki verir.
+    /// Kategori seçimi değiştikçe arka plan anında tepki verir — henüz commit
+    /// edilmemiş seçim `currentScene`i besliyor.
     func previewCategories(_ categories: [ProblemCategory]) {
-        palette.select(categories)
+        previewedCategories = categories
     }
 
     // MARK: - B1 · Kendi cümlelerinle
@@ -360,14 +386,15 @@ final class OnboardingFlowViewModel {
     // MARK: - B6 · Şu an nasılsın?
 
     /// Kademe seçildiği anda arka plan tepki verir — A2'deki kategori
-    /// önizlemesiyle aynı mantık, cevabın karşılığı hemen görünür.
+    /// önizlemesiyle aynı mantık, cevabın karşılığı hemen görünür (sahne perdesi
+    /// koyulaşır/açılır, bkz. `currentSceneDimming`).
     func previewCurrentMood(_ mood: MoodLevel) {
-        palette.setMood(mood)
+        previewedMood = mood
     }
 
     func commitCurrentMood(_ mood: MoodLevel) {
         draft.currentMood = mood
-        palette.setMood(mood)
+        previewedMood = nil
         advance(to: .c1Mirroring)
     }
 
@@ -444,9 +471,10 @@ final class OnboardingFlowViewModel {
 
     // MARK: - E · Tercihler
     //
-    // Üç cevabın üçü de ürünün davranışını değiştiriyor: hatırlatma saati
-    // bildirimi, süre blok seçimini, ton TTS istemini. "Kişiselleştirme
-    // tiyatrosu" değil (PRD-Ek Onboarding §6).
+    // E3 (ton) 2026-09-22'de kaldırıldı (ürün sahibi kararı, bkz. karar günlüğü):
+    // `TonePreference` sıralı bir küme değildi ve ekranın yerini alacak bir kaydırıcı
+    // yoktu. Enum, `resolvedTonePreference` ve sunucu alanı kalıyor — sunucu şeması
+    // `tone`u zorunlu ve doğrulanan bir alan olarak istiyor.
 
     /// E1'in önerdiği saat B3'ten geliyor — sorduğumuz her şeyin görünür bir
     /// karşılığı olmalı.
@@ -456,14 +484,11 @@ final class OnboardingFlowViewModel {
     func commitReminder(hour: Int, minute: Int) {
         draft.reminderHour = hour
         draft.reminderMinute = minute
-        advance(to: .e3Tone)
-    }
-
-    func commitTonePreference(_ tone: TonePreference) {
-        draft.tonePreference = tone
         // Adım uzunluğu ve ses kullanıcıya sorulmuyor (2026-09-21): uzunluk taslağın
         // varsayılanı (10 dk, `SessionLength.standard`), ses MVP'nin tek sesi. Sunucu ve
-        // oturum bu alanları okumaya devam ediyor.
+        // oturum bu alanları okumaya devam ediyor. Bu satır E3 silinince (2026-09-22)
+        // buraya taşındı — E3'ün commit'i bu satırı taşımıyordu, yoksa ses tercihi hiç
+        // kurulmazdı.
         draft.voicePreference = .feminine
         advance(to: .f1Generation)
     }
@@ -716,10 +741,9 @@ extension OnboardingFlowViewModel {
     /// `step` ve `draft` yalnızca burada yazılabilir — ve öyle kalmalı.
     static func preview(
         step: OnboardingStep,
-        draft: OnboardingDraft,
-        palette: PaletteController
+        draft: OnboardingDraft
     ) -> OnboardingFlowViewModel {
-        let flow = OnboardingFlowViewModel(palette: palette, services: .live())
+        let flow = OnboardingFlowViewModel(services: .live())
         flow.step = step
         flow.draft = draft
         return flow
@@ -731,8 +755,6 @@ extension OnboardingFlowViewModel {
     /// kapı aynı dosyada duruyor ve `#if DEBUG` içinde; Release'te yok.
     func debugApply(draft: OnboardingDraft) {
         self.draft = draft
-        palette.select(draft.categories)
-        palette.setMood(draft.currentMood)
     }
 
     func debugSetStep(_ target: OnboardingStep) {

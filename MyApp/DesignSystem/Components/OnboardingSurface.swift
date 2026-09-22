@@ -1,27 +1,24 @@
 import SwiftUI
 
-/// Bir onboarding adımının malzemesi (docs/onboarding-redesign.md, Bölüm 2.2).
+/// Bir onboarding adımının malzemesi (docs/onboarding-redesign.md, Faz 2).
 ///
-/// Uygulamanın üç katmanı (zemin, kâğıt, cam) onboarding'de şöyle dağılır:
-/// - `.ground`: kontrol doğrudan nefes alan mesh'in üstünde, açık mürekkep. A2 ve B6
-///   bilerek burada: A2'nin paleti ve B6'nın ruh hâli **arka planı değiştiriyor**;
+/// Gradyan kalkınca (2026-09-22) üç değerli sistem ikiye indi:
+/// - `.plain`: kart yok, doğrudan sahnenin üstünde. A1, A2, B6, F1, F2, G1, G2 —
+///   A2'nin kategori sahnesi ve B6'nın ruh hâli perdesi **arka planın kendisi**;
 ///   önlerine kart koymak neden ile sonucu birbirinden koparırdı.
-/// - `.paper`: okuma ve cevap yüzeyi krem kâğıt, koyu mürekkep. Kontrast palete
+/// - `.paper`: okuma ve cevap yüzeyi krem kâğıt, koyu mürekkep. Kontrast sahneye
 ///   bağlı değil, sabit (~9,5:1).
-/// - `.scene`: guaj manzara zemin olur. Ortak yerleşimleri kullanmayan özel
-///   ekranlar (A1, F1, F2, G2) için.
 enum OnboardingSurfaceStyle: Equatable, Sendable {
-    case ground
+    case plain
     case paper
-    case scene
 }
 
 extension EnvironmentValues {
     /// Adımın malzemesi. Kabuk `OnboardingStep.surfaceStyle`dan doldurur; ortak
-    /// yerleşimler okur. **Varsayılan `.ground`**: `PathSessionView` (oturumun
+    /// yerleşimler okur. **Varsayılan `.plain`**: `PathSessionView` (oturumun
     /// ortasındaki ekran) bu değeri hiç kurmaz ve bugünkü görünümünü, ayrı bir
     /// dal ya da bayrak olmadan korur.
-    @Entry var onboardingSurface: OnboardingSurfaceStyle = .ground
+    @Entry var onboardingSurface: OnboardingSurfaceStyle = .plain
 
     /// Yaprak bileşenlerin mürekkebi. Yalnızca **kartın içine** verilir: kartın
     /// altındaki buton mesh'in üstünde durur ve açık kalmalıdır, bu yüzden malzeme

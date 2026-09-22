@@ -46,6 +46,6 @@ run SessionEnvelope $M/Features/Session/SessionEnvelope.swift Tests/SessionEnvel
 run RetryPolicy $M/Infrastructure/Backend/RetryPolicy.swift $M/Infrastructure/Backend/BackendError.swift Tests/RetryPolicyTests/main.swift
 run AudioReadiness $M/Infrastructure/Backend/AudioStatus.swift $M/Features/Session/AudioReadiness.swift Tests/AudioReadinessTests/main.swift
 run ExpectationCurveModel $M/DesignSystem/Components/ExpectationCurveModel.swift Tests/ExpectationCurveModelTests/main.swift
-run Contrast $M/DesignSystem/RGB.swift $M/DesignSystem/Palette.swift $M/Content/Tone.swift $M/Models/DomainEnums.swift $SHIM Tests/ContrastTests/main.swift
+run Contrast $M/DesignSystem/RGB.swift Tests/ContrastTests/main.swift
 # JourneyRoutePatternTests bayat: JourneyRoutePattern tipi artık kodda yok (bu işten önce de böyleydi).
 exit $FAIL

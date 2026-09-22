@@ -110,7 +110,7 @@ struct TickRuler: View {
 
 #Preview("Cetvel") {
     ZStack {
-        BreathingMeshBackground(palette: .neutral, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(alignment: .leading, spacing: 32) {
             TickRuler(count: 4, selection: nil, onSelect: { _ in }, accessibilityLabel: .problemDurationSliderAccessibility, accessibilityValue: { "\($0)" })
             TickRuler(count: 5, selection: 2, onSelect: { _ in }, accessibilityLabel: .problemDurationSliderAccessibility, accessibilityValue: { "\($0)" }, fillsTrack: false)

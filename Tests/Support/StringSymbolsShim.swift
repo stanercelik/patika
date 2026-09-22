@@ -38,6 +38,7 @@ extension LocalizedStringResource {
     static var blockLibraryReflectionNoticeCue3: LocalizedStringResource { LocalizedStringResource("blockLibrary.reflectionNotice.cue3") }
     static var blockLibraryReflectionNoticeTitle: LocalizedStringResource { LocalizedStringResource("blockLibrary.reflectionNotice.title") }
     static var buttonCancel: LocalizedStringResource { LocalizedStringResource("button.cancel") }
+    static var buttonDoneKeyboard: LocalizedStringResource { LocalizedStringResource("button.doneKeyboard") }
     static var buttonFinish: LocalizedStringResource { LocalizedStringResource("button.finish") }
     static var buttonNext: LocalizedStringResource { LocalizedStringResource("button.next") }
     static var buttonResume: LocalizedStringResource { LocalizedStringResource("button.resume") }

@@ -93,7 +93,6 @@ struct ScreenPlaceholder: View {
 
 #Preview {
     RootView()
-        .environment(PaletteController())
         .environment(AppServices.live())
         .environment(DiscoverLibrary())
         .preferredColorScheme(.dark)

@@ -40,36 +40,58 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
     private var questionToAnswerGap: CGFloat { 24 }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Varsayılan punto sığar; ScrollView yalnızca büyük Dynamic Type
-            // boyutlarında devreye girer — AX5'te hiçbir ekran kırılmaz (Ton eki §7).
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    DisplayText(headline, size: 30)
+        // Varsayılan punto sığar; ScrollView yalnızca büyük Dynamic Type
+        // boyutlarında devreye girer — AX5'te hiçbir ekran kırılmaz (Ton eki §7).
+        //
+        // Alt bölge **`safeAreaInset`** ile veriliyor, `ScrollView`'ın altında ayrı bir
+        // `VStack` satırı olarak değil (2026-09-22 düzeltmesi). Sıralı VStack'te footer
+        // sabit bir yükseklik alıyordu ve klavye açılınca sistemin klavye kaçınması bu
+        // sabit satırı hesaba katmadan çalışıyordu — odaklanan alan klavyenin altında
+        // kalabiliyordu. `safeAreaInset` footer'ın yüksekliğini kaydırma alanının kendi
+        // güvenli bölgesine yazıyor; klavye geldiğinde ikisi **aynı** mekanizmayla
+        // toplanıyor, klavye kendi güvenli bölge inset'i, footer kendi inset'i.
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                DisplayText(headline, size: 30)
 
-                    if let hint {
-                        BodyText(hint)
-                    }
-
-                    content
-                        .padding(.top, questionToAnswerGap)
+                if let hint {
+                    BodyText(hint)
                 }
-                .onboardingSurfaceCard(surface)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Theme.Spacing.screenMargin)
-                .padding(.top, 14)
-                .padding(.bottom, 16)
-            }
-            .scrollIndicators(.hidden)
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollDismissesKeyboard(.interactively)
-            .scrollEdgeEffectStyle(.soft, for: .bottom)
 
+                content
+                    .padding(.top, questionToAnswerGap)
+            }
+            .onboardingSurfaceCard(surface)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.top, 14)
+            .padding(.bottom, 16)
+        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollDismissesKeyboard(.interactively)
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             footer
                 .padding(.top, 12)
                 .padding(.horizontal, Theme.Spacing.screenMargin)
                 .padding(.bottom, 12)
+                .background { footerBackdrop }
         }
+    }
+
+    /// Kaydırılan içerik `safeAreaInset`in altından geçebiliyor (bu, API'nin kastı —
+    /// sabit bir alt çubuğun altında içerik akması). Kartın kendisi ya da uzun bir AX5
+    /// gövdesi bu şeridin arkasından göründüğünde buton hâlâ okunur (dolu kapsül) ama
+    /// altındaki "geç" satırı zeminle karışabiliyordu; yukarıdan sızan yumuşak bir
+    /// karartma bunu ayırıyor.
+    private var footerBackdrop: some View {
+        LinearGradient(
+            colors: [.clear, WoodlandStyle.background.opacity(0.85), WoodlandStyle.background],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .padding(.top, -24)
     }
 }
 

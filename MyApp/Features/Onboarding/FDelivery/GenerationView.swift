@@ -24,58 +24,64 @@ struct GenerationView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            DisplayText(Copy.Onboarding.generationHeadline, size: 30)
-                .padding(.bottom, 34)
-
+        // AX5'te hiçbir ekran kırılmaz kuralı (Ton eki §7): dört satır + hata durumu
+        // büyük Dynamic Type'ta taşabiliyordu, artık kendi kaydırması var.
+        ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(viewModel.stages.enumerated()), id: \.offset) { index, stage in
-                    TrailRow(
-                        node: viewModel.state(of: index),
-                        showsLineAbove: index > 0,
-                        showsLineBelow: index < viewModel.stages.count - 1
-                    ) {
-                        Text(stage)
-                            .font(.body.weight(
-                                viewModel.isActive(index) ? Theme.Weight.action : Theme.Weight.body
-                            ))
-                            .foregroundStyle(
-                                Theme.textPrimary.color.opacity(opacity(of: index))
-                            )
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.bottom, 24)
+                DisplayText(Copy.Onboarding.generationHeadline, size: 30)
+                    .padding(.bottom, 34)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(Array(viewModel.stages.enumerated()), id: \.offset) { index, stage in
+                        TrailRow(
+                            node: viewModel.state(of: index),
+                            showsLineAbove: index > 0,
+                            showsLineBelow: index < viewModel.stages.count - 1,
+                            activeAmplitude: BreathAmplitude.generation
+                        ) {
+                            Text(stage)
+                                .font(.body.weight(
+                                    viewModel.isActive(index) ? Theme.Weight.action : Theme.Weight.body
+                                ))
+                                .foregroundStyle(
+                                    Theme.textPrimary.color.opacity(opacity(of: index))
+                                )
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(.bottom, 24)
+                        }
                     }
                 }
-            }
-            .animation(Theme.Motion.crossFade, value: viewModel.completedStages)
+                .animation(Theme.Motion.crossFade, value: viewModel.completedStages)
 
-            if viewModel.hasFailed {
-                Text(Copy.Error.pathGenerationFailed)
-                    .font(.footnote.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
-                    .padding(.top, 18)
+                if viewModel.hasFailed {
+                    Text(Copy.Error.pathGenerationFailed)
+                        .font(.footnote.weight(Theme.Weight.body))
+                        .foregroundStyle(Theme.textSecondary.color)
+                        .padding(.top, 18)
 
-                SecondaryTextButton(title: Copy.Button.retry) {
-                    viewModel.retry()
+                    SecondaryTextButton(title: Copy.Button.retry) {
+                        viewModel.retry()
+                    }
+                    .padding(.top, 12)
+
+                    #if DEBUG
+                    if let detail = viewModel.failureDetail {
+                        Text(verbatim: detail)
+                            .font(.caption2.monospaced())
+                            .foregroundStyle(Theme.textPrimary.color.opacity(0.45))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.top, 10)
+                    }
+                    #endif
                 }
-                .padding(.top, 12)
-
-                #if DEBUG
-                if let detail = viewModel.failureDetail {
-                    Text(verbatim: detail)
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(Theme.textPrimary.color.opacity(0.45))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 10)
-                }
-                #endif
             }
-
-            Spacer(minLength: 0)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.top, 24)
+            .padding(.bottom, 24)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(.horizontal, Theme.Spacing.screenMargin)
-        .padding(.top, 24)
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
         .task { viewModel.start() }
         .onDisappear { viewModel.cancel() }
     }

@@ -309,7 +309,7 @@ private struct ExpectationLineShape: Shape {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: Palette.all["sleep"]!, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         ExpectationCurveChart(startsImmediately: true)
             .padding(.horizontal, Theme.Spacing.screenMargin)
     }

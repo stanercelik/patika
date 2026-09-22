@@ -8,16 +8,12 @@ import SwiftUI
 /// buton gidip geliyor, iz sıfırdan doluyordu — akış tek bir yol değil, 31 ayrı
 /// ekran gibi görünüyordu (ürün sahibi kararı, 2026-09-08).
 struct OnboardingContainerView: View {
-    @Environment(PaletteController.self) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var flow: OnboardingFlowViewModel
 
-    init(palette: PaletteController, services: AppServices, onFinished: @escaping () -> Void) {
+    init(services: AppServices, onFinished: @escaping () -> Void) {
         self._flow = State(
             initialValue: OnboardingFlowViewModel(
-                palette: palette,
                 services: services,
                 onFinished: onFinished
             )
@@ -26,19 +22,7 @@ struct OnboardingContainerView: View {
 
     var body: some View {
         ZStack {
-            BreathingMeshBackground(
-                palette: palette.current,
-                safeY: flow.step.backgroundSafeY,
-                breathAmplitude: breathAmplitude,
-                voiceEnergy: flow.sessionVoiceEnergy,
-                scrimStrength: flow.step.backgroundScrimStrength,
-                boostsFrameRate: palette.isTransitioning || flow.step == .f2Roadmap
-            )
-
-            if let scene = flow.step.sceneArtwork, showsScene(scene) {
-                OnboardingSceneBackdrop(artwork: scene)
-                    .transition(.opacity)
-            }
+            OnboardingSceneLayer(artwork: flow.currentScene, dimming: flow.currentSceneDimming)
 
             VStack(spacing: 0) {
                 OnboardingHeader(
@@ -70,15 +54,6 @@ struct OnboardingContainerView: View {
     }
 
     private var content: some View { OnboardingStepContentView(flow: flow) }
-
-    /// Reduce Transparency ve erişilebilirlik boyutlarında sahne yerine düz zemin: üstündeki
-    /// başlık ve düğme her koşulda okunmalı, manzaranın güzelliği bunun için feda edilir.
-    private func showsScene(_ scene: OnboardingArtwork) -> Bool {
-        scene.isAvailable && !reduceTransparency && !dynamicTypeSize.isAccessibilitySize
-    }
-
-    /// Genlik ekran grubuna ait bir özellik; kabuk yalnızca okuyor.
-    private var breathAmplitude: Double { flow.step.breathAmplitude }
 }
 
 /// Henüz yazılmamış adımlar için dürüst yer tutucu.
@@ -88,16 +63,21 @@ struct NotYetBuiltView: View {
     let step: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
-            Text(verbatim: step)
-                .font(.title2.weight(Theme.Weight.title))
-                .foregroundStyle(Theme.textPrimary.color)
-            Text(.onboardingStepNotWritten)
-                .font(.body.weight(Theme.Weight.body))
-                .foregroundStyle(Theme.textSecondary.color)
+        // AX5'te hiçbir ekran kırılmaz kuralı (Ton eki §7): bu ekranın da kendi kaydırması var.
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
+                Text(verbatim: step)
+                    .font(.title2.weight(Theme.Weight.title))
+                    .foregroundStyle(Theme.textPrimary.color)
+                Text(.onboardingStepNotWritten)
+                    .font(.body.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textSecondary.color)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.vertical, 24)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .padding(.horizontal, Theme.Spacing.screenMargin)
+        .scrollIndicators(.hidden)
     }
 }
 
@@ -106,18 +86,21 @@ struct NotYetBuiltView: View {
 /// tek dokunuşla arama başlatmalıdır.
 struct CrisisView: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
-            Spacer()
-            Text(.crisisHeadline)
-                .font(.title2.weight(Theme.Weight.title))
-                .foregroundStyle(Theme.textPrimary.color)
-            Text(.crisisBody)
-                .font(.body.weight(Theme.Weight.body))
-                .foregroundStyle(Theme.textSecondary.color)
-            Spacer()
+        // AX5'te hiçbir ekran kırılmaz kuralı (Ton eki §7): bu ekranın da kendi kaydırması var.
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
+                Text(.crisisHeadline)
+                    .font(.title2.weight(Theme.Weight.title))
+                    .foregroundStyle(Theme.textPrimary.color)
+                Text(.crisisBody)
+                    .font(.body.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textSecondary.color)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.vertical, 24)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, Theme.Spacing.screenMargin)
+        .scrollIndicators(.hidden)
     }
 }
 
@@ -126,7 +109,6 @@ struct CrisisView: View {
 /// Kabuğun üst çubuğunu da kurar — tek bir ekranı önizlerken de gerçek yerleşim
 /// görünür, ekranlar çubuğu kendileri çizmediği için.
 struct OnboardingPreviewHost<Content: View>: View {
-    @State private var palette = PaletteController()
     var step: OnboardingStep = .a2Categories
     /// C ekranları taslağı okuyarak metin ürettiği için preview'da doldurulabilir.
     var draft = OnboardingDraft()
@@ -143,14 +125,9 @@ struct OnboardingPreviewHost<Content: View>: View {
     }
 
     var body: some View {
-        let flow = OnboardingFlowViewModel.preview(step: step, draft: draft, palette: palette)
+        let flow = OnboardingFlowViewModel.preview(step: step, draft: draft)
         return ZStack {
-            BreathingMeshBackground(
-                palette: palette.current,
-                safeY: step.backgroundSafeY,
-                scrimStrength: step.backgroundScrimStrength,
-                boostsFrameRate: palette.isTransitioning || step == .f2Roadmap
-            )
+            OnboardingSceneLayer(artwork: flow.currentScene, dimming: flow.currentSceneDimming)
             VStack(spacing: 0) {
                 OnboardingHeader(
                     showsBack: step.canGoBack,
@@ -162,12 +139,7 @@ struct OnboardingPreviewHost<Content: View>: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .environment(palette)
         .preferredColorScheme(.dark)
-        .task {
-            palette.select(draft.categories)
-            palette.setMood(draft.currentMood)
-        }
     }
 }
 
@@ -179,8 +151,12 @@ struct OnboardingStepContentView: View {
         switch flow.step {
         case .a1Welcome:
             WelcomeView(flow: flow)
-        case .identity:
-            IdentityView(flow: flow)
+        case .identityName:
+            NameView(flow: flow)
+        case .identityGender:
+            GenderView(flow: flow)
+        case .identityAge:
+            AgeRangeView(flow: flow)
         case .a2Categories:
             CategorySelectionView(flow: flow)
         case .b1ProblemText:
@@ -215,8 +191,6 @@ struct OnboardingStepContentView: View {
                 .id(index)
         case .e1Reminder:
             ReminderTimeView(flow: flow)
-        case .e3Tone:
-            TonePreferenceView(flow: flow)
         case .f1Generation:
             GenerationView(flow: flow)
         case .f2Roadmap:

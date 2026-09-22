@@ -16,7 +16,7 @@ import UIKit
 /// ## Buton ekranı kaplar (ürün sahibi kararı, 2026-09-09)
 ///
 /// Basılı tutuldukça buton bir kapsülden başlayıp **tüm ekranı dolduran** bir
-/// alana büyür ve dolgusu paletin kendi rengiyle gradyanlıdır. İki iş birden
+/// alana büyür ve dolgusu düz kırık beyazdır. İki iş birden
 /// yapıyor:
 ///
 /// - **Geri sayım görünür oluyor.** Önceki hâlde buton yalnızca %14 büyüyordu;
@@ -25,11 +25,9 @@ import UIKit
 /// - **Geçişin örtüsü oluyor.** Dolgu tamamlandığında ekran zaten kaplı; F2'den
 ///   G1'e geçiş bu ışığın altında oluyor, iki ekran arasında boşluk görünmüyor.
 ///
-/// Gradyan arka planın **akrabası ama aynısı değil**: paletin en parlak noktası
-/// kırık beyazla karıştırılıyor, yani ton kategoriden geliyor ama luminans yukarı
-/// çıkıyor. Koyu arka planın üstünde açık bir alan olarak ayrılıyor ve siyah
-/// buton metni büyüme boyunca okunur kalıyor — kontrast kilidinin (Görsel Sistem
-/// eki §3.4) buradaki karşılığı bu.
+/// Dolgu düz kırık beyazdır (`Theme.textPrimary`): koyu zeminde açık bir alan olarak
+/// ayrılıyor ve siyah buton metni büyüme boyunca okunur kalıyor. Önceden paletin en
+/// parlak noktasından gradyanlıydı; palet ve gradyan 2026-09-22'de kaldırıldı.
 ///
 /// ## Haptik tek kademe kalır
 ///
@@ -54,7 +52,6 @@ struct HoldToStartButton: View {
     /// beklerken sıkıcı olacak kadar uzun değil.
     private let holdDuration: TimeInterval = 1.4
 
-    @Environment(PaletteController.self) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var progress: Double = 0
@@ -121,7 +118,7 @@ struct HoldToStartButton: View {
     private var fill: some View {
         if reduceMotion {
             ZStack {
-                Capsule().fill(gradient)
+                Capsule().fill(fillColor)
                 // Reduce Motion'da büyümenin yerini alan sinyal: mürekkep
                 // soldan sağa doluyor, buton yerinde duruyor.
                 GeometryReader { geo in
@@ -139,7 +136,7 @@ struct HoldToStartButton: View {
                 let height = rest.height + (expanded - rest.height) * eased
 
                 RoundedRectangle(cornerRadius: height / 2, style: .continuous)
-                    .fill(gradient)
+                    .fill(fillColor)
                     .frame(width: width, height: height)
                     .offset(y: centerOffset * eased)
                     .position(x: rest.width / 2, y: rest.height / 2)
@@ -147,21 +144,10 @@ struct HoldToStartButton: View {
         }
     }
 
-    /// Paletin en parlak noktası kırık beyaza karıştırılıyor: ton kategoriden,
-    /// luminans metin renginden. Arka planla akraba, arka plandan ayrık.
-    private var gradient: LinearGradient {
-        let base = Theme.textPrimary
-        let accent = palette.current.spots.max(by: { $0.relativeLuminance < $1.relativeLuminance })
-            ?? Theme.textPrimary
-        return LinearGradient(
-            colors: [
-                base.mixed(with: accent, amount: 0.14).color,
-                base.mixed(with: accent, amount: 0.58).color,
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
+    /// Düz kırık beyaz dolgu (gradyan kalktı, 2026-09-22): ışık artık paletten değil,
+    /// oturum oynat düğmesiyle aynı malzemeden geliyor. Koyu zeminde açık bir alan olarak
+    /// ayrılır ve siyah buton metni büyüme boyunca okunur.
+    private var fillColor: Color { Theme.textPrimary.color }
 
     // MARK: - Geometri
 
@@ -263,10 +249,8 @@ struct HoldToStartButton: View {
 }
 
 #Preview {
-    @Previewable @State var palette = PaletteController()
-
-    return ZStack {
-        BreathingMeshBackground(palette: Palette.all["sleep"]!, safeY: 0.80)
+    ZStack {
+        WoodlandStyle.background.ignoresSafeArea()
         VStack {
             Spacer()
             HoldToStartButton(
@@ -277,7 +261,5 @@ struct HoldToStartButton: View {
             .padding(.bottom, 24)
         }
     }
-    .environment(palette)
     .preferredColorScheme(.dark)
-    .task { palette.select([.sleep]) }
 }

@@ -12,12 +12,8 @@ struct SupportView: View {
 
     var body: some View {
         ZStack {
-            BreathingMeshBackground(
-                palette: .neutral,
-                safeY: 0.3,
-                breathAmplitude: BreathAmplitude.crisis
-            )
-            .ignoresSafeArea()
+            // Kriz kaynakları: düz zemin, hareket yok, dekoratif hiçbir şey.
+            WoodlandStyle.background.ignoresSafeArea()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {

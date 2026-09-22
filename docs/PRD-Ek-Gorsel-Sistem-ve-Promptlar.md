@@ -3,6 +3,21 @@
 **Ana doküman:** PRD.md · **İlgili ekler:** PRD-Ek-Onboarding.md, PRD-Ek-Ton-ve-Nudge.md
 **Durum:** Taslak v0.1 · **Tarih:** 4 Eylül 2026
 
+> **Bölüm 1–7 geçersiz kılındı (22 Eylül 2026).** Ürün sahibi uygulama genelinde gradyanı
+> kaldırdı: `MeshGradient` + Metal shader + 10 kategori paleti tamamen silindi
+> (`CLAUDE.md`'nin "22 Eylül 2026 — gradyan kaldırıldı" kararına bak). §1'in "video değil
+> shader" karşılaştırması artık "video değil **statik guaj sahne**" olarak okunmalı; §3'ün
+> renk sistemi (10 kategori paleti, harmanlama, ruh hâli tonlaması) tamamen kalktı — yerini
+> `OnboardingArtwork`in kategori başına bir tam ekran sahnesi aldı
+> (`assets/illustrations/scenes/prompts.md`). §4'ün nefes hareketi tabloları yalnızca
+> `BreathCycle`/`BreathAmplitude`nin **hâlâ var olan** zamanlama katılımı (oturum sahne
+> süreleri, nefes küresi, F1'in aktif düğümü) için geçerli; mesh'in kendi nefes alan noktası
+> gitti. §5'in metin güvenli bölgesi (`backgroundSafeY`, shader scrim'i) kalktı; yerini düz
+> bir sahne perdesi aldı (`OnboardingSceneLayer`, `dimming`). §7'nin ekran ekran tablosu
+> (palet/safeY/nefes sütunları) artık `assets/illustrations/scenes/prompts.md`'deki sahne
+> atama tablosuyla değiştirilmeli. Bölüm 8'deki prompt'lar (C bölümü) hâlâ geçerli — onlar
+> kâğıt kartı içi kesitler, sahne değil.
+
 ---
 
 ## 1. Karar: video değil, shader

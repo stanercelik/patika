@@ -7,10 +7,9 @@ struct AppLockView: View {
 
     var body: some View {
         ZStack {
-            // Nötr palet: kategori rengi bile kişinin neyle uğraştığına dair bir
-            // ipucu sayılır.
-            BreathingMeshBackground(palette: .neutral, safeY: 0.45)
-                .ignoresSafeArea()
+            // Düz nötr zemin: kategori rengi ya da görseli bile kişinin neyle
+            // uğraştığına dair bir ipucu sayılır.
+            WoodlandStyle.background.ignoresSafeArea()
 
             VStack(spacing: 14) {
                 Spacer()
@@ -43,7 +42,7 @@ struct AppLockView: View {
 /// görünmemeli: "Zihni akşam yavaşlatma" bile kişinin neyle uğraştığını söyler.
 struct PrivacyShieldView: View {
     var body: some View {
-        Palette.neutral.background.color
+        WoodlandStyle.background
             .ignoresSafeArea()
             .accessibilityHidden(true)
     }

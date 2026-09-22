@@ -98,7 +98,7 @@ extension MoodScale {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: .neutral, safeY: 0.40)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(spacing: 40) {
             MoodScale(selection: nil) { _ in }
             MoodScale(selection: .middling) { _ in }

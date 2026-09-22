@@ -10,7 +10,7 @@ import SwiftUI
 /// eklemek ise bilinçli bir adım.
 ///
 /// Xcode'da önizleme tuvalinde açılır; her ekran gerçek `OnboardingPreviewHost`la (kabuk,
-/// mesh, üst çubuk) çizilir. Görsel yokluğunu da görmek için `-patika-debug-no-art`.
+/// sahne, üst çubuk) çizilir. Görsel yokluğunu da görmek için `-patika-debug-no-art`.
 private let galleryDraft: OnboardingDraft = {
     var draft = OnboardingDraft.debugSample()
     draft.categories = [.sleep]
@@ -18,13 +18,14 @@ private let galleryDraft: OnboardingDraft = {
 }()
 
 private let galleryEntries: [(String, OnboardingStep)] = [
-    ("A1", .a1Welcome), ("Kimlik", .identity), ("A2", .a2Categories),
+    ("A1", .a1Welcome), ("İsim", .identityName), ("Cinsiyet", .identityGender), ("Yaş", .identityAge),
+    ("A2", .a2Categories),
     ("B1", .b1ProblemText), ("B2", .b2Duration), ("B3", .b3Timing), ("B4", .b4Avoidance),
     ("B5", .b5PreviousAttempts), ("B6", .b6CurrentMood),
     ("C1", .c1Mirroring), ("C2", .c2NotAlone), ("C3", .c3PathNotLibrary), ("C4", .c4HonestExpectation),
     ("Taahhüt", .commitment),
     ("D0", .d0MeasurementIntro), ("D1", .dMeasurement(1)), ("D5", .dMeasurement(5)),
-    ("E1", .e1Reminder), ("E3", .e3Tone),
+    ("E1", .e1Reminder),
     ("F1", .f1Generation), ("F2", .f2Roadmap), ("G2", .g2SessionComplete),
     ("Fiyat", .price), ("H2", .h2Priming), ("H1", .h1Account),
 ]

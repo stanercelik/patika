@@ -2,6 +2,139 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 22 Eylül 2026 — gradyan kaldırıldı, sahne dili geldi; her soru kendi sayfasında; klavye/taşma düzeltmesi
+
+Ürün sahibinin kararı: **uygulama genelinde gradyan yok** — ne onboarding'de ne
+meditasyon ekranında. Plan: `docs/onboarding-redesign.md` (ikinci oturum, 2026-09-22
+başlıklı bölüm). Bu, önceki "Görsel sistem: video değil shader", "tam güçte
+`BreathingMeshBackground`", "A2 ve B6 zemin katmanında kalır (mesh içeriktir)" ve
+onboarding'in genel palet mimarisi kararlarını **geçersiz kılar**.
+
+- **Silindi:** `BreathingMeshBackground.swift`, `Shaders.metal` (`grainAndScrim`),
+  `Palette.swift` (10 kategori paleti + `mood-*` çapaları + `blend`/`moodAdjusted`/
+  `nightAdjusted`), `PaletteController.swift`. `RGB.mixed(with:)` ve
+  `RGB.withLuminance(_:)` de silindi — **ikisi de artık ölü koddu**: `withLuminance`
+  zaten hiçbir yere bağlı değildi (dokümanların "ton serbest, luminans kilitli"
+  iddiası hiç doğru olmamıştı, gerçek kilit yalnızca `Tests/ContrastTests`'ti);
+  `mixed` yalnızca `moodAdjusted` ve `HoldToStartButton`'ın gradyan dolgusu
+  tarafından kullanılıyordu, ikisi de gitti. Metal toolchain zorunluluğu kalktı.
+- **Yerine geldi:** her bölümün tam ekran bir guaj sahnesi (`OnboardingArtwork`,
+  `OnboardingSceneLayer`). A2'den B6'ya kadar sahne **seçilen kategoriye göre**
+  değişir (`OnboardingFlowViewModel.currentScene`, taslaktan ya da A2'nin henüz
+  commit edilmemiş canlı seçiminden okur) — bu işi eskiden canlı palet yapıyordu.
+  B6'nın ruh hâli artık sahne perdesini koyultup açıyor (`MoodLevel.sceneDimming`,
+  0,26–0,50), palet tonlaması değil. 16 sahne (6 bölüm + 10 kategori) henüz
+  üretilmedi; prompt'lar `assets/illustrations/scenes/prompts.md`'de. Görsel
+  yoksa (ki şu an hepsi yok, `onboarding-threshold` hariç) ekran düz
+  `WoodlandStyle.background`a düşer — hiçbir ekran kırılmaz.
+- **`OnboardingSurfaceStyle` ikiye indi:** `.paper` ve `.plain` (eski `.ground` ve
+  kullanılmayan `.scene` kalktı). A2 ve B6 `.plain` kalır (sahne cevabın kendisi);
+  `PathSessionView` hâlâ bu ortam değerini hiç kurmuyor, varsayılan `.plain`
+  onu değiştirmeden koruyor.
+- **Meditasyon ekranı da gradyansız.** `PathSessionView` ve G1
+  (`FirstSessionView`) artık `bg-session` sahnesi + yeni `BreathOrb` (düz kırık
+  beyaz dolgu + ince halka, gradyan yok) kullanıyor. **Küre yalnızca `.preparing`
+  fazında görünür** — `.running`da faz görseli (`SessionArtworkView`) zaten
+  nefesle ölçekleniyor, ikisi aynı anda ekranda iki ayrı nefes hareketi üretip
+  görsel olarak çakışıyordu (simülatörde ölçüldü, düzeltildi). Bu arada
+  `SessionArtworkView`nin nefesi de düzeldi: zaman önceden `palette.current.speed`
+  (0,18–0,40) ile çarpılıyordu, yani görselin "nefesi" ekranın gerçek 10 sn'lik
+  döngüsünün 2,5–5 katı yavaştı; artık ham zaman kullanıyor.
+- **E3 ("Sana nasıl bir ses iyi gelir?") silindi.** `TonePreference` enum'u,
+  `resolvedTonePreference` ve sunucu alanı **kalıyor** (`_shared/schema.ts` `tone`u
+  zorunlu ve doğrulanan bir alan istiyor). Silinen: `PreferenceChoiceViews.swift`
+  (`TonePreferenceView` + `sample` uzantısı), `OnboardingStep.e3Tone`,
+  `extension TonePreference: OnboardingChoice`, `ChoiceRow.detail` (tek
+  tüketicisi E3'tü), 8 katalog kaydı. **`draft.voicePreference = .feminine`
+  ataması `commitTonePreference`den `commitReminder`a taşındı** — taşınmasaydı
+  ses tercihi hiç kurulmazdı, sessiz bir kayıp olurdu. E1'den sonra akış artık
+  doğrudan F1'e gidiyor. Ben sekmesindeki ton satırı da kalktı (`MeViewModel`,
+  `SettingsSheet`): kullanıcı hiç seçmediği bir tercihi seçilmiş gibi göstermek
+  "verisi olmayan bölüm çizilmez" kuralını ihlal ederdi.
+- **Kimlik yeniden üçe bölündü.** 2026-09-21'de isim+cinsiyet+yaş tek kartta
+  ilerleyen açılımla birleştirilmişti (`IdentityView`); ürün sahibi "her soru
+  kendi sayfasında" isteğiyle bunu geri aldı. Üç ayrı ekran: `NameView`,
+  `GenderView`, `AgeRangeView` (`OnboardingStep.identityName/.identityGender/
+  .identityAge`). Soru bölümünün izi artık 10 ekran (kimlik 3 + A2 + B1–B6).
+- **Klavye ve taşma düzeltmesi.** Kök neden: alt buton bölgesi `ScrollView`'ın
+  **dışında**, kardeş bir `VStack` satırıydı; klavye açılınca sistemin klavye
+  kaçınması bu sabit satırı hesaba katmadan çalışıyor, odaklanan alan klavyenin
+  altında kalabiliyordu. Düzeltme: footer artık `OnboardingQuestionLayout` ve
+  `OnboardingStatementLayout`ta **`safeAreaInset(edge: .bottom)`** ile veriliyor;
+  klavye ve footer aynı mekanizmadan (safe area inset toplama) geçiyor. İçerik
+  bu inset'in altından kayarak geçebiliyor (`safeAreaInset`in kastı budur, bir
+  "List altında mini oynatıcı" gibi); bu yüzden footer'ın arkasına yukarıdan
+  sızan yumuşak bir karartma (`footerBackdrop`) eklendi — yoksa AX5'te uzun bir
+  kâğıt kartın kuyruğu butonun/geç bağlantısının arkasından görünüp okunaksız
+  oluyordu (simülatörde ölçüldü, ekran görüntüsüyle doğrulandı).
+  `OnboardingTextInput` artık tek satırlı alanlarda `return`ü "Done" yapıp
+  `onSubmit` çağırıyor (isim ekranı bunu kullanıyor); çok satırlı alanlarda
+  (B1/B4, `return` yeni satır eklediği için) klavyenin üstünde "Done" içeren bir
+  araç çubuğu var. `CrisisView`, `NotYetBuiltView` ve F1 (`GenerationView`)
+  kendi `ScrollView`'larını aldı — AX5'te hiçbir ekran kırılmaz kuralı üçünde de
+  tutulmuyordu.
+- **F1 "Building your path" artık gerçekten dinamik.** Eski davranış
+  `completedStages`i 1'den doğrudan 4'e atlıyordu — 2. ve 3. satır hiç aktif
+  olmuyordu (yorumu "gerçekçi zamanlayıcı"dan söz ediyordu ama kodda zamanlayıcı
+  yoktu). Artık gerçek ağ isteği (`flow.generatePath`) uçarken 2. ve 3. aşama
+  ölçülü bir tempoyla ilerliyor (`pacedAdvance`, 1,2 sn / 1,6 sn); **4. aşama
+  yalnızca gerçek sonuç gelince** işaretleniyor, ağ hızlı dönse bile ara
+  aşamalar en az `minStepDisplay` (650 ms) görünür kalıyor. İz artık
+  `TrailRow`'un segmentleri yukarıdan aşağı **büyüyerek** beliriyor
+  (`scaleEffect(y:anchor: .top)`), aktif düğüm `.generation` genliğinde nefes
+  alıyor (önceden sabit `.ambient`ti, `TrailRow` artık `activeAmplitude` alıyor).
+- **`Tests/ContrastTests` yeniden yazıldı.** Eski hâli `Palette.all` üzerinden 55
+  kombinasyonu tarıyordu, palet silinince derlenmiyordu. Yeni hâli yalnızca
+  kâğıt/kartın sabit oranlarını ve görsel yokken düz zeminin kontrastını ölçüyor
+  — **sahne + gerçek görselin** üstündeki kontrastı ölçmek `ImageRenderer`
+  tabanlı bir XCTest hedefi gerektiriyor ve bu hâlâ yazılmadı (dokümanların
+  baştan beri not ettiği eksik).
+- **Uygulama durumu:** derleniyor, 13 Swift testinin 13'ü yeşil, simülatörde
+  A1→H1 baştan sona ekran görüntüsüyle doğrulandı (görselsiz düşüş dahil, AX5
+  dahil). Deno testlerine dokunulmadı (sunucu değişmedi). **Açık kalan:**
+  jestler (cetvel, kaydırıcı, kadran, ruh hâli sürüklemesi) statik doğrulandı,
+  parmakla sürülmedi.
+
+### Aynı gün devamı — 16 sahne görseli geldi, sert kesme düzeltildi
+
+Ürün sahibi 16 sahne görselini üretti (`~/Downloads/`), depoya alındı:
+`assets/illustrations/scenes/*.png` (kaynak) ve
+`MyApp/Assets.xcassets/Onboarding/bg-*.imageset/artwork.jpg` (uygulamaya giren
+kopya, q85 JPEG, 887×1774, opak). Simülatörde A2 (kategori), isim (bg-gathering),
+C1 (bg-reflection), F1 (bg-prepare), G1 (bg-session) ekran görüntüsüyle
+doğrulandı — hepsi metin bandı kurallarına (üstte/altta sakin bant) uyuyor.
+
+- **Sahne değişimi sert kesiyordu, düzeltildi.** `OnboardingSceneLayer`'da
+  `artwork` değeri aynı `if` dalı içinde değişiyordu (ör. A2'de kategoriden
+  kategoriye) ve `Image`'in varlık adı animatable bir özellik olmadığı için
+  `.animation(value: artwork)` bunu yakalayamıyordu — sahne bir kesme gibi
+  değişiyordu. Düzeltme: `.id(artwork)` her sahneyi ayrı bir görünüm kimliğine
+  bağlıyor, böylece SwiftUI kaldırma/ekleme olarak görüyor ve `.transition(.opacity)`
+  gerçekten çalışıyor; süre `Theme.Motion.crossFade`den (0,25 sn) `Theme.Motion.palette`ye
+  (1,2 sn) çıkarıldı — tam ekran bir kimlik değişimi eski palet geçişiyle aynı
+  gerekçeyle ("ani değişim irkiltir") aynı hızda yumuşatılıyor. `reduceMotion`da
+  geçiş kapanır. Karartma (`dimming`) artık `ZStack`in tamamına `.overlay` ile
+  bindiriliyor — görsel yokken de aynı satırdan geçtiği için iki ayrı kod yolu
+  yerine tek kod yolu var.
+- **Diğer dinamik görsel/animasyon noktaları tarandı, ek düzeltme gerekmedi:**
+  `MoodScale` ve `TrailRow` zaten `Theme.Motion.crossFade` altında doğru
+  animasyonlanıyor; `SessionArtworkView` ve `PathLandscapeScene` tek bir sabit
+  varlıkla çalışıyor (mid-view swap yok), `.id()` düzeltmesine ihtiyaçları yok.
+- **Tuzak tekrar yakalandı ve gerçek kayba yol açıyordu.** Doğrulama
+  derlemelerinden biri `Localizable.xcstrings`i yeniden biçimlendirdi ve 13 kaydı
+  (`age Range` etiketleri, `%@`/`%lld` gibi format kalıntıları) `localizations`
+  alanı boş bırakılmış hâlde bozdu — `generate-string-symbol-shim.py` bu yüzden
+  çöktü. `git checkout -- ...xcstrings` ile HEAD'e (commit `9874bcf`) dönüldü,
+  ama bu HEAD'den sonra eklenmiş **gerçek** bir kayıt olan `button.doneKeyboard`
+  (Faz 5 klavye "Done" tuşu, `OnboardingTextInput.swift`) da beraberinde silindi
+  ve derleme `LocalizedStringResource has no member 'buttonDoneKeyboard'` ile
+  kırıldı. Kayıt elle geri eklendi. **Ders:** bu dosyayı `git checkout` ile
+  sıfırlamadan önce `git show HEAD:...` ile HEAD'in gerçekten temiz olduğunu
+  doğrulamak yetmez — HEAD'den sonra eklenen meşru kayıtları da tek tek
+  karşılaştırmak gerekir; `SWIFT_EMIT_LOC_STRINGS=NO` her zaman geçilmeli ve
+  geçildikten sonraki derlemede dosyanın gerçekten dokunulmadığı (`git diff --stat`)
+  doğrulanmalı.
+
 ## 21 Eylül 2026 — onboarding yeniden tasarımı (orman dili, ifade eden girdiler, yeni akış)
 
 Plan ve gerekçeler: `docs/onboarding-redesign.md`. Ürün sahibi kapsamı genişletti:

@@ -421,6 +421,18 @@
         }
       }
     },
+    "button.doneKeyboard": {
+      "extractionState": "manual",
+      "comment": "Copy.swift · static let doneKeyboard: LocalizedStringResource",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
     "button.finish": {
       "extractionState": "manual",
       "comment": "Copy.swift · static let finish: LocalizedStringResource = \"Burada duralım\"",

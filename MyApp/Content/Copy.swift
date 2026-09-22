@@ -52,6 +52,9 @@ enum Copy {
         static let retry: LocalizedStringResource = .buttonRetry
         static let understood: LocalizedStringResource = .buttonUnderstood
         static let next: LocalizedStringResource = .buttonNext
+        /// Çok satırlı yazı alanlarının klavye araç çubuğu — `return` sonraki satıra
+        /// geçtiği için klavyeyi kapatan ayrı bir yol gerekiyor.
+        static let doneKeyboard: LocalizedStringResource = .buttonDoneKeyboard
     }
 
     /// Boş durumlar (Ton eki §3.1). Hiçbirinde şaka yok, hiçbirinde suçlama yok.
@@ -139,7 +142,6 @@ enum Copy {
             .onboardingNameHint
         static let namePlaceholder: LocalizedStringResource = .onboardingNamePlaceholder
         static let nameSkip: LocalizedStringResource = .onboardingNameSkip
-        static let nameFirstCTA: LocalizedStringResource = .onboardingNameFirstCTA
 
         static let genderHeadline: LocalizedStringResource = .onboardingGenderHeadline
         static let ageHeadline: LocalizedStringResource = .onboardingAgeHeadline
@@ -321,10 +323,6 @@ enum Copy {
         static let reminderAccept: LocalizedStringResource = .onboardingReminderAccept
         static let reminderChange: LocalizedStringResource = .onboardingReminderChange
         static let reminderPickerLabel: LocalizedStringResource = .onboardingReminderPickerLabel
-
-        static let toneHeadline: LocalizedStringResource = .onboardingToneHeadline
-        static let toneHint: LocalizedStringResource =
-            .onboardingToneHint
 
         // MARK: F — Üretim ve teslim (PRD-Ek Onboarding §7)
 

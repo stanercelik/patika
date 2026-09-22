@@ -42,7 +42,7 @@ struct PathProgressBar: View {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: .neutral)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(spacing: 40) {
             PathProgressBar(progress: 0.0)
             PathProgressBar(progress: 1.0 / 7.0)

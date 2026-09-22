@@ -17,7 +17,6 @@ struct SettingsSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(AppState.self) private var appState
-    @Environment(PaletteController.self) private var palette
     @State private var analyticsConsent: Bool
     @State private var confirmsJournalDeletion = false
     @State private var confirmsAccountDeletion = false
@@ -286,12 +285,10 @@ struct SettingsSheet: View {
         }
     }
 
-    /// Silme tamamlanınca uygulama en başa döner: kayıt, oturum ve palet sıfır.
+    /// Silme tamamlanınca uygulama en başa döner: kayıt ve oturum sıfır.
     private func deleteAccount() async {
         guard await viewModel.deleteAccount() else { return }
         dismiss()
-        palette.select([])
-        palette.setMood(nil)
         appState.hasCompletedOnboarding = false
     }
 }

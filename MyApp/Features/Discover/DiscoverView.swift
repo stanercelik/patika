@@ -19,7 +19,6 @@ enum DiscoverRoute: Hashable {
 /// eski ekran ham sistem fontlarıyla SF Pro çiziyordu, uygulamanın kalanı Rounded.
 struct DiscoverView: View {
     @Environment(DiscoverLibrary.self) private var library
-    @Environment(PaletteController.self) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -41,14 +40,6 @@ struct DiscoverView: View {
         NavigationStack(path: $route) {
             ZStack {
                 WoodlandStyle.background.ignoresSafeArea()
-                BreathingMeshBackground(
-                    palette: palette.current,
-                    safeY: 0.12,
-                    breathAmplitude: BreathAmplitude.measurement
-                )
-                .opacity(0.20)
-                .ignoresSafeArea()
-                .accessibilityHidden(true)
                 content
             }
             .toolbar(.hidden, for: .navigationBar)

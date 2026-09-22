@@ -41,7 +41,6 @@ struct MeView: View {
     @Binding var path: [MeRoute]
 
     @Environment(AppServices.self) private var services
-    @Environment(PaletteController.self) private var palette
     @Namespace private var zoomNamespace
 
     @State private var viewModel: MeViewModel?
@@ -49,14 +48,6 @@ struct MeView: View {
     var body: some View {
         ZStack {
             WoodlandStyle.background.ignoresSafeArea()
-            BreathingMeshBackground(
-                palette: palette.current,
-                safeY: 0.12,
-                breathAmplitude: viewModel?.isInCrisisMode == true ? BreathAmplitude.crisis : BreathAmplitude.measurement
-            )
-            .opacity(0.16)
-            .ignoresSafeArea()
-
             if let viewModel {
                 MeContent(viewModel: viewModel, path: $path, zoomNamespace: zoomNamespace)
             }

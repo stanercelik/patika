@@ -146,7 +146,7 @@ struct ComparisonColumns: View {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: Palette.all["sleep"]!, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         ComparisonColumns(
             theirsTitle: Copy.Onboarding.libraryComparisonTheirsTitle,
             oursTitle: Copy.Onboarding.libraryComparisonOursTitle,

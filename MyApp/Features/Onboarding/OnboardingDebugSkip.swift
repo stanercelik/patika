@@ -82,7 +82,9 @@ extension OnboardingFlowViewModel {
 extension OnboardingStep {
     init?(debugName: String) {
         switch debugName.lowercased() {
-        case "identity", "name", "gender", "age": self = .identity
+        case "identity", "name": self = .identityName
+        case "gender": self = .identityGender
+        case "age": self = .identityAge
         case "commit": self = .commitment
         case "price": self = .price
         case "h2": self = .h2Priming
@@ -100,7 +102,6 @@ extension OnboardingStep {
         case "d0": self = .d0MeasurementIntro
         case "d1": self = .dMeasurement(1)
         case "e1": self = .e1Reminder
-        case "e3": self = .e3Tone
         case "f1": self = .f1Generation
         case "f2": self = .f2Roadmap
         case "g1": self = .g1FirstSession
@@ -141,11 +142,9 @@ enum DebugDirectEntry {
         return Int(arguments[arguments.index(after: index)])
     }
 
-    static func prepareIfNeeded(services: AppServices, palette: PaletteController) async {
+    static func prepareIfNeeded(services: AppServices) async {
         guard opensRoot else { return }
         let draft = OnboardingDraft.debugSample()
-        palette.select(draft.categories)
-        palette.setMood(draft.currentMood)
         if PathPreviewFixture.isEnabled || PathPreviewFixture.showsEmpty { return }
         do {
             let token = try await services.auth.validAccessToken()

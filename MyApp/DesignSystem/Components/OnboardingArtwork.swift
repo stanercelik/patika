@@ -1,17 +1,15 @@
 import SwiftUI
 
-/// Onboarding'in yeni guaj parçaları (docs/onboarding-redesign.md, Bölüm 7;
-/// prompt'lar `assets/illustrations/onboarding/prompts.md`).
+/// Onboarding'in guaj parçaları — hem kâğıt kart içi şeffaf kesitler hem tam ekran
+/// opak sahneler (docs/onboarding-redesign.md, Faz 2 ve Bölüm 7'nin devamı; prompt'lar
+/// `assets/illustrations/onboarding/prompts.md` ve `assets/illustrations/scenes/prompts.md`).
 ///
 /// Adlar burada, çağrı noktalarında ham metin yok. Hiçbiri zorunlu değil: varlık
-/// pakette yoksa görsel **yer kaplamaz** ve ekran yalnızca metinle tam çalışır
-/// (`-patika-debug-no-art` bunu denetler).
-///
-/// Renkli guaj yalnızca kâğıt kartta ya da karartılmış sahne zemininde durur, canlı
-/// kategori mesh'inin üstünde asla: A2 ve B6'da mesh içeriktir.
+/// pakette yoksa görsel **yer kaplamaz** (kâğıt içi kesit) ya da düz zemine düşer
+/// (tam ekran sahne) — `-patika-debug-no-art` bunu denetler.
 enum OnboardingArtwork: String, CaseIterable {
-    /// A1 — tam ekran opak sahne zemini.
-    case threshold = "onboarding-threshold"
+    // MARK: - Kâğıt kart içi şeffaf kesitler (PAPER bloğu)
+
     case identity = "onboarding-identity"
     case timeOfDay = "onboarding-b-weather"
     case fork = "onboarding-c3-fork"
@@ -23,7 +21,54 @@ enum OnboardingArtwork: String, CaseIterable {
     case lantern = "onboarding-h2-lantern"
     case shelter = "onboarding-h1-shelter"
 
+    // MARK: - Tam ekran opak sahneler (SCENE bloğu)
+
+    /// A1 karşılama.
+    case threshold = "onboarding-threshold"
+    /// Kimlik: isim, cinsiyet, yaş.
+    case gathering = "bg-gathering"
+    /// C1–C4 ve taahhüt.
+    case reflection = "bg-reflection"
+    /// D0–D8.
+    case measure = "bg-measure"
+    /// E1, F1, F2.
+    case prepare = "bg-prepare"
+    /// G1 ve bütün Yolum oturumları.
+    case session = "bg-session"
+    /// G2, fiyat, H2, H1.
+    case settle = "bg-settle"
+
+    /// A2'den B6'ya kadar — seçilen (ya da henüz commit edilmemiş, canlı önizlenen)
+    /// birincil kategoriye göre. `ProblemCategory` ile bire bir (`bg-category-<key>`).
+    case categoryAnxiety = "bg-category-anxiety"
+    case categorySleep = "bg-category-sleep"
+    case categoryBurnout = "bg-category-burnout"
+    case categoryFocus = "bg-category-focus"
+    case categoryAnger = "bg-category-anger"
+    case categorySelfcrit = "bg-category-selfcrit"
+    case categorySocial = "bg-category-social"
+    case categoryExam = "bg-category-exam"
+    case categoryGrief = "bg-category-grief"
+    case categoryUnnamed = "bg-category-unnamed"
+
     var isAvailable: Bool { PatikaArt.exists(rawValue) }
+
+    /// Kategori sahnesi. Öfke için kırmızı yok — bu bir ürün kararı (öfkeli kullanıcıya
+    /// kırmızı göstermek durumu pekiştirir), sahnesi de yeşil-teal bir akarsu.
+    static func category(_ category: ProblemCategory) -> OnboardingArtwork {
+        switch category {
+        case .anxiety: .categoryAnxiety
+        case .sleep: .categorySleep
+        case .burnout: .categoryBurnout
+        case .focus: .categoryFocus
+        case .anger: .categoryAnger
+        case .selfcrit: .categorySelfcrit
+        case .social: .categorySocial
+        case .exam: .categoryExam
+        case .grief: .categoryGrief
+        case .unnamed: .categoryUnnamed
+        }
+    }
 }
 
 /// Kâğıt kartın içindeki (ya da sahne üstündeki) şeffaf parça. Varlık yoksa hiç yer
@@ -46,32 +91,5 @@ struct OnboardingArtworkView: View {
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
         }
-    }
-}
-
-/// Tam ekran opak sahne zemini (A1). Mesh'in üstünde durur ve onu tamamen örter; alt
-/// kısımdaki karartma başlık ile düğmenin okunurluğunu sağlar. Dekoratif ve VoiceOver'dan gizli.
-struct OnboardingSceneBackdrop: View {
-    let artwork: OnboardingArtwork
-
-    var body: some View {
-        GeometryReader { geo in
-            Image(decorative: artwork.rawValue)
-                .resizable()
-                .scaledToFill()
-                .frame(width: geo.size.width, height: geo.size.height)
-                .clipped()
-                .overlay(alignment: .bottom) {
-                    LinearGradient(
-                        colors: [.clear, Color.black.opacity(0.55), Color.black.opacity(0.78)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(height: geo.size.height * 0.55)
-                }
-        }
-        .ignoresSafeArea()
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
     }
 }

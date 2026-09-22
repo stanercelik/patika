@@ -14,7 +14,6 @@ where AllCases == [Self] {
 
 extension Gender: OnboardingChoice {}
 extension AgeRange: OnboardingChoice {}
-extension TonePreference: OnboardingChoice {}
 extension ProblemDuration: OnboardingChoice {}
 extension ProblemTiming: OnboardingChoice {}
 extension MoodLevel: OnboardingChoice {}

@@ -37,7 +37,6 @@ struct SessionArtworkView: View {
     let artwork: SessionArtwork
     let isPaused: Bool
 
-    @Environment(PaletteController.self) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -55,7 +54,8 @@ struct SessionArtworkView: View {
 
     private func breath(at date: Date) -> Double {
         guard !reduceMotion else { return 0 }
-        let t = date.timeIntervalSinceReferenceDate * palette.current.speed
-        return BreathCycle.value(at: t, amplitude: BreathAmplitude.session)
+        // Ham zaman: gerçek 10 sn'lik döngü. Önceden zaman paletin `speed`iyle (0,18-0,40)
+        // çarpılıyordu ve görselin nefesi ekrandaki sahne saatinin 2,5-5 katı yavaştı.
+        return BreathCycle.value(at: date.timeIntervalSinceReferenceDate, amplitude: BreathAmplitude.session)
     }
 }

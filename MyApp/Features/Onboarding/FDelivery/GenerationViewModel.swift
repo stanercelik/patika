@@ -6,17 +6,21 @@ import Observation
 /// ## Bekleyiş performans değil
 ///
 /// Cal AI'ın "planınız hesaplanıyor" ekranı büyük ihtimalle performatif. Bizde
-/// path üretimi **gerçekten** 10–20 saniye sürüyor: sınıflandırma, şablon
-/// seçimi, blok sıralaması, ses üretimi. Adımları göstermek bekleyişi değere
-/// çeviriyor — kullanıcı ne beklediğini biliyor.
+/// path üretimi **gerçekten** birkaç saniye sürüyor (canlı ölçüm: TR path 3 sn'de
+/// 21 adım). Adımları göstermek bekleyişi değere çeviriyor — kullanıcı ne
+/// beklediğini biliyor.
 ///
-/// ## Şu an sahte, ama sahteliği gizlenmiyor
+/// ## Gerçek ağ çağrısı, ölçülü ara aşamalar (2026-09-22 düzeltmesi)
 ///
-/// Ağ katmanı yazılmadığı için aşamalar zamanlayıcıyla ilerliyor. Gerçek üretim
-/// geldiğinde `advance()` çağrısı sunucudan gelen ilerleme olaylarına bağlanır ve
-/// ekran değişmez. Süreler o yüzden **gerçekçi** seçildi (toplam ~11 sn):
-/// zamanlayıcı 2 saniyede bitseydi, gerçek üretim eklendiğinde ekran bambaşka
-/// hissettirirdi.
+/// `completedStages` **1**den başlar (kullanıcının yazdıkları zaten okundu) ve
+/// gerçek `flow.generatePath` çağrısı uçarken 2. ve 3. aşama ölçülü bir tempoyla
+/// ilerler (`pacedAdvance`) — bu bir zamanlayıcı simülasyonu değil, gerçek ağ
+/// isteği devam ederken ekranın "bir şey oluyor" demesi. **4. aşama yalnızca
+/// gerçek sonuç gelince işaretlenir**; önceki sürümdeki "tek atlayış" (1'den
+/// doğrudan 4'e) burada düzeltildi — 2. ve 3. satır artık gerçekten aktif oluyor.
+/// Ağ hızlı dönerse (`< 2,2 sn`) ara aşamalar yine de en az bir kare görünür kalır
+/// (`minStepDisplay`) — aksi hâlde eş zamanlı iki atama tek karede birleşip aynı
+/// "atlama" hissini geri getirirdi.
 ///
 /// Espri yok, ilerleme yüzdesi yok, "neredeyse bitti" yalanı yok — kullanıcı az
 /// önce derdini anlattı, bu an ciddi (Ton eki §3.3).
@@ -49,14 +53,31 @@ final class GenerationViewModel {
 
     func isActive(_ index: Int) -> Bool { index == completedStages }
 
+    /// Ara aşamaların (2. ve 3.) her birinin ekranda kalması gereken en az süre.
+    /// Ağ hızlı dönse bile bu kadar görünür kalır — yoksa arka arkaya iki atama
+    /// aynı karede birleşip eski "1'den 4'e atlama" hissini geri getirirdi.
+    private let minStepDisplay: Duration = .milliseconds(650)
+
     func start() {
         guard task == nil else { return }
         hasFailed = false
         failureDetail = nil
+        completedStages = 1
         task = Task { @MainActor in
-            completedStages = 1
+            // Gerçek ağ isteği uçarken 2. ve 3. aşama ölçülü bir tempoyla ilerler.
+            // Bu bir sahte zamanlayıcı değil: istek gerçekten sürüyor, yalnızca
+            // ekran bu süre boyunca sessiz kalmıyor.
+            let pacing = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(1.2))
+                guard let self, !Task.isCancelled, completedStages < 2 else { return }
+                completedStages = 2
+                try? await Task.sleep(for: .seconds(1.6))
+                guard !Task.isCancelled, completedStages < 3 else { return }
+                completedStages = 3
+            }
             do {
                 let result = try await flow.generatePath(idempotencyKey: idempotencyKey)
+                pacing.cancel()
                 guard !Task.isCancelled else { return }
                 switch result {
                 case .crisis:
@@ -65,12 +86,24 @@ final class GenerationViewModel {
                     // Ses üretimi burada başlar ve beklenmez (JIT, PRD-Ek Path
                     // Üretimi §6): kullanıcı haritayı okurken ses üretiliyor.
                     flow.prepareFirstStepAudio()
+                    // 4. aşama yalnızca gerçek sonuç geldiğinde işaretlenir; ama
+                    // ağ ara aşamalardan daha hızlı dönmüşse önce onlardan geçilir —
+                    // "yolu sıraya diziyorum" hiç görünmeden bitmiş göstermek yalan.
+                    if completedStages < 2 {
+                        completedStages = 2
+                        try? await Task.sleep(for: minStepDisplay)
+                    }
+                    if completedStages < 3 {
+                        completedStages = 3
+                        try? await Task.sleep(for: minStepDisplay)
+                    }
                     completedStages = stages.count
                     try? await Task.sleep(for: .seconds(0.45))
                     guard !Task.isCancelled else { return }
                     flow.finishGeneration()
                 }
             } catch {
+                pacing.cancel()
                 guard !Task.isCancelled else { return }
                 // İz son ulaştığı yerde kalır. Sıfıra dönmek, yapılmış işin
                 // kaybolduğunu söylerdi — oysa "yazdıkların kaybolmadı" diyoruz.

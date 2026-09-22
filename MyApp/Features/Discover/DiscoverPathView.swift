@@ -3,8 +3,8 @@ import SwiftUI
 /// Hazır patikanın detayı — Keşfet'ten yakınlaştırma geçişiyle açılır ("Ben"deki
 /// defter geçişiyle aynı) ve katılınmış patikanın canlı hâlini de çizer.
 ///
-/// - **Zemin patikanın kendi kategorisinin paletidir** (`Palette.forCategory`):
-///   Keşfet ana ekranı kullanıcının paletini, detay patikanın paletini kullanır.
+/// - **Zemin düz `WoodlandStyle.background`**: gradyan ve palet kalktı (2026-09-22);
+///   patikanın kimliğini zeminin rengi değil hero görseli taşır.
 /// - **Hero** `MeBackdrop`un fade/parallax matematiğiyle: 220 pt'de söner, en çok
 ///   10 pt kayar; Reduce Motion, Reduce Transparency ve AX boyutlarında çizilmez.
 ///   Yazı hero'nun üstüne binmez, altındaki zeminde durur.
@@ -19,7 +19,6 @@ struct DiscoverPathView: View {
 
     @Environment(DiscoverLibrary.self) private var library
     @Environment(AppServices.self) private var services
-    @Environment(PaletteController.self) private var palette
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
@@ -46,15 +45,6 @@ struct DiscoverPathView: View {
     var body: some View {
         ZStack(alignment: .top) {
             WoodlandStyle.background.ignoresSafeArea()
-            BreathingMeshBackground(
-                palette: Palette.forCategory(path.category).nightAdjusted(),
-                safeY: 0.12,
-                breathAmplitude: BreathAmplitude.measurement
-            )
-            .opacity(0.22)
-            .ignoresSafeArea()
-            .accessibilityHidden(true)
-
             DiscoverHero(box: scroll, assetName: path.artwork, height: Self.heroHeight)
 
             ScrollView {
@@ -131,7 +121,6 @@ struct DiscoverPathView: View {
         } message: { Text(DiscoverCopy.joinBody) }
         .fullScreenCover(item: $session) { step in
             PathSessionView(services: services, preparedPath: path, step: step, library: library)
-                .environment(palette)
         }
         .onAppear {
             if expandedStepID == nil, !isPreview { expandedStepID = library.nextStep(path)?.id }
