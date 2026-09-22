@@ -220,8 +220,9 @@ final class OnboardingFlowViewModel {
         case .identityName, .identityGender, .identityAge: .gathering
         case .b3Timing:
             OnboardingArtwork.time(previewedTiming ?? draft.timing)
-        case .a2Categories, .b1ProblemText, .b2Duration, .b4Avoidance, .b5PreviousAttempts,
-             .b6CurrentMood:
+        case .b6CurrentMood:
+            OnboardingArtwork.mood(previewedMood ?? draft.currentMood)
+        case .a2Categories, .b1ProblemText, .b2Duration, .b4Avoidance, .b5PreviousAttempts:
             (previewedCategories.first ?? draft.categories.first).map(OnboardingArtwork.category)
                 ?? .categoryUnnamed
         case .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation, .commitment:
@@ -245,8 +246,7 @@ final class OnboardingFlowViewModel {
     /// gradyansız karşılığı). Kalan her yerde sabit.
     var currentSceneDimming: Double {
         let base = 0.34
-        guard step == .b6CurrentMood, let mood = previewedMood ?? draft.currentMood else { return base }
-        return mood.sceneDimming
+        return base
     }
 
     // MARK: - A1

@@ -21,6 +21,11 @@ check(ReactiveSceneState.time(for: .daytime) == .daytime, "daytime")
 check(ReactiveSceneState.time(for: .evening) == .evening, "evening")
 check(ReactiveSceneState.time(for: .bedtime) == .night, "bedtime")
 check(ReactiveSceneState.time(for: .noPattern) == .neutral, "no pattern")
+check(ReactiveSceneState.mood(for: .veryHeavy) == .veiled, "very heavy")
+check(ReactiveSceneState.mood(for: .heavy) == .quiet, "heavy")
+check(ReactiveSceneState.mood(for: .middling) == .balanced, "middle")
+check(ReactiveSceneState.mood(for: .okay) == .opening, "okay")
+check(ReactiveSceneState.mood(for: .calm) == .clear, "calm")
 
 await MainActor.run {
     var committedAttempts: ([PreviousAttempt], String?)?

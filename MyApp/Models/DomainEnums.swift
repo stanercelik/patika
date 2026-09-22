@@ -342,16 +342,6 @@ enum MoodLevel: Int, CaseIterable, Codable, Sendable, Identifiable {
 
     var id: Int { rawValue }
 
-    var icon: String {
-        switch self {
-        case .veryHeavy: "cloud.heavyrain"
-        case .heavy: "cloud.rain"
-        case .middling: "cloud"
-        case .okay: "cloud.sun"
-        case .calm: "sun.max"
-        }
-    }
-
     var label: LocalizedStringResource {
         switch self {
         case .veryHeavy: .moodLevelLabelVeryHeavy

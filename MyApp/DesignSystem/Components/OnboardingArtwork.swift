@@ -55,6 +55,11 @@ enum OnboardingArtwork: String, CaseIterable {
     case timeEvening = "bg-time-evening"
     case timeNight = "bg-time-night"
     case timeNeutral = "bg-time-neutral"
+    case moodVeiled = "bg-mood-veiled"
+    case moodQuiet = "bg-mood-quiet"
+    case moodBalanced = "bg-mood-balanced"
+    case moodOpening = "bg-mood-opening"
+    case moodClear = "bg-mood-clear"
 
     var isAvailable: Bool { PatikaArt.exists(rawValue) }
 
@@ -65,6 +70,11 @@ enum OnboardingArtwork: String, CaseIterable {
         case .timeEvening: WoodlandStyle.timeEveningTint
         case .timeNight: WoodlandStyle.timeNightTint
         case .timeNeutral: WoodlandStyle.timeNeutralTint
+        case .moodVeiled: WoodlandStyle.moodVeiledTint
+        case .moodQuiet: WoodlandStyle.moodQuietTint
+        case .moodBalanced: WoodlandStyle.moodBalancedTint
+        case .moodOpening: WoodlandStyle.moodOpeningTint
+        case .moodClear: WoodlandStyle.moodClearTint
         default: nil
         }
     }
@@ -94,6 +104,17 @@ enum OnboardingArtwork: String, CaseIterable {
         case .evening: return .timeEvening
         case .night: return .timeNight
         case .neutral: return .timeNeutral
+        }
+    }
+
+    static func mood(_ level: MoodLevel?) -> OnboardingArtwork {
+        guard let level else { return .moodBalanced }
+        switch ReactiveSceneState.mood(for: level) {
+        case .veiled: return .moodVeiled
+        case .quiet: return .moodQuiet
+        case .balanced: return .moodBalanced
+        case .opening: return .moodOpening
+        case .clear: return .moodClear
         }
     }
 }

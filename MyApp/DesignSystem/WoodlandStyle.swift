@@ -17,6 +17,11 @@ enum WoodlandStyle {
     static let timeEveningTint = RGB(hex: 0xB97858)
     static let timeNightTint = RGB(hex: 0x314B63)
     static let timeNeutralTint = RGB(hex: 0x667773)
+    static let moodVeiledTint = RGB(hex: 0x293D45)
+    static let moodQuietTint = RGB(hex: 0x40595B)
+    static let moodBalancedTint = RGB(hex: 0x65786B)
+    static let moodOpeningTint = RGB(hex: 0x8D9671)
+    static let moodClearTint = RGB(hex: 0xB49B69)
 
 }
 

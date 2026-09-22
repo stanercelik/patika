@@ -2,7 +2,7 @@ import SwiftUI
 
 /// B6 ve günlük ön kontrolün ölçeği — beş kademe, tek dokunuş.
 ///
-/// Emoji yerine monokrom SF Symbols (bkz. `MoodLevel`). İkonun altında **yalnızca
+/// Hava durumu yerine beş dokunsal patika taşı kullanılır. Altında **yalnızca
 /// seçili kademenin etiketi** yazar: beş etiketi birden göstermek satırı okunmaz
 /// hâle getiriyor, hiç göstermemek ise anlamı renk/ikona bırakıyordu — ikisi de
 /// erişilebilirlik açısından kötü.
@@ -22,13 +22,21 @@ struct MoodScale: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            HStack(spacing: 8) {
-                ForEach(MoodLevel.allCases) { level in
-                    MoodButton(
-                        level: level,
-                        isSelected: selection == level,
-                        action: { onSelect(level) }
-                    )
+            ZStack {
+                Capsule()
+                    .fill(Theme.textPrimary.color.opacity(0.36))
+                    .frame(height: Theme.Line.trail)
+                    .padding(.horizontal, 22)
+                    .accessibilityHidden(true)
+
+                HStack(spacing: 8) {
+                    ForEach(MoodLevel.allCases) { level in
+                        MoodButton(
+                            level: level,
+                            isSelected: selection == level,
+                            action: { onSelect(level) }
+                        )
+                    }
                 }
             }
             .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { rowWidth = $0 }
@@ -58,23 +66,19 @@ private struct MoodButton: View {
             Theme.softHaptic()
             action()
         } label: {
-            Image(systemName: level.icon)
-                .font(.system(size: 24, weight: Theme.Weight.emphasis))
-                .symbolRenderingMode(.monochrome)
-                .foregroundStyle(Theme.textPrimary.color.opacity(isSelected ? 1.0 : 0.72))
+            ZStack {
+                Circle()
+                    .fill(Theme.textPrimary.color.opacity(isSelected ? 0.92 : 0.34))
+                Circle()
+                    .strokeBorder(Theme.textPrimary.color.opacity(isSelected ? 1 : 0.66), lineWidth: Theme.Line.border)
+                if isSelected {
+                    Circle()
+                        .fill(WoodlandStyle.ink)
+                        .frame(width: 12, height: 12)
+                }
+            }
                 .frame(maxWidth: .infinity)
-                .frame(height: 62)
-                .background {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.white.opacity(isSelected ? 0.16 : 0.07))
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .strokeBorder(
-                            Theme.textPrimary.color.opacity(isSelected ? 0.55 : 0.0),
-                            lineWidth: Theme.Line.border
-                        )
-                }
+                .frame(height: 52)
         }
         .buttonStyle(.calm)
         .animation(Theme.Motion.crossFade, value: isSelected)
