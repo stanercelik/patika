@@ -9,6 +9,9 @@ enum WoodlandStyle {
     static let secondaryInk = RGB(hex: 0x4A6058).color
     static let apricot = RGB(hex: 0xE9BA8F).color
     static let sage = RGB(hex: 0x9BAE9B).color
+    static let scenePlate = RGB(hex: 0x15211F)
+    static let scenePlateSecondary = RGB(hex: 0xB9C4BF)
+    static let scenePlateBorder = RGB(hex: 0x60716B)
 
 }
 

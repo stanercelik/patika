@@ -37,6 +37,9 @@ let paper = hex("paper", in: woodland)
 let ink = hex("ink", in: woodland)
 let secondaryInk = hex("secondaryInk", in: woodland)
 let background = hex("background", in: woodland)
+let scenePlate = hex("scenePlate", in: woodland)
+let scenePlateSecondary = hex("scenePlateSecondary", in: woodland)
+let scenePlateBorder = hex("scenePlateBorder", in: woodland)
 let textPrimary = hex("textPrimary", in: "MyApp/DesignSystem/Theme.swift")
 
 let aa = 4.5           // Theme.minimumContrast
@@ -63,6 +66,13 @@ check(secondaryInk.contrastRatio(against: selectedRow) >= aa, "ikincil/seçili s
 // her sahne ekranının en kötü (en az kontrastlı) hâli budur.
 let textOnFlatBackground = textPrimary.contrastRatio(against: background)
 check(textOnFlatBackground >= aa, "açık metin/düz zemin \(textOnFlatBackground) < \(aa)")
+
+let primaryOnScenePlate = textPrimary.contrastRatio(against: scenePlate)
+let secondaryOnScenePlate = scenePlateSecondary.contrastRatio(against: scenePlate)
+let borderOnScenePlate = scenePlateBorder.contrastRatio(against: scenePlate)
+check(primaryOnScenePlate >= aa, "primary/scene plate \(primaryOnScenePlate) < \(aa)")
+check(secondaryOnScenePlate >= aa, "secondary/scene plate \(secondaryOnScenePlate) < \(aa)")
+check(borderOnScenePlate >= aaLarge, "border/scene plate \(borderOnScenePlate) < \(aaLarge)")
 
 // MARK: Sahne + gerçek görsel: ölçülmüyor, bilerek
 

@@ -20,6 +20,12 @@ enum Theme {
         static let tight: CGFloat = 8
     }
 
+    enum OnboardingLayout {
+        static let comfortableMinimumHeight: CGFloat = 760
+        static let compactMinimumHeight: CGFloat = 640
+        static let plateCornerRadius: CGFloat = 24
+    }
+
     /// Tipografi ağırlıkları — **tek kaynak**.
     ///
     /// Ürünün genel tavrı bilinçli olarak sistem varsayılanından bir kademe kalındır

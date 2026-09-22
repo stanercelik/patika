@@ -30,32 +30,67 @@ struct OnboardingSceneLayer: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var displayed: OnboardingArtwork?
+    @State private var outgoing: OnboardingArtwork?
+    @State private var displayedOpacity = 1.0
+    @State private var outgoingOpacity = 0.0
 
-    private var showsArt: Bool {
-        guard let artwork else { return false }
+    private func showsArt(_ candidate: OnboardingArtwork?) -> Bool {
+        guard let artwork = candidate else { return false }
         return artwork.isAvailable && !reduceTransparency && !dynamicTypeSize.isAccessibilitySize
     }
 
     var body: some View {
         ZStack {
             WoodlandStyle.background
-            if showsArt, let artwork {
-                GeometryReader { geo in
-                    Image(decorative: artwork.rawValue)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geo.size.width, height: geo.size.height)
-                        .clipped()
-                }
-                .id(artwork)
-                .transition(.opacity)
-            }
+            artworkLayer(outgoing)
+                .opacity(outgoingOpacity)
+            artworkLayer(displayed)
+                .opacity(displayedOpacity)
         }
         .overlay(WoodlandStyle.background.opacity(dimming))
         .ignoresSafeArea()
         .allowsHitTesting(false)
         .accessibilityHidden(true)
-        .animation(reduceMotion ? nil : Theme.Motion.palette, value: artwork)
         .animation(reduceMotion ? nil : Theme.Motion.crossFade, value: dimming)
+        .onAppear { displayed = artwork }
+        .onChange(of: artwork) { _, next in transition(to: next) }
+    }
+
+    @ViewBuilder
+    private func artworkLayer(_ candidate: OnboardingArtwork?) -> some View {
+        if showsArt(candidate), let candidate {
+            GeometryReader { geo in
+                Image(decorative: candidate.rawValue)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+            }
+        }
+    }
+
+    private func transition(to next: OnboardingArtwork?) {
+        guard next != displayed else { return }
+        outgoing = displayed
+        displayed = next
+        guard !reduceMotion else {
+            outgoing = nil
+            outgoingOpacity = 0
+            displayedOpacity = 1
+            return
+        }
+
+        outgoingOpacity = 1
+        displayedOpacity = 0
+        withAnimation(Theme.Motion.palette) {
+            outgoingOpacity = 0
+            displayedOpacity = 1
+        }
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(Theme.Motion.paletteTransition))
+            guard displayed == next else { return }
+            outgoing = nil
+        }
     }
 }

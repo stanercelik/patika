@@ -1,5 +1,25 @@
 import SwiftUI
 
+enum OnboardingHeightClass: Sendable {
+    case comfortable
+    case compact
+    case scrollRequired
+
+    static func resolve(availableHeight: CGFloat, accessibility: Bool) -> Self {
+        if accessibility || availableHeight < Theme.OnboardingLayout.compactMinimumHeight {
+            return .scrollRequired
+        }
+        if availableHeight < Theme.OnboardingLayout.comfortableMinimumHeight {
+            return .compact
+        }
+        return .comfortable
+    }
+}
+
+extension EnvironmentValues {
+    @Entry var onboardingHeightClass: OnboardingHeightClass = .comfortable
+}
+
 /// Onboarding soru ekranlarının ortak iskeleti (B, D, E bölümleri).
 ///
 /// Üst çubuk burada **yok** — o kabuğa ait ve adım değişirken yerinde kalıyor.
@@ -17,6 +37,7 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
     /// Adımın malzemesi kabuktan gelir; varsayılan `.ground` olduğu için bunu hiç
     /// kurmayan çağıranlar (`PathSessionView`) değişmez.
     @Environment(\.onboardingSurface) private var surface
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     init(
         headline: LocalizedStringResource,
@@ -50,48 +71,42 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
         // kalabiliyordu. `safeAreaInset` footer'ın yüksekliğini kaydırma alanının kendi
         // güvenli bölgesine yazıyor; klavye geldiğinde ikisi **aynı** mekanizmayla
         // toplanıyor, klavye kendi güvenli bölge inset'i, footer kendi inset'i.
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                DisplayText(headline, size: 30)
+        GeometryReader { proxy in
+            let heightClass = OnboardingHeightClass.resolve(
+                availableHeight: proxy.size.height,
+                accessibility: dynamicTypeSize.isAccessibilitySize
+            )
 
-                if let hint {
-                    BodyText(hint)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    DisplayText(headline, size: 30)
+
+                    if let hint {
+                        BodyText(hint)
+                    }
+
+                    content
+                        .padding(.top, heightClass == .compact ? 14 : questionToAnswerGap)
                 }
-
-                content
-                    .padding(.top, questionToAnswerGap)
-            }
-            .onboardingSurfaceCard(surface)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, Theme.Spacing.screenMargin)
-            .padding(.top, 14)
-            .padding(.bottom, 16)
-        }
-        .scrollIndicators(.hidden)
-        .scrollBounceBehavior(.basedOnSize)
-        .scrollDismissesKeyboard(.interactively)
-        .scrollEdgeEffectStyle(.soft, for: .bottom)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            footer
-                .padding(.top, 12)
+                .onboardingSurfaceCard(surface)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, Theme.Spacing.screenMargin)
-                .padding(.bottom, 12)
-                .background { footerBackdrop }
+                .padding(.top, heightClass == .comfortable ? 14 : 8)
+                .padding(.bottom, 16)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollDismissesKeyboard(.interactively)
+            .scrollEdgeEffectStyle(.soft, for: .bottom)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                footer
+                    .padding(.top, 12)
+                    .padding(.horizontal, Theme.Spacing.screenMargin)
+                    .padding(.bottom, 12)
+                    .background(Color.clear)
+            }
+            .environment(\.onboardingHeightClass, heightClass)
         }
-    }
-
-    /// Kaydırılan içerik `safeAreaInset`in altından geçebiliyor (bu, API'nin kastı —
-    /// sabit bir alt çubuğun altında içerik akması). Kartın kendisi ya da uzun bir AX5
-    /// gövdesi bu şeridin arkasından göründüğünde buton hâlâ okunur (dolu kapsül) ama
-    /// altındaki "geç" satırı zeminle karışabiliyordu; yukarıdan sızan yumuşak bir
-    /// karartma bunu ayırıyor.
-    private var footerBackdrop: some View {
-        LinearGradient(
-            colors: [.clear, WoodlandStyle.background.opacity(0.85), WoodlandStyle.background],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .padding(.top, -24)
     }
 }
 
