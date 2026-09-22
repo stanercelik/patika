@@ -180,6 +180,7 @@ final class OnboardingFlowViewModel {
     private var previewedCategories: [ProblemCategory] = []
     /// B6'da henüz commit edilmemiş canlı seçim — `currentSceneDimming` bunu okur.
     private var previewedMood: MoodLevel?
+    private var previewedTiming: ProblemTiming?
     /// The wheel value survives Back only in memory; it is never persisted or uploaded.
     private(set) var selectedExactAge: Int?
 
@@ -217,7 +218,9 @@ final class OnboardingFlowViewModel {
         switch step {
         case .a1Welcome: .threshold
         case .identityName, .identityGender, .identityAge: .gathering
-        case .a2Categories, .b1ProblemText, .b2Duration, .b3Timing, .b4Avoidance, .b5PreviousAttempts,
+        case .b3Timing:
+            OnboardingArtwork.time(previewedTiming ?? draft.timing)
+        case .a2Categories, .b1ProblemText, .b2Duration, .b4Avoidance, .b5PreviousAttempts,
              .b6CurrentMood:
             (previewedCategories.first ?? draft.categories.first).map(OnboardingArtwork.category)
                 ?? .categoryUnnamed
@@ -360,9 +363,14 @@ final class OnboardingFlowViewModel {
 
     // MARK: - B3 · Zamanlama
 
+    func previewTiming(_ timing: ProblemTiming) {
+        previewedTiming = timing
+    }
+
     /// Cevap E1'deki varsayılan hatırlatma saatini belirler — sorduğumuz her
     /// şeyin görünür bir karşılığı olmalı (PRD-Ek Onboarding §3.3).
     func commitTiming(_ timing: ProblemTiming) {
+        previewedTiming = nil
         draft.timing = timing
         draft.reminderHour = timing.suggestedReminderHour
         advance(to: .b4Avoidance)

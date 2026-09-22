@@ -50,8 +50,24 @@ enum OnboardingArtwork: String, CaseIterable {
     case categoryExam = "bg-category-exam"
     case categoryGrief = "bg-category-grief"
     case categoryUnnamed = "bg-category-unnamed"
+    case timeMorning = "bg-time-morning"
+    case timeDaytime = "bg-time-daytime"
+    case timeEvening = "bg-time-evening"
+    case timeNight = "bg-time-night"
+    case timeNeutral = "bg-time-neutral"
 
     var isAvailable: Bool { PatikaArt.exists(rawValue) }
+
+    var sceneTint: RGB? {
+        switch self {
+        case .timeMorning: WoodlandStyle.timeMorningTint
+        case .timeDaytime: WoodlandStyle.timeDayTint
+        case .timeEvening: WoodlandStyle.timeEveningTint
+        case .timeNight: WoodlandStyle.timeNightTint
+        case .timeNeutral: WoodlandStyle.timeNeutralTint
+        default: nil
+        }
+    }
 
     /// Kategori sahnesi. Öfke için kırmızı yok — bu bir ürün kararı (öfkeli kullanıcıya
     /// kırmızı göstermek durumu pekiştirir), sahnesi de yeşil-teal bir akarsu.
@@ -67,6 +83,17 @@ enum OnboardingArtwork: String, CaseIterable {
         case .exam: .categoryExam
         case .grief: .categoryGrief
         case .unnamed: .categoryUnnamed
+        }
+    }
+
+    static func time(_ timing: ProblemTiming?) -> OnboardingArtwork {
+        guard let timing else { return .timeNeutral }
+        switch ReactiveSceneState.time(for: timing) {
+        case .morning: return .timeMorning
+        case .daytime: return .timeDaytime
+        case .evening: return .timeEvening
+        case .night: return .timeNight
+        case .neutral: return .timeNeutral
         }
     }
 }

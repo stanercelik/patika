@@ -2,11 +2,8 @@ import SwiftUI
 
 /// B2 — "Bu ne kadar zamandır böyle?" (PRD-Ek Onboarding §3.2)
 ///
-/// Süre sıralı bir cevap: dört durağı olan bir cetvel. `DualStatementSlider` sayı
-/// değil kova üretir (`ProblemDuration`), sunucu sözleşmesi aynı kalır.
-///
-/// "Emin değilim" bir süre değil, dürüst bir cevap: cetvelin durağı olamaz, altında
-/// ayrı bir satır olarak durur ve seçilince cetvelin iğnesi kalkar.
+/// Four direct duration choices avoid hiding the answer behind a ruler gesture.
+/// "Emin değilim" remains a full-width honest escape below them.
 struct DurationView: View {
     @State private var viewModel: SingleChoiceStepViewModel<ProblemDuration>
 
@@ -24,13 +21,10 @@ struct DurationView: View {
     var body: some View {
         OnboardingQuestionLayout(headline: Copy.Onboarding.durationHeadline) {
             VStack(spacing: 22) {
-                DualStatementSlider(
+                AdaptiveChoiceGrid(
                     options: ordered,
-                    selection: viewModel.selection.flatMap { ordered.contains($0) ? $0 : nil },
-                    onSelect: { viewModel.select($0) },
-                    lowStatement: .problemDurationSliderLow,
-                    highStatement: .problemDurationSliderHigh,
-                    accessibilityLabel: .problemDurationSliderAccessibility
+                    isSelected: { viewModel.isSelected($0) },
+                    onSelect: { viewModel.select($0) }
                 )
                 ChoiceRow(
                     label: ProblemDuration.unsure.label,

@@ -47,7 +47,8 @@ run RetryPolicy $M/Infrastructure/Backend/RetryPolicy.swift $M/Infrastructure/Ba
 run AudioReadiness $M/Infrastructure/Backend/AudioStatus.swift $M/Features/Session/AudioReadiness.swift Tests/AudioReadinessTests/main.swift
 run ExpectationCurveModel $M/DesignSystem/Components/ExpectationCurveModel.swift Tests/ExpectationCurveModelTests/main.swift
 run OnboardingInteraction $M/Content/Tone.swift $M/Models/DomainEnums.swift \
-  $M/Features/Onboarding/AIdentity/AgeSelection.swift $SHIM Tests/OnboardingInteractionTests/main.swift
+  $M/Features/Onboarding/AIdentity/AgeSelection.swift $M/Features/Onboarding/ReactiveSceneState.swift \
+  $SHIM Tests/OnboardingInteractionTests/main.swift
 run Contrast $M/DesignSystem/RGB.swift Tests/ContrastTests/main.swift
 # JourneyRoutePatternTests bayat: JourneyRoutePattern tipi artık kodda yok (bu işten önce de böyleydi).
 exit $FAIL

@@ -12,6 +12,11 @@ enum WoodlandStyle {
     static let scenePlate = RGB(hex: 0x15211F)
     static let scenePlateSecondary = RGB(hex: 0xB9C4BF)
     static let scenePlateBorder = RGB(hex: 0x60716B)
+    static let timeMorningTint = RGB(hex: 0xD9A978)
+    static let timeDayTint = RGB(hex: 0xA8BCA1)
+    static let timeEveningTint = RGB(hex: 0xB97858)
+    static let timeNightTint = RGB(hex: 0x314B63)
+    static let timeNeutralTint = RGB(hex: 0x667773)
 
 }
 

@@ -16,6 +16,12 @@ check(AgeSelection.range(for: 54) == .fortyFiveToFiftyFour, "54")
 check(AgeSelection.range(for: 55) == .fiftyFivePlus, "55")
 check(AgeSelection.range(for: 100) == .fiftyFivePlus, "100")
 
+check(ReactiveSceneState.time(for: .morning) == .morning, "morning")
+check(ReactiveSceneState.time(for: .daytime) == .daytime, "daytime")
+check(ReactiveSceneState.time(for: .evening) == .evening, "evening")
+check(ReactiveSceneState.time(for: .bedtime) == .night, "bedtime")
+check(ReactiveSceneState.time(for: .noPattern) == .neutral, "no pattern")
+
 if !failures.isEmpty {
     failures.forEach { print($0) }
     fatalError("\(failures.count) onboarding interaction checks failed")
