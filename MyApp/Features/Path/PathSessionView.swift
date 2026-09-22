@@ -221,20 +221,22 @@ private struct PathMeasurementQuestionView: View {
 
     var body: some View {
         OnboardingQuestionLayout(headline: question.prompt, hint: question.hint) {
-            VStack(alignment: .leading, spacing: 20) {
-                MeasurementAnswerView(question: question)
+            SceneContentPlate {
+                VStack(alignment: .leading, spacing: 20) {
+                    MeasurementAnswerView(question: question)
 
-                if session.showsError {
-                    Text(Copy.PathMeasurement.saveError)
-                        .font(.footnote.weight(Theme.Weight.body))
-                        .foregroundStyle(Theme.textSecondary.color)
+                    if session.showsError {
+                        Text(Copy.PathMeasurement.saveError)
+                            .font(.footnote.weight(Theme.Weight.body))
+                            .foregroundStyle(WoodlandStyle.scenePlateSecondary.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Text(Copy.clinicalDisclaimer)
+                        .font(.caption.weight(Theme.Weight.body))
+                        .foregroundStyle(WoodlandStyle.scenePlateSecondary.color)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-
-                Text(Copy.clinicalDisclaimer)
-                    .font(.caption.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.5))
-                    .fixedSize(horizontal: false, vertical: true)
             }
         } footer: {
             OnboardingQuestionFooter(

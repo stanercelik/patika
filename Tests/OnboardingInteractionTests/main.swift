@@ -26,6 +26,10 @@ check(ReactiveSceneState.mood(for: .heavy) == .quiet, "heavy")
 check(ReactiveSceneState.mood(for: .middling) == .balanced, "middle")
 check(ReactiveSceneState.mood(for: .okay) == .opening, "okay")
 check(ReactiveSceneState.mood(for: .calm) == .clear, "calm")
+check(IntensityScaleModel.step(at: 0, width: 320) == 0, "left edge")
+check(IntensityScaleModel.step(at: 160, width: 320) == 5, "midpoint")
+check(IntensityScaleModel.step(at: 320, width: 320) == 10, "right edge")
+check(IntensityScaleModel.step(at: 10, width: 0) == 0, "zero width")
 
 await MainActor.run {
     var committedAttempts: ([PreviousAttempt], String?)?

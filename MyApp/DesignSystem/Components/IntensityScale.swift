@@ -41,6 +41,7 @@ struct IntensityScale: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .padding(.horizontal, 8)
                 .contentShape(Rectangle())
                 .gesture(
                     // `minimumDistance: 0` sayesinde tek dokunuş da sürükleme de
@@ -58,7 +59,7 @@ struct IntensityScale: View {
                 Text(highLabel)
             }
             .font(.caption.weight(Theme.Weight.emphasis))
-            .foregroundStyle(Theme.textPrimary.color.opacity(0.52))
+            .foregroundStyle(WoodlandStyle.scenePlateSecondary.color)
 
             // Yer her zaman ayrılır: cevap verildiğinde satır zıplamasın.
             Text(selectedStep.map { "\($0)" } ?? " ")
@@ -103,9 +104,7 @@ struct IntensityScale: View {
     }
 
     private func select(at x: CGFloat, width: CGFloat) {
-        guard width > 0 else { return }
-        let ratio = min(max(x / width, 0), 1)
-        let step = Int((ratio * CGFloat(steps.count - 1)).rounded())
+        let step = IntensityScaleModel.step(at: x, width: width)
         guard Double(step) != selection else { return }
         Theme.softHaptic()
         onSelect(Double(step))

@@ -48,6 +48,7 @@ run AudioReadiness $M/Infrastructure/Backend/AudioStatus.swift $M/Features/Sessi
 run ExpectationCurveModel $M/DesignSystem/Components/ExpectationCurveModel.swift Tests/ExpectationCurveModelTests/main.swift
 run OnboardingInteraction $M/Content/Tone.swift $M/Models/DomainEnums.swift \
   $M/Features/Onboarding/AIdentity/AgeSelection.swift $M/Features/Onboarding/ReactiveSceneState.swift \
+  $M/DesignSystem/Components/IntensityScaleModel.swift \
   $M/Features/Onboarding/BProblemDiscovery/CrisisClassifier.swift \
   $M/Features/Onboarding/BProblemDiscovery/PreviousAttemptsViewModel.swift \
   $SHIM Tests/OnboardingInteractionTests/main.swift

@@ -33,13 +33,15 @@ struct MeasurementQuestionView: View {
             headline: viewModel.prompt,
             hint: viewModel.hint
         ) {
-            VStack(alignment: .leading, spacing: 20) {
-                MeasurementAnswerView(question: viewModel)
+            SceneContentPlate {
+                VStack(alignment: .leading, spacing: 20) {
+                    MeasurementAnswerView(question: viewModel)
 
-                Text(Copy.clinicalDisclaimer)
-                    .font(.caption.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text(Copy.clinicalDisclaimer)
+                        .font(.caption.weight(Theme.Weight.body))
+                        .foregroundStyle(WoodlandStyle.scenePlateSecondary.color)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         } footer: {
             // Bu bölüm atlanamaz: ikincil satır boş kalıyor ama yeri yine de
