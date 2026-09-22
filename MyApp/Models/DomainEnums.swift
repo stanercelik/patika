@@ -171,10 +171,10 @@ enum AgeRange: String, CaseIterable, Codable, Sendable, Identifiable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .eighteenToTwentyFour: "18–24"
-        case .twentyFiveToThirtyFour: "25–34"
-        case .thirtyFiveToFortyFour: "35–44"
-        case .fortyFiveToFiftyFour: "45–54"
+        case .eighteenToTwentyFour: .ageRangeLabelEighteenToTwentyFour
+        case .twentyFiveToThirtyFour: .ageRangeLabelTwentyFiveToThirtyFour
+        case .thirtyFiveToFortyFour: .ageRangeLabelThirtyFiveToFortyFour
+        case .fortyFiveToFiftyFour: .ageRangeLabelFortyFiveToFiftyFour
         case .fiftyFivePlus: .ageRangeLabelFiftyFivePlus
         case .undisclosed: .ageRangeLabelUndisclosed
         }

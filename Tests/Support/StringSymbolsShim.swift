@@ -3,7 +3,11 @@
 import Foundation
 
 extension LocalizedStringResource {
+    static var ageRangeLabelEighteenToTwentyFour: LocalizedStringResource { LocalizedStringResource("ageRange.label.eighteenToTwentyFour") }
     static var ageRangeLabelFiftyFivePlus: LocalizedStringResource { LocalizedStringResource("ageRange.label.fiftyFivePlus") }
+    static var ageRangeLabelFortyFiveToFiftyFour: LocalizedStringResource { LocalizedStringResource("ageRange.label.fortyFiveToFiftyFour") }
+    static var ageRangeLabelThirtyFiveToFortyFour: LocalizedStringResource { LocalizedStringResource("ageRange.label.thirtyFiveToFortyFour") }
+    static var ageRangeLabelTwentyFiveToThirtyFour: LocalizedStringResource { LocalizedStringResource("ageRange.label.twentyFiveToThirtyFour") }
     static var ageRangeLabelUndisclosed: LocalizedStringResource { LocalizedStringResource("ageRange.label.undisclosed") }
     static var appLockBody: LocalizedStringResource { LocalizedStringResource("appLock.body") }
     static var appLockReason: LocalizedStringResource { LocalizedStringResource("appLock.reason") }
@@ -184,6 +188,7 @@ extension LocalizedStringResource {
     static var meBadgeTitleWeek5: LocalizedStringResource { LocalizedStringResource("me.badge.title.week5") }
     static var meBadgeTitleWeek7: LocalizedStringResource { LocalizedStringResource("me.badge.title.week7") }
     static func meBadgeAccessibility(_ arg1: String, _ arg2: String) -> LocalizedStringResource { LocalizedStringResource("me.badgeAccessibility") }
+    static func meBadgeAccessibilityEarned(_ arg1: String, _ arg2: String) -> LocalizedStringResource { LocalizedStringResource("me.badgeAccessibilityEarned") }
     static var meBadgeLockedLabel: LocalizedStringResource { LocalizedStringResource("me.badgeLockedLabel") }
     static var meBadgesAll: LocalizedStringResource { LocalizedStringResource("me.badgesAll") }
     static var meBadgesFirstHint: LocalizedStringResource { LocalizedStringResource("me.badgesFirstHint") }
@@ -278,6 +283,7 @@ extension LocalizedStringResource {
     static func mePathActive(_ arg1: Int) -> LocalizedStringResource { LocalizedStringResource("me.pathActive") }
     static var mePathClearProgress: LocalizedStringResource { LocalizedStringResource("me.pathClearProgress") }
     static var mePathCompleted: LocalizedStringResource { LocalizedStringResource("me.pathCompleted") }
+    static func mePathDateRange(_ arg1: String, _ arg2: String) -> LocalizedStringResource { LocalizedStringResource("me.pathDateRange") }
     static func mePathDays(_ arg1: Int) -> LocalizedStringResource { LocalizedStringResource("me.pathDays") }
     static var mePathFinishedHeader: LocalizedStringResource { LocalizedStringResource("me.pathFinishedHeader") }
     static var mePathJournalTitle: LocalizedStringResource { LocalizedStringResource("me.pathJournalTitle") }
@@ -422,6 +428,8 @@ extension LocalizedStringResource {
     static var measurementLibraryKnowsWhatToDoA: LocalizedStringResource { LocalizedStringResource("measurementLibrary.knowsWhatToDo.a") }
     static var measurementLibraryKnowsWhatToDoB: LocalizedStringResource { LocalizedStringResource("measurementLibrary.knowsWhatToDo.b") }
     static var measurementLibraryKnowsWhatToDoC: LocalizedStringResource { LocalizedStringResource("measurementLibrary.knowsWhatToDo.c") }
+    static var measurementLibraryRangeOneToTwo: LocalizedStringResource { LocalizedStringResource("measurementLibrary.rangeOneToTwo") }
+    static var measurementLibraryRangeThreeToFive: LocalizedStringResource { LocalizedStringResource("measurementLibrary.rangeThreeToFive") }
     static var measurementLibrarySleepLatency1: LocalizedStringResource { LocalizedStringResource("measurementLibrary.sleepLatency.1") }
     static var measurementLibrarySleepLatency2: LocalizedStringResource { LocalizedStringResource("measurementLibrary.sleepLatency.2") }
     static var measurementLibrarySleepLatency3: LocalizedStringResource { LocalizedStringResource("measurementLibrary.sleepLatency.3") }

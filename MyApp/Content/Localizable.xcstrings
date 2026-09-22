@@ -1,55 +1,17 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-
-    },
-    " " : {
-
-    },
-    "%@" : {
-
-    },
-    "%@ – %@" : {
+    "ageRange.label.eighteenToTwentyFour" : {
+      "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ – %2$@"
+            "state" : "translated",
+            "value" : "18–24"
           }
         }
       }
-    },
-    "%@. %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@. %2$@"
-          }
-        }
-      }
-    },
-    "%lld" : {
-
-    },
-    "1–2" : {
-
-    },
-    "3–5" : {
-
-    },
-    "18–24" : {
-
-    },
-    "25–34" : {
-
-    },
-    "35–44" : {
-
-    },
-    "45–54" : {
-
     },
     "ageRange.label.fiftyFivePlus" : {
       "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
@@ -71,6 +33,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prefer not to say"
+          }
+        }
+      }
+    },
+    "ageRange.label.fortyFiveToFiftyFour" : {
+      "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "45–54"
+          }
+        }
+      }
+    },
+    "ageRange.label.thirtyFiveToFortyFour" : {
+      "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "35–44"
+          }
+        }
+      }
+    },
+    "ageRange.label.twentyFiveToThirtyFour" : {
+      "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "25–34"
           }
         }
       }
@@ -458,9 +456,6 @@
           }
         }
       }
-    },
-    "Bugünün kişisel adımı" : {
-
     },
     "button.cancel" : {
       "comment" : "Copy.swift · static let cancel: LocalizedStringResource = \"Şimdilik değil\"",
@@ -1278,9 +1273,6 @@
         }
       }
     },
-    "Düşünceyle arana küçük bir mesafe koy" : {
-
-    },
     "empty.checkPath" : {
       "comment" : "Copy.swift · static let checkPath: LocalizedStringResource = \"Yolumu yeniden kontrol et\"",
       "extractionState" : "manual",
@@ -1532,9 +1524,6 @@
           }
         }
       }
-    },
-    "Gün %lld" : {
-
     },
     "intensityScale.accessibility" : {
       "comment" : "IntensityScale.swift",
@@ -2228,6 +2217,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@, not earned yet. %2$@"
+          }
+        }
+      }
+    },
+    "me.badgeAccessibilityEarned" : {
+      "comment" : "Copy+Me.swift · static func badgeAccessibility(title: String, detail: String, earned: Bool) -> LocalizedStringResource {",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@. %2$@"
           }
         }
       }
@@ -3404,6 +3405,18 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "me.pathDateRange" : {
+      "comment" : "Copy+Me.swift · static func pathDateRange(start: String, end: String) -> LocalizedStringResource {",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ – %2$@"
           }
         }
       }
@@ -5252,6 +5265,30 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "How long did it take you to drift off last night?"
+          }
+        }
+      }
+    },
+    "measurementLibrary.rangeOneToTwo" : {
+      "comment" : "MeasurementLibrary.swift · shared compact numeric range",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1–2"
+          }
+        }
+      }
+    },
+    "measurementLibrary.rangeThreeToFive" : {
+      "comment" : "MeasurementLibrary.swift · shared compact numeric range",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–5"
           }
         }
       }

@@ -186,7 +186,7 @@ extension Copy {
         static func pathDays(_ days: Int) -> LocalizedStringResource { .mePathDays(days) }
         static func pathSteps(_ steps: Int) -> LocalizedStringResource { .mePathSteps(steps) }
         static func pathDateRange(start: String, end: String) -> LocalizedStringResource {
-            "\(start) – \(end)"
+            .mePathDateRange(start, end)
         }
         static let pathJournalTitle: LocalizedStringResource = .mePathJournalTitle
         static func sealAccessibility(title: String, detail: String) -> LocalizedStringResource {
@@ -262,7 +262,7 @@ extension Copy {
         static let badgesFirstHint: LocalizedStringResource = .meBadgesFirstHint
         static let badgeLockedLabel: LocalizedStringResource = .meBadgeLockedLabel
         static func badgeAccessibility(title: String, detail: String, earned: Bool) -> LocalizedStringResource {
-            earned ? "\(title). \(detail)" : .meBadgeAccessibility(title, detail)
+            earned ? .meBadgeAccessibilityEarned(title, detail) : .meBadgeAccessibility(title, detail)
         }
 
         /// Rozet adı, kazanıldığında söylenen tek cümle ve kazanma koşulu.

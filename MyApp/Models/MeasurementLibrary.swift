@@ -164,8 +164,8 @@ enum MeasurementLibrary {
         hint: nil,
         style: .choice([
             .init(value: 0, label: .measurementLibraryAvoidanceCount1),
-            .init(value: 1, label: "1–2"),
-            .init(value: 2, label: "3–5"),
+            .init(value: 1, label: .measurementLibraryRangeOneToTwo),
+            .init(value: 2, label: .measurementLibraryRangeThreeToFive),
             .init(value: 3, label: .measurementLibraryAvoidanceCount2),
         ]),
         higherMeansBetter: false
@@ -202,8 +202,8 @@ enum MeasurementLibrary {
                 hint: nil,
                 style: .choice([
                     .init(value: 0, label: .measurementLibraryBehaviorItemExamFocus2),
-                    .init(value: 1, label: "1–2"),
-                    .init(value: 2, label: "3–5"),
+                    .init(value: 1, label: .measurementLibraryRangeOneToTwo),
+                    .init(value: 2, label: .measurementLibraryRangeThreeToFive),
                     .init(value: 3, label: .measurementLibraryBehaviorItemExamFocus3),
                 ]),
                 higherMeansBetter: false
@@ -245,8 +245,8 @@ enum MeasurementLibrary {
                 hint: nil,
                 style: .choice([
                     .init(value: 0, label: .measurementLibraryBehaviorItemAnger2),
-                    .init(value: 1, label: "1–2"),
-                    .init(value: 2, label: "3–5"),
+                    .init(value: 1, label: .measurementLibraryRangeOneToTwo),
+                    .init(value: 2, label: .measurementLibraryRangeThreeToFive),
                     .init(value: 3, label: .measurementLibraryBehaviorItemAnger3),
                 ]),
                 higherMeansBetter: false
