@@ -21,6 +21,14 @@ struct PatikaApp: App {
         #endif
     }
 
+    private static var opensOnboardingStepDirectly: Bool {
+        #if DEBUG
+        DebugDirectEntry.opensOnboardingStep
+        #else
+        false
+        #endif
+    }
+
     /// Onboarding'in son ekranına gelmeden (H1) uygulama kapatıldıysa yerel
     /// "tamamlandı" işareti hiç yazılmaz; sonraki açılış onboarding'i baştan
     /// başlatır ve ikinci bir patika üretirdi. Sunucuda bu kimliğe ait bir patika
@@ -75,7 +83,7 @@ struct PatikaApp: App {
             // DEBUG'ta `-patika-debug-step yolum` doğrudan kabuğu açar ve
             // gerekirse gerçek path üretimini tetikler. Release'te bu blok yok.
             .task {
-                if !appState.hasCompletedOnboarding, !Self.opensRootDirectly {
+                if !appState.hasCompletedOnboarding, !Self.opensRootDirectly, !Self.opensOnboardingStepDirectly {
                     await adoptExistingPathIfAny()
                 }
                 isOnboardingStateResolved = true

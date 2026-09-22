@@ -32,7 +32,7 @@ enum OnboardingStep: Equatable {
     case c2NotAlone
     case c3PathNotLibrary
     case c4HonestExpectation
-    /// Taahhüt anı (2026-09-21): kullanıcının kendi cümlesinin üstünde bir kaydırma.
+    /// Taahhüt anı (2026-09-22): F2 sonrasında imza/işaret ve basılı tutma.
     case commitment
     // D — Baseline ölçüm (9 ekran: giriş + 8 soru). Atlanamayan tek bölüm.
     case d0MeasurementIntro
@@ -102,9 +102,9 @@ enum OnboardingStep: Equatable {
     /// gerekirdi, ikisi de kullanıcıya açıklanamaz.
     var canGoBack: Bool {
         switch self {
-        // Fiyat ve H2'de geri yok: G2'ye dönmek, bitmiş oturumun özetini yeniden açardı.
+        // Fiyat ekranında geri yok: G2'ye dönmek, bitmiş oturumun özetini yeniden açardı.
         case .a1Welcome, .f1Generation, .f2Roadmap, .g1FirstSession, .g2SessionComplete,
-             .price, .h2Priming, .h1Account, .crisis: false
+             .price, .h1Account, .crisis: false
         default: true
         }
     }
@@ -225,15 +225,15 @@ final class OnboardingFlowViewModel {
         case .a2Categories, .b1ProblemText, .b2Duration, .b4Avoidance, .b5PreviousAttempts:
             (previewedCategories.first ?? draft.categories.first).map(OnboardingArtwork.category)
                 ?? .categoryUnnamed
-        case .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation, .commitment:
+        case .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation:
             .reflection
         case .d0MeasurementIntro, .dMeasurement:
             .measure
-        case .e1Reminder, .f1Generation, .f2Roadmap:
+        case .e1Reminder, .h2Priming, .f1Generation, .f2Roadmap, .commitment:
             .prepare
         case .g1FirstSession:
             .session
-        case .g2SessionComplete, .price, .h2Priming, .h1Account:
+        case .g2SessionComplete, .price, .h1Account:
             .settle
         case .crisis:
             nil
@@ -441,11 +441,6 @@ final class OnboardingFlowViewModel {
     }
 
     func finishHonestExpectation() {
-        advance(to: .commitment)
-    }
-
-    /// Söz saklanmaz ve kimseye gitmez: karşılığı bir ürün davranışı değil, bir an.
-    func finishCommitment() {
         advance(to: .d0MeasurementIntro)
     }
 
@@ -512,7 +507,7 @@ final class OnboardingFlowViewModel {
         // buraya taşındı — E3'ün commit'i bu satırı taşımıyordu, yoksa ses tercihi hiç
         // kurulmazdı.
         draft.voicePreference = .feminine
-        advance(to: .f1Generation)
+        advance(to: .h2Priming)
     }
 
     // MARK: - F · Üretim ve teslim
@@ -622,7 +617,7 @@ final class OnboardingFlowViewModel {
         }
     }
 
-    /// F2'nin "Yola çık"ı — basılı tutularak tetiklenir. Buradan sonrası G1:
+    /// Taahhüt ekranındaki imza sonrası basılı tutma bunu tetikler. Buradan sonrası G1:
     /// kullanıcı kayıt olmadan ilk oturumunu dinliyor (PRD-Ek Onboarding §8).
     ///
     /// **Geri dönülmez.** Harita geride kalıyor ve oturum başlıyor; geçmişi
@@ -630,6 +625,10 @@ final class OnboardingFlowViewModel {
     func startFirstSession() {
         history.removeAll()
         step = .g1FirstSession
+    }
+
+    func finishRoadmap() {
+        advance(to: .commitment)
     }
 
     /// G1 bitti. `completed` false ise kullanıcı "Burada duralım" dedi.
@@ -691,24 +690,26 @@ final class OnboardingFlowViewModel {
     }
 
     func finishPrice() {
-        advance(to: .h2Priming)
+        advance(to: .h1Account)
     }
 
     /// H2. İzin yalnızca "İzin ver" ile ve ekranda ne alınacağı görüldükten sonra istenir
     /// (`ReminderScheduler.apply` sistem penceresini o an açar). Reddetmek ya da izin
     /// verilmemesi akışı durdurmaz: hatırlatma kapalı kalır, Ben sekmesi ayarlardan açmayı
-    /// gösterir. Kayıt önce kurulur ki hatırlatma satırı E1'in saatini taşısın.
+    /// gösterir. Sonuç taslakta tutulur; profil G2/H1'de kurulurken E1 saatiyle birlikte yazılır.
     func finishReminderPriming(enable: Bool) async {
         if enable {
-            services.profile.recordOnboarding(draft)
-            if var reminder = services.profile.record?.reminder {
-                reminder.isEnabled = true
-                let outcome = await ReminderScheduler.apply(reminder)
-                if outcome == .denied { reminder.isEnabled = false }
-                services.profile.setReminder(reminder)
-            }
+            let reminder = ReminderSetting(
+                isEnabled: true,
+                hour: draft.reminderHour,
+                minute: draft.reminderMinute,
+                isSuggested: draft.timing?.suggestedReminderHour == draft.reminderHour
+            )
+            draft.reminderEnabled = await ReminderScheduler.apply(reminder) == .scheduled
+        } else {
+            draft.reminderEnabled = false
         }
-        advance(to: .h1Account)
+        advance(to: .f1Generation)
     }
 
     /// Kalan adım sayısı — G2'nin "yolunda N adım daha var" cümlesi.

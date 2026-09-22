@@ -31,6 +31,13 @@ check(IntensityScaleModel.step(at: 160, width: 320) == 5, "midpoint")
 check(IntensityScaleModel.step(at: 320, width: 320) == 10, "right edge")
 check(IntensityScaleModel.step(at: 10, width: 0) == 0, "zero width")
 
+let flowSource = try String(contentsOfFile: "MyApp/Features/Onboarding/OnboardingFlowViewModel.swift", encoding: .utf8)
+check(flowSource.contains("advance(to: .h2Priming)"), "E1 must lead to priming")
+check(flowSource.contains("advance(to: .f1Generation)"), "priming must lead to generation")
+check(flowSource.contains("advance(to: .commitment)"), "F2 must lead to commitment")
+check(flowSource.contains("step = .g1FirstSession"), "commitment must lead to G1")
+check(flowSource.contains("advance(to: .h1Account)"), "price must lead to account")
+
 await MainActor.run {
     var committedAttempts: ([PreviousAttempt], String?)?
     var crisisFlagged = false

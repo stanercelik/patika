@@ -123,6 +123,14 @@ extension OnboardingStep {
 ///
 /// `xcrun simctl launch booted <bundle-id> -patika-debug-step yolum`
 enum DebugDirectEntry {
+    static var opensOnboardingStep: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-patika-debug-step"),
+              arguments.index(after: index) < arguments.endIndex
+        else { return false }
+        return OnboardingStep(debugName: arguments[arguments.index(after: index)]) != nil
+    }
+
     static var opensRoot: Bool {
         let arguments = ProcessInfo.processInfo.arguments
         guard let index = arguments.firstIndex(of: "-patika-debug-step"),
@@ -173,7 +181,10 @@ struct OnboardingDebugSkipButton: View {
 
     var body: some View {
         Menu {
+            Button("H2 · Notification") { flow.debugJump(to: .h2Priming) }
             Button("F1 · Generation") { flow.debugJump(to: .f1Generation) }
+            Button("F2 · Path ready") { flow.debugJump(to: .f2Roadmap) }
+            Button("Promise · Signature") { flow.debugJump(to: .commitment) }
             Button("G1 · First session") { flow.debugJump(to: .g1FirstSession) }
             Button("G2 · Session end") { flow.debugJump(to: .g2SessionComplete) }
             Button("H1 · Account") { flow.debugJump(to: .h1Account) }

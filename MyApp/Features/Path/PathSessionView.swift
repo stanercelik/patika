@@ -13,6 +13,7 @@ struct PathSessionView: View {
 
     @State private var viewModel: PathSessionViewModel
     @State private var celebration: BadgeCelebrationItem?
+    @State private var reflectionAnswer = ""
 
     init(services: AppServices, path: ActivePath, step: PathStepRecord) {
         _viewModel = State(initialValue: PathSessionViewModel(services: services, path: path, step: step))
@@ -79,6 +80,7 @@ struct PathSessionView: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
                 Spacer()
                 AdaptiveQuestionView(
+                    answer: $reflectionAnswer,
                     question: viewModel.question ?? "",
                     isSubmitting: viewModel.isSubmitting,
                     showsError: viewModel.showsError,

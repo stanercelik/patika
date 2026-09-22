@@ -64,49 +64,65 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
         // Varsayılan punto sığar; ScrollView yalnızca büyük Dynamic Type
         // boyutlarında devreye girer — AX5'te hiçbir ekran kırılmaz (Ton eki §7).
         //
-        // Alt bölge **`safeAreaInset`** ile veriliyor, `ScrollView`'ın altında ayrı bir
-        // `VStack` satırı olarak değil (2026-09-22 düzeltmesi). Sıralı VStack'te footer
-        // sabit bir yükseklik alıyordu ve klavye açılınca sistemin klavye kaçınması bu
-        // sabit satırı hesaba katmadan çalışıyordu — odaklanan alan klavyenin altında
-        // kalabiliyordu. `safeAreaInset` footer'ın yüksekliğini kaydırma alanının kendi
-        // güvenli bölgesine yazıyor; klavye geldiğinde ikisi **aynı** mekanizmayla
-        // toplanıyor, klavye kendi güvenli bölge inset'i, footer kendi inset'i.
+        // Normal boyutlarda alt bölge `safeAreaInset` ile sabit kalır; klavye ve footer
+        // aynı güvenli bölge mekanizmasıyla toplanır. AX boyutlarında dev bir sabit
+        // buton içeriği örtmesin diye footer belgenin sonuna akar ve kullanıcı ona kaydırır.
         GeometryReader { proxy in
             let heightClass = OnboardingHeightClass.resolve(
                 availableHeight: proxy.size.height,
                 accessibility: dynamicTypeSize.isAccessibilitySize
             )
+            let usesFlowingFooter = dynamicTypeSize.isAccessibilitySize
+                || proxy.size.height < Theme.OnboardingLayout.compactMinimumHeight
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    DisplayText(headline, size: 30)
-
-                    if let hint {
-                        BodyText(hint)
+            Group {
+                if usesFlowingFooter {
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            questionBlock(heightClass: heightClass)
+                            footer
+                                .padding(.top, 12)
+                                .padding(.horizontal, Theme.Spacing.screenMargin)
+                                .padding(.bottom, 12)
+                        }
                     }
-
-                    content
-                        .padding(.top, heightClass == .compact ? 14 : questionToAnswerGap)
+                } else {
+                    ScrollView {
+                        questionBlock(heightClass: heightClass)
+                    }
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        footer
+                            .padding(.top, 12)
+                            .padding(.horizontal, Theme.Spacing.screenMargin)
+                            .padding(.bottom, 12)
+                            .background(Color.clear)
+                    }
                 }
-                .onboardingSurfaceCard(surface)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Theme.Spacing.screenMargin)
-                .padding(.top, heightClass == .comfortable ? 14 : 8)
-                .padding(.bottom, 16)
             }
             .scrollIndicators(.hidden)
             .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
             .scrollEdgeEffectStyle(.soft, for: .bottom)
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                footer
-                    .padding(.top, 12)
-                    .padding(.horizontal, Theme.Spacing.screenMargin)
-                    .padding(.bottom, 12)
-                    .background(Color.clear)
-            }
             .environment(\.onboardingHeightClass, heightClass)
         }
+    }
+
+    private func questionBlock(heightClass: OnboardingHeightClass) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            DisplayText(headline, size: 30)
+
+            if let hint {
+                BodyText(hint)
+            }
+
+            content
+                .padding(.top, heightClass == .compact ? 14 : questionToAnswerGap)
+        }
+        .onboardingSurfaceCard(surface)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+        .padding(.top, heightClass == .comfortable ? 14 : 8)
+        .padding(.bottom, 16)
     }
 }
 

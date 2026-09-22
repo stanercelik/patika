@@ -9,6 +9,7 @@ struct AgeWheelPicker: View {
     @ScaledMetric(relativeTo: .title2) private var rowHeight: CGFloat = 48
 
     var body: some View {
+        let avoidsMotion = reduceMotion
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(AgeSelection.allowed, id: \.self) { age in
@@ -20,9 +21,9 @@ struct AgeWheelPicker: View {
                         .id(age)
                         .scrollTransition(.interactive, axis: .vertical) { content, phase in
                             content
-                                .scaleEffect(phase.isIdentity || reduceMotion ? 1 : 0.84)
+                                .scaleEffect(phase.isIdentity || avoidsMotion ? 1 : 0.84)
                                 .opacity(phase.isIdentity ? 1 : 0.34)
-                                .blur(radius: phase.isIdentity || reduceMotion ? 0 : 2.5)
+                                .blur(radius: phase.isIdentity || avoidsMotion ? 0 : 2.5)
                         }
                         .accessibilityHidden(true)
                 }

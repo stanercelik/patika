@@ -613,6 +613,21 @@
         }
       }
     },
+    "commitment.clearSignature" : {
+      "comment" : "SignatureCanvas.swift",
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear" } } }
+    },
+    "commitment.dayOneTransition" : {
+      "comment" : "CommitmentView.swift",
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Let’s begin with day one." } } }
+    },
+    "commitment.drawHint" : {
+      "comment" : "SignatureCanvas.swift",
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Leave a small mark for yourself." } } }
+    },
     "commitment.headline" : {
       "comment" : "Taahhüt ekranı başlığı",
       "extractionState" : "manual",
@@ -624,6 +639,11 @@
           }
         }
       }
+    },
+    "commitment.holdToStart" : {
+      "comment" : "HoldToStartButton.swift",
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Press and hold to start your path" } } }
     },
     "commitment.leadAvoidance" : {
       "comment" : "Taahhüt: kullanıcının kaçınma cümlesinin üst etiketi",
@@ -649,29 +669,15 @@
         }
       }
     },
-    "commitment.slide" : {
-      "comment" : "Taahhüt kaydırıcısı etiketi",
+    "commitment.saveError" : {
+      "comment" : "CommitmentView.swift",
       "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Slide to take the first step"
-          }
-        }
-      }
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your mark is still here. It wasn’t saved, and that wasn’t your fault." } } }
     },
-    "commitment.slideAccessibility" : {
-      "comment" : "Taahhüt kaydırıcısı VoiceOver etkinleştirmesi",
+    "commitment.simpleMark" : {
+      "comment" : "SignatureCanvas.swift",
       "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Take the first step"
-          }
-        }
-      }
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Use a simple mark" } } }
     },
     "common.back" : {
       "comment" : "OnboardingHeader.swift",
@@ -5797,18 +5803,6 @@
         }
       }
     },
-    "onboarding.holdToStartHint" : {
-      "comment" : "Copy.swift · static let holdToStartHint: LocalizedStringResource = \"Başlamak için basılı tut\"",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Press and hold to begin"
-          }
-        }
-      }
-    },
     "onboarding.honestExpectationEarlyDays" : {
       "comment" : "Copy.swift · static let honestExpectationEarlyDays: LocalizedStringResource =",
       "extractionState" : "manual",
@@ -6360,6 +6354,11 @@
           }
         }
       }
+    },
+    "onboarding.roadmapContinue" : {
+      "comment" : "RoadmapView.swift",
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue" } } }
     },
     "onboarding.roadmapFirstMeasurement" : {
       "comment" : "Copy.swift · static let roadmapFirstMeasurement: LocalizedStringResource = \"İlk ölçüm\"",
@@ -7016,7 +7015,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Other meditation apps"
+            "value" : "Meditation apps"
           }
         }
       }
@@ -7893,42 +7892,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "for years"
-          }
-        }
-      }
-    },
-    "problemDuration.slider.accessibility" : {
-      "comment" : "B2 kaydırıcı VoiceOver etiketi",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How long it has been"
-          }
-        }
-      }
-    },
-    "problemDuration.slider.high" : {
-      "comment" : "DurationSlider.swift · B2 kaydırıcı sağ ucu",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Years"
-          }
-        }
-      }
-    },
-    "problemDuration.slider.low" : {
-      "comment" : "DurationSlider.swift · B2 kaydırıcı sol ucu",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Days"
           }
         }
       }

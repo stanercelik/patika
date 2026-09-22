@@ -11,7 +11,6 @@ enum OnboardingArtwork: String, CaseIterable {
     // MARK: - Kâğıt kart içi şeffaf kesitler (PAPER bloğu)
 
     case identity = "onboarding-identity"
-    case timeOfDay = "onboarding-b-weather"
     case fork = "onboarding-c3-fork"
     case horizon = "onboarding-c4-horizon"
     case commit = "onboarding-commit"

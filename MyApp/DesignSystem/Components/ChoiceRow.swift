@@ -27,7 +27,7 @@ struct ChoiceRow: View {
             Theme.softHaptic()
             action()
         } label: {
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 Text(label)
                     .font(
                         .body.weight(isSelected ? Theme.Weight.action : Theme.Weight.emphasis)
@@ -41,7 +41,7 @@ struct ChoiceRow: View {
                 SelectionMark(isSelected: isSelected)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .padding(.vertical, 15)
             .background { CalmSurface(isEmphasized: isSelected) }
         }

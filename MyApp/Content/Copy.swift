@@ -356,8 +356,13 @@ enum Copy {
         static let roadmapMeasurementDescription: LocalizedStringResource =
             .onboardingRoadmapMeasurementDescription
 
-        /// Basılı tutma jesti görünmez; yazıyla söylenmek zorunda.
-        static let holdToStartHint: LocalizedStringResource = .onboardingHoldToStartHint
+        static let commitmentHoldToStart: LocalizedStringResource = .commitmentHoldToStart
+        static let roadmapContinue: LocalizedStringResource = .onboardingRoadmapContinue
+        static let commitmentDayOneTransition: LocalizedStringResource = .commitmentDayOneTransition
+        static let signatureClear: LocalizedStringResource = .commitmentClearSignature
+        static let signatureSimpleMark: LocalizedStringResource = .commitmentSimpleMark
+        static let signatureDrawHint: LocalizedStringResource = .commitmentDrawHint
+        static let signatureSaveError: LocalizedStringResource = .commitmentSaveError
 
         /// D1'in pasif CTA metni. Kova listelerinde "Birini seçelim" kullanılıyor;
         /// şiddet ölçeğinde seçilecek bir liste yok, dokunulacak bir yer var.

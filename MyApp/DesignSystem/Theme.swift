@@ -197,22 +197,6 @@ enum Theme {
         /// olursa takılmış gibi durur.
         static let revealFade: Double = 0.70
 
-        /// F2'nin kendiliğinden aşağı inip geri çıkması (ürün sahibi kararı,
-        /// 2026-09-09). Harita ekrana sığmıyor ve alt satırların varlığı yalnızca
-        /// kaydıran kullanıcıya görünüyordu; ekran kendi kendine bir kez aşağı
-        /// inip geri çıkınca "burada daha var" bilgisi kaydırma gerektirmeden
-        /// veriliyor.
-        ///
-        /// **800 ms kuralının bilinçli istisnası.** O kural durum geçişleri için:
-        /// bir dokunuşun karşılığı 800 ms'den uzun sürerse arayüz ağır hissedilir.
-        /// Buradaki hareket bir geçiş değil, içeriğin gösterilmesi — ve hızlısı
-        /// okunmuyor, savrulma gibi duruyordu. Kullanıcı ekrana dokunduğu anda
-        /// iptal ediliyor ve Reduce Motion'da hiç çalışmıyor.
-        static let roadmapTourLeadIn: Double = 1.10
-        static let roadmapTourDown: Double = 1.50
-        static let roadmapTourHold: Double = 0.55
-        static let roadmapTourUp: Double = 1.20
-
         /// "Yolum"da bir adımın açılıp kapanması.
         ///
         /// Yay, süre değil: açılan kartın yüksekliği içeriğe göre değişiyor ve
@@ -253,12 +237,6 @@ enum Theme {
         /// "Ne değişti" satırları arası gecikme: noktalar başlangıç işaretinden
         /// sırayla kayar (her biri `measurementBar` sürer).
         static let changeRowStagger: Double = 0.12
-
-        /// Liste hâlindeki öğeler için çok daha kısa aralık. C'nin 1.5 saniyesi
-        /// okunacak cümleler içindi; yedi satırlık bir yol haritasında aynı ritim
-        /// son satırı 14. saniyede gösterirdi. Burada beliriş bir okuma temposu
-        /// değil, izin yukarıdan aşağı çizilmesi.
-        static let listRevealStagger: Double = 0.11
 
         /// Sırada `index` numaralı öğenin belirmeye başlama anı. Sıraya dahil
         /// olmayan ama sırayı bekleyen öğeler (C4 grafiği) de bunu kullanıyor.
@@ -350,11 +328,6 @@ extension View {
         modifier(SequentialReveal(index: index, stagger: nil))
     }
 
-    /// Liste öğeleri için hızlı sıra — F2'nin yol haritası gibi. Aynı beliriş,
-    /// okuma temposu yerine çizilme temposu.
-    func listReveal(_ index: Int) -> some View {
-        modifier(SequentialReveal(index: index, stagger: Theme.Motion.listRevealStagger))
-    }
 }
 
 extension AnyTransition {

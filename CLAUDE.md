@@ -165,8 +165,8 @@ gamification serbest. İki sınır kalır: **uydurma yorum ya da kullanıcı say
   D ekranları iki yerde birlikte, ortak bir cevap görünümüyle değişir.
 - **Uygulama durumu (2026-09-21, akşam).** Kodda bitti: Faz 1-6 ve 8-10 (aşağıdaki sapmalarla).
   Kâğıt katmanı: kimlik (3 ekran tek kartta), B1-B5, C1-C4, taahhüt, D0, E1, E3, fiyat, H2.
-  Zeminde kalan: A2, B6, D1-D8. Yeni: `TickRuler`, `DualStatementSlider` (B2 ve yaş),
-  `CommitmentSlide`, `RadialClockDial` (E1), `MeasurementAnswerView` (onboarding D ve yol içi
+  Zeminde kalan: A2, B6, D1-D8. Yeni: `RadialClockDial` (E1),
+  `MeasurementAnswerView` (onboarding D ve yol içi
   ölçümün **tek** cevap alanı), `MoodScale` sürüklemesi (B6 arka planı parmağın altında
   boyar), F4 fiyat şeffaflığı (G2 sonrası), H2 bildirim ön hazırlığı (`ReminderScheduler`).
   Akış: A1, kimlik, A2, B, C, **taahhüt**, D, E, F, G, **fiyat, H2**, H1. DEBUG: bütün adımlar
@@ -534,7 +534,8 @@ E3'ten sonra akış `f1Generation`a düşer; orası henüz `NotYetBuiltView`.
 - **"Yola çık" basılı tutulur** (`HoldToStartButton`, 1.4 sn): buton bir kapsülden başlayıp **tüm ekranı kaplayan** bir alana büyür (ürün sahibi kararı, 2026-09-09), haptik nabız hızlanıp şiddetlenir, bırakılırsa yayla geri iner. Dolgu paletin en parlak noktasının kırık beyazla karışımından gradyanlı: ton kategoriden geliyor, luminans metin renginden — arka planın akrabası ama ondan ayrık ve siyah buton metni büyüme boyunca okunur. Tamamlanınca dolgu geri inmez; F2→G1 geçişi o ışığın altında olur. Önceki %14'lük büyüme bekleme süresinin nerede olduğunu göstermiyordu. Haptik yine tek kademe — `.soft`, değişen yalnızca `intensity` ve sıklık. Aynı kalıp SOS butonunda da var (Ton eki §2.2). VoiceOver/Switch Control jesti üretemediği için buton yardımcı teknolojiden gelen etkinleştirmede beklemeden çalışır; Reduce Motion'da büyüme yerine mürekkep dolar.
 - **Path başlığı ve uzunluğu geçici.** Gerçeği path üretiminden gelecek (PRD §9.1); `ProblemCategory.provisionalPathTitle` çevrimdışı ve hata durumları için yedek olarak kalır. Faz açıklamaları da öyle (`PathPhase.roadmapDescription`) — üretim onları kullanıcının cevaplarından kişiselleştirecek.
 - **F2'de paywall yok** ve bu bilinçli bir risk (PRD-Ek Onboarding §7.3). Buraya ödeme koymak "işe yaradığını gördükten sonra öde" iddiasını ilk beş dakikada çürütürdü.
-- Liste öğeleri `listReveal` kullanır (0.11 sn aralık), C'nin `sequentialReveal`ı (1.5 sn) değil: yedi satırlık harita, okuma temposuyla belirse son satır 14. saniyede görünürdü.
+- 2026-09-22 kararı bu uzun haritayı geçersiz kıldı: F2 artık otomatik
+  kaymayan, ilk dört durağı ekrana sığdıran kısa bir özettir.
 
 > **Açık karar: F4 nereye gidiyor?** PRD'de fiyat şeffaflığı ekranı F4'tü ve G1'den önce geliyordu. F2'nin "Yola çık"ı artık doğrudan G1'i başlattığı için F4 akışta yersiz kaldı. En makul yeni yeri G2'den (oturum sonu) sonra, H1'den (kayıt) önce — ama bu henüz onaylanmadı. **Silinmedi, ertelendi:** onboarding'de fiyatın gösterilmesi PRD'nin yapısal kararlarından biri.
 
@@ -1085,3 +1086,26 @@ swiftc -o /tmp/badgetest MyApp/Content/Tone.swift MyApp/Models/DomainEnums.swift
   `-patika-debug-me-route journal|badges`,
   `-patika-debug-me-sheet note|badge|settings|change|support`.
 
+## 22 Eylül 2026 — onboarding responsive etkileşim güncellemesi
+
+Ürün sahibi onayıyla onboarding'in soru/teslim akışı güncellendi. Yaş ekranı tek
+yaş seçilen bulanık derinlikli wheel'dir; kesin yaş yalnızca akış belleğinde kalır,
+kalıcı ve ağ katmanına mevcut `AgeRange` yazılır. B2/B3 doğrudan seçeneklerdir;
+B3 aynı guaj sahneyi sabah–gündüz–akşam–gece tonlarında değiştirir. B5 `Other`
+metni cihazda kalır ve commit öncesi kriz taramasından geçer. B6 hava durumu
+ikonları yerine beş patika taşı ve aynı kompozisyonun ışık/haze karşılığıdır.
+
+Akışın teslim sırası artık `D8 → E1 → H2 → F1 → F2 → commitment → G1 → G2 →
+price → H1`dir. Bildirim sistem izni yalnızca H2'de açık kabulün ardından istenir.
+F2 uzun otomatik tur değil, ekrana sığan kısa özettir. Taahhüt F2 sonrasındadır:
+kullanıcı yerel, korumalı dosyaya kaydedilen imza/işaret çizer; basılı tutma ilk
+temasta tepki verir ve G1'den önce “Let’s begin with day one.” mesajı görünür.
+
+Doğrulama: `bash scripts/run-swift-tests.sh` bütün kayıtlı suite'lerde geçti;
+`xcodebuild ... SWIFT_EMIT_LOC_STRINGS=NO build` iPhone 17 Pro simülatöründe
+başarılı. Varsayılan Dynamic Type'ta age, B2, B3, B5, B6, D1, F2, commitment ve
+G2; dar iPhone 16e'de B5, F2, commitment ve G2 elle kontrol edildi. AX5 + Increase
+Contrast'ta age, B5, D1, F2, commitment ve G2 denetlendi; AX'te footer içerikle
+birlikte akar ve ızgara tek kolona düşer. Reduce Motion'da wheel derinlik hareketi
+kalkar. CTA'lar/içerik kesilmiyor, alt siyah bant yok. VoiceOver turu bu kayıtta
+yapılmış sayılmaz.

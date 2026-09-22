@@ -23,11 +23,11 @@ private let galleryEntries: [(String, OnboardingStep)] = [
     ("B1", .b1ProblemText), ("B2", .b2Duration), ("B3", .b3Timing), ("B4", .b4Avoidance),
     ("B5", .b5PreviousAttempts), ("B6", .b6CurrentMood),
     ("C1", .c1Mirroring), ("C2", .c2NotAlone), ("C3", .c3PathNotLibrary), ("C4", .c4HonestExpectation),
-    ("Taahhüt", .commitment),
     ("D0", .d0MeasurementIntro), ("D1", .dMeasurement(1)), ("D5", .dMeasurement(5)),
-    ("E1", .e1Reminder),
-    ("F1", .f1Generation), ("F2", .f2Roadmap), ("G2", .g2SessionComplete),
-    ("Fiyat", .price), ("H2", .h2Priming), ("H1", .h1Account),
+    ("E1", .e1Reminder), ("H2", .h2Priming),
+    ("F1", .f1Generation), ("F2", .f2Roadmap), ("Taahhüt", .commitment),
+    ("G1", .g1FirstSession), ("G2", .g2SessionComplete),
+    ("Fiyat", .price), ("H1", .h1Account),
 ]
 
 #Preview("Onboarding galerisi", traits: .fixedLayout(width: 6000, height: 900)) {

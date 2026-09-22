@@ -39,8 +39,8 @@ struct GenderView: View {
 ///
 /// Doğum tarihi sorulmuyor: onboarding'de kesin tarihe ihtiyaç yok ve kesin
 /// tarih kimliklendirici bir veri. Bağlayıcı 18+ kontrolü kayıt ekranında
-/// (H1) yapılır (PRD §11.4). Süre sıralı bir cevap: `DualStatementSlider` bir
-/// kova üretir, "söylemek istemiyorum" durağı olamayan ayrı bir satır.
+/// (H1) yapılır (PRD §11.4). Wheel tek yaşı gösterir; kalıcı katmana yalnızca
+/// mevcut gizlilik kovası yazılır. "Söylemek istemiyorum" ayrı bir cevap yoludur.
 struct AgeRangeView: View {
     private let flow: OnboardingFlowViewModel
     @State private var exactAge: Int

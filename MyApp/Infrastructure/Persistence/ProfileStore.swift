@@ -377,7 +377,7 @@ extension ProfileRecord {
             $0 != .noPattern && $0.suggestedReminderHour == draft.reminderHour
         } ?? false
         reminder = ReminderSetting(
-            isEnabled: reminder.isEnabled,
+            isEnabled: draft.reminderEnabled,
             hour: draft.reminderHour,
             minute: draft.reminderMinute,
             isSuggested: isSuggested

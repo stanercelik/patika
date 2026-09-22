@@ -54,11 +54,15 @@ extension LocalizedStringResource {
     static var buttonUnderstood: LocalizedStringResource { LocalizedStringResource("button.understood") }
     static var clinicalDisclaimer: LocalizedStringResource { LocalizedStringResource("clinicalDisclaimer") }
     static var commitmentBody: LocalizedStringResource { LocalizedStringResource("commitment.body") }
+    static var commitmentClearSignature: LocalizedStringResource { LocalizedStringResource("commitment.clearSignature") }
+    static var commitmentDayOneTransition: LocalizedStringResource { LocalizedStringResource("commitment.dayOneTransition") }
+    static var commitmentDrawHint: LocalizedStringResource { LocalizedStringResource("commitment.drawHint") }
     static var commitmentHeadline: LocalizedStringResource { LocalizedStringResource("commitment.headline") }
+    static var commitmentHoldToStart: LocalizedStringResource { LocalizedStringResource("commitment.holdToStart") }
     static var commitmentLeadAvoidance: LocalizedStringResource { LocalizedStringResource("commitment.leadAvoidance") }
     static var commitmentLeadProblem: LocalizedStringResource { LocalizedStringResource("commitment.leadProblem") }
-    static var commitmentSlide: LocalizedStringResource { LocalizedStringResource("commitment.slide") }
-    static var commitmentSlideAccessibility: LocalizedStringResource { LocalizedStringResource("commitment.slideAccessibility") }
+    static var commitmentSaveError: LocalizedStringResource { LocalizedStringResource("commitment.saveError") }
+    static var commitmentSimpleMark: LocalizedStringResource { LocalizedStringResource("commitment.simpleMark") }
     static var commonBack: LocalizedStringResource { LocalizedStringResource("common.back") }
     static func commonPercent(_ arg1: Int) -> LocalizedStringResource { LocalizedStringResource("common.percent") }
     static var commonProgress: LocalizedStringResource { LocalizedStringResource("common.progress") }
@@ -480,7 +484,6 @@ extension LocalizedStringResource {
     static var onboardingFirstSessionHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.firstSessionHeadline") }
     static var onboardingGenderHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.genderHeadline") }
     static var onboardingGenerationHeadline: LocalizedStringResource { LocalizedStringResource("onboarding.generationHeadline") }
-    static var onboardingHoldToStartHint: LocalizedStringResource { LocalizedStringResource("onboarding.holdToStartHint") }
     static var onboardingHonestExpectationEarlyDays: LocalizedStringResource { LocalizedStringResource("onboarding.honestExpectationEarlyDays") }
     static var onboardingHonestExpectationHeadline1: LocalizedStringResource { LocalizedStringResource("onboarding.honestExpectationHeadline.1") }
     static func onboardingHonestExpectationHeadline2(_ arg1: String) -> LocalizedStringResource { LocalizedStringResource("onboarding.honestExpectationHeadline.2") }
@@ -527,6 +530,7 @@ extension LocalizedStringResource {
     static var onboardingReminderChange: LocalizedStringResource { LocalizedStringResource("onboarding.reminderChange") }
     static func onboardingReminderHeadline(_ arg1: String) -> LocalizedStringResource { LocalizedStringResource("onboarding.reminderHeadline") }
     static var onboardingReminderPickerLabel: LocalizedStringResource { LocalizedStringResource("onboarding.reminderPickerLabel") }
+    static var onboardingRoadmapContinue: LocalizedStringResource { LocalizedStringResource("onboarding.roadmapContinue") }
     static var onboardingRoadmapFirstMeasurement: LocalizedStringResource { LocalizedStringResource("onboarding.roadmapFirstMeasurement") }
     static var onboardingRoadmapHeadline1: LocalizedStringResource { LocalizedStringResource("onboarding.roadmapHeadline.1") }
     static func onboardingRoadmapHeadline2(_ arg1: String) -> LocalizedStringResource { LocalizedStringResource("onboarding.roadmapHeadline.2") }
@@ -655,9 +659,6 @@ extension LocalizedStringResource {
     static var problemDurationMirrorPhraseFewWeeks: LocalizedStringResource { LocalizedStringResource("problemDuration.mirrorPhrase.fewWeeks") }
     static var problemDurationMirrorPhraseMonths: LocalizedStringResource { LocalizedStringResource("problemDuration.mirrorPhrase.months") }
     static var problemDurationMirrorPhraseYears: LocalizedStringResource { LocalizedStringResource("problemDuration.mirrorPhrase.years") }
-    static var problemDurationSliderAccessibility: LocalizedStringResource { LocalizedStringResource("problemDuration.slider.accessibility") }
-    static var problemDurationSliderHigh: LocalizedStringResource { LocalizedStringResource("problemDuration.slider.high") }
-    static var problemDurationSliderLow: LocalizedStringResource { LocalizedStringResource("problemDuration.slider.low") }
     static var problemTimingLabelBedtime: LocalizedStringResource { LocalizedStringResource("problemTiming.label.bedtime") }
     static var problemTimingLabelDaytime: LocalizedStringResource { LocalizedStringResource("problemTiming.label.daytime") }
     static var problemTimingLabelEvening: LocalizedStringResource { LocalizedStringResource("problemTiming.label.evening") }

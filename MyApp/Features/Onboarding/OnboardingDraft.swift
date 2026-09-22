@@ -53,6 +53,7 @@ struct OnboardingDraft: Equatable, Sendable {
     var voicePreference: VoicePreference?
     var reminderHour: Int = 22
     var reminderMinute: Int = 30
+    var reminderEnabled = false
     var sessionLength: SessionLength = .standard
 
     // MARK: - Güvenlik

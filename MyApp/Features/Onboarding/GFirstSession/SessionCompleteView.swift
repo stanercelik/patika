@@ -27,57 +27,61 @@ struct SessionCompleteView: View {
     let flow: OnboardingFlowViewModel
     @State private var isSubmitting = false
     @State private var showsError = false
+    @State private var answer = ""
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         GeometryReader { geometry in
+            let heightClass = OnboardingHeightClass.resolve(
+                availableHeight: geometry.size.height,
+                accessibility: dynamicTypeSize.isAccessibilitySize
+            )
             ScrollView {
-                VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
-                    Spacer()
-
-                    if !dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: heightClass == .comfortable ? 16 : 10) {
+                    if heightClass != .scrollRequired {
                         PatikaIllustration(artwork: .rest)
-                            .frame(height: 152)
+                            .frame(height: heightClass == .comfortable ? 142 : 94)
                             .frame(maxWidth: .infinity)
                     }
 
-                    DisplayText(
-                        flow.didCompleteFirstSession
-                            ? Copy.Session.completedHeadline
-                            : Copy.Session.leftEarlyHeadline,
-                        size: 32
-                    )
-
-                    BodyText(
-                        flow.didCompleteFirstSession
-                            ? Copy.Session.completedBody(
-                                remaining: flow.remainingSteps,
-                                time: flow.reminderTimeText
+                    SceneContentPlate {
+                        VStack(alignment: .leading, spacing: 14) {
+                            DisplayText(
+                                flow.didCompleteFirstSession
+                                    ? Copy.Session.completedHeadline
+                                    : Copy.Session.leftEarlyHeadline,
+                                size: 32
                             )
-                            : Copy.Session.leftEarlyBody(time: flow.reminderTimeText)
-                    )
 
-                    // Soru **yalnızca kişiselleştirilmiş patikada** var; kararı akış
-                    // veriyor, görünüm hesaplamıyor.
-                    if let question = flow.firstStepQuestion {
-                        AdaptiveQuestionView(
-                            question: question,
-                            isSubmitting: isSubmitting,
-                            showsError: showsError,
-                            onSave: { submit(answer: $0, skipped: false) },
-                            onSkip: { submit(answer: nil, skipped: true) }
-                        )
-                        Spacer()
-                    } else {
-                        Spacer()
-                        PrimaryButton(title: Copy.Session.completedCTA, isEnabled: !isSubmitting) {
-                            submit(answer: nil, skipped: true)
+                            BodyText(
+                                flow.didCompleteFirstSession
+                                    ? Copy.Session.completedBody(
+                                        remaining: flow.remainingSteps,
+                                        time: flow.reminderTimeText
+                                    )
+                                    : Copy.Session.leftEarlyBody(time: flow.reminderTimeText)
+                            )
+
+                            if let question = flow.firstStepQuestion {
+                                AdaptiveQuestionView(
+                                    answer: $answer,
+                                    question: question,
+                                    isSubmitting: isSubmitting,
+                                    showsError: showsError,
+                                    onSave: { submit(answer: $0, skipped: false) },
+                                    onSkip: { submit(answer: nil, skipped: true) }
+                                )
+                            } else {
+                                PrimaryButton(title: Copy.Session.completedCTA, isEnabled: !isSubmitting) {
+                                    submit(answer: nil, skipped: true)
+                                }
+                            }
                         }
-                        .padding(.bottom, 12)
                     }
                 }
-                .frame(maxWidth: .infinity, minHeight: geometry.size.height, alignment: .leading)
+                .frame(maxWidth: .infinity, minHeight: heightClass == .scrollRequired ? nil : geometry.size.height, alignment: .leading)
                 .padding(.horizontal, Theme.Spacing.screenMargin)
+                .padding(.vertical, 12)
             }
             .scrollIndicators(.hidden)
             .scrollBounceBehavior(.basedOnSize)

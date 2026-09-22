@@ -573,6 +573,7 @@ final class MeViewModel {
             ReminderScheduler.cancel()
             await services.appLock.setEnabled(false)
             services.profile.erase()
+            services.promiseSignature.clear()
             await services.auth.signOut()
             return true
         } catch {
