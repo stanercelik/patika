@@ -180,6 +180,8 @@ final class OnboardingFlowViewModel {
     private var previewedCategories: [ProblemCategory] = []
     /// B6'da henüz commit edilmemiş canlı seçim — `currentSceneDimming` bunu okur.
     private var previewedMood: MoodLevel?
+    /// The wheel value survives Back only in memory; it is never persisted or uploaded.
+    private(set) var selectedExactAge: Int?
 
     init(
         services: AppServices,
@@ -294,8 +296,19 @@ final class OnboardingFlowViewModel {
         advance(to: .identityAge)
     }
 
-    func commitAgeRange(_ ageRange: AgeRange) {
-        draft.ageRange = ageRange
+    func previewAge(_ age: Int?) {
+        selectedExactAge = age
+    }
+
+    func commitAge(_ age: Int) {
+        selectedExactAge = age
+        draft.ageRange = AgeSelection.range(for: age)
+        advance(to: .a2Categories)
+    }
+
+    func commitAgeUndisclosed() {
+        selectedExactAge = nil
+        draft.ageRange = .undisclosed
         advance(to: .a2Categories)
     }
 

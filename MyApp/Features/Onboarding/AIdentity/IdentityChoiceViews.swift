@@ -42,18 +42,15 @@ struct GenderView: View {
 /// (H1) yapılır (PRD §11.4). Süre sıralı bir cevap: `DualStatementSlider` bir
 /// kova üretir, "söylemek istemiyorum" durağı olamayan ayrı bir satır.
 struct AgeRangeView: View {
-    @State private var viewModel: SingleChoiceStepViewModel<AgeRange>
+    private let flow: OnboardingFlowViewModel
+    @State private var exactAge: Int
+    @State private var prefersNotToSay: Bool
 
     init(flow: OnboardingFlowViewModel) {
-        self._viewModel = State(
-            initialValue: SingleChoiceStepViewModel(
-                selection: flow.draft.ageRange,
-                commit: { flow.commitAgeRange($0) }
-            )
-        )
+        self.flow = flow
+        self._exactAge = State(initialValue: flow.selectedExactAge ?? 24)
+        self._prefersNotToSay = State(initialValue: flow.draft.ageRange == .undisclosed)
     }
-
-    private var ordered: [AgeRange] { AgeRange.allCases.filter { $0 != .undisclosed } }
 
     var body: some View {
         OnboardingQuestionLayout(
@@ -61,28 +58,30 @@ struct AgeRangeView: View {
             hint: Copy.Onboarding.identityStatsNote
         ) {
             VStack(spacing: 22) {
-                DualStatementSlider(
-                    options: ordered,
-                    selection: viewModel.selection.flatMap { ordered.contains($0) ? $0 : nil },
-                    onSelect: { viewModel.select($0) },
-                    lowStatement: AgeRange.eighteenToTwentyFour.label,
-                    highStatement: AgeRange.fiftyFivePlus.label,
-                    accessibilityLabel: Copy.Onboarding.ageHeadline,
-                    fillsTrack: false
-                )
+                AgeWheelPicker(selection: $exactAge) { age in
+                    prefersNotToSay = false
+                    flow.previewAge(age)
+                }
+                .opacity(prefersNotToSay ? 0.46 : 1)
+
                 ChoiceRow(
                     label: AgeRange.undisclosed.label,
-                    isSelected: viewModel.isSelected(.undisclosed)
+                    isSelected: prefersNotToSay
                 ) {
-                    viewModel.select(.undisclosed)
+                    prefersNotToSay.toggle()
+                    if !prefersNotToSay { flow.previewAge(exactAge) }
                 }
             }
         } footer: {
             OnboardingQuestionFooter(
                 primaryTitle: Copy.Button.next,
-                primaryDisabledTitle: Copy.Onboarding.chooseOneCTA,
-                isPrimaryEnabled: viewModel.canContinue,
-                primaryAction: { viewModel.submit() }
+                primaryAction: {
+                    if prefersNotToSay {
+                        flow.commitAgeUndisclosed()
+                    } else {
+                        flow.commitAge(exactAge)
+                    }
+                }
             )
         }
     }
