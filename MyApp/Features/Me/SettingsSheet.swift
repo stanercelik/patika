@@ -45,6 +45,9 @@ struct SettingsSheet: View {
                         if viewModel.record != nil { dataGroup }
                         aboutGroup
                         irreversibleGroup
+                        #if DEBUG
+                        debugGroup
+                        #endif
 
                         // Sürüm ayarların en altında, ortada ve soluk: profilden
                         // buraya taşındı.
@@ -291,6 +294,27 @@ struct SettingsSheet: View {
         dismiss()
         appState.hasCompletedOnboarding = false
     }
+
+    #if DEBUG
+    /// Yalnızca geliştirme: hesabı/veriyi silmeden onboarding'i tekrar izlemek
+    /// için. `PatikaApp.body` `appState.hasCompletedOnboarding`i canlı okuyor,
+    /// bu yüzden bayrağı çevirmek yeniden başlatmadan onboarding'e döner —
+    /// sunucudaki path ve kayıt olduğu gibi kalır (bu bilerek `deleteAccount`
+    /// çağırmıyor). Uygulama kapanıp açılırsa `adoptExistingPathIfAny` sunucuda
+    /// zaten bir path bulup bayrağı hemen geri `true` yapar; bu yüzden akışı
+    /// tek oturumda, uygulamayı arka plana atmadan izlemek gerekir.
+    private var debugGroup: some View {
+        SettingsGroup(title: "Debug") {
+            Button {
+                dismiss()
+                appState.hasCompletedOnboarding = false
+            } label: {
+                SettingsRow(title: "Restart onboarding", symbol: "arrow.counterclockwise")
+            }
+            .buttonStyle(.calm)
+        }
+    }
+    #endif
 }
 
 /// Hatırlatma saati ve anahtarı. İzin, kullanıcı anahtarı açıp kaydettiği anda
