@@ -29,7 +29,7 @@ struct AccountLinkView: View {
                 }
 
                 SecondaryTextButton(title: Copy.Auth.skipLink) {
-                    Task { await flow.completeOnboarding() }
+                    Task { await flow.skipAccountLink() }
                 }
                 .frame(maxWidth: .infinity)
             }

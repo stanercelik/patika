@@ -115,6 +115,9 @@ struct DiscoverPathView: View {
         .sheet(isPresented: $confirmsJoin) {
             DiscoverJoinSheet {
                 library.enroll(path)
+                if library.isEnrolled(path) {
+                    services.observability.capture(.preparedPathSelected)
+                }
                 expandedStepID = library.nextStep(path)?.id
                 confirmsJoin = false
             }

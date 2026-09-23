@@ -1,6 +1,7 @@
 import { authenticate } from "../_shared/auth.ts";
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { DEFAULT_TTS_MODEL, renditionHash, ttsConfigured } from "../_shared/tts.ts";
+import { canAccessStep } from "../_shared/path-access.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -17,9 +18,10 @@ Deno.serve(async (req) => {
     if (!ttsConfigured()) return json({ code: "provider_configuration_required" }, 503);
 
     const { data: step } = await adminClient.from("path_steps")
-      .select("id,path_id,block_ids,slot_copy")
+      .select("id,path_id,day,block_ids,slot_copy")
       .eq("id", body.pathStepId).eq("user_id", user.id).maybeSingle();
     if (!step) return json({ code: "not_found" }, 404);
+    if (!await canAccessStep(adminClient, user.id, step)) return json({ code: "purchase_required" }, 403);
     const [{ data: path }, { data: profile }] = await Promise.all([
       adminClient.from("program_paths").select("id,kind").eq("id", step.path_id).eq("user_id", user.id).single(),
       adminClient.from("profiles").select("locale,voice_preference").eq("user_id", user.id).maybeSingle(),

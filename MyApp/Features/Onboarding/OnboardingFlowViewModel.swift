@@ -141,6 +141,45 @@ enum OnboardingStep: Equatable {
     }
 }
 
+extension OnboardingStep {
+    /// Crisis is deliberately absent from analytics.
+    var analyticsStep: AnalyticsOnboardingStep? {
+        switch self {
+        case .a1Welcome: .a1
+        case .identityName: .identityName
+        case .identityGender: .identityGender
+        case .identityAge: .identityAge
+        case .a2Categories: .a2
+        case .b1ProblemText: .b1
+        case .b2Duration: .b2
+        case .b3Timing: .b3
+        case .b4Avoidance: .b4
+        case .b5PreviousAttempts: .b5
+        case .b6CurrentMood: .b6
+        case .c1Mirroring: .c1
+        case .c2NotAlone: .c2
+        case .c3PathNotLibrary: .c3
+        case .c4HonestExpectation: .c4
+        case .d0MeasurementIntro: .d0
+        case .dMeasurement(let index):
+            [AnalyticsOnboardingStep.d1, .d2, .d3, .d4, .d5, .d6, .d7, .d8]
+                .indices.contains(index - 1)
+                ? [AnalyticsOnboardingStep.d1, .d2, .d3, .d4, .d5, .d6, .d7, .d8][index - 1]
+                : nil
+        case .e1Reminder: .e1
+        case .h2Priming: .h2
+        case .f1Generation: .f1
+        case .f2Roadmap: .f2
+        case .commitment: .commitment
+        case .g1FirstSession: .g1
+        case .g2SessionComplete: .g2
+        case .price: .price
+        case .h1Account: .h1
+        case .crisis: nil
+        }
+    }
+}
+
 /// Onboarding akışının sahibi. Adım yönlendirmesi, taslak veri ve palet
 /// senkronizasyonu buradadır; görünümler karar vermez.
 @Observable
@@ -156,6 +195,10 @@ final class OnboardingFlowViewModel {
     private let onFinished: () -> Void
 
     private var history: [OnboardingStep] = []
+    private var analyticsSteps = AnalyticsStepTracker()
+    private var didTrackPathGenerationStart = false
+    private var didTrackProblemSubmission = false
+    private var didTrackAccountChoice = false
     /// F1'de başlatılan ses üretimi. Görev tutuluyor ki ekran değişince iptal
     /// edilebilsin ve iki kez başlatılmasın.
     private var audioPreparation: Task<Void, Never>?
@@ -191,13 +234,32 @@ final class OnboardingFlowViewModel {
     ) {
         self.services = services
         self.onFinished = onFinished
+        markStepViewed(.a1Welcome)
     }
 
     // MARK: - Navigasyon
 
     func advance(to next: OnboardingStep) {
+        markStepCompleted(step)
         history.append(step)
         step = next
+        markStepViewed(next)
+    }
+
+    private func markStepViewed(_ step: OnboardingStep) {
+        guard let id = step.analyticsStep, analyticsSteps.firstView(of: id) else { return }
+        services.observability.capture(.onboardingStepViewed(step: id))
+    }
+
+    private func markStepCompleted(_ step: OnboardingStep) {
+        guard let id = step.analyticsStep, analyticsSteps.firstCompletion(of: id) else { return }
+        services.observability.capture(.onboardingStepCompleted(step: id))
+    }
+
+    private func markProblemSubmission(wasWritten: Bool) {
+        guard !didTrackProblemSubmission else { return }
+        didTrackProblemSubmission = true
+        services.observability.capture(.problemTextSubmitted(wasWritten: wasWritten))
     }
 
     func goBack() {
@@ -262,7 +324,6 @@ final class OnboardingFlowViewModel {
             services.observability.capture(.anonymousAuthentication)
             return false
         }
-        services.observability.capture(.onboardingStarted)
         advance(to: .identityName)
         return true
     }
@@ -349,12 +410,14 @@ final class OnboardingFlowViewModel {
         }
 
         draft.problemText = trimmed
+        markProblemSubmission(wasWritten: !trimmed.isEmpty)
         advance(to: .b2Duration)
     }
 
     /// "Yazmak istemiyorum". Kişiselleştirme zayıflar, akış durmaz (§10).
     func skipProblemText() {
         draft.problemText = ""
+        markProblemSubmission(wasWritten: false)
         advance(to: .b2Duration)
     }
 
@@ -607,23 +670,27 @@ final class OnboardingFlowViewModel {
     }
 
     func generatePath(idempotencyKey: UUID) async throws -> PathGenerationResult {
-        let token = try await services.auth.validAccessToken()
+        if !didTrackPathGenerationStart {
+            didTrackPathGenerationStart = true
+            services.observability.capture(.pathGenerationStarted)
+        }
         do {
+            let token = try await services.auth.validAccessToken()
             let result = try await services.backend.generatePathWithReconciliation(
                 from: draft,
                 measurementVariant: measurementVariant,
                 accessToken: token,
                 idempotencyKey: idempotencyKey
             )
-            services.observability.capture(.pathGenerationFinished(
-                result: result == .crisis ? .crisis : .ready
-            ))
+            if case .ready = result {
+                services.observability.capture(.pathGenerationFinished(succeeded: true))
+            }
             if case .ready(let path) = result {
                 generatedPath = path
             }
             return result
         } catch {
-            services.observability.capture(.pathGenerationFinished(result: .failed))
+            services.observability.capture(.pathGenerationFinished(succeeded: false))
             services.observability.capture(.pathGeneration)
             throw error
         }
@@ -635,8 +702,10 @@ final class OnboardingFlowViewModel {
     /// **Geri dönülmez.** Harita geride kalıyor ve oturum başlıyor; geçmişi
     /// temizlemek, oturumun ortasında geri tuşuyla haritaya düşmeyi engelliyor.
     func startFirstSession() {
+        markStepCompleted(step)
         history.removeAll()
         step = .g1FirstSession
+        markStepViewed(step)
     }
 
     func finishRoadmap() {
@@ -651,11 +720,14 @@ final class OnboardingFlowViewModel {
     /// kaydını yalanlamak olurdu. Akış yine G2'ye gider — yarıda bırakmak bir
     /// hata değil ve cezası yok.
     func finishFirstSession(completed: Bool) {
+        markStepCompleted(step)
+        if completed { services.observability.capture(.sessionCompleted(source: .first)) }
         sessionVoiceEnergy = 0
         didCompleteFirstSession = completed
         // Geri dönülmez: oturum arkada kaldı.
         history.removeAll()
         step = .g2SessionComplete
+        markStepViewed(step)
     }
 
     var firstStepQuestion: String? {
@@ -696,9 +768,9 @@ final class OnboardingFlowViewModel {
         sessionVoiceEnergy = min(max(value, 0), 1)
     }
 
-    /// G2'nin "Devam"ı. Sıra: fiyat şeffaflığı, bildirim ön hazırlığı, hesap.
+    /// Only a completed first session can lead to a purchase offer.
     func finishSessionSummary() {
-        advance(to: .price)
+        advance(to: didCompleteFirstSession && generatedPath?.kind == .personalized ? .price : .h1Account)
     }
 
     func finishPrice() {
@@ -721,6 +793,7 @@ final class OnboardingFlowViewModel {
         } else {
             draft.reminderEnabled = false
         }
+        services.observability.capture(.reminderPreferenceChanged(enabled: draft.reminderEnabled))
         advance(to: .f1Generation)
     }
 
@@ -730,6 +803,10 @@ final class OnboardingFlowViewModel {
     var reminderTimeText: String { draft.reminderTimeText }
 
     func linkAccount(_ provider: AuthProvider) async -> Bool {
+        if !didTrackAccountChoice {
+            didTrackAccountChoice = true
+            services.observability.capture(.accountChoice(provider == .apple ? .apple : .google))
+        }
         guard await services.auth.link(provider: provider) else {
             services.observability.capture(.accountLinkFinished(provider: provider, succeeded: false))
             services.observability.capture(.accountLink)
@@ -738,6 +815,14 @@ final class OnboardingFlowViewModel {
         services.observability.capture(.accountLinkFinished(provider: provider, succeeded: true))
         await completeOnboarding()
         return true
+    }
+
+    func skipAccountLink() async {
+        if !didTrackAccountChoice {
+            didTrackAccountChoice = true
+            services.observability.capture(.accountChoice(.later))
+        }
+        await completeOnboarding()
     }
 
     // MARK: - Güvenlik
@@ -750,6 +835,7 @@ final class OnboardingFlowViewModel {
     }
 
     func completeOnboarding() async {
+        if step == .h1Account { markStepCompleted(step) }
         // "Ben" sekmesinin başlangıcı: ad, ilk cümle, baseline ve tercihler
         // cihazda kalır. Kriz sinyali verilmiş akış kaydedilmez.
         services.profile.recordOnboarding(draft)
@@ -770,7 +856,6 @@ final class OnboardingFlowViewModel {
     }
 }
 
-#if DEBUG
 extension OnboardingFlowViewModel {
     /// Preview'lar için akışı ortasından kurar. Aynı dosyada duruyor çünkü
     /// `step` ve `draft` yalnızca burada yazılabilir — ve öyle kalmalı.
@@ -783,7 +868,10 @@ extension OnboardingFlowViewModel {
         flow.draft = draft
         return flow
     }
+}
 
+#if DEBUG
+extension OnboardingFlowViewModel {
     /// Geliştirme sırasında akışı ileri sarmak için — `OnboardingDebugSkip`.
     ///
     /// `step` ve `draft` bilerek `private(set)`: dışarıdan yazılamamalı. Bu iki

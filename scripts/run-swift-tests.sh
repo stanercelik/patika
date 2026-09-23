@@ -8,10 +8,14 @@
 # eklenir. Katalog değişince: python3 scripts/generate-string-symbol-shim.py
 set -u
 cd "$(dirname "$0")/.."
+FILTER="${1:-}"
+if [ "$FILTER" = "AnalyticsContract" ]; then
+  swiftc MyApp/Infrastructure/Observability/AnalyticsClient.swift Tests/AnalyticsContractTests/main.swift -o /tmp/swifttest-AnalyticsContract || exit 1
+  exec /tmp/swifttest-AnalyticsContract
+fi
 python3 scripts/generate-string-symbol-shim.py >/dev/null || exit 1
 SHIM=Tests/Support/StringSymbolsShim.swift
 M=MyApp
-FILTER="${1:-}"
 FAIL=0
 
 run() { # name, files...
@@ -53,6 +57,7 @@ run OnboardingInteraction $M/Content/Tone.swift $M/Models/DomainEnums.swift \
   $M/Features/Onboarding/BProblemDiscovery/PreviousAttemptsViewModel.swift \
   $SHIM Tests/OnboardingInteractionTests/main.swift
 run PromiseSignatureStore $M/Infrastructure/Persistence/PromiseSignatureStore.swift Tests/PromiseSignatureStoreTests/main.swift
+run AnalyticsContract $M/Infrastructure/Observability/AnalyticsClient.swift Tests/AnalyticsContractTests/main.swift
 run Contrast $M/DesignSystem/RGB.swift Tests/ContrastTests/main.swift
 # JourneyRoutePatternTests bayat: JourneyRoutePattern tipi artık kodda yok (bu işten önce de böyleydi).
 exit $FAIL

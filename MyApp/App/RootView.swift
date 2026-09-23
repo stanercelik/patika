@@ -42,6 +42,12 @@ struct RootView: View {
         }
         .tint(Theme.textPrimary.color)
         .overlay { privacyLayer }
+        .onChange(of: selection, initial: true) { _, tab in
+            if !services.appLock.isLocked { captureScreen(tab) }
+        }
+        .onChange(of: services.appLock.isLocked) { wasLocked, isLocked in
+            if wasLocked && !isLocked { captureScreen(selection) }
+        }
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
             case .active:
@@ -53,6 +59,15 @@ struct RootView: View {
                 break
             }
         }
+    }
+
+    private func captureScreen(_ tab: RootTab) {
+        let screen: AnalyticsScreen = switch tab {
+        case .path: .path
+        case .discover: .discover
+        case .me: .me
+        }
+        services.observability.capture(.appScreenViewed(screen))
     }
 
     @ViewBuilder

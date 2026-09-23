@@ -469,7 +469,7 @@ final class MeViewModel {
     /// Yalnızca değeri bilinen satırlar. Hazır patikada uzunluk, ton ve ses yok.
     var preferenceItems: [PreferenceItem] {
         guard let record else { return [] }
-        var items = [PreferenceItem(
+        let items = [PreferenceItem(
             kind: .reminder,
             value: record.reminder.isEnabled
                 ? record.reminder.timeText
@@ -505,6 +505,7 @@ final class MeViewModel {
         let outcome = await ReminderScheduler.apply(reminder)
         if outcome == .denied { reminder.isEnabled = false }
         services.profile.setReminder(reminder)
+        services.observability.capture(.reminderPreferenceChanged(enabled: reminder.isEnabled))
         return outcome
     }
 
@@ -613,12 +614,6 @@ final class MeViewModel {
         guard var privacy = record?.privacy else { return }
         privacy.hidesJournal = hides
         services.profile.setPrivacy(privacy)
-    }
-
-    var analyticsConsent: Bool { services.observability.analyticsConsent }
-
-    func setAnalyticsConsent(_ consent: Bool) {
-        services.observability.setAnalyticsConsent(consent)
     }
 
     var exportPayload: ProfileExport? {

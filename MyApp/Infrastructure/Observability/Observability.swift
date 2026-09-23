@@ -4,37 +4,40 @@ import Observation
 @Observable
 @MainActor
 final class Observability {
-    private(set) var analyticsConsent: Bool
-    let analyticsSubjectID: UUID
+    /// Created in memory for this process only. Never stored or linked to auth.
+    let analyticsSessionID = UUID()
 
     private let analytics: any AnalyticsClient
     private let errors: any ErrorReporter
-    private let defaults: UserDefaults
 
     init(
         analytics: any AnalyticsClient,
-        errors: any ErrorReporter,
-        defaults: UserDefaults = .standard
+        errors: any ErrorReporter
     ) {
         self.analytics = analytics
         self.errors = errors
-        self.defaults = defaults
-        analyticsConsent = defaults.bool(forKey: "privacy.analytics-consent")
-        if let stored = defaults.string(forKey: "privacy.analytics-subject-id"),
-           let id = UUID(uuidString: stored) {
-            analyticsSubjectID = id
-        } else {
-            let id = UUID()
-            analyticsSubjectID = id
-            defaults.set(id.uuidString.lowercased(), forKey: "privacy.analytics-subject-id")
-        }
+        // Delete identifiers left by the previous persistent analytics design.
+        UserDefaults.standard.removeObject(forKey: "privacy.analytics-subject-id")
+        UserDefaults.standard.removeObject(forKey: "privacy.analytics-consent")
     }
 
     static func live() -> Observability {
         let info = Bundle.main.infoDictionary ?? [:]
-        let analytics: any AnalyticsClient = PostHogHTTPClient(
-            projectToken: AppConfiguration.live.postHogProjectToken
-        )
+        let analytics: any AnalyticsClient
+        #if DEBUG
+        analytics = NoOpAnalyticsClient()
+        #else
+        if let token = info["POSTHOG_PROJECT_TOKEN"] as? String,
+           AnalyticsDeployment.canSend(
+               environment: info["POSTHOG_ENVIRONMENT"] as? String,
+               token: token,
+               releaseApproved: info["POSTHOG_RELEASE_APPROVED"] as? String
+           ) {
+            analytics = PostHogHTTPClient(projectToken: token)
+        } else {
+            analytics = NoOpAnalyticsClient()
+        }
+        #endif
         let errors: any ErrorReporter
         if let dsn = info["SENTRY_DSN"] as? String, let reporter = SentryHTTPReporter(dsn: dsn) {
             errors = reporter
@@ -44,14 +47,9 @@ final class Observability {
         return Observability(analytics: analytics, errors: errors)
     }
 
-    func setAnalyticsConsent(_ consent: Bool) {
-        analyticsConsent = consent
-        defaults.set(consent, forKey: "privacy.analytics-consent")
-    }
-
     func capture(_ event: AnalyticsEvent) {
-        guard analyticsConsent else { return }
-        Task { await analytics.capture(event, subjectID: analyticsSubjectID) }
+        let occurredAt = Date()
+        Task { await analytics.capture(event, sessionID: analyticsSessionID, occurredAt: occurredAt) }
     }
 
     func capture(_ failure: AppFailure) {

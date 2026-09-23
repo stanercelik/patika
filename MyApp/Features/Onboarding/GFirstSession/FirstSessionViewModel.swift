@@ -36,6 +36,7 @@ final class FirstSessionViewModel {
     private let flow: OnboardingFlowViewModel
     private var audioTask: Task<Void, Never>?
     private var stepId: UUID?
+    private var didTrackSessionStart = false
 
     init(flow: OnboardingFlowViewModel) {
         self.flow = flow
@@ -66,6 +67,10 @@ final class FirstSessionViewModel {
             )
             stepTitle = step?.title ?? String(localized: Copy.Session.fallbackStepTitle)
             runner.begin(segments: segments) { _ in }
+            if !didTrackSessionStart {
+                didTrackSessionStart = true
+                flow.services.observability.capture(.sessionStarted(source: .first))
+            }
             beginAudio()
         }
     }

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.116.0";
+import { canAccessStep } from "./path-access.ts";
 import {
   DEFAULT_TTS_MODEL,
   renditionHash,
@@ -61,7 +62,7 @@ export async function processAudioJob(adminClient: SupabaseClient, jobId: string
 
   try {
     const [{ data: step }, { data: path }, { data: profile }] = await Promise.all([
-      adminClient.from("path_steps").select("id,path_id,user_id,block_ids,slot_copy,step_question")
+      adminClient.from("path_steps").select("id,path_id,user_id,day,block_ids,slot_copy,step_question")
         .eq("id", job.path_step_id).eq("user_id", job.user_id).single(),
       adminClient.from("program_paths").select("id,kind")
         .eq("id", job.path_id).eq("user_id", job.user_id).single(),
@@ -69,6 +70,7 @@ export async function processAudioJob(adminClient: SupabaseClient, jobId: string
         .eq("user_id", job.user_id).maybeSingle(),
     ]);
     if (!step || !path) throw new Error("audio_job_not_found");
+    if (!await canAccessStep(adminClient, job.user_id, step)) throw new Error("purchase_required");
 
     const locale = normalizedLocale(profile?.locale);
     const voice: VoicePreference = profile?.voice_preference === "masculine" ? "masculine" : "feminine";
