@@ -1,100 +1,93 @@
 import SwiftUI
 
-/// F2 — Yolun hazır (PRD-Ek Onboarding §7.2 ve §7.3).
-///
-/// ## Ekrana sığan teslim
-///
-/// 2026-09-22 kararıyla uzun rota ve otomatik kaydırma kalktı. Kullanıcı burada
-/// path başlığını, uzunluğunu ve ilk dört somut durağı tek bakışta görür;
-/// tam rota onboarding sonrası Yolum ekranına aittir. AX boyutlarında aynı içerik
-/// kaydırılabilir belgeye döner, metin kırpılmaz.
-///
-/// ## Akışın zirvesi
-///
-/// Kullanıcı beş dakikadır soru cevaplıyor; karşılığını ilk kez burada görüyor.
-/// Üç şey aynı anda okunuyor: (a) somut bir plan var, (b) ilk karşılaştırma
-/// noktası görünür, (c) fazların sırası rastgele değil.
-///
-/// ## Paywall yok — ve bu bir risk
-///
-/// İncelenen uygulamaların %22'si burada ödeme istiyor. Biz istemiyoruz: ürünün
-/// tüm iddiası "işe yaradığını gördükten sonra öde" ve onboarding'de para
-/// istemek bu iddiayı ilk beş dakikada çürütür (PRD-Ek Onboarding §7.3). Kabul
-/// edilen bedel ilk altı günün gelirsiz olması.
+/// A single readable plan sheet, followed by a clear first-step action.
 struct RoadmapView: View {
     let flow: OnboardingFlowViewModel
-
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    private var rows: [PathPlan.Row] { PathPlan.rows(for: flow.pathLength) }
+    private var rows: [PathPlan.Row] { Array(PathPlan.rows(for: flow.pathLength).prefix(4)) }
     private var generatedSteps: [GeneratedPathStep] {
-        flow.generatedPath?.steps.sorted { $0.day < $1.day } ?? []
+        Array((flow.generatedPath?.steps.sorted { $0.day < $1.day } ?? []).prefix(4))
     }
 
     var body: some View {
-        if dynamicTypeSize.isAccessibilitySize {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    roadmapContent
-                    continueButton
-                }
-                .padding(.horizontal, Theme.Spacing.screenMargin)
-                .padding(.vertical, 10)
-            }
-            .scrollIndicators(.hidden)
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollEdgeEffectStyle(.soft, for: .bottom)
-        } else {
-            VStack(alignment: .leading, spacing: 14) {
-                roadmapContent
-                Spacer(minLength: 0)
-                continueButton
-            }
-            .padding(.horizontal, Theme.Spacing.screenMargin)
-            .padding(.top, 10)
-            .padding(.bottom, 12)
-        }
-    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 18) {
+                    HStack(alignment: .top, spacing: 14) {
+                        Image(systemName: "leaf.circle")
+                            .font(.largeTitle.weight(Theme.Weight.body))
+                            .accessibilityHidden(true)
+                        Text(Copy.Onboarding.roadmapHeadline(name: flow.draft.displayName))
+                            .font(Theme.TypeFace.sectionTitle)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
 
-    private var roadmapContent: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            DisplayText(Copy.Onboarding.roadmapHeadline(name: flow.draft.displayName), size: 30)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(flow.pathTitle)
+                            .font(.title2.weight(Theme.Weight.title))
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(Copy.Onboarding.roadmapMeta(
+                            steps: flow.pathLength.days,
+                            minutes: flow.draft.sessionLength.minutes
+                        ))
+                        .font(.subheadline.weight(Theme.Weight.emphasis))
+                        .foregroundStyle(WoodlandStyle.secondaryInk)
+                    }
 
-            OnboardingIllustration(
-                name: OnboardingArtwork.pathReady.isAvailable ? OnboardingArtwork.pathReady.rawValue : PatikaArtwork.trail.rawValue,
-                height: 124,
-                accessibilityHeight: 88
-            )
-            .frame(maxWidth: .infinity)
+                    OnboardingIllustration(
+                        name: OnboardingArtwork.pathReady.isAvailable
+                            ? OnboardingArtwork.pathReady.rawValue : PatikaArtwork.trail.rawValue,
+                        height: 126,
+                        accessibilityHeight: 80
+                    )
+                    .frame(maxWidth: .infinity)
 
-            pathCard
+                    Rectangle()
+                        .fill(WoodlandStyle.secondaryInk.opacity(0.25))
+                        .frame(height: Theme.Line.border)
+                        .accessibilityHidden(true)
 
-            SceneContentPlate {
-                VStack(alignment: .leading, spacing: 12) {
-                    if generatedSteps.isEmpty {
-                        ForEach(Array(rows.prefix(4).enumerated()), id: \.element.id) { index, row in
-                            HStack(spacing: 10) {
-                                Image(systemName: index == 0 ? "circle.inset.filled" : "circle")
-                                    .accessibilityHidden(true)
-                                rowContent(row)
+                    VStack(alignment: .leading, spacing: 16) {
+                        if generatedSteps.isEmpty {
+                            ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                                planRow(index: index) { rowContent(row) }
                             }
-                            .foregroundStyle(index == 0 ? Theme.textPrimary.color : WoodlandStyle.scenePlateSecondary.color)
-                        }
-                    } else {
-                        ForEach(Array(generatedSteps.prefix(4)), id: \.day) { step in
-                            HStack(spacing: 10) {
-                                Image(systemName: step.day == 1 ? "circle.inset.filled" : "circle")
-                                    .accessibilityHidden(true)
-                                Text(verbatim: step.title)
-                                    .font(Theme.TypeFace.cardTitle)
-                                    .fixedSize(horizontal: false, vertical: true)
+                        } else {
+                            ForEach(Array(generatedSteps.enumerated()), id: \.element.day) { index, step in
+                                planRow(index: index) {
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(Copy.Onboarding.dayLabel(step.day...step.day))
+                                            .font(.caption.weight(Theme.Weight.emphasis))
+                                            .foregroundStyle(WoodlandStyle.secondaryInk)
+                                        Text(verbatim: step.title)
+                                            .font(.body.weight(Theme.Weight.emphasis))
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                }
                             }
-                            .foregroundStyle(step.day == 1 ? Theme.textPrimary.color : WoodlandStyle.scenePlateSecondary.color)
                         }
                     }
                 }
-            }
+                .foregroundStyle(WoodlandStyle.ink)
+                .padding(22)
+                .paperSurface()
+                .environment(\.patikaInk, .ink)
 
+                if dynamicTypeSize.isAccessibilitySize { continueButton }
+            }
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.vertical, 14)
+        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom) {
+            if !dynamicTypeSize.isAccessibilitySize {
+                continueButton
+                    .padding(.horizontal, Theme.Spacing.screenMargin)
+                    .padding(.vertical, 12)
+                    .background(WoodlandStyle.background)
+            }
         }
     }
 
@@ -104,97 +97,38 @@ struct RoadmapView: View {
         }
     }
 
-    // MARK: - Path kartı
-
-    private var pathCard: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(flow.pathTitle)
-                .font(.title3.weight(Theme.Weight.title))
-                .foregroundStyle(Theme.textPrimary.color)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Text(Copy.Onboarding.roadmapMeta(
-                steps: flow.pathLength.days,
-                minutes: flow.draft.sessionLength.minutes
-            ))
-            .font(.subheadline.weight(Theme.Weight.emphasis))
-            .foregroundStyle(Theme.textPrimary.color.opacity(0.62))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 18)
-        .padding(.vertical, 16)
-        .background {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(WoodlandStyle.scenePlate.color.opacity(0.94))
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(WoodlandStyle.scenePlateBorder.color, lineWidth: Theme.Line.border)
+    private func planRow<Content: View>(index: Int, @ViewBuilder content: () -> Content) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: index == 0 ? "circle.inset.filled" : "circle")
+                .font(.body.weight(Theme.Weight.body))
+                .frame(width: 22, height: 24)
+                .accessibilityHidden(true)
+            content()
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-
-    // MARK: - Harita satırları
 
     @ViewBuilder
     private func rowContent(_ row: PathPlan.Row) -> some View {
         switch row {
         case .phase(let phase, let range):
-            rowText(
-                title: Copy.Onboarding.dayLabel(range),
-                subtitle: phase.label,
-                description: phase.roadmapDescription,
-                isMilestone: false
-            )
-
+            rowText(title: Copy.Onboarding.dayLabel(range), subtitle: phase.label)
         case .measurement(let day, let isFirst):
             rowText(
                 title: Copy.Onboarding.dayLabel(day...day),
-                subtitle: isFirst
-                    ? Copy.Onboarding.roadmapFirstMeasurement
-                    : Copy.Onboarding.roadmapMeasurement,
-                description: Copy.Onboarding.roadmapMeasurementDescription,
-                isMilestone: true
+                subtitle: isFirst ? Copy.Onboarding.roadmapFirstMeasurement : Copy.Onboarding.roadmapMeasurement
             )
         }
     }
 
-    /// Gün etiketi üstte ve küçük, faz adı altında ve iri: kullanıcı listeyi
-    /// tarihlerle değil, ne yapacağıyla okuyor.
-    private func rowText(
-        title: LocalizedStringResource,
-        subtitle: LocalizedStringResource,
-        description: LocalizedStringResource,
-        isMilestone: Bool
-    ) -> some View {
+    private func rowText(title: LocalizedStringResource, subtitle: LocalizedStringResource) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title)
                 .font(.caption.weight(Theme.Weight.emphasis))
-                .foregroundStyle(Theme.textPrimary.color.opacity(0.50))
-
+                .foregroundStyle(WoodlandStyle.secondaryInk)
             Text(subtitle)
-                .font(.body.weight(Theme.Weight.action))
-                .foregroundStyle(Theme.textPrimary.color.opacity(isMilestone ? 1.0 : 0.92))
-
-            Text(description)
-                .font(.subheadline.weight(Theme.Weight.body))
-                .foregroundStyle(Theme.textPrimary.color.opacity(0.58))
+                .font(.body.weight(Theme.Weight.emphasis))
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-#Preview {
-    OnboardingPreviewHost(
-        step: .f2Roadmap,
-        draft: {
-            var draft = OnboardingDraft()
-            draft.name = "Taner"
-            draft.categories = [.sleep]
-            draft.currentMood = .heavy
-            return draft
-        }()
-    ) { flow in
-        RoadmapView(flow: flow)
     }
 }

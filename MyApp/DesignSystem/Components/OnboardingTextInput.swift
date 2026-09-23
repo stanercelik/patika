@@ -9,14 +9,8 @@ import SwiftUI
 /// Placeholder A2'de seçilen kategoriye göre değişir (`ProblemCategory.textPlaceholder`) —
 /// doldurma oranını ciddi artıran detay (PRD-Ek Onboarding §3.1).
 ///
-/// ## Klavye (2026-09-22 düzeltmesi)
-///
-/// Tek satırlık alanlarda (`lineRange` üst sınırı 1, yalnızca isim) `return` tuşu
-/// "Done" olur ve `onSubmit` çağrılır — ekranın kendi "Devam" düğmesine basmadan
-/// ilerlenebilir. Çok satırlı alanlarda (`axis: .vertical` yeni satır ekliyor,
-/// `return` bu yüzden kapatma tuşu olamaz) klavyenin üstüne "Done" içeren bir araç
-/// çubuğu eklenir; aksi hâlde çok satırlı bir alanda klavyeyi kapatmanın tek yolu
-/// ekranın dışına dokunmaktı.
+/// Input stays mounted while the keyboard changes the available height.
+/// No accessory toolbar; the screen CTA or interactive scrolling dismisses editing.
 struct OnboardingTextInput: View {
     @Binding var text: String
     let placeholder: LocalizedStringResource
@@ -40,7 +34,7 @@ struct OnboardingTextInput: View {
             text: $text,
             prompt: Text(placeholder)
                 .foregroundStyle(ink.secondary),
-            axis: .vertical
+            axis: isSingleLine ? .horizontal : .vertical
         )
         .font(font ?? .body.weight(Theme.Weight.body))
         .foregroundStyle(ink.primary)
@@ -54,17 +48,8 @@ struct OnboardingTextInput: View {
         // yazmadığı bir cümleyi okutmak demek.
         .autocorrectionDisabled()
         .focused($isFocused)
-        .submitLabel(isSingleLine ? .done : .return)
+        .submitLabel(isSingleLine ? .next : .return)
         .onSubmit { if isSingleLine { onSubmit?() } }
-        .toolbar {
-            if !isSingleLine {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button(Copy.Button.doneKeyboard) { isFocused = false }
-                        .foregroundStyle(Theme.textPrimary.color)
-                }
-            }
-        }
         .padding(.horizontal, 20)
         .padding(.vertical, 18)
         .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -75,7 +60,16 @@ struct OnboardingTextInput: View {
                 CalmSurface(isEmphasized: isFocused)
             }
         }
+        .contentShape(Rectangle())
+        .onTapGesture { isFocused = true }
         .accessibilityLabel(Text(placeholder))
         .animation(Theme.Motion.crossFade, value: isFocused)
+        #if DEBUG
+        .task {
+            if ProcessInfo.processInfo.arguments.contains("-patika-debug-focus-input") {
+                isFocused = true
+            }
+        }
+        #endif
     }
 }

@@ -16,7 +16,6 @@ struct CommitmentView: View {
     let flow: OnboardingFlowViewModel
     @State private var signature = NormalizedSignature(strokes: [])
     @State private var showsSaveError = false
-    @State private var showsTransitionMessage = false
 
     private var quote: (lead: LocalizedStringResource, text: String)? {
         if let avoidance = flow.draft.avoidanceText, !avoidance.isEmpty {
@@ -68,13 +67,7 @@ struct CommitmentView: View {
                             showsSaveError = true
                             return
                         }
-                        withAnimation(Theme.Motion.crossFade) {
-                            showsTransitionMessage = true
-                        }
-                        Task { @MainActor in
-                            try? await Task.sleep(for: .seconds(1.2))
-                            flow.startFirstSession()
-                        }
+                        flow.beginDayOneTransition()
                     }
                     .transition(.opacity)
                 }
@@ -83,21 +76,7 @@ struct CommitmentView: View {
             }
         }
         .animation(Theme.Motion.crossFade, value: signature.isEmpty)
-        .animation(Theme.Motion.crossFade, value: showsTransitionMessage)
-        .overlay {
-            if showsTransitionMessage {
-                ZStack {
-                    WoodlandStyle.scenePlate.color.ignoresSafeArea()
-                    Text(Copy.Onboarding.commitmentDayOneTransition)
-                        .font(Theme.TypeFace.sectionTitle)
-                        .foregroundStyle(Theme.textPrimary.color)
-                        .multilineTextAlignment(.center)
-                        .padding(Theme.Spacing.screenMargin)
-                }
-                .transition(.opacity)
-                .accessibilityElement(children: .combine)
-            }
-        }
+
     }
 }
 

@@ -41,14 +41,25 @@ struct OnboardingContainerView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        #if DEBUG
-        // Akışı ileri sarma — yalnızca DEBUG. Kabukta duruyor ki her adımdan
-        // erişilebilsin; ekranların hiçbiri bunu bilmiyor.
-        .overlay(alignment: .topTrailing) {
-            OnboardingDebugSkipButton(flow: flow)
-                .padding(.trailing, 4)
+        .overlay {
+            if flow.showsDayOneTransition {
+                DayOneTransitionView()
+                    .transition(.opacity)
+                    .task {
+                        do { try await Task.sleep(for: .seconds(3)) }
+                        catch { return }
+                        flow.finishDayOneTransition()
+                    }
+            }
         }
-        .task { flow.applyDebugLaunchStepIfNeeded() }
+        .animation(Theme.Motion.crossFade, value: flow.showsDayOneTransition)
+        #if DEBUG
+        .task {
+            flow.applyDebugLaunchStepIfNeeded()
+            if ProcessInfo.processInfo.arguments.contains("-patika-debug-day-one") {
+                flow.beginDayOneTransition()
+            }
+        }
         #endif
         .animation(Theme.Motion.crossFade, value: flow.step)
     }

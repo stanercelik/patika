@@ -52,10 +52,14 @@ enum PathPreviewFixture {
 
 struct PathPreviewEnvironment: ViewModifier {
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     func body(content: Content) -> some View {
         let arguments = ProcessInfo.processInfo.arguments
         content
+            .environment(\.accessibilityReduceMotion, reduceMotion || arguments.contains("-patika-debug-reduce-motion"))
+            .environment(\.accessibilityReduceTransparency, reduceTransparency || arguments.contains("-patika-debug-reduce-transparency"))
             .environment(\.dynamicTypeSize, (arguments.contains("-patika-debug-ax5") || (PathPreviewFixture.isEnabled && arguments.contains("-patika-debug-path-ax5"))) ? .accessibility5 : typeSize)
     }
 }

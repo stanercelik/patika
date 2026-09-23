@@ -177,10 +177,11 @@ final class OnboardingFlowViewModel {
     /// kalıcı depoya gitmez.
     private(set) var sessionVoiceEnergy: Double = 0
     /// A2'de henüz commit edilmemiş canlı seçim — `currentScene` bunu taslaktan önce okur.
-    private var previewedCategories: [ProblemCategory] = []
+    private var previewedCategories: [ProblemCategory]?
     /// B6'da henüz commit edilmemiş canlı seçim — `currentSceneDimming` bunu okur.
     private var previewedMood: MoodLevel?
-    private var previewedTiming: ProblemTiming?
+    private var previewedReminderHour: Int?
+    private(set) var showsDayOneTransition = false
     /// The wheel value survives Back only in memory; it is never persisted or uploaded.
     private(set) var selectedExactAge: Int?
 
@@ -201,6 +202,9 @@ final class OnboardingFlowViewModel {
 
     func goBack() {
         guard let previous = history.popLast() else { return }
+        previewedCategories = nil
+        previewedMood = nil
+        previewedReminderHour = nil
         step = previous
     }
 
@@ -218,18 +222,18 @@ final class OnboardingFlowViewModel {
         switch step {
         case .a1Welcome: .threshold
         case .identityName, .identityGender, .identityAge: .gathering
-        case .b3Timing:
-            OnboardingArtwork.time(previewedTiming ?? draft.timing)
         case .b6CurrentMood:
             OnboardingArtwork.mood(previewedMood ?? draft.currentMood)
-        case .a2Categories, .b1ProblemText, .b2Duration, .b4Avoidance, .b5PreviousAttempts:
-            (previewedCategories.first ?? draft.categories.first).map(OnboardingArtwork.category)
+        case .a2Categories, .b1ProblemText, .b2Duration, .b3Timing, .b4Avoidance, .b5PreviousAttempts:
+            (previewedCategories ?? draft.categories).last.map(OnboardingArtwork.category)
                 ?? .categoryUnnamed
         case .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation:
             .reflection
         case .d0MeasurementIntro, .dMeasurement:
             .measure
-        case .e1Reminder, .h2Priming, .f1Generation, .f2Roadmap, .commitment:
+        case .e1Reminder:
+            OnboardingArtwork.time(hour: previewedReminderHour ?? suggestedReminderHour)
+        case .h2Priming, .f1Generation, .f2Roadmap, .commitment:
             .prepare
         case .g1FirstSession:
             .session
@@ -319,7 +323,7 @@ final class OnboardingFlowViewModel {
 
     func commitCategories(_ categories: [ProblemCategory]) {
         draft.categories = categories
-        previewedCategories = []
+        previewedCategories = nil
         advance(to: .b1ProblemText)
     }
 
@@ -363,14 +367,22 @@ final class OnboardingFlowViewModel {
 
     // MARK: - B3 · Zamanlama
 
-    func previewTiming(_ timing: ProblemTiming) {
-        previewedTiming = timing
+    func previewReminder(hour: Int) {
+        previewedReminderHour = hour
+    }
+
+    func beginDayOneTransition() {
+        showsDayOneTransition = true
+    }
+
+    func finishDayOneTransition() {
+        showsDayOneTransition = false
+        startFirstSession()
     }
 
     /// Cevap E1'deki varsayılan hatırlatma saatini belirler — sorduğumuz her
     /// şeyin görünür bir karşılığı olmalı (PRD-Ek Onboarding §3.3).
     func commitTiming(_ timing: ProblemTiming) {
-        previewedTiming = nil
         draft.timing = timing
         draft.reminderHour = timing.suggestedReminderHour
         advance(to: .b4Avoidance)

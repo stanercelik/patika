@@ -24,7 +24,8 @@ struct CurrentMoodView: View {
     var body: some View {
         OnboardingQuestionLayout(
             headline: Copy.Onboarding.moodHeadline,
-            hint: Copy.Onboarding.moodHint
+            hint: Copy.Onboarding.moodHint,
+            usesScenePlate: true
         ) {
             MoodScale(selection: viewModel.selection) { level in
                 viewModel.select(level)

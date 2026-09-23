@@ -1,6 +1,18 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
+    " " : {
+
+    },
+    "%@" : {
+
+    },
+    "%lld" : {
+
+    },
     "ageRange.label.eighteenToTwentyFour" : {
       "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
       "extractionState" : "manual",
@@ -21,18 +33,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "55 and over"
-          }
-        }
-      }
-    },
-    "ageRange.label.undisclosed" : {
-      "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prefer not to say"
           }
         }
       }
@@ -69,6 +69,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "25–34"
+          }
+        }
+      }
+    },
+    "ageRange.label.undisclosed" : {
+      "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prefer not to say"
           }
         }
       }
@@ -616,17 +628,38 @@
     "commitment.clearSignature" : {
       "comment" : "SignatureCanvas.swift",
       "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear"
+          }
+        }
+      }
     },
     "commitment.dayOneTransition" : {
       "comment" : "CommitmentView.swift",
       "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Let’s begin with day one." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let’s begin with day one."
+          }
+        }
+      }
     },
     "commitment.drawHint" : {
       "comment" : "SignatureCanvas.swift",
       "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Leave a small mark for yourself." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a small mark for yourself."
+          }
+        }
+      }
     },
     "commitment.headline" : {
       "comment" : "Taahhüt ekranı başlığı",
@@ -643,7 +676,14 @@
     "commitment.holdToStart" : {
       "comment" : "HoldToStartButton.swift",
       "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Press and hold to start your path" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press and hold to start your path"
+          }
+        }
+      }
     },
     "commitment.leadAvoidance" : {
       "comment" : "Taahhüt: kullanıcının kaçınma cümlesinin üst etiketi",
@@ -672,12 +712,26 @@
     "commitment.saveError" : {
       "comment" : "CommitmentView.swift",
       "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your mark is still here. It wasn’t saved, and that wasn’t your fault." } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your mark is still here. It wasn’t saved, and that wasn’t your fault."
+          }
+        }
+      }
     },
     "commitment.simpleMark" : {
       "comment" : "SignatureCanvas.swift",
       "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Use a simple mark" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use a simple mark"
+          }
+        }
+      }
     },
     "common.back" : {
       "comment" : "OnboardingHeader.swift",
@@ -3391,6 +3445,18 @@
         }
       }
     },
+    "me.pathDateRange" : {
+      "comment" : "Copy+Me.swift · static func pathDateRange(start: String, end: String) -> LocalizedStringResource {",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ – %2$@"
+          }
+        }
+      }
+    },
     "me.pathDays" : {
       "comment" : "Copy+Me.swift · static func pathDays(_ days: Int) -> LocalizedStringResource { \"\\(days) gün\" }",
       "extractionState" : "manual",
@@ -3411,18 +3477,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "me.pathDateRange" : {
-      "comment" : "Copy+Me.swift · static func pathDateRange(start: String, end: String) -> LocalizedStringResource {",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ – %2$@"
           }
         }
       }
@@ -5179,6 +5233,30 @@
         }
       }
     },
+    "measurementLibrary.rangeOneToTwo" : {
+      "comment" : "MeasurementLibrary.swift · shared compact numeric range",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1–2"
+          }
+        }
+      }
+    },
+    "measurementLibrary.rangeThreeToFive" : {
+      "comment" : "MeasurementLibrary.swift · shared compact numeric range",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–5"
+          }
+        }
+      }
+    },
     "measurementLibrary.sleepLatency.1" : {
       "comment" : "MeasurementLibrary.swift · static let sleepLatency = MeasurementItem(",
       "extractionState" : "manual",
@@ -5271,30 +5349,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "How long did it take you to drift off last night?"
-          }
-        }
-      }
-    },
-    "measurementLibrary.rangeOneToTwo" : {
-      "comment" : "MeasurementLibrary.swift · shared compact numeric range",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1–2"
-          }
-        }
-      }
-    },
-    "measurementLibrary.rangeThreeToFive" : {
-      "comment" : "MeasurementLibrary.swift · shared compact numeric range",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "3–5"
           }
         }
       }
@@ -6358,7 +6412,14 @@
     "onboarding.roadmapContinue" : {
       "comment" : "RoadmapView.swift",
       "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue" } } }
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        }
+      }
     },
     "onboarding.roadmapFirstMeasurement" : {
       "comment" : "Copy.swift · static let roadmapFirstMeasurement: LocalizedStringResource = \"İlk ölçüm\"",

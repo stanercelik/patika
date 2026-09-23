@@ -27,7 +27,12 @@ struct GenerationView: View {
         // AX5'te hiçbir ekran kırılmaz kuralı (Ton eki §7): dört satır + hata durumu
         // büyük Dynamic Type'ta taşabiliyordu, artık kendi kaydırması var.
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
+            SceneContentPlate {
+              VStack(alignment: .leading, spacing: 0) {
+                GenerationTrail(isPaused: viewModel.hasFailed)
+                    .frame(height: 100)
+                    .padding(.bottom, 22)
+
                 DisplayText(Copy.Onboarding.generationHeadline, size: 30)
                     .padding(.bottom, 34)
 
@@ -74,6 +79,7 @@ struct GenerationView: View {
                     }
                     #endif
                 }
+              }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.horizontal, Theme.Spacing.screenMargin)
@@ -90,7 +96,7 @@ struct GenerationView: View {
     /// Kullanıcı listeyi okumuyor, nerede olduğuna bakıyor.
     private func opacity(of index: Int) -> Double {
         if viewModel.isActive(index) { return 0.95 }
-        return index < viewModel.completedStages ? 0.55 : 0.32
+        return index < viewModel.completedStages ? 0.85 : 0.76
     }
 }
 

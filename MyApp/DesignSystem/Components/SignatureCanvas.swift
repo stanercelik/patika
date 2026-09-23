@@ -25,7 +25,7 @@ struct SignatureCanvas: View {
                     context.stroke(path, with: .color(WoodlandStyle.ink), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
                 }
             }
-            .frame(height: 132)
+            .frame(height: 164)
             .background(WoodlandStyle.paper.opacity(0.72), in: RoundedRectangle(cornerRadius: 18))
             .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(WoodlandStyle.secondaryInk.opacity(0.45), lineWidth: Theme.Line.border) }
             .contentShape(Rectangle())

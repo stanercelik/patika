@@ -66,12 +66,7 @@ struct OnboardingSceneLayer: View {
                     .scaledToFill()
                     .frame(width: geo.size.width, height: geo.size.height)
                     .clipped()
-                    .overlay {
-                        if let tint = candidate.sceneTint {
-                            tint.color.opacity(candidate == .timeNight ? 0.42 : 0.24)
-                                .blendMode(.color)
-                        }
-                    }
+
             }
         }
     }

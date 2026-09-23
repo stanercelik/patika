@@ -91,6 +91,8 @@ struct HoldToStartButton: View {
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(alignment: .center) { fill }
+            .scaleEffect(isHolding && !reduceMotion ? 0.97 : 1)
+            .opacity(isHolding ? 0.90 : 1)
             .contentShape(Capsule())
     }
 
@@ -175,7 +177,7 @@ struct HoldToStartButton: View {
     private func beginHold() {
         guard !isHolding, !isCompleted else { return }
         isHolding = true
-        Theme.softHaptic(intensity: 0.35)
+        Theme.softHaptic(intensity: 0.65)
 
         holdTask = Task { @MainActor in
             let step: TimeInterval = 1.0 / 60.0

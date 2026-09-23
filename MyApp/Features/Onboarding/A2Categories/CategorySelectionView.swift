@@ -8,13 +8,6 @@ struct CategorySelectionView: View {
         self._viewModel = State(initialValue: CategorySelectionViewModel(flow: flow))
     }
 
-    // Aralık ve kart yoğunluğu, 10 seçeneğin ortak alt bölge yüksekliğiyle birlikte
-    // kaydırmadan sığmasına göre ayarlı. Alt bölge değişirse burası da değişmeli.
-    private var columns: [GridItem] { dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [
-        GridItem(.flexible(), spacing: 8),
-        GridItem(.flexible(), spacing: 8),
-    ] }
-
     var body: some View {
         // Varsayılan metin boyutunda 10 seçeneğin tamamı kaydırmadan görünür;
         // ScrollView yalnızca büyük Dynamic Type boyutlarında devreye girer.
@@ -22,7 +15,7 @@ struct CategorySelectionView: View {
             headline: Copy.Onboarding.categoriesHeadline,
             hint: Copy.Onboarding.categoriesHint
         ) {
-            LazyVGrid(columns: columns, spacing: 8) {
+            VStack(spacing: 10) {
                 ForEach(viewModel.categories) { category in
                     CategoryCard(
                         category: category,
@@ -61,33 +54,23 @@ struct CategoryCard: View {
             Theme.softHaptic()
             action()
         } label: {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .top) {
-                    Image(systemName: category.icon)
-                        .font(.title3)
-                        .symbolRenderingMode(.monochrome)
-                        .foregroundStyle(
-                            Theme.textPrimary.color.opacity(isSelected ? 1.0 : 0.72)
-                        )
-                    Spacer(minLength: 0)
-                    SelectionMark(isSelected: isSelected)
-                }
-
-                Spacer(minLength: 2)
-
+            HStack(spacing: 14) {
+                Image(systemName: category.icon)
+                    .font(.title3)
+                    .symbolRenderingMode(.monochrome)
+                    .frame(width: 26)
+                    .accessibilityHidden(true)
                 Text(category.label)
-                    .font(
-                        .subheadline.weight(
-                            isSelected ? Theme.Weight.action : Theme.Weight.emphasis
-                        )
-                    )
-                    .foregroundStyle(Theme.textPrimary.color)
+                    .font(.body.weight(isSelected ? Theme.Weight.action : Theme.Weight.body))
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                SelectionMark(isSelected: isSelected)
             }
-            .frame(maxWidth: .infinity, minHeight: 56, alignment: .topLeading)
-            .padding(.horizontal, 13)
-            .padding(.vertical, 9)
+            .foregroundStyle(Theme.textPrimary.color)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .background { CalmSurface(isEmphasized: isSelected) }
             .opacity(isDimmed ? 0.62 : 1.0)
         }

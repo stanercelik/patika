@@ -80,6 +80,9 @@ struct ReminderTimeView: View {
                 primaryAction: { commit() }
             )
         }
+        .onChange(of: time, initial: true) { _, _ in
+            flow.previewReminder(hour: components.hour ?? 22)
+        }
     }
 
     private var components: DateComponents {

@@ -31,6 +31,7 @@ extension EnvironmentValues {
 struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
     private let headline: LocalizedStringResource
     private let hint: LocalizedStringResource?
+    private let usesScenePlate: Bool
     private let content: Content
     private let footer: Footer
 
@@ -42,11 +43,13 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
     init(
         headline: LocalizedStringResource,
         hint: LocalizedStringResource? = nil,
+        usesScenePlate: Bool = false,
         @ViewBuilder content: () -> Content,
         @ViewBuilder footer: () -> Footer
     ) {
         self.headline = headline
         self.hint = hint
+        self.usesScenePlate = usesScenePlate
         self.content = content()
         self.footer = footer()
     }
@@ -72,8 +75,8 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
                 availableHeight: proxy.size.height,
                 accessibility: dynamicTypeSize.isAccessibilitySize
             )
+            // Keyboard height must not change the identity of the focused input.
             let usesFlowingFooter = dynamicTypeSize.isAccessibilitySize
-                || proxy.size.height < Theme.OnboardingLayout.compactMinimumHeight
 
             Group {
                 if usesFlowingFooter {
@@ -108,6 +111,21 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
     }
 
     private func questionBlock(heightClass: OnboardingHeightClass) -> some View {
+        Group {
+            if usesScenePlate {
+                SceneContentPlate { questionContent(heightClass: heightClass) }
+            } else {
+                questionContent(heightClass: heightClass)
+                    .onboardingSurfaceCard(surface)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+        .padding(.top, heightClass == .comfortable ? 14 : 8)
+        .padding(.bottom, 16)
+    }
+
+    private func questionContent(heightClass: OnboardingHeightClass) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             DisplayText(headline, size: 30)
 
@@ -118,11 +136,6 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
             content
                 .padding(.top, heightClass == .compact ? 14 : questionToAnswerGap)
         }
-        .onboardingSurfaceCard(surface)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, Theme.Spacing.screenMargin)
-        .padding(.top, heightClass == .comfortable ? 14 : 8)
-        .padding(.bottom, 16)
     }
 }
 

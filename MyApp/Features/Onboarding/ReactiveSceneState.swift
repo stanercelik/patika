@@ -9,6 +9,15 @@ enum MoodScenePhase: String, Codable, Sendable {
 }
 
 enum ReactiveSceneState {
+    static func time(hour: Int) -> TimeScenePhase {
+        switch hour {
+        case 5..<11: .morning
+        case 11..<17: .daytime
+        case 17..<21: .evening
+        default: .night
+        }
+    }
+
     static func time(for timing: ProblemTiming) -> TimeScenePhase {
         switch timing {
         case .morning: return .morning

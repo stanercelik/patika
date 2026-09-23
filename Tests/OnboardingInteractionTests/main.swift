@@ -21,6 +21,9 @@ check(ReactiveSceneState.time(for: .daytime) == .daytime, "daytime")
 check(ReactiveSceneState.time(for: .evening) == .evening, "evening")
 check(ReactiveSceneState.time(for: .bedtime) == .night, "bedtime")
 check(ReactiveSceneState.time(for: .noPattern) == .neutral, "no pattern")
+for (hour, phase) in [(0, TimeScenePhase.night), (4, .night), (5, .morning), (10, .morning), (11, .daytime), (16, .daytime), (17, .evening), (20, .evening), (21, .night), (23, .night)] {
+    check(ReactiveSceneState.time(hour: hour) == phase, "reminder scene boundary at \(hour)")
+}
 check(ReactiveSceneState.mood(for: .veryHeavy) == .veiled, "very heavy")
 check(ReactiveSceneState.mood(for: .heavy) == .quiet, "heavy")
 check(ReactiveSceneState.mood(for: .middling) == .balanced, "middle")

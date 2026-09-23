@@ -11,7 +11,6 @@ struct TimingView: View {
         self._viewModel = State(
             initialValue: SingleChoiceStepViewModel(
                 selection: flow.draft.timing,
-                onChange: { flow.previewTiming($0) },
                 commit: { flow.commitTiming($0) }
             )
         )

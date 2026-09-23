@@ -95,6 +95,16 @@ enum OnboardingArtwork: String, CaseIterable {
         }
     }
 
+    static func time(hour: Int) -> OnboardingArtwork {
+        switch ReactiveSceneState.time(hour: hour) {
+        case .morning: .timeMorning
+        case .daytime: .timeDaytime
+        case .evening: .timeEvening
+        case .night: .timeNight
+        case .neutral: .timeNeutral
+        }
+    }
+
     static func time(_ timing: ProblemTiming?) -> OnboardingArtwork {
         guard let timing else { return .timeNeutral }
         switch ReactiveSceneState.time(for: timing) {
