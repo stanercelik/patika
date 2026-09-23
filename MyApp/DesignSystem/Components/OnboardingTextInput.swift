@@ -22,6 +22,8 @@ struct OnboardingTextInput: View {
     var font: Font?
     /// Yalnızca tek satırlı alanlarda çağrılır — çok satırlıda `return` yeni satır ekler.
     var onSubmit: (() -> Void)?
+    /// Klavye açıkken footer gibi komşu yerleşimlerin alanı serbest bırakabilmesi için.
+    var onFocusChange: ((Bool) -> Void)?
 
     @FocusState private var isFocused: Bool
     @Environment(\.patikaInk) private var ink
@@ -50,6 +52,9 @@ struct OnboardingTextInput: View {
         .focused($isFocused)
         .submitLabel(isSingleLine ? .next : .return)
         .onSubmit { if isSingleLine { onSubmit?() } }
+        .onChange(of: isFocused) { _, focused in
+            onFocusChange?(focused)
+        }
         .padding(.horizontal, 20)
         .padding(.vertical, 18)
         .frame(maxWidth: .infinity, alignment: .topLeading)

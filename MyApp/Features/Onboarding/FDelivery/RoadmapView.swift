@@ -86,7 +86,6 @@ struct RoadmapView: View {
                 continueButton
                     .padding(.horizontal, Theme.Spacing.screenMargin)
                     .padding(.vertical, 12)
-                    .background(WoodlandStyle.background)
             }
         }
     }

@@ -112,13 +112,15 @@ struct DiscoverPathView: View {
                     }
             }
         }
-        .confirmationDialog(DiscoverCopy.joinTitle, isPresented: $confirmsJoin, titleVisibility: .visible) {
-            Button(DiscoverCopy.join) {
+        .sheet(isPresented: $confirmsJoin) {
+            DiscoverJoinSheet {
                 library.enroll(path)
                 expandedStepID = library.nextStep(path)?.id
+                confirmsJoin = false
             }
-            Button(DiscoverCopy.cancel, role: .cancel) {}
-        } message: { Text(DiscoverCopy.joinBody) }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
         .fullScreenCover(item: $session) { step in
             PathSessionView(services: services, preparedPath: path, step: step, library: library)
         }
@@ -208,6 +210,42 @@ struct DiscoverPathView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+}
+
+private struct DiscoverJoinSheet: View {
+    let onJoin: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                .font(.title2.weight(Theme.Weight.emphasis))
+                .foregroundStyle(WoodlandStyle.sage)
+                .accessibilityHidden(true)
+
+            Text(verbatim: DiscoverCopy.joinTitle)
+                .font(Theme.TypeFace.sectionTitle)
+                .foregroundStyle(Theme.textPrimary.color)
+
+            Text(verbatim: DiscoverCopy.joinBody)
+                .font(Theme.TypeFace.rowValue)
+                .foregroundStyle(Theme.textSecondary.color)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: 8)
+
+            DiscoverAction(title: DiscoverCopy.join, action: onJoin)
+
+            Button(DiscoverCopy.cancel) { dismiss() }
+                .font(Theme.TypeFace.action)
+                .foregroundStyle(Theme.textSecondary.color)
+                .frame(maxWidth: .infinity, minHeight: 44)
+        }
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+        .padding(.top, 22)
+        .padding(.bottom, 12)
+        .background(WoodlandStyle.background)
     }
 }
 

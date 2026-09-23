@@ -86,8 +86,8 @@ struct ProfileIdentityCard: View {
         .accessibilityLabel(Text(Copy.Me.photoAccessibility))
     }
 
-    /// Fotoğraf → adın baş harfi → `leaf`. Renk anlam taşımıyor: hepsi aynı krem
-    /// disk.
+    /// Fotoğraf yoksa artı gösterilir; alanın fotoğraf ekleme eylemi olduğu
+    /// ilk bakışta anlaşılır.
     @ViewBuilder
     private var avatarFace: some View {
         if let avatar {
@@ -97,15 +97,9 @@ struct ProfileIdentityCard: View {
         } else {
             ZStack {
                 WoodlandStyle.paper
-                if let initial = Self.initial(of: name) {
-                    Text(verbatim: initial)
-                        .font(Theme.TypeFace.sectionTitle)
-                        .foregroundStyle(WoodlandStyle.ink)
-                } else {
-                    Image(systemName: "leaf")
-                        .font(Theme.TypeFace.rowSymbol)
-                        .foregroundStyle(WoodlandStyle.secondaryInk)
-                }
+                Image(systemName: "plus")
+                    .font(.title3.weight(Theme.Weight.action))
+                    .foregroundStyle(WoodlandStyle.secondaryInk)
             }
         }
     }

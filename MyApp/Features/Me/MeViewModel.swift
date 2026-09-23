@@ -60,7 +60,7 @@ final class MeViewModel {
 
     struct PreferenceItem: Identifiable, Equatable {
         enum Kind: String {
-            case reminder, tone
+            case reminder
         }
 
         let kind: Kind
@@ -97,11 +97,14 @@ final class MeViewModel {
     /// uydurulmuş bir şey de görmemeli.
     func load() async {
         let backend = services.backend
+        // Yenileme sırasında geçici boş/hatalı yanıt, doğrulanmış yol başlığını
+        // karttan kaldırmamalı.
+        let previouslyLoadedPath = activePath
         let token: String
         do {
             token = try await services.auth.validAccessToken()
         } catch {
-            pathLoad = .unavailable
+            if previouslyLoadedPath == nil { pathLoad = .unavailable }
             return
         }
 
@@ -111,11 +114,11 @@ final class MeViewModel {
         do {
             if let path = try await pathRequest, !path.steps.isEmpty {
                 pathLoad = .active(path)
-            } else {
+            } else if previouslyLoadedPath == nil {
                 pathLoad = .none
             }
         } catch {
-            pathLoad = .unavailable
+            if previouslyLoadedPath == nil { pathLoad = .unavailable }
         }
 
         do {
@@ -473,10 +476,6 @@ final class MeViewModel {
                 : String(localized: Copy.Me.reminderOffValue),
             caption: reminderSourceCaption
         )]
-        if let tone = record.tone {
-            items.append(PreferenceItem(kind: .tone, value: String(localized: tone.label), caption: nil))
-        }
-        // Adım uzunluğu ve ses gösterilmiyor: ikisi de kullanıcı tercihi değil (2026-09-21).
         return items
     }
 

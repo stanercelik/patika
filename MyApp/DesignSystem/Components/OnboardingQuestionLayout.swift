@@ -32,6 +32,9 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
     private let headline: LocalizedStringResource
     private let hint: LocalizedStringResource?
     private let usesScenePlate: Bool
+    private let sceneContentTopSpacing: CGFloat
+    private let isFooterHidden: Bool
+    private let autoScrollTarget: String?
     private let content: Content
     private let footer: Footer
 
@@ -44,12 +47,18 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
         headline: LocalizedStringResource,
         hint: LocalizedStringResource? = nil,
         usesScenePlate: Bool = false,
+        sceneContentTopSpacing: CGFloat = 0,
+        isFooterHidden: Bool = false,
+        autoScrollTarget: String? = nil,
         @ViewBuilder content: () -> Content,
         @ViewBuilder footer: () -> Footer
     ) {
         self.headline = headline
         self.hint = hint
         self.usesScenePlate = usesScenePlate
+        self.sceneContentTopSpacing = sceneContentTopSpacing
+        self.isFooterHidden = isFooterHidden
+        self.autoScrollTarget = autoScrollTarget
         self.content = content()
         self.footer = footer()
     }
@@ -80,26 +89,47 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
 
             Group {
                 if usesFlowingFooter {
-                    ScrollView {
-                        VStack(spacing: 0) {
+                    ScrollViewReader { reader in
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                questionBlock(heightClass: heightClass)
+                                if !isFooterHidden {
+                                    footer
+                                        .padding(.top, 12)
+                                        .padding(.horizontal, Theme.Spacing.screenMargin)
+                                        .padding(.bottom, 12)
+                                }
+                            }
+                        }
+                        .onChange(of: autoScrollTarget) { _, target in
+                            guard let target else { return }
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                reader.scrollTo(target, anchor: .center)
+                            }
+                        }
+                    }
+                } else {
+                    ScrollViewReader { reader in
+                        ScrollView {
                             questionBlock(heightClass: heightClass)
+                        }
+                        .onChange(of: autoScrollTarget) { _, target in
+                            guard let target else { return }
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                reader.scrollTo(target, anchor: .center)
+                            }
+                        }
+                    }
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        if !isFooterHidden {
                             footer
                                 .padding(.top, 12)
                                 .padding(.horizontal, Theme.Spacing.screenMargin)
                                 .padding(.bottom, 12)
+                                .transition(.opacity.combined(with: .move(edge: .bottom)))
                         }
                     }
-                } else {
-                    ScrollView {
-                        questionBlock(heightClass: heightClass)
-                    }
-                    .safeAreaInset(edge: .bottom, spacing: 0) {
-                        footer
-                            .padding(.top, 12)
-                            .padding(.horizontal, Theme.Spacing.screenMargin)
-                            .padding(.bottom, 12)
-                            .background(Color.clear)
-                    }
+                    .animation(.easeOut(duration: 0.2), value: isFooterHidden)
                 }
             }
             .scrollIndicators(.hidden)
@@ -121,8 +151,16 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, Theme.Spacing.screenMargin)
-        .padding(.top, heightClass == .comfortable ? 14 : 8)
+        .padding(.top, (heightClass == .comfortable ? 14 : 8) + resolvedSceneSpacing(for: heightClass))
         .padding(.bottom, 16)
+    }
+
+    private func resolvedSceneSpacing(for heightClass: OnboardingHeightClass) -> CGFloat {
+        switch heightClass {
+        case .comfortable: sceneContentTopSpacing
+        case .compact: min(sceneContentTopSpacing, 80)
+        case .scrollRequired: 0
+        }
     }
 
     private func questionContent(heightClass: OnboardingHeightClass) -> some View {

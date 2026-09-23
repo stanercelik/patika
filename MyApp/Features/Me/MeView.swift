@@ -95,9 +95,10 @@ private struct MeContent: View {
     @State private var isShowingSupport = false
     @State private var isChangeRevealed = true
     @State private var scrollOffset: CGFloat = 0
-    @State private var isShowingPhotoDialog = false
+    @State private var isShowingPhotoViewer = false
     @State private var isShowingPhotoPicker = false
     @State private var pickedPhoto: PhotosPickerItem?
+    @State private var editablePhoto: EditableProfilePhoto?
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -115,7 +116,13 @@ private struct MeContent: View {
                             rhythm: viewModel.weeklyRhythm,
                             summaryAccessibility: viewModel.identityAccessibility,
                             canEditPhoto: !viewModel.isInCrisisMode,
-                            onPhoto: { isShowingPhotoDialog = true },
+                            onPhoto: {
+                                if viewModel.services.avatar.hasImage {
+                                    isShowingPhotoViewer = true
+                                } else {
+                                    isShowingPhotoPicker = true
+                                }
+                            },
                             onSettings: { sheet = .settings }
                         )
                         .id(MeAnchor.identity)
@@ -212,34 +219,39 @@ private struct MeContent: View {
             case .account: AccountLinkSheet(viewModel: viewModel)
             }
         }
+        .sheet(isPresented: $isShowingPhotoViewer) {
+            if let image = viewModel.services.avatar.image {
+                ProfilePhotoViewer(
+                    image: image,
+                    onChoose: {
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .milliseconds(350))
+                            isShowingPhotoPicker = true
+                        }
+                    },
+                    onRemove: { Task { await viewModel.removePhoto() } }
+                )
+            }
+        }
         .fullScreenCover(isPresented: $isShowingSupport) {
             SupportView()
         }
-        .confirmationDialog(
-            Text(Copy.Me.photoTitle),
-            isPresented: $isShowingPhotoDialog,
-            titleVisibility: .visible
-        ) {
-            Button { isShowingPhotoPicker = true } label: { Text(Copy.Me.photoChoose) }
-            if viewModel.services.avatar.hasImage {
-                Button(role: .destructive) {
-                    Task { await viewModel.removePhoto() }
-                } label: {
-                    Text(Copy.Me.photoRemove)
-                }
+        .fullScreenCover(item: $editablePhoto) { photo in
+            ProfilePhotoEditor(photo: photo) { data in
+                Task { await viewModel.setPhoto(data) }
             }
-            Button(role: .cancel) {} label: { Text(Copy.Button.cancel) }
         }
         .photosPicker(isPresented: $isShowingPhotoPicker, selection: $pickedPhoto, matching: .images)
         .onChange(of: pickedPhoto) { _, item in
             guard let item else { return }
             Task {
                 defer { pickedPhoto = nil }
-                guard let data = try? await item.loadTransferable(type: Data.self) else {
+                guard let data = try? await item.loadTransferable(type: Data.self),
+                      let image = UIImage(data: data) else {
                     viewModel.actionError = Copy.Me.photoFailed
                     return
                 }
-                await viewModel.setPhoto(data)
+                editablePhoto = EditableProfilePhoto(image: image)
             }
         }
         .alert(

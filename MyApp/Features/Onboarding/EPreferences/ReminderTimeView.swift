@@ -40,7 +40,9 @@ struct ReminderTimeView: View {
     var body: some View {
         OnboardingQuestionLayout(
             headline: Copy.Onboarding.reminderHeadline(formattedTime),
-            hint: flow.draft.timing?.reminderReason
+            hint: flow.draft.timing?.reminderReason,
+            usesScenePlate: true,
+            sceneContentTopSpacing: 150
         ) {
             VStack(alignment: .leading, spacing: 16) {
                 if usesDial {
@@ -50,6 +52,7 @@ struct ReminderTimeView: View {
                         hour: components.hour ?? 22,
                         minute: components.minute ?? 30,
                         suggestionHour: flow.suggestedReminderHour,
+                        isCompact: true,
                         onChange: { time = Self.date(hour: $0, minute: $1) }
                     )
                 } else if isEditing {

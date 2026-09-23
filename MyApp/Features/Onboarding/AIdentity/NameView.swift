@@ -25,6 +25,7 @@ struct NameView: View {
     let flow: OnboardingFlowViewModel
 
     @State private var text: String
+    @State private var isEditing = false
 
     init(flow: OnboardingFlowViewModel) {
         self.flow = flow
@@ -38,7 +39,8 @@ struct NameView: View {
     var body: some View {
         OnboardingQuestionLayout(
             headline: Copy.Onboarding.nameHeadline,
-            hint: Copy.Onboarding.nameHint
+            hint: Copy.Onboarding.nameHint,
+            isFooterHidden: isEditing
         ) {
             VStack(alignment: .leading, spacing: 18) {
                 OnboardingArtworkView(artwork: .identity, height: 96)
@@ -51,7 +53,8 @@ struct NameView: View {
                     lineRange: 1...1,
                     capitalization: .words,
                     font: Theme.Voice.user(.title3),
-                    onSubmit: { if !trimmed.isEmpty { flow.commitName(text) } }
+                    onSubmit: { if !trimmed.isEmpty { flow.commitName(text) } },
+                    onFocusChange: { isEditing = $0 }
                 )
             }
         } footer: {

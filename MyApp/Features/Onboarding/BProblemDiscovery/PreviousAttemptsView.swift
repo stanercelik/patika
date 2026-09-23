@@ -16,7 +16,8 @@ struct PreviousAttemptsView: View {
     var body: some View {
         OnboardingQuestionLayout(
             headline: Copy.Onboarding.attemptsHeadline,
-            hint: Copy.Onboarding.attemptsHint
+            hint: Copy.Onboarding.attemptsHint,
+            autoScrollTarget: viewModel.isSelected(.other) ? "other-attempt" : nil
         ) {
             VStack(alignment: .leading, spacing: 10) {
                 AdaptiveChoiceGrid(
@@ -31,6 +32,7 @@ struct PreviousAttemptsView: View {
                         placeholder: Copy.Onboarding.attemptsOtherPlaceholder,
                         lineRange: 1...1
                     )
+                    .id("other-attempt")
                     if viewModel.showsOtherRequired {
                         Text(Copy.Onboarding.attemptsOtherRequired)
                             .font(.footnote.weight(Theme.Weight.body))

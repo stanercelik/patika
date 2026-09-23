@@ -116,7 +116,7 @@ enum OnboardingStep: Equatable {
         // ruh hâline göre perde) ve önüne kart koymak neden-sonucu koparırdı.
         case .identityName, .identityGender, .identityAge, .b1ProblemText, .b2Duration, .b3Timing,
              .b4Avoidance, .b5PreviousAttempts, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
-             .c4HonestExpectation, .commitment, .d0MeasurementIntro, .e1Reminder, .price,
+             .c4HonestExpectation, .commitment, .d0MeasurementIntro, .price,
              .h2Priming, .h1Account: .paper
         default: .plain
         }

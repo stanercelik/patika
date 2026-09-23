@@ -9,13 +9,19 @@ struct CategorySelectionView: View {
     }
 
     var body: some View {
-        // Varsayılan metin boyutunda 10 seçeneğin tamamı kaydırmadan görünür;
-        // ScrollView yalnızca büyük Dynamic Type boyutlarında devreye girer.
+        // İki eşit sütun hızlı taranır; ortak iskelet daha kısa ekranlarda ve
+        // büyük Dynamic Type'ta doğal olarak kaydırır.
         OnboardingQuestionLayout(
             headline: Copy.Onboarding.categoriesHeadline,
             hint: Copy.Onboarding.categoriesHint
         ) {
-            VStack(spacing: 10) {
+            LazyVGrid(
+                columns: Array(
+                    repeating: GridItem(.flexible(), spacing: 10),
+                    count: dynamicTypeSize.isAccessibilitySize ? 1 : 2
+                ),
+                spacing: 10
+            ) {
                 ForEach(viewModel.categories) { category in
                     CategoryCard(
                         category: category,
@@ -48,29 +54,40 @@ struct CategoryCard: View {
     let isSelected: Bool
     let isDimmed: Bool
     let action: () -> Void
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         Button {
             Theme.softHaptic()
             action()
         } label: {
-            HStack(spacing: 14) {
-                Image(systemName: category.icon)
-                    .font(.title3)
-                    .symbolRenderingMode(.monochrome)
-                    .frame(width: 26)
-                    .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: category.icon)
+                        .font(.title3)
+                        .symbolRenderingMode(.monochrome)
+                        .accessibilityHidden(true)
+                    Spacer(minLength: 8)
+                    SelectionMark(isSelected: isSelected)
+                }
+
                 Text(category.label)
                     .font(.body.weight(isSelected ? Theme.Weight.action : Theme.Weight.body))
                     .multilineTextAlignment(.leading)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 3)
                     .fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 8)
-                SelectionMark(isSelected: isSelected)
+
+                Spacer(minLength: 0)
             }
             .foregroundStyle(Theme.textPrimary.color)
-            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
             .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.vertical, 12)
+            .frame(
+                maxWidth: .infinity,
+                minHeight: dynamicTypeSize.isAccessibilitySize ? 260 : 148,
+                maxHeight: dynamicTypeSize.isAccessibilitySize ? nil : 148,
+                alignment: .leading
+            )
             .background { CalmSurface(isEmphasized: isSelected) }
             .opacity(isDimmed ? 0.62 : 1.0)
         }

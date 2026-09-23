@@ -352,6 +352,18 @@ enum MoodLevel: Int, CaseIterable, Codable, Sendable, Identifiable {
         }
     }
 
+    /// Beş kademe aynı kontrol içinde şekil olarak da ayrışır; renk tek başına
+    /// seçimi veya ağırlığı anlatmaz.
+    var sceneSymbol: String {
+        switch self {
+        case .veryHeavy: "cloud.heavyrain"
+        case .heavy: "cloud.rain"
+        case .middling: "cloud"
+        case .okay: "cloud.sun"
+        case .calm: "sun.max"
+        }
+    }
+
     /// Onboarding'in ilk oturumu (G1) düşük ruh haliyle gelen kullanıcıda daha
     /// kısa ve daha yönlendirici başlar. Ölçüm değil, ısınma sinyali —
     /// baseline skoru D bölümünden gelir (PRD §8.6).

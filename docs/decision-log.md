@@ -576,3 +576,26 @@ kesin ret'te sıfırla" kuralı) **değişmedi**.
   `ReturningUserAuthView` UI'ları değişmedi (yalnızca alttaki `AuthClient`
   implementasyonu değişti), `Tests/AuthSessionStoreTests` bu koddan etkilenmedi
   (mock `AuthClient` kullanıyor).
+
+## 23 Eylül 2026 — onboarding ikinci görsel turu ve profil fotoğrafı akışı
+
+Ürün sahibi geri bildirimiyle A2 iki eşit sütuna döndü; son seçilen kategori
+sahneyi belirlemeye devam ediyor ve kartlar metni okunur tutan koyu yüzeylerdir.
+B5'te `Other` açıldığında alan görünür konuma kayar. B6'nın çizgi/nokta ölçeği
+beş ayrı hava kartına çevrildi; B6 ve E1 içerikleri sahnenin odak alanını
+kapatmayacak biçimde aşağı alındı. C anlatım ekranları ile F2 footer'ındaki
+karartma bantları kaldırıldı. İsim alanı odaktayken alt CTA gizlenir; klavye
+alanı ve CTA artık birbirinin üstüne gelmez.
+
+Profil fotoğrafı ayarlardan çıkarıldı. Avatar boşsa artı gösterir; doluysa
+dokunma büyük önizleme, değiştirme ve silme eylemlerini açar. Yeni görsel
+kaydedilmeden önce sürükleme, pinch ve slider destekli dairesel kırpma ekranından
+geçer. Ayarlarda yalnızca hatırlatma tercihi kalır; bağlı hesap, narration ve
+kullanım verisi satırları gösterilmez, çıkış en alttadır. Profil yenilemesi,
+geçici boş/hatalı ağ yanıtında son doğrulanmış aktif path başlığını korur.
+Keşfet katılım onayı üstteki `confirmationDialog` yerine alttan gelen özel sheet'tir.
+
+Doğrulama: iPhone 17 Pro simülatöründe normal Dynamic Type, AX5, Reduce Motion
+ve Reduce Transparency ile ilgili onboarding ekranları görsel olarak kontrol
+edildi. `xcodebuild ... SWIFT_EMIT_LOC_STRINGS=NO build`,
+`OnboardingInteractionTests` ve `ContrastTests` geçti.

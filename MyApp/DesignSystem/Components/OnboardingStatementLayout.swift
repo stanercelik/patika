@@ -54,14 +54,6 @@ struct OnboardingStatementLayout<Content: View>: View {
             )
             .padding(.horizontal, Theme.Spacing.screenMargin)
             .padding(.bottom, 12)
-            .background {
-                LinearGradient(
-                    colors: [.clear, WoodlandStyle.background.opacity(0.85), WoodlandStyle.background],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .padding(.top, -24)
-            }
         }
     }
 }

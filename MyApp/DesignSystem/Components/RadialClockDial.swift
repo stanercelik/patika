@@ -18,16 +18,19 @@ struct RadialClockDial: View {
     let hour: Int
     let minute: Int
     var suggestionHour: Int?
+    var isCompact = false
     let onChange: (Int, Int) -> Void
 
     @Environment(\.patikaInk) private var ink
     @ScaledMetric(relativeTo: .body) private var diameter: CGFloat = 248
+    @ScaledMetric(relativeTo: .body) private var compactDiameter: CGFloat = 208
     @ScaledMetric(relativeTo: .body) private var thumbDiameter: CGFloat = 30
 
     private var totalMinutes: Int { hour * 60 + minute }
+    private var resolvedDiameter: CGFloat { isCompact ? compactDiameter : diameter }
 
     var body: some View {
-        let ring = diameter - thumbDiameter
+        let ring = resolvedDiameter - thumbDiameter
         ZStack {
             Circle()
                 .stroke(ink.primary.opacity(0.14), lineWidth: 10)
@@ -72,7 +75,7 @@ struct RadialClockDial: View {
         }
         // Jest daire çerçevesine bağlı, genişleyen çerçeveye değil: yerel koordinatlar
         // dairenin köşesinden başlamalı, yoksa merkez kayar.
-        .frame(width: diameter, height: diameter)
+        .frame(width: resolvedDiameter, height: resolvedDiameter)
         .contentShape(Circle())
         .gesture(
             DragGesture(minimumDistance: 0, coordinateSpace: .local)
@@ -107,7 +110,7 @@ struct RadialClockDial: View {
     }
 
     /// Dokunma noktası çerçeve ortasına göre hesaplanır; çerçeve `diameter` kare.
-    private var frameSize: CGFloat { diameter }
+    private var frameSize: CGFloat { resolvedDiameter }
 
     private func apply(minutes: Int) {
         guard minutes != totalMinutes else { return }

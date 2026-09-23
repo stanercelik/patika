@@ -2,10 +2,9 @@ import SwiftUI
 
 /// B6 ve günlük ön kontrolün ölçeği — beş kademe, tek dokunuş.
 ///
-/// Hava durumu yerine beş dokunsal patika taşı kullanılır. Altında **yalnızca
-/// seçili kademenin etiketi** yazar: beş etiketi birden göstermek satırı okunmaz
-/// hâle getiriyor, hiç göstermemek ise anlamı renk/ikona bırakıyordu — ikisi de
-/// erişilebilirlik açısından kötü.
+/// Beş ayrı hava kartı, sahnedeki değişimin küçük bir haritası gibi çalışır.
+/// Altında yalnızca seçili kademenin etiketi yazar; ekran kalabalıklaşmadan
+/// seçimin anlamı metinle de açık kalır.
 ///
 /// ## Sürükleyerek de seçilir
 ///
@@ -22,21 +21,13 @@ struct MoodScale: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            ZStack {
-                Capsule()
-                    .fill(Theme.textPrimary.color.opacity(0.36))
-                    .frame(height: Theme.Line.trail)
-                    .padding(.horizontal, 22)
-                    .accessibilityHidden(true)
-
-                HStack(spacing: 8) {
-                    ForEach(MoodLevel.allCases) { level in
-                        MoodButton(
-                            level: level,
-                            isSelected: selection == level,
-                            action: { onSelect(level) }
-                        )
-                    }
+            HStack(spacing: 8) {
+                ForEach(MoodLevel.allCases) { level in
+                    MoodButton(
+                        level: level,
+                        isSelected: selection == level,
+                        action: { onSelect(level) }
+                    )
                 }
             }
             .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { rowWidth = $0 }
@@ -67,18 +58,30 @@ private struct MoodButton: View {
             action()
         } label: {
             ZStack {
-                Circle()
-                    .fill(Theme.textPrimary.color.opacity(isSelected ? 0.92 : 0.34))
-                Circle()
-                    .strokeBorder(Theme.textPrimary.color.opacity(isSelected ? 1 : 0.66), lineWidth: Theme.Line.border)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Theme.textPrimary.color.opacity(isSelected ? 0.94 : 0.16))
+
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(
+                        Theme.textPrimary.color.opacity(isSelected ? 1 : 0.38),
+                        lineWidth: isSelected ? 2 : Theme.Line.border
+                    )
+
+                Image(systemName: level.sceneSymbol)
+                    .font(.title3.weight(Theme.Weight.emphasis))
+                    .symbolRenderingMode(.monochrome)
+                    .foregroundStyle(isSelected ? WoodlandStyle.ink : Theme.textPrimary.color)
+
                 if isSelected {
-                    Circle()
-                        .fill(WoodlandStyle.ink)
-                        .frame(width: 12, height: 12)
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption2.weight(Theme.Weight.action))
+                        .foregroundStyle(WoodlandStyle.ink)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                        .padding(6)
                 }
             }
-                .frame(maxWidth: .infinity)
-                .frame(height: 52)
+            .frame(maxWidth: .infinity)
+            .frame(height: 64)
         }
         .buttonStyle(.calm)
         .animation(Theme.Motion.crossFade, value: isSelected)
