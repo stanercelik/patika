@@ -54,6 +54,9 @@ struct ReturningUserAuthView: View {
                 localMessage = Copy.Auth.noSavedPath
             }
         } catch {
+            #if DEBUG
+            print("⚠️ ReturningUserAuthView.signIn — hasCompletedOnboarding threw: \(error)")
+            #endif
             localMessage = Copy.Auth.failed
         }
     }

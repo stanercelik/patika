@@ -574,6 +574,7 @@ final class MeViewModel {
             await services.appLock.setEnabled(false)
             services.profile.erase()
             services.promiseSignature.clear()
+            services.avatar.clear()
             await services.auth.signOut()
             return true
         } catch {
@@ -581,6 +582,22 @@ final class MeViewModel {
             actionError = Copy.Me.Settings.deleteAccountFailed
             return false
         }
+    }
+
+    /// Hesaptan çıkar; sunucudaki kayıt **silinmez**, yalnızca cihazdaki oturum ve
+    /// yerel veri sıfırlanır (aynı Apple/Google hesabıyla tekrar giriş yapılabilir).
+    /// Yalnızca bağlı (anonim olmayan) bir hesapta anlamlı — anonim kimliğin geri
+    /// dönüşü olmadığı için `AccountLinkSheet` `isAccountLinked` false iken bu
+    /// satırı hiç göstermez.
+    func signOut() async {
+        isWorking = true
+        defer { isWorking = false }
+        ReminderScheduler.cancel()
+        await services.appLock.setEnabled(false)
+        services.profile.erase()
+        services.promiseSignature.clear()
+        services.avatar.clear()
+        await services.auth.signOut()
     }
 
     // MARK: - Gizlilik ve veri

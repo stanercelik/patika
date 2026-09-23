@@ -70,8 +70,8 @@ enum MeDebugSeed {
         ProcessInfo.processInfo.arguments.contains("-patika-debug-me-tap-journal")
     }
 
-    /// `-patika-debug-me-sheet change|settings|support|note|badge`
-    /// (`note` ve `badge` defter sayfasında açılır).
+    /// `-patika-debug-me-sheet change|settings|support|account|note|badge`
+    /// (`note` ve `badge` defter sayfasında açılır, `account` hesap bağlama sayfasını açar).
     static var sheet: String? {
         let arguments = ProcessInfo.processInfo.arguments
         guard let index = arguments.firstIndex(of: "-patika-debug-me-sheet"),

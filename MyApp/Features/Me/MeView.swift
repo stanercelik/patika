@@ -186,6 +186,7 @@ private struct MeContent: View {
                         case "change": sheet = .change
                         case "settings": sheet = .settings
                         case "support": isShowingSupport = true
+                        case "account": sheet = .account
                         default: break
                         }
                     }

@@ -1,6 +1,7 @@
 import AuthenticationServices
 import CryptoKit
 import Foundation
+import GoogleSignIn
 import Security
 import UIKit
 
@@ -8,7 +9,7 @@ import UIKit
 final class SupabaseAuthClient: NSObject, AuthClient, @unchecked Sendable {
     private let configuration: AppConfiguration
     private let keychain: KeychainSessionStore
-    private var webSession: ASWebAuthenticationSession?
+    private var appleContinuation: CheckedContinuation<ASAuthorization, Error>?
 
     init(configuration: AppConfiguration, keychain: KeychainSessionStore) {
         self.configuration = configuration
@@ -26,31 +27,22 @@ final class SupabaseAuthClient: NSObject, AuthClient, @unchecked Sendable {
     }
 
     func signIn(provider: AuthProvider) async throws -> AuthSession {
-        let verifier = PKCE.verifier()
-        let callback = try await openOAuth(
-            url: authorizeURL(path: "/auth/v1/authorize", provider: provider, verifier: verifier)
-        )
-        let session = try await exchange(callback: callback, verifier: verifier)
+        let credential = try await idTokenCredential(for: provider)
+        let session = try await exchangeIDToken(credential, linkingAccessToken: nil)
         keychain.save(session)
         return session
     }
 
+    /// Anonim oturumu kalıcı bir kimliğe bağlar. Supabase'in id_token uç noktası,
+    /// istek anonim oturumun `access_token`'ıyla imzalanmışsa yeni kullanıcı
+    /// açmak yerine mevcut anonim kullanıcıya kimliği bağlar (bkz. Supabase
+    /// "Link identity with native OAuth (ID token)" dokümantasyonu).
     func link(provider: AuthProvider, session: AuthSession) async throws -> AuthSession {
         let current = try await fresh(session)
-        let verifier = PKCE.verifier()
-        let endpoint = authorizeURL(
-            path: "/auth/v1/user/identities/authorize",
-            provider: provider,
-            verifier: verifier
-        )
-        var request = URLRequest(url: endpoint)
-        request.setValue(configuration.supabasePublishableKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(current.accessToken)", forHTTPHeaderField: "Authorization")
-        let redirect = try await redirectLocation(for: request)
-        _ = try await openOAuth(url: redirect)
-        let confirmed = try await fetchCurrentSession(current)
-        keychain.save(confirmed)
-        return confirmed
+        let credential = try await idTokenCredential(for: provider)
+        let linked = try await exchangeIDToken(credential, linkingAccessToken: current.accessToken)
+        keychain.save(linked)
+        return linked
     }
 
     func refreshedSession(_ session: AuthSession) async throws -> AuthSession {
@@ -75,6 +67,7 @@ final class SupabaseAuthClient: NSObject, AuthClient, @unchecked Sendable {
             request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
             _ = try? await URLSession.shared.data(for: request)
         }
+        GIDSignIn.sharedInstance.signOut()
         keychain.clear()
     }
 
@@ -82,82 +75,124 @@ final class SupabaseAuthClient: NSObject, AuthClient, @unchecked Sendable {
         session.expiresAt.timeIntervalSinceNow > 90 ? session : try await refreshedSession(session)
     }
 
-    private func authorizeURL(path: String, provider: AuthProvider, verifier: String) -> URL {
-        var components = URLComponents(
-            url: configuration.supabaseURL.appending(path: path),
-            resolvingAgainstBaseURL: false
-        )!
-        components.queryItems = [
-            .init(name: "provider", value: provider.rawValue),
-            .init(name: "redirect_to", value: "patika://auth-callback"),
-            .init(name: "code_challenge", value: PKCE.challenge(verifier)),
-            .init(name: "code_challenge_method", value: "s256"),
-        ]
-        return components.url!
+    // MARK: - ID token acquisition
+
+    private struct IDTokenCredential {
+        let provider: AuthProvider
+        let idToken: String
+        /// Apple: hash'lenmemiş ham nonce (Apple isteğine hash'lenmiş hâli gider,
+        /// id_token'ın nonce claim'i o hash'i taşır — Supabase'e ham hâli gönderilir,
+        /// kendi hash'leyip karşılaştırır). Google: aynı ham değer hem isteğe hem
+        /// id_token claim'ine hash'lenmeden gider — Supabase'e de aynı ham hâliyle
+        /// gönderilir. GoogleSignIn 10.x id_token'a kendiliğinden bir nonce claim'i
+        /// koyduğu için (Supabase "nonce ile id_token'daki nonce ya ikisi de olmalı
+        /// ya da ikisi de olmamalı" diyerek reddediyordu) burayı da doldurmak zorunlu.
+        let nonce: String?
+        /// Google: OAuth access token (Supabase id_token grant'i için gerekli). Apple: kullanılmaz.
+        let accessToken: String?
     }
 
-    private func exchange(callback: URL, verifier: String) async throws -> AuthSession {
-        guard let code = URLComponents(url: callback, resolvingAgainstBaseURL: false)?
-            .queryItems?.first(where: { $0.name == "code" })?.value
+    private func idTokenCredential(for provider: AuthProvider) async throws -> IDTokenCredential {
+        switch provider {
+        case .apple: return try await appleIDTokenCredential()
+        case .google: return try await googleIDTokenCredential()
+        }
+    }
+
+    private func appleIDTokenCredential() async throws -> IDTokenCredential {
+        let rawNonce = Nonce.random()
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = Nonce.sha256Hex(rawNonce)
+
+        let authorization = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<ASAuthorization, Error>) in
+            appleContinuation = continuation
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            controller.delegate = self
+            controller.presentationContextProvider = self
+            controller.performRequests()
+        }
+        guard
+            let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+            let tokenData = credential.identityToken,
+            let idToken = String(data: tokenData, encoding: .utf8)
         else { throw AuthClientError.invalidResponse }
+        return IDTokenCredential(provider: .apple, idToken: idToken, nonce: rawNonce, accessToken: nil)
+    }
+
+    private func googleIDTokenCredential() async throws -> IDTokenCredential {
+        guard let presenter = currentWindow().rootViewController else {
+            throw AuthClientError.providerUnavailable
+        }
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: configuration.googleClientID)
+        // Google'ın iOS SDK'sı isteğe göndereceğimiz nonce'u id_token'a güvenilir
+        // biçimde yansıtmıyor (Supabase'in kendi dokümante ettiği bilinen bir iOS
+        // sınırlaması — "Nonce check failure on mobile (Google Sign In)"). Bu yüzden
+        // nonce hiç göndermiyoruz; Supabase Dashboard'da Google sağlayıcısında
+        // "Skip nonce check" (iOS için) açık olmalı, yoksa "Passed nonce and nonce
+        // in id_token should either both exist or not" hatası alınır.
+        let result = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<GIDSignInResult, Error>) in
+            GIDSignIn.sharedInstance.signIn(withPresenting: presenter) { result, error in
+                if let error {
+                    if let signInError = error as? GIDSignInError, signInError.code == .canceled {
+                        continuation.resume(throwing: AuthClientError.cancelled)
+                    } else {
+                        continuation.resume(throwing: error)
+                    }
+                } else if let result {
+                    continuation.resume(returning: result)
+                } else {
+                    continuation.resume(throwing: AuthClientError.invalidResponse)
+                }
+            }
+        }
+        guard let idToken = result.user.idToken?.tokenString else {
+            throw AuthClientError.invalidResponse
+        }
+        return IDTokenCredential(
+            provider: .google,
+            idToken: idToken,
+            nonce: nil,
+            accessToken: result.user.accessToken.tokenString
+        )
+    }
+
+    private func currentWindow() -> UIWindow {
+        if let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow) {
+            return window
+        }
+        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            preconditionFailure("An active window scene is required for authentication")
+        }
+        return UIWindow(windowScene: scene)
+    }
+
+    // MARK: - Supabase exchange
+
+    private func exchangeIDToken(_ credential: IDTokenCredential, linkingAccessToken: String?) async throws -> AuthSession {
         var components = URLComponents(
             url: configuration.supabaseURL.appending(path: "/auth/v1/token"),
             resolvingAgainstBaseURL: false
         )!
-        components.queryItems = [.init(name: "grant_type", value: "pkce")]
+        components.queryItems = [.init(name: "grant_type", value: "id_token")]
         var request = URLRequest(url: components.url!)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(configuration.supabasePublishableKey, forHTTPHeaderField: "apikey")
-        request.httpBody = try JSONEncoder().encode(["auth_code": code, "code_verifier": verifier])
+        if let linkingAccessToken {
+            request.setValue("Bearer \(linkingAccessToken)", forHTTPHeaderField: "Authorization")
+        }
+        var body: [String: String] = [
+            "provider": credential.provider.rawValue,
+            "id_token": credential.idToken,
+        ]
+        if let nonce = credential.nonce { body["nonce"] = nonce }
+        if let accessToken = credential.accessToken { body["access_token"] = accessToken }
+        request.httpBody = try JSONEncoder().encode(body)
         return try await performSessionRequest(request)
-    }
-
-    private func fetchCurrentSession(_ session: AuthSession) async throws -> AuthSession {
-        var request = self.request(path: "/auth/v1/user", method: "GET")
-        request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
-        let (data, response) = try await URLSession.shared.data(for: request)
-        try validate(response: response, data: data)
-        let user = try JSONDecoder().decode(AuthUserPayload.self, from: data)
-        return AuthSession(
-            accessToken: session.accessToken,
-            refreshToken: session.refreshToken,
-            userID: user.id,
-            expiresAt: session.expiresAt,
-            isAnonymous: user.isAnonymous ?? false
-        )
-    }
-
-    private func openOAuth(url: URL) async throws -> URL {
-        try await withCheckedThrowingContinuation { continuation in
-            let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "patika") { callback, error in
-                if let callback { continuation.resume(returning: callback) }
-                else if (error as? ASWebAuthenticationSessionError)?.code == .canceledLogin {
-                    continuation.resume(throwing: AuthClientError.cancelled)
-                } else {
-                    continuation.resume(throwing: error ?? AuthClientError.providerUnavailable)
-                }
-            }
-            session.prefersEphemeralWebBrowserSession = true
-            session.presentationContextProvider = self
-            webSession = session
-            guard session.start() else {
-                continuation.resume(throwing: AuthClientError.providerUnavailable)
-                return
-            }
-        }
-    }
-
-    private func redirectLocation(for request: URLRequest) async throws -> URL {
-        let delegate = RedirectBlocker()
-        let session = URLSession(configuration: .ephemeral, delegate: delegate, delegateQueue: nil)
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse else { throw AuthClientError.invalidResponse }
-        if let location = http.value(forHTTPHeaderField: "Location"), let url = URL(string: location) {
-            return url
-        }
-        try validate(response: response, data: data)
-        throw AuthClientError.invalidResponse
     }
 
     private func performSessionRequest(_ request: URLRequest) async throws -> AuthSession {
@@ -204,30 +239,23 @@ final class SupabaseAuthClient: NSObject, AuthClient, @unchecked Sendable {
     }
 }
 
-extension SupabaseAuthClient: ASWebAuthenticationPresentationContextProviding {
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        if let window = (UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-            .first(where: \.isKeyWindow)) {
-            return window
-        }
-        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
-            preconditionFailure("An active window scene is required for authentication")
-        }
-        return ASPresentationAnchor(windowScene: scene)
+extension SupabaseAuthClient: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        appleContinuation?.resume(returning: authorization)
+        appleContinuation = nil
     }
-}
 
-private final class RedirectBlocker: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
-    func urlSession(
-        _ session: URLSession,
-        task: URLSessionTask,
-        willPerformHTTPRedirection response: HTTPURLResponse,
-        newRequest request: URLRequest,
-        completionHandler: @escaping (URLRequest?) -> Void
-    ) {
-        completionHandler(nil)
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        if let authError = error as? ASAuthorizationError, authError.code == .canceled {
+            appleContinuation?.resume(throwing: AuthClientError.cancelled)
+        } else {
+            appleContinuation?.resume(throwing: error)
+        }
+        appleContinuation = nil
+    }
+
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        currentWindow()
     }
 }
 
@@ -260,22 +288,31 @@ private struct AuthErrorPayload: Decodable {
     enum CodingKeys: String, CodingKey { case errorCode = "error_code" }
 }
 
-private enum PKCE {
-    static func verifier() -> String {
-        var bytes = [UInt8](repeating: 0, count: 32)
-        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-        return Data(bytes).base64URLEncodedString()
+/// Apple'ın replay-koruması için gereken rastgele nonce. Apple'ın kendi
+/// örnek koduyla aynı ret-örnekleme (rejection sampling) yöntemi: bit
+/// önyargısı olmadan ASCII alt kümesinden karakter seçer.
+private enum Nonce {
+    static func random(length: Int = 32) -> String {
+        precondition(length > 0)
+        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remaining = length
+        while remaining > 0 {
+            var randoms = [UInt8](repeating: 0, count: 16)
+            let status = SecRandomCopyBytes(kSecRandomDefault, randoms.count, &randoms)
+            precondition(status == errSecSuccess)
+            for random in randoms {
+                guard remaining > 0 else { break }
+                if random < charset.count {
+                    result.append(charset[Int(random)])
+                    remaining -= 1
+                }
+            }
+        }
+        return result
     }
 
-    static func challenge(_ verifier: String) -> String {
-        Data(SHA256.hash(data: Data(verifier.utf8))).base64URLEncodedString()
-    }
-}
-
-private extension Data {
-    func base64URLEncodedString() -> String {
-        base64EncodedString().replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "=", with: "")
+    static func sha256Hex(_ input: String) -> String {
+        SHA256.hash(data: Data(input.utf8)).map { String(format: "%02x", $0) }.joined()
     }
 }

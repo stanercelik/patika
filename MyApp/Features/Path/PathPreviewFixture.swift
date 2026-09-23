@@ -52,15 +52,19 @@ enum PathPreviewFixture {
 
 struct PathPreviewEnvironment: ViewModifier {
     @Environment(\.dynamicTypeSize) private var typeSize
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
+    // iOS 26/27 SDK: `EnvironmentValues.accessibilityReduceMotion` and
+    // `.accessibilityReduceTransparency` are now get-only (`KeyPath`, not
+    // `WritableKeyPath`) — they always mirror the real system setting and can no
+    // longer be overridden via `.environment(_:_:)`. The `-patika-debug-reduce-
+    // motion`/`-reduce-transparency` launch flags this used to honor are no
+    // longer possible to simulate this way; toggle the real simulator
+    // Accessibility setting instead. `dynamicTypeSize` is still writable.
     func body(content: Content) -> some View {
         let arguments = ProcessInfo.processInfo.arguments
+        let resolvedTypeSize: DynamicTypeSize = (arguments.contains("-patika-debug-ax5") || (PathPreviewFixture.isEnabled && arguments.contains("-patika-debug-path-ax5"))) ? .accessibility5 : typeSize
         content
-            .environment(\.accessibilityReduceMotion, reduceMotion || arguments.contains("-patika-debug-reduce-motion"))
-            .environment(\.accessibilityReduceTransparency, reduceTransparency || arguments.contains("-patika-debug-reduce-transparency"))
-            .environment(\.dynamicTypeSize, (arguments.contains("-patika-debug-ax5") || (PathPreviewFixture.isEnabled && arguments.contains("-patika-debug-path-ax5"))) ? .accessibility5 : typeSize)
+            .environment(\.dynamicTypeSize, resolvedTypeSize)
     }
 }
 #endif

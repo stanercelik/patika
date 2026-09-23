@@ -1,18 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-
-    },
-    " " : {
-
-    },
-    "%@" : {
-
-    },
-    "%lld" : {
-
-    },
     "ageRange.label.eighteenToTwentyFour" : {
       "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
       "extractionState" : "manual",
@@ -4245,6 +4233,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reminder"
+          }
+        }
+      }
+    },
+    "me.settings.signOut" : {
+      "comment" : "Copy+Me.swift · static let signOut: LocalizedStringResource",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log out"
+          }
+        }
+      }
+    },
+    "me.settings.signOutBody" : {
+      "comment" : "Copy+Me.swift · static let signOutBody: LocalizedStringResource",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your path and notes on this device will be cleared. Nothing on the server is deleted — sign back in anytime to pick up where you left off."
+          }
+        }
+      }
+    },
+    "me.settings.signOutTitle" : {
+      "comment" : "Copy+Me.swift · static let signOutTitle: LocalizedStringResource",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log out of this account?"
           }
         }
       }

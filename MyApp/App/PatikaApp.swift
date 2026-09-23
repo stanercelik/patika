@@ -1,3 +1,4 @@
+import GoogleSignIn
 import SwiftUI
 import SwiftData
 
@@ -77,6 +78,12 @@ struct PatikaApp: App {
             // interpolasyonu öngörülemeyen ara tonlar üretiyor; meditasyon
             // ürünü için de doğru karar.
             .preferredColorScheme(.dark)
+            // Google Sign-In'in sistem tarayıcısından döndüğü OAuth geri çağırması
+            // (reversed client ID URL scheme) burada tamamlanır; GoogleSignIn SDK'sı
+            // bunu kendi bekleyen giriş isteğine eşler.
+            .onOpenURL { url in
+                _ = GIDSignIn.sharedInstance.handle(url)
+            }
             #if DEBUG
             .modifier(PathPreviewEnvironment())
             #endif

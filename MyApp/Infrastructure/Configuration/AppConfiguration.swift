@@ -4,6 +4,11 @@ struct AppConfiguration: Sendable {
     let supabaseURL: URL
     let supabasePublishableKey: String
     let postHogProjectToken: String
+    /// Google Cloud Console'daki **iOS** OAuth client ID'si (Web client ID değil).
+    /// GoogleSignIn SDK'nın id_token'ının `aud` claim'i bu değeri taşır; Supabase
+    /// Dashboard > Auth > Providers > Google'daki "Client IDs" listesine de
+    /// eklenmesi gerekir, yoksa id_token doğrulaması sunucu tarafında reddedilir.
+    let googleClientID: String
 
     static let live = AppConfiguration(
         supabaseURL: URL(string: "https://aapxqeqduphafisyaadk.supabase.co")!,
@@ -12,6 +17,10 @@ struct AppConfiguration: Sendable {
         supabasePublishableKey: "sb_publishable_JjMT_0utI6qsAUAWMjW3Sw_RlKvNIZc",
         // PostHog project tokens identify the ingestion project; they are public
         // client configuration, not personal API keys.
-        postHogProjectToken: "phc_Q82NXCbjEZXjGdzT2CYsIjQIZEG0Bu4Ba2RBFQSwHxL"
+        postHogProjectToken: "phc_Q82NXCbjEZXjGdzT2CYsIjQIZEG0Bu4Ba2RBFQSwHxL",
+        // iOS OAuth client ID'leri gizli değildir (client secret'ı yoktur, PKCE
+        // benzeri public-client akışı kullanır) — GoogleService-Info.plist'te de
+        // aynı şekilde açık dağıtılır.
+        googleClientID: "497996763293-lmjj5qco7qbrtvpmbkbo3udae8me8d4c.apps.googleusercontent.com"
     )
 }

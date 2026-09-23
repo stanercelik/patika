@@ -351,6 +351,9 @@ extension LocalizedStringResource {
     static var meSettingsNotificationPrivacy: LocalizedStringResource { LocalizedStringResource("me.settings.notificationPrivacy") }
     static var meSettingsPrivacyHeader: LocalizedStringResource { LocalizedStringResource("me.settings.privacyHeader") }
     static var meSettingsReminderHeader: LocalizedStringResource { LocalizedStringResource("me.settings.reminderHeader") }
+    static var meSettingsSignOut: LocalizedStringResource { LocalizedStringResource("me.settings.signOut") }
+    static var meSettingsSignOutBody: LocalizedStringResource { LocalizedStringResource("me.settings.signOutBody") }
+    static var meSettingsSignOutTitle: LocalizedStringResource { LocalizedStringResource("me.settings.signOutTitle") }
     static var meSettingsTitle: LocalizedStringResource { LocalizedStringResource("me.settings.title") }
     static var meSettingsVersionRow: LocalizedStringResource { LocalizedStringResource("me.settings.versionRow") }
     static var meSettingsButton: LocalizedStringResource { LocalizedStringResource("me.settingsButton") }

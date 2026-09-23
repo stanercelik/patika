@@ -20,6 +20,7 @@ struct SettingsSheet: View {
     @State private var analyticsConsent: Bool
     @State private var confirmsJournalDeletion = false
     @State private var confirmsAccountDeletion = false
+    @State private var confirmsSignOut = false
     @State private var isShowingSupport = false
     @State private var isShowingLinkSheet = false
     @State private var pickedPhoto: PhotosPickerItem?
@@ -118,6 +119,16 @@ struct SettingsSheet: View {
             } message: {
                 Text(Copy.Me.Settings.deleteAccountBody)
             }
+            .alert(Text(Copy.Me.Settings.signOutTitle), isPresented: $confirmsSignOut) {
+                Button(role: .destructive) {
+                    Task { await signOut() }
+                } label: {
+                    Text(Copy.Me.Settings.signOut)
+                }
+                Button(role: .cancel) {} label: { Text(Copy.Button.cancel) }
+            } message: {
+                Text(Copy.Me.Settings.signOutBody)
+            }
             .alert(
                 Text(viewModel.actionError ?? ""),
                 isPresented: Binding(
@@ -162,6 +173,12 @@ struct SettingsSheet: View {
 
             if viewModel.isAccountLinked {
                 SettingsRow(title: Copy.Me.Settings.linkedRow, value: String(localized: Copy.Me.Settings.linkedYes))
+
+                Button { confirmsSignOut = true } label: {
+                    SettingsRow(title: Copy.Me.Settings.signOut, symbol: "rectangle.portrait.and.arrow.right")
+                }
+                .buttonStyle(.calm)
+                .disabled(viewModel.isWorking)
             } else {
                 Button { isShowingLinkSheet = true } label: {
                     SettingsRow(
@@ -291,6 +308,14 @@ struct SettingsSheet: View {
     /// Silme tamamlanınca uygulama en başa döner: kayıt ve oturum sıfır.
     private func deleteAccount() async {
         guard await viewModel.deleteAccount() else { return }
+        dismiss()
+        appState.hasCompletedOnboarding = false
+    }
+
+    /// Çıkış da aynı şekilde en başa döner — hesap sunucuda kalır, yalnızca
+    /// cihaz sıfırlanır (bkz. `MeViewModel.signOut`).
+    private func signOut() async {
+        await viewModel.signOut()
         dismiss()
         appState.hasCompletedOnboarding = false
     }

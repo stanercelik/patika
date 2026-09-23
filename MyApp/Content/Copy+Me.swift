@@ -399,6 +399,9 @@ extension Copy {
             static let linkedRow: LocalizedStringResource = .meSettingsLinkedRow
             static let linkedYes: LocalizedStringResource = .meSettingsLinkedYes
             static let linkedNo: LocalizedStringResource = .meSettingsLinkedNo
+            static let signOut: LocalizedStringResource = .meSettingsSignOut
+            static let signOutTitle: LocalizedStringResource = .meSettingsSignOutTitle
+            static let signOutBody: LocalizedStringResource = .meSettingsSignOutBody
             static let aboutHeader: LocalizedStringResource = .meSettingsAboutHeader
             static let versionRow: LocalizedStringResource = .meSettingsVersionRow
             static let irreversibleHeader: LocalizedStringResource = .meSettingsIrreversibleHeader
