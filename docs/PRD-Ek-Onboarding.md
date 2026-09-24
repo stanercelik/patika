@@ -4,6 +4,10 @@
 **Durum:** Taslak v0.1
 **Tarih:** 4 Eylül 2026
 
+> **24 Eylül 2026 güncellemesi:** İlk tam kişisel oturumun G2 özeti
+> sonrasında RevenueCat paywall açılır. F4 fiyat ekranı ve gün 7 ödeme
+> taslağı geçersizdir. Ayrıntı [monetization.md](monetization.md).
+
 ---
 
 ## 0. Yönetici özeti
@@ -395,7 +399,14 @@ F2'den kaydırınca gerçek path haritasına geçiş. **Tüm 21 adımın başlı
 
 > `Gün 12 — Kaçınmayla yüzleşme` gibi başlıklar merak üretir. Kullanıcı neyi bırakacağını görmüş olur.
 
-#### Neden burada paywall yok — ve neden bu risk alınıyor
+#### Eski karar: burada paywall yok (24 Eylül 2026'da değiştirildi)
+
+**Güncel akış:** F4 ayrı fiyat ekranı ve gün 7 ödeme noktası kaldırıldı.
+İlk kişisel oturum gerçekten tamamlanıp G2 özeti geçildiğinde RevenueCat
+paywall gösterilir; hesap bağlama sonra isteğe bağlıdır. Yarım oturumda ödeme
+istenmez. Kullanıcı paywall'ı kapatıp ücretsiz içeriğe geçebilir ve aynı
+patikayı Yolum'dan sonra alabilir. Aşağıdaki gerekçeler eski karar günlüğüdür;
+`docs/monetization.md` geçerlidir.
 
 İncelenen uygulamaların %22'si onboarding sırasında paywall gösteriyor ve bu, kısa vadeli gelir için işe yarıyor. Biz bilerek yapmıyoruz. Gerekçeler:
 

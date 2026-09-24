@@ -176,7 +176,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your path and measurements stay on this account. If you link your Apple or Google account, you can come back from another device."
+            "value" : "Your path stays here. If you bought this path anonymously, link Apple or Google so you can reach it on another device. Consumable purchases cannot be recovered from the App Store receipt alone."
           }
         }
       }
@@ -7152,6 +7152,55 @@
           }
         }
       }
+    },
+    "paywall.body" : {
+      "comment" : "G2 paywall: remaining sessions and within-path measurements; no outcome claim",
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld sessions remain, with short check-ins and a comparison to where you began." } } }
+    },
+    "paywall.checkAgain" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Check again" } } }
+    },
+    "paywall.checking" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your payment is being checked. Your first step and notes are safe." } } }
+    },
+    "paywall.continue" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue to my path" } } }
+    },
+    "paywall.headline" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your path can continue." } } }
+    },
+    "paywall.notNow" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Not now" } } }
+    },
+    "paywall.onePayment" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "One payment for this path. No subscription." } } }
+    },
+    "paywall.purchaseError" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "We couldn't start the purchase. Nothing was charged; you can try again." } } }
+    },
+    "paywall.restore" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore purchases" } } }
+    },
+    "paywall.restoreUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No access was found for this path. Consumable purchases need the same linked Patika account on another device." } } }
+    },
+    "paywall.unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The offer is unavailable right now. Your path is saved." } } }
+    },
+    "paywall.viewOffer" : {
+      "extractionState" : "manual",
+      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "View this path's price" } } }
     },
     "price.free" : {
       "comment" : "Fiyat ekranı: ücretsiz kapsam",

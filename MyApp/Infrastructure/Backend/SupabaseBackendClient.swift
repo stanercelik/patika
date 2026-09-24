@@ -143,20 +143,6 @@ struct SupabaseBackendClient: BackendClient {
         return row.audioStatus
     }
 
-    func markStepCompleted(pathStepId: UUID, at date: Date, accessToken: String) async throws {
-        var request = authenticatedRequest(
-            path: "/rest/v1/path_steps?id=eq.\(pathStepId.uuidString.lowercased())",
-            method: "PATCH",
-            accessToken: accessToken
-        )
-        request.setValue("return=minimal", forHTTPHeaderField: "Prefer")
-        request.httpBody = try JSONEncoder().encode([
-            "completed_at": ISO8601DateFormatter().string(from: date),
-        ])
-        let (data, response) = try await session.data(for: request)
-        try validate(response, data)
-    }
-
     func signedAudioURL(pathStepId: UUID, accessToken: String) async throws -> URL? {
         let query = "/rest/v1/audio_assets"
             + "?select=storage_path&path_step_id=eq.\(pathStepId.uuidString.lowercased())"

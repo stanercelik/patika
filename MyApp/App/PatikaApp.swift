@@ -90,6 +90,12 @@ struct PatikaApp: App {
             // DEBUG'ta `-patika-debug-step yolum` doğrudan kabuğu açar ve
             // gerekirse gerçek path üretimini tetikler. Release'te bu blok yok.
             .task {
+                // RevenueCat identity is always the Supabase UUID, including
+                // anonymous sessions. Account linking preserves that UUID.
+                if let _ = try? await services.auth.validAccessToken(),
+                   let userID = services.auth.session?.userID {
+                    try? await services.purchases.configure(for: userID)
+                }
                 if !appState.hasCompletedOnboarding, !Self.opensRootDirectly, !Self.opensOnboardingStepDirectly {
                     await adoptExistingPathIfAny()
                 }

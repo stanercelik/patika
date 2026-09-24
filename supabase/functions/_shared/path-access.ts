@@ -15,8 +15,8 @@ export async function canAccessStep(
   if (pathError || !path) throw new Error("path_not_found");
   if (path.kind === "prepared") return true;
   const { data: grant, error } = await adminClient.from("path_purchase_grants")
-    .select("path_id").eq("path_id", step.path_id).eq("user_id", userId)
+    .select("path_id,expires_at").eq("path_id", step.path_id).eq("user_id", userId)
     .is("revoked_at", null).maybeSingle();
   if (error) throw new Error("access_check_failed");
-  return !!grant;
+  return !!grant && (!grant.expires_at || new Date(grant.expires_at).getTime() > Date.now());
 }

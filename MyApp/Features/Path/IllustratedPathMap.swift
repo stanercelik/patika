@@ -258,7 +258,8 @@ private struct IllustratedPathStop: View {
                         Image(systemName: "play.fill")
                             .font(Theme.TypeFace.cardMeta)
                             .accessibilityHidden(true)
-                        Text(completed ? Copy.Path.replayCTA : Copy.Path.continueCTA)
+                        Text(viewModel.requiresPurchase(step) ? .paywallViewOffer :
+                            (completed ? Copy.Path.replayCTA : Copy.Path.continueCTA))
                             .font(Theme.TypeFace.action)
                             .fixedSize(horizontal: false, vertical: true)
                     }

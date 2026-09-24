@@ -5,6 +5,11 @@
 **Tarih:** 4 Eylül 2026
 **Doküman tipi:** Ürün Gereksinim Dokümanı (uçtan uca)
 
+> **24 Eylül 2026 ticari karar güncellemesi:** Aşağıdaki gün 7 paywall,
+> F4 fiyat ekranı ve lansman aboneliği bölümleri tarihsel taslaktır.
+> Geçerli G2 sonrası tek patika satın alma akışı ve fiyatlar
+> [monetization.md](monetization.md) içindedir.
+
 > **Not:** "Patika" çalışma adıdır. İsim kararı Bölüm 18'de açık soru olarak duruyor.
 
 ---
@@ -233,7 +238,12 @@ Haritaya dön (adım dolar, animasyon)
 
 **"Zorlandım" veya "Odaklanamadım" üst üste 3 kez gelirse:** sonraki adım otomatik olarak daha kısa ve daha yönlendirmeli bir bloğa düşürülür. Kullanıcıya sessizce uyarlanır, "başaramadın" denmez.
 
-### 7.7 Ara ölçüm — 7. gün (ÖDEME DUVARI BURADA)
+### 7.7 Ara ölçüm — 7. gün (24 Eylül 2026 kararıyla ödeme duvarı burada değil)
+
+**Güncel karar:** İlk tamamlanmış kişisel oturumun G2 özeti sonrası RevenueCat
+paywall gelir. Gün 7 ölçümü satın alma tetiklemez; aşağıdaki eski ödeme ve
+abonelik örneği tarihsel taslaktır. Uygulanacak akış ve dört tek seferlik ürün
+`docs/monetization.md` içindedir.
 
 Akış sırası kritik. Ölçüm **önce**, paywall **sonra**.
 

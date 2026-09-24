@@ -1,88 +1,191 @@
+import RevenueCat
+import RevenueCatUI
 import SwiftUI
 
-/// F4 — fiyat şeffaflığı (PRD-Ek Onboarding §7; docs/onboarding-redesign.md, Bölüm 1).
-///
-/// PRD bu ekranı tasarladı, F2 doğrudan G1'i başlatınca onu yetim bıraktı; kendi
-/// tercih ettiği yeni yer G2'den sonra, H1'den önce. Kullanıcı ilk meditasyonunu
-/// dinledi ve neyin, ne zaman, kaça olduğunu **ödeme istenmeden** öğreniyor.
-///
-/// ## Sert paywall değil, ve bilerek
-///
-/// - Bugün hiçbir şey alınmıyor, ekranın ilk cümlesi bu. Ödeme kararı 7. günde, ölçüm
-///   ekranından **sonra** gelir; paywall yok (RevenueCat ile sonradan gelecek), ve ilerleme yoksa devam ücretsiz
-///   (Kova C taahhüdü, PRD 7.9) sözünü önden para alarak vermek anlamsız olurdu.
-/// - Geri sayım, indirim, "kaçırma", sahte aciliyet **yok**; önceden seçili bir seçenek
-///   de yok: varsayılan yanlılığı ödeme kararlarında kullanılmaz.
-/// - Sosyal kanıt ve kullanıcı sayısı yok: veri yokken sayı yazılmaz.
-/// - Seçenekler seçilemez; bir liste, bir buton değil.
-///
-/// > **Fiyatlar PRD §12.1'den, katalogda sabit metin.** Paywall RevenueCat ile yapılacak
-/// > (ürün sahibi kararı, 2026-09-22): yayından önce RevenueCat offering'inden okunmalı (bölgeye göre para birimi) ve birincil pazar kararı
-/// > (PRD §18, açık soru 2) verilmeli: €12.99 Türkiye için yüksek.
+/// G2 sonrası tek patika teklifi. Ücret ve satın alma eylemi RevenueCat
+/// editöründeki offering/paywall'dan gelir; bu kabuk yalnızca doğrular.
 struct PriceView: View {
     let flow: OnboardingFlowViewModel
 
     var body: some View {
-        OnboardingQuestionLayout(headline: .priceHeadline) {
-            VStack(alignment: .leading, spacing: 16) {
-                statement(.priceFree).statementReveal(1)
-                statement(.priceDecision).statementReveal(2)
-
-                PaperRowDivider().padding(.vertical, 2)
-
-                Text(.priceOptionsHeader)
-                    .font(.headline.weight(Theme.Weight.title))
-                    .inkStyle(.primary)
-                    .accessibilityAddTraits(.isHeader)
-                    .statementReveal(3)
-
-                VStack(spacing: 0) {
-                    optionRow(name: .priceOptionSingle, price: .priceOptionSinglePrice)
-                    PaperRowDivider()
-                    optionRow(name: .priceOptionMonthly, price: .priceOptionMonthlyPrice)
-                    PaperRowDivider()
-                    optionRow(name: .priceOptionYearly, price: .priceOptionYearlyPrice)
-                }
-                .statementReveal(4)
-
-                statement(.pricePromise).statementReveal(5)
+        if let path = flow.generatedPath {
+            PathPurchaseOfferView(pathID: path.id, days: path.steps.count) {
+                flow.finishPrice()
             }
-        } footer: {
-            OnboardingQuestionFooter(
-                primaryTitle: Copy.Button.next,
-                primaryAction: { flow.finishPrice() }
-            )
+        } else {
+            VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
+                Text(.paywallUnavailable)
+                    .font(.body.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textPrimary.color)
+                SecondaryTextButton(title: .paywallNotNow) { flow.finishPrice() }
+            }
+            .padding(.horizontal, Theme.Spacing.screenMargin)
         }
-    }
-
-    private func statement(_ text: LocalizedStringResource) -> some View {
-        Text(text)
-            .font(.body.weight(Theme.Weight.body))
-            .inkStyle(.primary)
-            .lineSpacing(3)
-            .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private func optionRow(name: LocalizedStringResource, price: LocalizedStringResource) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(name).font(.body.weight(Theme.Weight.emphasis)).inkStyle(.primary)
-                Spacer(minLength: 8)
-                Text(price).font(.body.weight(Theme.Weight.action)).inkStyle(.primary)
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                Text(name).font(.body.weight(Theme.Weight.emphasis)).inkStyle(.primary)
-                Text(price).font(.body.weight(Theme.Weight.action)).inkStyle(.primary)
-            }
-        }
-        .padding(.vertical, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
     }
 }
 
-#Preview {
-    OnboardingPreviewHost(step: .price) { flow in
-        PriceView(flow: flow)
+/// Reused from Yolum when the user comes back to buy the same path later.
+struct PathPurchaseOfferView: View {
+    let pathID: UUID
+    let days: Int
+    let onDone: () -> Void
+    @Environment(AppServices.self) private var services
+    @State private var viewModel: PathPaywallViewModel?
+    @State private var showsPaywall = false
+    @State private var purchaseReported = false
+
+    var body: some View {
+        ZStack {
+            WoodlandStyle.background.ignoresSafeArea()
+            if let viewModel {
+                content(viewModel)
+            } else {
+                ProgressView().tint(Theme.textPrimary.color)
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            Button(action: onDone) {
+                Image(systemName: "xmark")
+                    .font(.body.weight(Theme.Weight.action))
+                    .foregroundStyle(Theme.textPrimary.color)
+                    .frame(width: 44, height: 44)
+                    .background(WoodlandStyle.background, in: Circle())
+            }
+            .accessibilityLabel(Text(.paywallNotNow))
+            .padding(.top, 8)
+            .padding(.trailing, Theme.Spacing.screenMargin)
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = PathPaywallViewModel(
+                    services: services,
+                    pathID: pathID,
+                    days: days
+                )
+            }
+            await viewModel?.load()
+            if let viewModel, case .ready = viewModel.state {
+                showsPaywall = true
+            }
+        }
+        .sheet(isPresented: $showsPaywall, onDismiss: {
+            if !purchaseReported { onDone() }
+        }) {
+            if let viewModel, case .ready(let offering) = viewModel.state {
+                PaywallView(offering: offering)
+                    .customPaywallVariables([
+                        "path_days": .number(Double(viewModel.days)),
+                        "remaining_sessions": .number(Double(viewModel.remainingSessions)),
+                    ])
+                    .onPurchaseInitiated { package, resume in
+                        Task { @MainActor in
+                            let shouldProceed = await viewModel.preparePurchase(
+                                productID: package.storeProduct.productIdentifier
+                            )
+                            resume(shouldProceed: shouldProceed)
+                        }
+                    }
+                    .onPurchaseCompleted { _, _ in
+                        Task { @MainActor in
+                            purchaseReported = true
+                            showsPaywall = false
+                            await viewModel.checkPurchase()
+                        }
+                    }
+                    .onRestoreCompleted { _ in
+                        Task { @MainActor in
+                            purchaseReported = true
+                            showsPaywall = false
+                            await viewModel.checkPurchase()
+                        }
+                    }
+                    .safeAreaInset(edge: .top) {
+                        HStack {
+                            Spacer()
+                            Button(.paywallNotNow) { showsPaywall = false }
+                                .font(.body.weight(Theme.Weight.action))
+                                .foregroundStyle(Theme.textPrimary.color)
+                                .frame(minWidth: 80, minHeight: 44)
+                                .background(WoodlandStyle.background, in: Capsule())
+                                .padding(.trailing, Theme.Spacing.screenMargin)
+                        }
+                    }
+                    .presentationDragIndicator(.visible)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func content(_ viewModel: PathPaywallViewModel) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                Image("PaywallForestPath")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 260)
+                    .clipped()
+                    .accessibilityHidden(true)
+
+                Text(.paywallHeadline)
+                    .font(.largeTitle.weight(Theme.Weight.display))
+                    .foregroundStyle(Theme.textPrimary.color)
+                    .accessibilityAddTraits(.isHeader)
+                Text(.paywallBody(viewModel.remainingSessions))
+                    .font(.body.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textPrimary.color)
+                    .fixedSize(horizontal: false, vertical: true)
+                switch viewModel.state {
+                case .loading:
+                    ProgressView().tint(Theme.textPrimary.color)
+                case .ready:
+                    PrimaryButton(title: .paywallViewOffer) { showsPaywall = true }
+                case .checking:
+                    ProgressView().tint(Theme.textPrimary.color)
+                    Text(.paywallChecking)
+                        .font(.body.weight(Theme.Weight.body))
+                        .foregroundStyle(Theme.textPrimary.color)
+                    if viewModel.hasError {
+                        Button(.paywallCheckAgain) { Task { await viewModel.checkPurchase() } }
+                            .font(.body.weight(Theme.Weight.action))
+                            .foregroundStyle(Theme.textPrimary.color)
+                            .frame(minHeight: 44)
+                    }
+                case .unlocked:
+                    PrimaryButton(title: .paywallContinue) { onDone() }
+                case .unavailable:
+                    Text(.paywallUnavailable)
+                        .font(.body.weight(Theme.Weight.body))
+                        .foregroundStyle(Theme.textPrimary.color)
+                    Button(.paywallCheckAgain) { Task { await viewModel.load() } }
+                        .font(.body.weight(Theme.Weight.action))
+                        .foregroundStyle(Theme.textPrimary.color)
+                        .frame(minHeight: 44)
+                }
+                Text(.paywallOnePayment)
+                    .font(.subheadline.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textSecondary.color)
+                if viewModel.hasError, case .ready = viewModel.state {
+                    Text(.paywallPurchaseError)
+                        .font(.footnote.weight(Theme.Weight.body))
+                        .foregroundStyle(Theme.textPrimary.color)
+                }
+                Button(.paywallNotNow) { onDone() }
+                    .font(.body.weight(Theme.Weight.action))
+                    .foregroundStyle(Theme.textPrimary.color)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                Button(.paywallRestore) { Task { await viewModel.restore() } }
+                    .font(.subheadline.weight(Theme.Weight.body))
+                    .foregroundStyle(Theme.textSecondary.color)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                if viewModel.restoreUnavailable {
+                    Text(.paywallRestoreUnavailable)
+                        .font(.footnote.weight(Theme.Weight.body))
+                        .foregroundStyle(Theme.textSecondary.color)
+                }
+            }
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.bottom, 24)
+        }
+        .scrollIndicators(.hidden)
     }
 }

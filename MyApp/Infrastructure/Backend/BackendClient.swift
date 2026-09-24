@@ -114,9 +114,6 @@ protocol BackendClient: Sendable {
         idempotencyKey: UUID
     ) async throws -> AudioRequestOutcome
     func audioStatus(pathStepId: UUID, accessToken: String) async throws -> AudioStatus
-    /// Adımı tamamlanmış işaretler (G2). Yalnızca `completed_at` yazılır —
-    /// sütun bazlı yetki, istemcinin planın kendisine dokunmasını engelliyor.
-    func markStepCompleted(pathStepId: UUID, at date: Date, accessToken: String) async throws
     /// Hazır sesin imzalı indirme adresi. Kova özel; imza kullanıcının kendi
     /// JWT'siyle alınır, servis anahtarı istemciye hiç girmez.
     func signedAudioURL(pathStepId: UUID, accessToken: String) async throws -> URL?

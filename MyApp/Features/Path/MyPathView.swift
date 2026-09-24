@@ -22,6 +22,7 @@ struct MyPathView: View {
 
     @State private var viewModel: MyPathViewModel?
     @State private var runningStep: PathStepRecord?
+    @State private var showsPurchaseOffer = false
     @State private var isCreatingPath = false
     @State private var headerHeight: CGFloat = 150
     @State private var headerHidden = false
@@ -53,6 +54,15 @@ struct MyPathView: View {
         .fullScreenCover(item: $runningStep) { step in
             if let path = viewModel?.path {
                 PathSessionView(services: services, path: path, step: step)
+            }
+        }
+        .sheet(isPresented: $showsPurchaseOffer, onDismiss: {
+            Task { await viewModel?.load() }
+        }) {
+            if let path = viewModel?.path {
+                PathPurchaseOfferView(pathID: path.id, days: path.steps.count) {
+                    showsPurchaseOffer = false
+                }
             }
         }
         .onChange(of: runningStep) { old, new in
@@ -181,7 +191,11 @@ struct MyPathView: View {
         #if DEBUG
         if PathPreviewFixture.isEnabled || viewModel.isDesignPreview { return }
         #endif
-        runningStep = step
+        if viewModel.requiresPurchase(step) {
+            showsPurchaseOffer = true
+        } else {
+            runningStep = step
+        }
     }
 }
 

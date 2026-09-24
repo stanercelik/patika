@@ -31,6 +31,7 @@ final class MyPathViewModel {
     /// Açık duran adım. Varsayılan olarak sıradaki adım: ekran açıldığında
     /// kullanıcının yapacağı şey zaten açık duruyor, bir dokunuş kazanılıyor.
     private(set) var expandedStepID: UUID?
+    private(set) var pathUnlocked = false
     #if DEBUG
     private(set) var isDesignPreview = false
 
@@ -94,6 +95,14 @@ final class MyPathViewModel {
             }
 
             state = .ready(path)
+            if path.kind == .prepared {
+                pathUnlocked = true
+            } else {
+                pathUnlocked = (try? await services.purchaseBackend.isUnlocked(
+                    pathID: path.id,
+                    accessToken: token
+                )) ?? false
+            }
             expandedStepID = path.nextStep?.id
             #if DEBUG
             if let day = DebugDirectEntry.expandedDay {
@@ -140,6 +149,10 @@ final class MyPathViewModel {
     }
 
     func isCompleted(_ step: PathStepRecord) -> Bool { step.completedAt != nil }
+
+    func requiresPurchase(_ step: PathStepRecord) -> Bool {
+        path?.kind == .personalized && step.day > 1 && !pathUnlocked
+    }
 
     func isMeasurementDay(_ step: PathStepRecord) -> Bool {
         measurementDays.contains(step.day)

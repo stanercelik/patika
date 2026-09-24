@@ -22,8 +22,10 @@ yalnızca İngilizce), path üretimi + JIT ses (ElevenLabs `eleven_v3`, aracıs�
 (bkz. aşağı) — PRD'deki her şey hipotez.
 
 **Henüz yok:** Xcode test hedefi (testler elle `swiftc` ile derlenip koşuluyor),
-String Catalog dışı arayüz metinleri (bkz. altta), StoreKit/RevenueCat paywall
-uygulaması, H3, VoiceOver tam turu, resmî kriz hattı numaralarının doğrulanması.
+String Catalog dışı arayüz metinleri (bkz. altta), RevenueCat/Apple mağaza
+hesabı yapılandırması ve gerçek cihaz satın alma doğrulaması, H3, VoiceOver
+tam turu, resmî kriz hattı numaralarının doğrulanması. RevenueCatUI satın alma
+akışı kodda var; canlı ürün/offering/paywall kurulumu tamamlanmadı.
 
 ## Komutlar
 
@@ -255,7 +257,10 @@ Kaldığın yerden devam edelim."* Kriz modunda ve Kova C'de rozet/kutlama/seri
 görünmez (Kova C'de rozet sessizce rafta belirir, kutlama yaprağı açılmaz).
 
 **Ticari**
-- Paywall **gün 7'de ve ölçüm ekranından sonra** — asla önce.
+- 24 Eylül 2026 ürün sahibi kararı: ilk kişisel oturum tamamlanıp G2 özeti
+  geçildikten sonra RevenueCat paywall gösterilir; yarım oturumda gösterilmez.
+  Tek seferlik ödeme yalnız etkin patikanın kalan adımlarını açar. Kapatma ve
+  ücretsiz içeriğe dönüş hemen erişilebilir. Eski gün 7 ödeme kararı geçersizdir.
 - Path sonu üç kovadır (A belirgin / B kısmi / C ilerleme yok); `başarılı/başarısız` dili yok.
 - **Kova C'de satış yapılmaz**, devam patikası ücretsiz (ömür boyu 2 limit).
 - Varsayılan yanlılığı (önceden doldurulmuş seçim) **ödeme/abonelik kararlarında kullanılmaz**.

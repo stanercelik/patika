@@ -26,6 +26,7 @@ final class RevenueCatPurchaseService {
         let identifier = "path_\(days)d"
         let offerings = try await Purchases.shared.offerings()
         guard let offering = offerings.all[identifier],
+              offering.hasPaywall,
               offering.availablePackages.count == 1,
               offering.availablePackages[0].storeProduct.productIdentifier == "path.unlock.\(days)d" else {
             throw RevenueCatConfigurationError.offeringUnavailable

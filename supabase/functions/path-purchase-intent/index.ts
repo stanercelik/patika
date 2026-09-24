@@ -21,15 +21,25 @@ Deno.serve(async (req) => {
       .select("completed_at").eq("path_id", path.id).eq("day", 1).maybeSingle();
     if (!first?.completed_at) return json({ code: "first_session_incomplete" }, 409);
     const { data: grant } = await adminClient.from("path_purchase_grants")
-      .select("path_id").eq("path_id", path.id).eq("user_id", user.id)
+      .select("path_id,expires_at").eq("path_id", path.id).eq("user_id", user.id)
       .is("revoked_at", null).maybeSingle();
-    if (grant) return json({ status: "already_unlocked" });
+    if (grant && (!grant.expires_at ||
+      new Date(grant.expires_at).getTime() > Date.now())) {
+      return json({ status: "already_unlocked" });
+    }
     const productId = productForLength(path.length_days);
     if (!productId) return json({ code: "unsupported_path_length" }, 409);
 
+    // Expired intents cannot claim a later StoreKit transaction. Clearing
+    // them also lets the database's one-pending-intent index prevent races.
+    const now = new Date().toISOString();
+    const { error: expireError } = await adminClient.from("path_purchase_intents")
+      .update({ cancelled_at: now }).eq("user_id", user.id).eq("product_id", productId)
+      .is("fulfilled_at", null).is("cancelled_at", null).lte("expires_at", now);
+    if (expireError) throw new Error("intent_expiry_failed");
     const { data: previous } = await adminClient.from("path_purchase_intents")
       .select("id,path_id,expires_at").eq("user_id", user.id).eq("product_id", productId)
-      .is("fulfilled_at", null).gt("expires_at", new Date().toISOString())
+      .is("fulfilled_at", null).is("cancelled_at", null).gt("expires_at", now)
       .order("created_at", { ascending: false }).limit(1).maybeSingle();
     if (previous?.path_id === path.id) {
       return json({ status: "ready", intentId: previous.id, productId });

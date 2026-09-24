@@ -6,6 +6,8 @@ import Observation
 final class AppServices {
     let auth: AuthSessionStore
     let backend: any BackendClient
+    let purchaseBackend: PathPurchaseBackend
+    let purchases: RevenueCatPurchaseService
     let observability: Observability
     /// Cihazdaki kişisel kayıt — "Ben" sekmesinin kaynağı.
     let profile: ProfileStore
@@ -24,6 +26,8 @@ final class AppServices {
     ) {
         self.auth = auth
         self.backend = backend
+        self.purchaseBackend = PathPurchaseBackend()
+        self.purchases = RevenueCatPurchaseService()
         self.observability = observability
         self.profile = profile
         self.avatar = avatar

@@ -585,6 +585,18 @@ extension LocalizedStringResource {
     static var pathPhaseRoadmapDescriptionClosing: LocalizedStringResource { LocalizedStringResource("pathPhase.roadmapDescription.closing") }
     static var pathPhaseRoadmapDescriptionRelief: LocalizedStringResource { LocalizedStringResource("pathPhase.roadmapDescription.relief") }
     static var pathPhaseRoadmapDescriptionSkill: LocalizedStringResource { LocalizedStringResource("pathPhase.roadmapDescription.skill") }
+    static func paywallBody(_ arg1: Int) -> LocalizedStringResource { LocalizedStringResource("paywall.body") }
+    static var paywallCheckAgain: LocalizedStringResource { LocalizedStringResource("paywall.checkAgain") }
+    static var paywallChecking: LocalizedStringResource { LocalizedStringResource("paywall.checking") }
+    static var paywallContinue: LocalizedStringResource { LocalizedStringResource("paywall.continue") }
+    static var paywallHeadline: LocalizedStringResource { LocalizedStringResource("paywall.headline") }
+    static var paywallNotNow: LocalizedStringResource { LocalizedStringResource("paywall.notNow") }
+    static var paywallOnePayment: LocalizedStringResource { LocalizedStringResource("paywall.onePayment") }
+    static var paywallPurchaseError: LocalizedStringResource { LocalizedStringResource("paywall.purchaseError") }
+    static var paywallRestore: LocalizedStringResource { LocalizedStringResource("paywall.restore") }
+    static var paywallRestoreUnavailable: LocalizedStringResource { LocalizedStringResource("paywall.restoreUnavailable") }
+    static var paywallUnavailable: LocalizedStringResource { LocalizedStringResource("paywall.unavailable") }
+    static var paywallViewOffer: LocalizedStringResource { LocalizedStringResource("paywall.viewOffer") }
     static var previousAttemptLabelBreathing: LocalizedStringResource { LocalizedStringResource("previousAttempt.label.breathing") }
     static var previousAttemptLabelNothing: LocalizedStringResource { LocalizedStringResource("previousAttempt.label.nothing") }
     static var previousAttemptLabelOther: LocalizedStringResource { LocalizedStringResource("previousAttempt.label.other") }

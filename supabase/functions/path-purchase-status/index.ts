@@ -15,10 +15,12 @@ Deno.serve(async (req) => {
     if (!path) return json({ code: "not_found" }, 404);
     if (path.kind === "prepared") return json({ status: "unlocked" });
     const { data: grant, error } = await adminClient.from("path_purchase_grants")
-      .select("path_id").eq("path_id", path.id).eq("user_id", user.id)
+      .select("path_id,expires_at").eq("path_id", path.id).eq("user_id", user.id)
       .is("revoked_at", null).maybeSingle();
     if (error) throw new Error("grant_read_failed");
-    return json({ status: grant ? "unlocked" : "locked" });
+    const active = !!grant && (!grant.expires_at ||
+      new Date(grant.expires_at).getTime() > Date.now());
+    return json({ status: active ? "unlocked" : "locked" });
   } catch (error) {
     if (error instanceof Error && error.message === "unauthorized") return json({ code: "unauthorized" }, 401);
     return json({ code: "server_error" }, 500);

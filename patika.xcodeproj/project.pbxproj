@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		20B63A693063456100DAAF25 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 20B63A683063456100DAAF25 /* GoogleSignIn */; };
 		20B63A6B3063456100DAAF25 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 20B63A6A3063456100DAAF25 /* GoogleSignInSwift */; };
+		20B63A7B306497D100DAAF25 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 20B63A7A306497D100DAAF25 /* RevenueCat */; };
+		20B63A7D306497D100DAAF25 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 20B63A7C306497D100DAAF25 /* RevenueCatUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,8 +29,10 @@
 		000000000000000130000000 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				20B63A7D306497D100DAAF25 /* RevenueCatUI in Frameworks */,
 				20B63A693063456100DAAF25 /* GoogleSignIn in Frameworks */,
 				20B63A6B3063456100DAAF25 /* GoogleSignInSwift in Frameworks */,
+				20B63A7B306497D100DAAF25 /* RevenueCat in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -70,6 +74,8 @@
 			packageProductDependencies = (
 				20B63A683063456100DAAF25 /* GoogleSignIn */,
 				20B63A6A3063456100DAAF25 /* GoogleSignInSwift */,
+				20B63A7A306497D100DAAF25 /* RevenueCat */,
+				20B63A7C306497D100DAAF25 /* RevenueCatUI */,
 			);
 			productName = MyApp;
 			productReference = 000000000000000000000120 /* MyApp.app */;
@@ -101,6 +107,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				20B63A673063456100DAAF25 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				20B63A79306497D100DAAF25 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 000000000000000000000020 /* Products */;
@@ -379,6 +386,14 @@
 				minimumVersion = 10.0.0;
 			};
 		};
+		20B63A79306497D100DAAF25 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.91.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -391,6 +406,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 20B63A673063456100DAAF25 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
+		};
+		20B63A7A306497D100DAAF25 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20B63A79306497D100DAAF25 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
+		};
+		20B63A7C306497D100DAAF25 /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20B63A79306497D100DAAF25 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCatUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

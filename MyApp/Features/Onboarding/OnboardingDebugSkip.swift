@@ -55,6 +55,7 @@ extension OnboardingFlowViewModel {
     /// eşleşmemesi, ekranın gerçekte nasıl göründüğünü yanlış gösteriyordu.
     func debugJump(to target: OnboardingStep, category: ProblemCategory = .sleep) {
         debugApply(draft: .debugSample(category: category))
+        if target == .price { debugPreparePaywallPreview() }
         debugSetStep(target)
     }
 }

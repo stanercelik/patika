@@ -599,3 +599,19 @@ Doğrulama: iPhone 17 Pro simülatöründe normal Dynamic Type, AX5, Reduce Moti
 ve Reduce Transparency ile ilgili onboarding ekranları görsel olarak kontrol
 edildi. `xcodebuild ... SWIFT_EMIT_LOC_STRINGS=NO build`,
 `OnboardingInteractionTests` ve `ContrastTests` geçti.
+## 24 Eylül 2026 — RevenueCat ve ilk oturum sonrası ödeme
+
+Ürün sahibi, eski “gün 7 karşılaştırmasından sonra ödeme” ve “onboarding'de
+paywall yok” kararlarını değiştirdi. İlk tam kişisel oturum ücretsizdir. Sunucu
+ilk adımı tamamlandı olarak kaydettikten ve kullanıcı G2 özetini geçtikten sonra
+RevenueCat paywall gösterilir; yarım oturum paywall tetiklemez. Akış G2 →
+paywall → isteğe bağlı hesap bağlama → Yolum'dur. Paywall hemen kapatılabilir;
+ücretsiz yollar ve destek açık kalır, satın alma Yolum'dan daha sonra yapılabilir.
+
+Lansmanda abonelik yoktur. Dört tek seferlik consumable ürün 7/14/21/28 gün
+için sırasıyla $7.99/$11.99/$14.99/$18.99 ABD baz fiyatıyla sunulur. Fiyatı
+App Store yerelleştirir. Satın alma yalnız etkin `path_id` için sunucu hakkı
+oluşturur; genel premium entitlement kullanılmaz. Anonim satın alma açıktır;
+hesap bağlama cihazlar arası geri getirme için önerilir. Kova C ücretsiz devam,
+kriz ve Destek al ödeme dışında kalır. Ayrıntı ve kabul ölçütleri
+`docs/monetization.md` içindedir.

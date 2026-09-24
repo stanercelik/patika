@@ -163,9 +163,10 @@ dogrula.
 
 ## Ticari ve davranissal kurallar
 
-- Onboarding'de paywall yoktur. F4 yalnizca fiyat seffafligi ekranidir ve kart
-  bilgisi istemez.
-- Paywall gun 7 olcum ve karsilastirma ekranindan sonra gelir; asla once degil.
+- 24 Eylul 2026 urun sahibi karari: ilk kisisel oturum tamamlanip G2 ozeti
+  gecildiginde RevenueCat paywall gosterilir; yarim oturumda gosterilmez.
+  F4 ayri fiyat ekrani ve gun 7 odeme noktasi kaldirilmistir. Kapatma ve
+  ucretsiz icerige donus ilk anda erisilebilir; satin alma Yolum'da yinelenebilir.
 - Tek patika ve abonelik ayni kullaniciya farkli gizli fiyatlarla sunulmaz.
   Segmentasyon yalnizca hangi planin vurgulandigini degistirebilir.
 - Aboneligin farki indirim degil sureklilik ve biriken baglamdir.

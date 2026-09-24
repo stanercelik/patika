@@ -884,5 +884,17 @@ extension OnboardingFlowViewModel {
         history.removeAll()
         step = target
     }
+
+    func debugPreparePaywallPreview() {
+        generatedPath = GeneratedPath(
+            id: UUID(uuidString: "AB000000-0000-4000-8000-000000000007")!,
+            kind: .personalized,
+            title: "Preview path",
+            steps: (1...7).map {
+                GeneratedPathStep(day: $0, title: "Preview step", blockIds: [], slotCopy: [:], question: nil)
+            }
+        )
+        didCompleteFirstSession = true
+    }
 }
 #endif
