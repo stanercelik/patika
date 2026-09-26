@@ -2,8 +2,8 @@
 
 **Effective date:** [publication date]
 
-Patika is operated by **[legal operator name]**. Contact us at
-**[public support email]**. Patika offers structured mental well-being
+Patika is operated by **Taner Çelik**. Contact us at
+**tanercelik2001@gmail.com**. Patika offers structured mental well-being
 programs for adults. It is not a clinical assessment, therapy or emergency
 service.
 
@@ -43,7 +43,7 @@ text, path title or measurement answers as RevenueCat paywall variables.
 
 You can export available profile data and request account deletion in the app.
 Deleting an account removes the associated server data subject to legal
-retention obligations. Contact **[public support email]** for access,
+retention obligations. Contact **tanercelik2001@gmail.com** for access,
 correction or deletion questions. Turn off notifications in the app or device
 settings. Notification text does not include your problem or path name.
 
@@ -57,4 +57,4 @@ audio through time-limited links. No system can guarantee absolute security.
 ## Changes
 
 We will update this page when practices materially change and show a new
-effective date. Contact **[public support email]** with questions.
+effective date. Contact **tanercelik2001@gmail.com** with questions.

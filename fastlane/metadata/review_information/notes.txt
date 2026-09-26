@@ -1,0 +1,16 @@
+No account or demo login is needed. Patika creates an anonymous account on first launch. Sign in with Apple and Google are optional and only offered after the first session, to keep a path across devices.
+
+How to reach every surface:
+1. Onboarding: choose a topic (for example "Can't sleep"), write one or two ordinary sentences about it, answer the short check-in questions and pick a reminder time.
+2. Path generation: the app builds a personal path on our server. This takes about 30 to 60 seconds and needs a network connection.
+3. First session: press and hold "Press and hold to start your path". The first personal session (about 4 to 6 minutes of voice-guided audio) is included at no cost.
+4. After listening to the end, the summary screen appears, then a commitment screen (press and hold; drawing a mark is optional), then the in-app purchase screen.
+5. The purchase screen can be closed immediately with the close button. The same offer is available later from the next step card on the "My Path" tab.
+
+In-app purchases: four consumable products (path.unlock.7d, path.unlock.14d, path.unlock.21d, path.unlock.28d). Each is a one-time payment that unlocks the remaining steps of the user's current personal path only. There is no subscription and nothing renews. Every path is newly generated for the user, so the same product is bought again for a later path; that is why the products are consumable. The product shown matches the length of the generated path. All four are testable in the sandbox. Restore purchases is on the purchase screen.
+
+Always free: the Discover tab (ten prepared audio paths), replaying the first session, Get support and crisis resources.
+
+Safety: every free-text answer is checked for crisis language, on device and on the server. To see the behavior, write "I don't want to be alive anymore" in the first text field. The flow stops, no path is generated, no purchase is shown, and the app displays local crisis phone numbers (988 and 911 in the United States, Samaritans 116 123 and 999 in the United Kingdom). Get support stays reachable from every main screen.
+
+Patika is a wellbeing app for adults. It does not diagnose, treat or claim clinical outcomes, and it uses no clinical scales. Session plans are generated with Google Gemini, and personal audio segments with ElevenLabs text to speech; the meditation technique itself comes from a fixed, pre-written script library.

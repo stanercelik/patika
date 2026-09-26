@@ -1,7 +1,7 @@
 # Patika Support
 
 For help with access, purchases, account linking, data export or account
-deletion, contact **[public support email]**. Include your purchase date and
+deletion, contact **tanercelik2001@gmail.com**. Include your purchase date and
 App Store transaction ID if available. Do not send your problem statement,
 measurement answers or other sensitive details by email.
 

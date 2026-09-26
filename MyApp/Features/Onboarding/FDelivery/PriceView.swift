@@ -26,16 +26,32 @@ struct PriceView: View {
             }
         }
             .onAppear { flow.prepareOffer() }
+            // Patika zaten açıksa teklif gösterilmez; akış doğrudan devam eder.
+            .onChange(of: alreadyUnlocked, initial: true) { _, unlocked in
+                if unlocked { flow.finishPrice() }
+            }
             .fullScreenCover(item: presentedOffer) { offer in
                 PathPurchaseOfferView(viewModel: offer) { flow.finishPrice() }
             }
             .transaction { $0.disablesAnimations = true }
     }
 
-    /// Yükleme bitince (hazır ya da hatalı) kaplama açılır.
+    /// Teklif yüklendiğinde patika zaten açık ve paywall hiç gösterilmedi.
+    private var alreadyUnlocked: Bool {
+        guard let offer = flow.purchaseOffer else { return false }
+        return offer.isUnlocked && !offer.wasShown
+    }
+
+    /// Yükleme bitince (hazır ya da hatalı) kaplama açılır; patika zaten açıksa açılmaz.
     private var presentedOffer: Binding<PathPaywallViewModel?> {
         Binding(
-            get: { flow.purchaseOffer.flatMap { $0.isLoading ? nil : $0 } },
+            get: {
+                flow.purchaseOffer.flatMap { offer in
+                    if offer.isLoading { return nil }
+                    if offer.isUnlocked, !offer.wasShown { return nil }
+                    return offer
+                }
+            },
             set: { if $0 == nil { flow.finishPrice() } }
         )
     }
@@ -51,6 +67,7 @@ struct PathPurchaseOfferView: View {
     let viewModel: PathPaywallViewModel
     let onDone: () -> Void
     @State private var purchaseReported = false
+    @State private var isConfirming = false
     @State private var showsSupport = false
 
     /// Paywall'daki destek düğmesinin deep link'i. RevenueCat bağlantıyı SwiftUI
@@ -93,13 +110,15 @@ struct PathPurchaseOfferView: View {
             }
             // Eşzamanlı: RevenueCat kapanma isteğini satın alma geri çağrılarından
             // sonra gönderiyor; bayrak ondan önce kurulmuş olmalı.
+            // Satın almadan sonra doğrulama ekranı yok: paywall açık kalır, sunucu
+            // hakkı yazınca (ya da kısa bir süre sonra) kullanıcı satın aldığı yere döner.
             .onPurchaseCompleted { _, _ in
                 purchaseReported = true
-                Task { @MainActor in await viewModel.checkPurchase() }
+                finishAfterPurchase()
             }
             .onRestoreCompleted { _ in
                 purchaseReported = true
-                Task { @MainActor in await viewModel.checkPurchase() }
+                finishAfterPurchase()
             }
             .onRequestedDismissal {
                 // Satın almadan sonra da gelir; o zaman ekran doğrulamaya geçer.
@@ -112,6 +131,15 @@ struct PathPurchaseOfferView: View {
                 showsSupport = true
                 return .handled
             })
+            .overlay {
+                if isConfirming {
+                    ZStack {
+                        WoodlandStyle.background.opacity(0.35).ignoresSafeArea()
+                        ProgressView().tint(Theme.textPrimary.color)
+                    }
+                    .transition(.opacity)
+                }
+            }
             .alert(
                 Text(.paywallPurchaseError),
                 isPresented: Binding(
@@ -121,6 +149,16 @@ struct PathPurchaseOfferView: View {
             ) {
                 Button(.paywallCheckAgain, role: .cancel) { viewModel.clearError() }
             }
+    }
+
+    private func finishAfterPurchase() {
+        guard !isConfirming else { return }
+        isConfirming = true
+        Task { @MainActor in
+            _ = await viewModel.confirmPurchase()
+            isConfirming = false
+            onDone()
+        }
     }
 
     // MARK: - Uygulamanın kendi yüzeyi

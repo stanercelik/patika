@@ -463,6 +463,26 @@ extension Copy {
         static var us988Detail: LocalizedStringResource { .supportUs988Detail }
         static var gbSamaritansName: LocalizedStringResource { .supportGbSamaritansName }
         static var gbSamaritansDetail: LocalizedStringResource { .supportGbSamaritansDetail }
+        static var crisisLineDetail: LocalizedStringResource { .supportDetailCrisisLine }
+        static var mentalHealthLineDetail: LocalizedStringResource { .supportDetailMentalHealthLine }
+        static var ca988Name: LocalizedStringResource { .supportCa988Name }
+        static var auLifelineName: LocalizedStringResource { .supportAuLifelineName }
+        static var nz1737Name: LocalizedStringResource { .supportNz1737Name }
+        static var fr3114Name: LocalizedStringResource { .supportFr3114Name }
+        static var es024Name: LocalizedStringResource { .supportEs024Name }
+        static var itTelefonoAmicoName: LocalizedStringResource { .supportItTelefonoAmicoName }
+        static var nl113Name: LocalizedStringResource { .supportNl113Name }
+        static var chDargeboteneHandName: LocalizedStringResource { .supportChDargeboteneHandName }
+        static var seMindName: LocalizedStringResource { .supportSeMindName }
+        static var noKirkensSosName: LocalizedStringResource { .supportNoKirkensSosName }
+        static var dkLivslinienName: LocalizedStringResource { .supportDkLivslinienName }
+        static var fiMieliName: LocalizedStringResource { .supportFiMieliName }
+        static var brCvvName: LocalizedStringResource { .supportBrCvvName }
+        static var mxLineaVidaName: LocalizedStringResource { .supportMxLineaVidaName }
+        static var jpYorisoiName: LocalizedStringResource { .supportJpYorisoiName }
+        static var sgSosName: LocalizedStringResource { .supportSgSosName }
+        static var zaSadagName: LocalizedStringResource { .supportZaSadagName }
+        static var inTeleManasName: LocalizedStringResource { .supportInTeleManasName }
     }
 
     /// Yol içi ölçüm — 🟠 Sakin. Sınav değil; skor ve yorum yok.

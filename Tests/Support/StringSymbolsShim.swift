@@ -730,23 +730,43 @@ extension LocalizedStringResource {
     static var sessionFeedbackLabelCouldNotFocus: LocalizedStringResource { LocalizedStringResource("sessionFeedback.label.couldNotFocus") }
     static var sessionFeedbackLabelHelped: LocalizedStringResource { LocalizedStringResource("sessionFeedback.label.helped") }
     static var sessionFeedbackLabelStruggled: LocalizedStringResource { LocalizedStringResource("sessionFeedback.label.struggled") }
+    static var supportAuLifelineName: LocalizedStringResource { LocalizedStringResource("support.au.lifeline.name") }
     static var supportBody: LocalizedStringResource { LocalizedStringResource("support.body") }
+    static var supportBrCvvName: LocalizedStringResource { LocalizedStringResource("support.br.cvv.name") }
+    static var supportCa988Name: LocalizedStringResource { LocalizedStringResource("support.ca.988.name") }
     static var supportCall: LocalizedStringResource { LocalizedStringResource("support.call") }
+    static var supportChDargeboteneHandName: LocalizedStringResource { LocalizedStringResource("support.ch.dargeboteneHand.name") }
     static var supportClose: LocalizedStringResource { LocalizedStringResource("support.close") }
     static var supportDeTelefonSeelsorgeDetail: LocalizedStringResource { LocalizedStringResource("support.de.telefonSeelsorge.detail") }
     static var supportDeTelefonSeelsorgeName: LocalizedStringResource { LocalizedStringResource("support.de.telefonSeelsorge.name") }
+    static var supportDetailCrisisLine: LocalizedStringResource { LocalizedStringResource("support.detail.crisisLine") }
+    static var supportDetailMentalHealthLine: LocalizedStringResource { LocalizedStringResource("support.detail.mentalHealthLine") }
     static var supportDirectory: LocalizedStringResource { LocalizedStringResource("support.directory") }
+    static var supportDkLivslinienName: LocalizedStringResource { LocalizedStringResource("support.dk.livslinien.name") }
     static var supportEmergencyDetail: LocalizedStringResource { LocalizedStringResource("support.emergency.detail") }
     static var supportEmergencyName: LocalizedStringResource { LocalizedStringResource("support.emergency.name") }
+    static var supportEs024Name: LocalizedStringResource { LocalizedStringResource("support.es.024.name") }
+    static var supportFiMieliName: LocalizedStringResource { LocalizedStringResource("support.fi.mieli.name") }
+    static var supportFr3114Name: LocalizedStringResource { LocalizedStringResource("support.fr.3114.name") }
     static var supportGbSamaritansDetail: LocalizedStringResource { LocalizedStringResource("support.gb.samaritans.detail") }
     static var supportGbSamaritansName: LocalizedStringResource { LocalizedStringResource("support.gb.samaritans.name") }
+    static var supportInTeleManasName: LocalizedStringResource { LocalizedStringResource("support.in.teleManas.name") }
+    static var supportItTelefonoAmicoName: LocalizedStringResource { LocalizedStringResource("support.it.telefonoAmico.name") }
+    static var supportJpYorisoiName: LocalizedStringResource { LocalizedStringResource("support.jp.yorisoi.name") }
+    static var supportMxLineaVidaName: LocalizedStringResource { LocalizedStringResource("support.mx.lineaVida.name") }
+    static var supportNl113Name: LocalizedStringResource { LocalizedStringResource("support.nl.113.name") }
+    static var supportNoKirkensSosName: LocalizedStringResource { LocalizedStringResource("support.no.kirkensSos.name") }
     static var supportNotEmergencyService: LocalizedStringResource { LocalizedStringResource("support.notEmergencyService") }
+    static var supportNz1737Name: LocalizedStringResource { LocalizedStringResource("support.nz.1737.name") }
+    static var supportSeMindName: LocalizedStringResource { LocalizedStringResource("support.se.mind.name") }
+    static var supportSgSosName: LocalizedStringResource { LocalizedStringResource("support.sg.sos.name") }
     static var supportTapToCall: LocalizedStringResource { LocalizedStringResource("support.tapToCall") }
     static var supportTitle: LocalizedStringResource { LocalizedStringResource("support.title") }
     static var supportTrSocialSupportDetail: LocalizedStringResource { LocalizedStringResource("support.tr.socialSupport.detail") }
     static var supportTrSocialSupportName: LocalizedStringResource { LocalizedStringResource("support.tr.socialSupport.name") }
     static var supportUs988Detail: LocalizedStringResource { LocalizedStringResource("support.us.988.detail") }
     static var supportUs988Name: LocalizedStringResource { LocalizedStringResource("support.us.988.name") }
+    static var supportZaSadagName: LocalizedStringResource { LocalizedStringResource("support.za.sadag.name") }
     static var tabDiscover: LocalizedStringResource { LocalizedStringResource("tab.discover") }
     static var tabMe: LocalizedStringResource { LocalizedStringResource("tab.me") }
     static var tabPath: LocalizedStringResource { LocalizedStringResource("tab.path") }

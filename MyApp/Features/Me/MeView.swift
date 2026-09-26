@@ -299,6 +299,11 @@ private struct MeContent: View {
             reminderTime: nil
         )
         await offer.load()
+        // Zaten açılmışsa (hak az önce yazıldı) teklif yok: kart yenilenip kaybolur.
+        if case .unlocked = offer.state {
+            await viewModel.load()
+            return
+        }
         purchaseOffer = offer
     }
 

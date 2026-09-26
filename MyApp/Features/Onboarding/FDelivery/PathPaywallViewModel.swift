@@ -21,6 +21,11 @@ final class PathPaywallViewModel: Identifiable {
 
     func clearError() { hasError = false }
 
+    var isUnlocked: Bool {
+        if case .unlocked = state { return true }
+        return false
+    }
+
     var isLoading: Bool {
         if case .loading = state { return true }
         return false
@@ -80,7 +85,12 @@ final class PathPaywallViewModel: Identifiable {
         return formatter.string(from: value as NSDecimalNumber) ?? ""
     }
 
+    /// Paywall ekrana geldi mi: satın alma sonrası `unlocked` olan teklif, kapanış
+    /// sırasında kaplamayı erkenden düşürmesin diye ayırt edilir.
+    private(set) var wasShown = false
+
     func paywallShown() {
+        wasShown = true
         services.observability.capture(.paywallShown(context))
     }
 
@@ -139,6 +149,28 @@ final class PathPaywallViewModel: Identifiable {
             hasError = true
             return false
         }
+    }
+
+    /// Satın alma ya da geri yükleme sonrası: paywall açık kalırken sunucunun hakkı
+    /// yazmasını bekler. Sunucu satın almayı RevenueCat'ten kendisi doğruladığı için
+    /// genelde ilk yanıtta açılır; webhook'u beklemez. Doğrulama ekranı göstermez:
+    /// çağıran sonuç ne olursa olsun kullanıcıyı satın aldığı yere döndürür, hak
+    /// gecikirse bir sonraki durum sorgusu onu yine açar.
+    func confirmPurchase() async -> Bool {
+        for attempt in 0..<8 {
+            if attempt > 0 { try? await Task.sleep(for: .seconds(1)) }
+            do {
+                let token = try await services.auth.validAccessToken()
+                if try await services.purchaseBackend.isUnlocked(pathID: pathID, accessToken: token) {
+                    state = .unlocked
+                    services.observability.capture(.purchaseVerified(context))
+                    return true
+                }
+            } catch {
+                // Geçici ağ hatası: bir sonraki denemede yeniden sorulur.
+            }
+        }
+        return false
     }
 
     func checkPurchase() async {

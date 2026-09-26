@@ -220,6 +220,11 @@ extension MyPathView {
             reminderTime: nil
         )
         await offer.load()
+        // Zaten açılmışsa (hak az önce yazıldı) teklif yok: ekran yenilenir, adım açılır.
+        if case .unlocked = offer.state {
+            await viewModel?.load()
+            return
+        }
         purchaseOffer = offer
     }
 }

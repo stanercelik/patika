@@ -8798,6 +8798,18 @@
         }
       }
     },
+    "support.au.lifeline.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifeline"
+          }
+        }
+      }
+    },
     "support.body" : {
       "comment" : "Support / crisis screen (neutral tone: no decoration)",
       "extractionState" : "manual",
@@ -8810,6 +8822,30 @@
         }
       }
     },
+    "support.br.cvv.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CVV, Centro de Valorização da Vida"
+          }
+        }
+      }
+    },
+    "support.ca.988.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "9-8-8 Suicide Crisis Helpline"
+          }
+        }
+      }
+    },
     "support.call" : {
       "comment" : "Support / crisis screen (neutral tone: no decoration)",
       "extractionState" : "manual",
@@ -8818,6 +8854,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Call"
+          }
+        }
+      }
+    },
+    "support.ch.dargeboteneHand.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Dargebotene Hand"
           }
         }
       }
@@ -8858,6 +8906,30 @@
         }
       }
     },
+    "support.detail.crisisLine" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suicide and crisis line"
+          }
+        }
+      }
+    },
+    "support.detail.mentalHealthLine" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mental health helpline"
+          }
+        }
+      }
+    },
     "support.directory" : {
       "comment" : "Support / crisis screen (neutral tone: no decoration)",
       "extractionState" : "manual",
@@ -8866,6 +8938,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Other helplines in your country"
+          }
+        }
+      }
+    },
+    "support.dk.livslinien.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Livslinien"
           }
         }
       }
@@ -8894,6 +8978,42 @@
         }
       }
     },
+    "support.es.024.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Línea 024"
+          }
+        }
+      }
+    },
+    "support.fi.mieli.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MIELI Kriisipuhelin"
+          }
+        }
+      }
+    },
+    "support.fr.3114.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3114 Prévention du suicide"
+          }
+        }
+      }
+    },
     "support.gb.samaritans.detail" : {
       "comment" : "Support / crisis screen (neutral tone: no decoration)",
       "extractionState" : "manual",
@@ -8918,6 +9038,78 @@
         }
       }
     },
+    "support.in.teleManas.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tele MANAS"
+          }
+        }
+      }
+    },
+    "support.it.telefonoAmico.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telefono Amico Italia"
+          }
+        }
+      }
+    },
+    "support.jp.yorisoi.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yorisoi Hotline"
+          }
+        }
+      }
+    },
+    "support.mx.lineaVida.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Línea de la Vida"
+          }
+        }
+      }
+    },
+    "support.nl.113.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "113 Zelfmoordpreventie"
+          }
+        }
+      }
+    },
+    "support.no.kirkensSos.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kirkens SOS"
+          }
+        }
+      }
+    },
     "support.notEmergencyService" : {
       "comment" : "Support / crisis screen (neutral tone: no decoration)",
       "extractionState" : "manual",
@@ -8926,6 +9118,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Patika is not an emergency or treatment service."
+          }
+        }
+      }
+    },
+    "support.nz.1737.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1737, Need to talk?"
+          }
+        }
+      }
+    },
+    "support.se.mind.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mind Självmordslinjen"
+          }
+        }
+      }
+    },
+    "support.sg.sos.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samaritans of Singapore"
           }
         }
       }
@@ -8998,6 +9226,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "988 Lifeline"
+          }
+        }
+      }
+    },
+    "support.za.sadag.name" : {
+      "comment" : "Support / crisis screen (neutral tone: no decoration)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SADAG Suicide Crisis Line"
           }
         }
       }

@@ -1,8 +1,8 @@
 # Patika Terms of Use
 
 **Effective date:** [publication date]  
-**Operator:** [legal operator name]  
-**Contact:** [public support email]
+**Operator:** Taner Çelik  
+**Contact:** tanercelik2001@gmail.com
 
 Patika offers structured mental well-being programs for adults aged 18 and
 over. It does not provide diagnosis, therapy, medical treatment or emergency
