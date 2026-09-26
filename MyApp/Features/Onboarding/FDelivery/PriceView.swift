@@ -2,45 +2,136 @@ import RevenueCat
 import RevenueCatUI
 import SwiftUI
 
-/// G2 sonrası tek patika teklifi. Ücret ve satın alma eylemi RevenueCat
-/// editöründeki offering/paywall'dan gelir; bu kabuk yalnızca doğrular.
+/// Taahhüt sonrası tek patika teklifi (G2 → taahhüt → burası). Tasarım ve metinler:
+/// docs/paywall-stratejisi.md.
+///
+/// Teklif taahhüt basılı tutulduğu anda yüklenmeye başlar
+/// (`OnboardingFlowViewModel.prepareOffer`) ve eşik cümlesi ekrandayken biter. Bu
+/// adıma gelindiğinde kaplama animasyonsuz açılır ve içeriği doğrudan RevenueCat
+/// paywall'ıdır; arada uygulamanın kendi yükleniyor ekranı yok.
 struct PriceView: View {
     let flow: OnboardingFlowViewModel
 
     var body: some View {
-        if let path = flow.generatedPath {
-            PathPurchaseOfferView(pathID: path.id, days: path.steps.count) {
-                flow.finishPrice()
+        Group {
+            if flow.generatedPath == nil {
+                // Patika yoksa teklif de yok: kullanıcı boş ekranda kalmasın.
+                VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
+                    BodyText(.paywallUnavailable)
+                    SecondaryTextButton(title: .paywallNotNow) { flow.finishPrice() }
+                }
+                .padding(.horizontal, Theme.Spacing.screenMargin)
+            } else {
+                Color.clear
             }
-        } else {
-            VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
-                Text(.paywallUnavailable)
-                    .font(.body.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textPrimary.color)
-                SecondaryTextButton(title: .paywallNotNow) { flow.finishPrice() }
-            }
-            .padding(.horizontal, Theme.Spacing.screenMargin)
         }
+            .onAppear { flow.prepareOffer() }
+            .fullScreenCover(item: presentedOffer) { offer in
+                PathPurchaseOfferView(viewModel: offer) { flow.finishPrice() }
+            }
+            .transaction { $0.disablesAnimations = true }
+    }
+
+    /// Yükleme bitince (hazır ya da hatalı) kaplama açılır.
+    private var presentedOffer: Binding<PathPaywallViewModel?> {
+        Binding(
+            get: { flow.purchaseOffer.flatMap { $0.isLoading ? nil : $0 } },
+            set: { if $0 == nil { flow.finishPrice() } }
+        )
     }
 }
 
-/// Reused from Yolum when the user comes back to buy the same path later.
+/// Tam ekran kaplamanın içeriği. Teklif hazırsa **doğrudan RevenueCat paywall'ı**.
+/// Uygulamanın kendi yüzeyi (sahne + plaka) yalnız ödeme doğrulanırken, patika
+/// açıldığında ya da teklif yüklenemediğinde görünür.
+///
+/// Çağıranlar (`PriceView`, Yolum, Ben) ViewModel'i kurup `load()` eder ve kaplamayı
+/// ancak yükleme bitince açar; bu görünüm teklifi kendisi beklemez.
 struct PathPurchaseOfferView: View {
-    let pathID: UUID
-    let days: Int
+    let viewModel: PathPaywallViewModel
     let onDone: () -> Void
-    @Environment(AppServices.self) private var services
-    @State private var viewModel: PathPaywallViewModel?
-    @State private var showsPaywall = false
     @State private var purchaseReported = false
+    @State private var showsSupport = false
+
+    /// Paywall'daki destek düğmesinin deep link'i. RevenueCat bağlantıyı SwiftUI
+    /// `openURL` ortamıyla açıyor; burada yakalanır, sisteme URL şeması gerekmez.
+    private static let supportURL = URL(string: "patika://support")!
 
     var body: some View {
+        Group {
+            switch viewModel.state {
+            case .ready(let offering):
+                paywall(offering: offering)
+            case .loading, .checking, .unlocked, .unavailable:
+                shell
+            }
+        }
+        .sheet(isPresented: $showsSupport) {
+            CrisisView()
+                .presentationBackground(WoodlandStyle.background)
+        }
+    }
+
+    private func paywall(offering: Offering) -> some View {
+        PaywallView(offering: offering)
+            .customPaywallVariables(
+                viewModel.paywallVariables(for: offering).mapValues { value in
+                    switch value {
+                    case .number(let number): .number(number)
+                    case .text(let text): .string(text)
+                    }
+                }
+            )
+            .onAppear { viewModel.paywallShown() }
+            .onPurchaseInitiated { package, resume in
+                Task { @MainActor in
+                    let shouldProceed = await viewModel.preparePurchase(
+                        productID: package.storeProduct.productIdentifier
+                    )
+                    resume(shouldProceed: shouldProceed)
+                }
+            }
+            // Eşzamanlı: RevenueCat kapanma isteğini satın alma geri çağrılarından
+            // sonra gönderiyor; bayrak ondan önce kurulmuş olmalı.
+            .onPurchaseCompleted { _, _ in
+                purchaseReported = true
+                Task { @MainActor in await viewModel.checkPurchase() }
+            }
+            .onRestoreCompleted { _ in
+                purchaseReported = true
+                Task { @MainActor in await viewModel.checkPurchase() }
+            }
+            .onRequestedDismissal {
+                // Satın almadan sonra da gelir; o zaman ekran doğrulamaya geçer.
+                guard !purchaseReported else { return }
+                viewModel.paywallClosed()
+                onDone()
+            }
+            .environment(\.openURL, OpenURLAction { url in
+                guard url == Self.supportURL else { return .systemAction }
+                showsSupport = true
+                return .handled
+            })
+            .alert(
+                Text(.paywallPurchaseError),
+                isPresented: Binding(
+                    get: { viewModel.hasError },
+                    set: { if !$0 { viewModel.clearError() } }
+                )
+            ) {
+                Button(.paywallCheckAgain, role: .cancel) { viewModel.clearError() }
+            }
+    }
+
+    // MARK: - Uygulamanın kendi yüzeyi
+
+    private var shell: some View {
         ZStack {
-            WoodlandStyle.background.ignoresSafeArea()
-            if let viewModel {
-                content(viewModel)
-            } else {
+            OnboardingSceneLayer(artwork: .prepare)
+            if viewModel.isLoading {
                 ProgressView().tint(Theme.textPrimary.color)
+            } else {
+                plate
             }
         }
         .overlay(alignment: .topTrailing) {
@@ -49,143 +140,81 @@ struct PathPurchaseOfferView: View {
                     .font(.body.weight(Theme.Weight.action))
                     .foregroundStyle(Theme.textPrimary.color)
                     .frame(width: 44, height: 44)
-                    .background(WoodlandStyle.background, in: Circle())
+                    .background(WoodlandStyle.background.opacity(0.6), in: Circle())
             }
             .accessibilityLabel(Text(.paywallNotNow))
             .padding(.top, 8)
             .padding(.trailing, Theme.Spacing.screenMargin)
         }
-        .task {
-            if viewModel == nil {
-                viewModel = PathPaywallViewModel(
-                    services: services,
-                    pathID: pathID,
-                    days: days
-                )
+    }
+
+    private var plate: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                Spacer(minLength: 140)
+                SceneContentPlate {
+                    VStack(alignment: .leading, spacing: 14) {
+                        DisplayText(.paywallHeadline, size: 30)
+                            .accessibilityAddTraits(.isHeader)
+                        BodyText(.paywallBody(viewModel.remainingSessions))
+                        stateContent
+                        Text(.paywallOnePayment)
+                            .font(Theme.TypeFace.screenNote)
+                            .foregroundStyle(Theme.textSecondary.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                        ViewThatFits(in: .horizontal) {
+                            HStack(spacing: 24) { secondaryActions }
+                            VStack(spacing: 0) { secondaryActions }
+                        }
+                        .frame(maxWidth: .infinity)
+                        if viewModel.restoreUnavailable {
+                            Text(.paywallRestoreUnavailable)
+                                .font(.footnote.weight(Theme.Weight.body))
+                                .foregroundStyle(Theme.textSecondary.color)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
             }
-            await viewModel?.load()
-            if let viewModel, case .ready = viewModel.state {
-                showsPaywall = true
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.bottom, 12)
         }
-        .sheet(isPresented: $showsPaywall, onDismiss: {
-            if !purchaseReported { onDone() }
-        }) {
-            if let viewModel, case .ready(let offering) = viewModel.state {
-                PaywallView(offering: offering)
-                    .customPaywallVariables([
-                        "path_days": .number(Double(viewModel.days)),
-                        "remaining_sessions": .number(Double(viewModel.remainingSessions)),
-                    ])
-                    .onPurchaseInitiated { package, resume in
-                        Task { @MainActor in
-                            let shouldProceed = await viewModel.preparePurchase(
-                                productID: package.storeProduct.productIdentifier
-                            )
-                            resume(shouldProceed: shouldProceed)
-                        }
-                    }
-                    .onPurchaseCompleted { _, _ in
-                        Task { @MainActor in
-                            purchaseReported = true
-                            showsPaywall = false
-                            await viewModel.checkPurchase()
-                        }
-                    }
-                    .onRestoreCompleted { _ in
-                        Task { @MainActor in
-                            purchaseReported = true
-                            showsPaywall = false
-                            await viewModel.checkPurchase()
-                        }
-                    }
-                    .safeAreaInset(edge: .top) {
-                        HStack {
-                            Spacer()
-                            Button(.paywallNotNow) { showsPaywall = false }
-                                .font(.body.weight(Theme.Weight.action))
-                                .foregroundStyle(Theme.textPrimary.color)
-                                .frame(minWidth: 80, minHeight: 44)
-                                .background(WoodlandStyle.background, in: Capsule())
-                                .padding(.trailing, Theme.Spacing.screenMargin)
-                        }
-                    }
-                    .presentationDragIndicator(.visible)
-            }
-        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        .defaultScrollAnchor(.bottom)
     }
 
     @ViewBuilder
-    private func content(_ viewModel: PathPaywallViewModel) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Image("PaywallForestPath")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 260)
-                    .clipped()
-                    .accessibilityHidden(true)
+    private var secondaryActions: some View {
+        SecondaryTextButton(title: .paywallNotNow) { onDone() }
+            .fixedSize()
+        SecondaryTextButton(title: .paywallRestore) {
+            Task { await viewModel.restore() }
+        }
+        .fixedSize()
+    }
 
-                Text(.paywallHeadline)
-                    .font(.largeTitle.weight(Theme.Weight.display))
-                    .foregroundStyle(Theme.textPrimary.color)
-                    .accessibilityAddTraits(.isHeader)
-                Text(.paywallBody(viewModel.remainingSessions))
-                    .font(.body.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textPrimary.color)
-                    .fixedSize(horizontal: false, vertical: true)
-                switch viewModel.state {
-                case .loading:
-                    ProgressView().tint(Theme.textPrimary.color)
-                case .ready:
-                    PrimaryButton(title: .paywallViewOffer) { showsPaywall = true }
-                case .checking:
-                    ProgressView().tint(Theme.textPrimary.color)
-                    Text(.paywallChecking)
-                        .font(.body.weight(Theme.Weight.body))
-                        .foregroundStyle(Theme.textPrimary.color)
-                    if viewModel.hasError {
-                        Button(.paywallCheckAgain) { Task { await viewModel.checkPurchase() } }
-                            .font(.body.weight(Theme.Weight.action))
-                            .foregroundStyle(Theme.textPrimary.color)
-                            .frame(minHeight: 44)
-                    }
-                case .unlocked:
-                    PrimaryButton(title: .paywallContinue) { onDone() }
-                case .unavailable:
-                    Text(.paywallUnavailable)
-                        .font(.body.weight(Theme.Weight.body))
-                        .foregroundStyle(Theme.textPrimary.color)
-                    Button(.paywallCheckAgain) { Task { await viewModel.load() } }
-                        .font(.body.weight(Theme.Weight.action))
-                        .foregroundStyle(Theme.textPrimary.color)
-                        .frame(minHeight: 44)
-                }
-                Text(.paywallOnePayment)
-                    .font(.subheadline.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
-                if viewModel.hasError, case .ready = viewModel.state {
-                    Text(.paywallPurchaseError)
-                        .font(.footnote.weight(Theme.Weight.body))
-                        .foregroundStyle(Theme.textPrimary.color)
-                }
-                Button(.paywallNotNow) { onDone() }
-                    .font(.body.weight(Theme.Weight.action))
-                    .foregroundStyle(Theme.textPrimary.color)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                Button(.paywallRestore) { Task { await viewModel.restore() } }
-                    .font(.subheadline.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                if viewModel.restoreUnavailable {
-                    Text(.paywallRestoreUnavailable)
-                        .font(.footnote.weight(Theme.Weight.body))
-                        .foregroundStyle(Theme.textSecondary.color)
+    @ViewBuilder
+    private var stateContent: some View {
+        switch viewModel.state {
+        case .loading, .ready:
+            EmptyView()
+        case .checking:
+            ProgressView().tint(Theme.textPrimary.color)
+            BodyText(.paywallChecking)
+            if viewModel.hasError {
+                PrimaryButton(title: .paywallCheckAgain) {
+                    Task { await viewModel.checkPurchase() }
                 }
             }
-            .padding(.horizontal, Theme.Spacing.screenMargin)
-            .padding(.bottom, 24)
+        case .unlocked:
+            PrimaryButton(title: .paywallContinue) { onDone() }
+        case .unavailable:
+            BodyText(.paywallUnavailable)
+            PrimaryButton(title: .paywallCheckAgain) {
+                Task { await viewModel.load() }
+            }
         }
-        .scrollIndicators(.hidden)
     }
 }

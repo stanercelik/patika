@@ -1,6 +1,18 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
+    " " : {
+
+    },
+    "%@" : {
+
+    },
+    "%lld" : {
+
+    },
     "ageRange.label.eighteenToTwentyFour" : {
       "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
       "extractionState" : "manual",
@@ -602,13 +614,13 @@
       }
     },
     "commitment.body" : {
-      "comment" : "Taahhüt ekranı gövdesi",
+      "comment" : "Taahhüt ekranı gövdesi (G2 sonrası); %lld = kalan adım",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You don't have to fix it. You only have to take the first step, at your own pace."
+            "value" : "You took the first step. The next %lld are yours to walk, one a day, at your own pace."
           }
         }
       }
@@ -621,6 +633,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clear"
+          }
+        }
+      }
+    },
+    "commitment.continueTransition" : {
+      "comment" : "Taahhüt basılı tutulunca, paywall açılmadan önceki eşik cümlesi",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let’s keep your path open."
           }
         }
       }
@@ -657,6 +681,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "One promise, to yourself."
+          }
+        }
+      }
+    },
+    "commitment.holdToContinue" : {
+      "comment" : "Taahhüt ekranı basılı tutma düğmesi (G2 sonrası)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press and hold to keep going"
           }
         }
       }
@@ -2517,6 +2553,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Compared with your start"
+          }
+        }
+      }
+    },
+    "me.continuePathCaption" : {
+      "comment" : "Ben: ödenmemiş patikaya dönüş satırı; %lld = kalan oturum",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld more sessions are waiting on your path."
+          }
+        }
+      }
+    },
+    "me.continuePathCardLabel" : {
+      "comment" : "Ben: patika teklif kartının VoiceOver etiketi; %lld = kalan oturum",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue this path. %lld more sessions are waiting."
+          }
+        }
+      }
+    },
+    "me.continuePathCTA" : {
+      "comment" : "Ben: patika teklif kartının düğmesi",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue my path"
+          }
+        }
+      }
+    },
+    "me.continuePathProgress" : {
+      "comment" : "Ben: patika teklif kartının üst satırı; %1$lld = yürünen adım, %2$lld = toplam",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld steps walked"
+          }
+        }
+      }
+    },
+    "me.continuePathTitle" : {
+      "comment" : "Ben: ödenmemiş patikaya dönüş satırı başlığı",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue this path"
           }
         }
       }
@@ -7057,6 +7153,139 @@
         }
       }
     },
+    "paywall.body" : {
+      "comment" : "G2 paywall: remaining sessions and within-path measurements; no outcome claim",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld sessions remain, with short check-ins and a comparison to where you began."
+          }
+        }
+      }
+    },
+    "paywall.checkAgain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check again"
+          }
+        }
+      }
+    },
+    "paywall.checking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your payment is being checked. Your first step and notes are safe."
+          }
+        }
+      }
+    },
+    "paywall.continue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue to my path"
+          }
+        }
+      }
+    },
+    "paywall.headline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your path can continue."
+          }
+        }
+      }
+    },
+    "paywall.notNow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        }
+      }
+    },
+    "paywall.onePayment" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One payment for this path. No subscription."
+          }
+        }
+      }
+    },
+    "paywall.purchaseError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn't start the purchase. Nothing was charged; you can try again."
+          }
+        }
+      }
+    },
+    "paywall.restore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore purchases"
+          }
+        }
+      }
+    },
+    "paywall.restoreUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No access was found for this path. Consumable purchases need the same linked Patika account on another device."
+          }
+        }
+      }
+    },
+    "paywall.unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The offer is unavailable right now. Your path is saved."
+          }
+        }
+      }
+    },
+    "paywall.viewOffer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View this path's price"
+          }
+        }
+      }
+    },
     "previousAttempt.label.breathing" : {
       "comment" : "DomainEnums.swift · var label: LocalizedStringResource {",
       "extractionState" : "manual",
@@ -7152,55 +7381,6 @@
           }
         }
       }
-    },
-    "paywall.body" : {
-      "comment" : "G2 paywall: remaining sessions and within-path measurements; no outcome claim",
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld sessions remain, with short check-ins and a comparison to where you began." } } }
-    },
-    "paywall.checkAgain" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Check again" } } }
-    },
-    "paywall.checking" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your payment is being checked. Your first step and notes are safe." } } }
-    },
-    "paywall.continue" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue to my path" } } }
-    },
-    "paywall.headline" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Your path can continue." } } }
-    },
-    "paywall.notNow" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Not now" } } }
-    },
-    "paywall.onePayment" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "One payment for this path. No subscription." } } }
-    },
-    "paywall.purchaseError" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "We couldn't start the purchase. Nothing was charged; you can try again." } } }
-    },
-    "paywall.restore" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore purchases" } } }
-    },
-    "paywall.restoreUnavailable" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No access was found for this path. Consumable purchases need the same linked Patika account on another device." } } }
-    },
-    "paywall.unavailable" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The offer is unavailable right now. Your path is saved." } } }
-    },
-    "paywall.viewOffer" : {
-      "extractionState" : "manual",
-      "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "View this path's price" } } }
     },
     "price.free" : {
       "comment" : "Fiyat ekranı: ücretsiz kapsam",
@@ -8319,13 +8499,13 @@
       }
     },
     "session.completedBody" : {
-      "comment" : "Copy.swift · static func completedBody(remaining: Int, time: String) -> LocalizedStringResource {",
+      "comment" : "G2 gövdesi; yarını vaat etmez, paywall ondan sonra gelir. %lld = kalan adım",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Steps left on your path: %1$lld. We'll be here tomorrow at %2$@."
+            "value" : "You listened all the way through. %lld more steps are on your path."
           }
         }
       }

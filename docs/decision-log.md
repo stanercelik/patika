@@ -615,3 +615,16 @@ oluşturur; genel premium entitlement kullanılmaz. Anonim satın alma açıktı
 hesap bağlama cihazlar arası geri getirme için önerilir. Kova C ücretsiz devam,
 kriz ve Destek al ödeme dışında kalır. Ayrıntı ve kabul ölçütleri
 `docs/monetization.md` içindedir.
+
+## 24 Eylül 2026 — commitment ilk adımdan sonraya, paywall tek sayfa ve sahneli
+
+Ürün sahibi tek ödeme modelinde kaldı (abonelik ileride denenecek seçenek). Aha anı
+ücretsiz ilk adım olduğu için paywall onun **sonrasında** kalır; deneme olmayan bir
+ödemede G1'den önce satış kör satın alma olurdu. Commitment G1 öncesinden alındı,
+G2 ile paywall arasına kondu: "devam ediyorum" sözü teklifi karar anının devamı yapar
+(tutarlılık) ve paywall'ın değer sayfası işini görür. Böylece RevenueCat paywall'ı
+tek sayfa. "Yola çık" basılı tutma F2'ye taşındı. G2 artık "yarın buradayız" demiyor
+(ödenmemiş adımı vaat etmesin diye). Paywall onboarding'in katmanlarını kullanır:
+`bg-prepare` sahnesi + %34 perde + `SceneContentPlate` plakası; düz koyu zemin
+kopuk görünüyordu. G1 yarıda kalırsa commitment ve paywall atlanır. Ayrıntı ve
+metin özellikleri: `docs/paywall-stratejisi.md`.

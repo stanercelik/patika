@@ -24,10 +24,14 @@ let events: [AnalyticsEvent] = [
     .reminderPreferenceChanged(enabled: true),
     .authenticationFinished(provider: .apple, succeeded: true),
     .accountLinkFinished(provider: .google, succeeded: false),
+    .paywallShown(.first),
+    .paywallClosed(.return),
+    .purchaseStarted(.first),
+    .purchaseVerified(.return),
 ]
 
 let allowedKeys: Set<String> = [
-    "step", "written", "result", "source", "choice", "screen", "enabled",
+    "step", "written", "result", "source", "choice", "screen", "enabled", "context",
     "$process_person_profile",
 ]
 
@@ -40,7 +44,7 @@ check(tracker.firstView(of: .b1), "different step is independent")
 
 for event in events {
     let request = client.makeRequest(event, sessionID: sessionID, occurredAt: occurredAt)
-    check(request.url?.absoluteString == "https://eu.i.posthog.com/i/v0/e/", "EU endpoint")
+    check(request.url?.absoluteString == "https://us.i.posthog.com/i/v0/e/", "US endpoint")
     check(request.httpMethod == "POST", "HTTP method")
     let body = try JSONSerialization.jsonObject(with: request.httpBody!) as! [String: Any]
     check(body["event"] as? String == event.name, "event name")
@@ -69,3 +73,25 @@ check(!AnalyticsDeployment.canSend(environment: "unknown", token: "phc_test", re
 check(!observationSource.contains("analyticsSubjectID"), "persistent subject removed")
 
 print("Analytics privacy contract passed")
+
+// Token çözümü: Debug varsayılan kapalı, Release varsayılan Staging, Production kapılı.
+let staging = "phc_staging"
+check(AnalyticsDeployment.resolveToken(info: [:], stagingToken: staging, isDebug: true, arguments: []) == nil,
+      "debug sends nothing by default")
+check(AnalyticsDeployment.resolveToken(info: [:], stagingToken: staging, isDebug: true,
+                                       arguments: ["-patika-analytics-staging"]) == staging,
+      "debug can opt into staging for verification")
+check(AnalyticsDeployment.resolveToken(info: ["POSTHOG_PROJECT_TOKEN": "$(POSTHOG_PROJECT_TOKEN)"],
+                                       stagingToken: staging, isDebug: false, arguments: []) == staging,
+      "release without build settings falls back to staging")
+check(AnalyticsDeployment.resolveToken(info: ["POSTHOG_PROJECT_TOKEN": "phc_prod", "POSTHOG_ENVIRONMENT": "production"],
+                                       stagingToken: staging, isDebug: false, arguments: []) == nil,
+      "production without approval sends nothing")
+check(AnalyticsDeployment.resolveToken(info: ["POSTHOG_PROJECT_TOKEN": "phc_prod", "POSTHOG_ENVIRONMENT": "production",
+                                              "POSTHOG_RELEASE_APPROVED": "YES"],
+                                       stagingToken: staging, isDebug: false, arguments: []) == "phc_prod",
+      "approved production uses its own token")
+check(AnalyticsDeployment.resolveToken(info: [:], stagingToken: "sk_not_a_project_token", isDebug: false, arguments: []) == nil,
+      "only project tokens are accepted")
+print("Analytics deployment resolution passed")
+

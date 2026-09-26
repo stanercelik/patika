@@ -4,7 +4,7 @@
 
 ## Ücretsiz değer ve satın alınan hak
 
-İlk **tamamlanmış** kişisel oturum ücretsizdir. Tamamlanma, ilk adımın sunucuda kaydedilmesi ve G2 özetinin geçilmesidir. Yarım bırakılan oturum paywall tetiklemez. Akış **G2 → RevenueCat paywall → isteğe bağlı hesap bağlama → Yolum** şeklindedir. Paywall hemen kapatılabilir; kullanıcı hazır patikalara ve ücretsiz içeriğe geçip aynı kişisel patikayı sonra Yolum'dan satın alabilir.
+İlk **tamamlanmış** kişisel oturum ücretsizdir. Tamamlanma, ilk adımın sunucuda kaydedilmesi ve G2 özetinin geçilmesidir. Yarım bırakılan oturum paywall tetiklemez. Akış **F2 → G1 (ücretsiz ilk adım) → G2 → commitment → RevenueCat paywall → isteğe bağlı hesap bağlama → Yolum** şeklindedir; commitment ilk adımdan sonraya taşındı ve paywall'ın değer sayfası işini görür. Paywall hemen kapatılabilir; kullanıcı hazır patikalara ve ücretsiz içeriğe geçip aynı kişisel patikayı sonra Yolum'dan satın alabilir.
 
 Tek ödeme yalnız **o etkin kişisel patikanın** kalan adımlarını, ara ölçümlerini ve kullanıcının kendi başlangıcıyla karşılaştırmasını açar. Başka patikayı açmaz. İade sonrası ücretli erişim yeniden değerlendirilir; not ve ölçümler silinmez. Kova C ücretsiz devam hakkı ücretsiz kalır. Lansmanda abonelik, otomatik deneme, geri sayım, ikinci çıkış teklifi veya önceden seçilmiş plan yoktur.
 
@@ -15,18 +15,17 @@ Tek ödeme yalnız **o etkin kişisel patikanın** kalan adımlarını, ara öl�
 | 21 gün | `path.unlock.21d` | $14.99 | `path_21d` |
 | 28 gün | `path.unlock.28d` | $18.99 | `path_28d` |
 
-Her offering'de tek paket ve aynı tasarımın ilgili ürüne bağlı paywall'ı bulunur. Consumable ürünler genel bir `premium` entitlement'a bağlanmaz: böyle bir hak sonraki patikaları yanlışlıkla açabilir. RevenueCat işlem bilgisini, Patika sunucusu patikaya özgü hakkı yönetir.
+Her offering'de tek paket ve aynı tasarımın ilgili ürüne bağlı paywall'ı bulunur; ilk gösterim ve dönüş aynı paywall'ı kullanır (`context` değişkeni). Consumable ürünler genel bir `premium` entitlement'a bağlanmaz: böyle bir hak sonraki patikaları yanlışlıkla açabilir. RevenueCat işlem bilgisini, Patika sunucusu patikaya özgü hakkı yönetir.
 
 ## Paywall tasarımı ve metni
 
-Satın alma ekranı RevenueCat editöründe yönetilir. `assets/illustrations/paywall/forest-path-after-first-step.png` yüklenir: ilk taşın ardından devam eden guaj orman patikası, koyu teal ve adaçayı, az sıcak kayısı ışığı. Görsel üstte; metin ve fiyat düz koyu zeminde, satın alma düğmesi krem renktedir. Kilit, kapı, bitiş çizgisi, video, hareketli satış efekti, uydurma sosyal kanıt ve sonuç vaadi yoktur. Uygulama içindeki teklif kabuğu da aynı görseli kullanır.
+Satın alma ekranı RevenueCat editöründe yönetilir. **Güncel kaynak: [`paywall-stratejisi.md`](./paywall-stratejisi.md)**: tek sayfalık paywall, onboarding ile aynı sahne (`bg-prepare`) + %34 perde + koyu plaka, her metnin özellikleri, custom değişkenler (`path_days`, `remaining_sessions`, `reminder_time`, `price_per_session`, `context`), dönüş noktaları ve kurulum adımları. [`paywall-gorsel-kilavuzu.md`](./paywall-gorsel-kilavuzu.md) yalnız görsel üretim promptları için saklanıyor.
 
-- Başlık: **Your path can continue.**
-- Gövde: **The remaining {remaining_sessions} sessions, brief check-ins along the way, and a comparison with your own starting point.**
-- Ana eylem: **Continue this path · {localized store price}**
-- Alt açıklama: **One payment for this path. No subscription.**
-- İlk ekrandan erişilebilir: kapatma, **Not now**, **Restore purchases**; gizlilik, koşullar ve destek bağlantıları App Store kaydıyla aynı olmalı.
-- Güvenli değişkenler: `path_days`, `remaining_sessions`. Fiyat yalnız StoreKit ürününden gelir. Sorun metni, patika adı, ölçüm sonucu ve kriz bilgisi RevenueCat'e veya analitiğe gönderilmez.
+- Başlık: **Your path continues tomorrow at {reminder_time}.** (dönüşte: **Your path is still here.**)
+- Ana eylem: **Continue my path · {localized store price}**
+- Alt açıklama: **One payment. No subscription. Nothing renews.**
+- İlk andan erişilebilir: kapatma, **Not now**, **Restore purchases**, **Get support**; gizlilik ve koşullar App Store kaydıyla aynı URL'ler.
+- Exit offer, geri sayım, önceden seçili plan, uydurma sosyal kanıt ve sonuç vaadi yok. Kriz sinyalinde ve Kova C'de paywall gösterilmez. Fiyat yalnız StoreKit ürününden gelir; sorun metni, patika adı, ölçüm sonucu ve kriz bilgisi RevenueCat'e veya analitiğe gönderilmez.
 
 Normal ve büyük Dynamic Type, VoiceOver, Reduce Motion ve Reduce Transparency ile gözden geçirilir. İllüstrasyon gizlense de tüm metin okunmalıdır. Satın alma dönüşünde sunucu hakkı yazana kadar **Checking your payment** gösterilir; bekleyen veya başarısız işlem kilidi açmaz ve tekrar deneme sunar.
 

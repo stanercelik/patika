@@ -1,5 +1,7 @@
-// Patika Staging, EU Cloud, project 282221.
+// Patika, PostHog US Cloud, project 624242.
 // This project token is a public, write-only capture key, not a personal API key.
+// Release builds already use it by default (AppConfiguration.postHogProjectToken);
+// this file only matters when passed explicitly with `xcodebuild -xcconfig`.
 POSTHOG_ENVIRONMENT = staging
-POSTHOG_PROJECT_TOKEN = phc_zMLnganroPusX4dTo8Mc7tJtKzn5pn3U9QQETurBzcku
+POSTHOG_PROJECT_TOKEN = phc_Bq7CWoigoQLzLRTRQSCRHtpRKhkfig7itjLyNo8qCzC7
 POSTHOG_RELEASE_APPROVED = NO

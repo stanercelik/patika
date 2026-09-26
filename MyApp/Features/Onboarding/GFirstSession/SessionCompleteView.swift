@@ -18,11 +18,11 @@ import SwiftUI
 /// yazılmıyor: bitirmemiş birine "20 adım daha var" demek kalan yolu borç gibi
 /// okutuyor.
 ///
-/// ## Yarının saati burada yazıyor
+/// ## Tamamlanan oturumda yarını vaat etmez
 ///
-/// E1'de seçilen saat ilk kez burada görünür hâle geliyor. "Sorduğumuz her
-/// şeyin karşılığı olmalı" kuralının son halkası: kullanıcı saati seçti, path
-/// üretildi, oturum dinlendi ve şimdi o saatin ne işe yaradığını görüyor.
+/// Tam dinlenen oturumdan sonra taahhüt ve paywall gelir; ikinci adım henüz
+/// ödenmemiş olabilir, bu yüzden "yarın buradayız" demez (2026-09-24,
+/// docs/paywall-stratejisi.md). E1 saati paywall başlığında görünür.
 struct SessionCompleteView: View {
     let flow: OnboardingFlowViewModel
     @State private var isSubmitting = false
@@ -55,10 +55,7 @@ struct SessionCompleteView: View {
 
                             BodyText(
                                 flow.didCompleteFirstSession
-                                    ? Copy.Session.completedBody(
-                                        remaining: flow.remainingSteps,
-                                        time: flow.reminderTimeText
-                                    )
+                                    ? Copy.Session.completedBody(remaining: flow.remainingSteps)
                                     : Copy.Session.leftEarlyBody(time: flow.reminderTimeText)
                             )
 

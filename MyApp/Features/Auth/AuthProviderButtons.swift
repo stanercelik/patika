@@ -6,19 +6,31 @@ struct AuthProviderButtons: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            providerButton(Copy.Auth.apple, symbol: "apple.logo", provider: .apple, filled: true)
-            providerButton(Copy.Auth.google, symbol: "g.circle", provider: .google, filled: false)
+            providerButton(Copy.Auth.apple, provider: .apple, filled: true) {
+                Image(systemName: "apple.logo")
+            }
+            // Google marka yönergesi: dört renkli resmî "G", değiştirilmeden, beyaz
+            // bir zeminde. Koyu butonda logo kendi beyaz dairesinin içinde durur.
+            providerButton(Copy.Auth.google, provider: .google, filled: false) {
+                Image("google-g")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 18, height: 18)
+                    .padding(5)
+                    .background(Color.white, in: Circle())
+                    .accessibilityHidden(true)
+            }
         }
     }
 
-    private func providerButton(
+    private func providerButton<Icon: View>(
         _ title: LocalizedStringResource,
-        symbol: String,
         provider: AuthProvider,
-        filled: Bool
+        filled: Bool,
+        @ViewBuilder icon: () -> Icon
     ) -> some View {
         Button { action(provider) } label: {
-            Label(title, systemImage: symbol)
+            Label { Text(title) } icon: { icon() }
                 .font(.body.weight(Theme.Weight.action))
                 .foregroundStyle(filled ? Color.black : Theme.textPrimary.color)
                 .frame(maxWidth: .infinity)

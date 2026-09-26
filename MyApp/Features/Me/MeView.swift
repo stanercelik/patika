@@ -93,6 +93,9 @@ private struct MeContent: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var sheet: MeSheet?
     @State private var isShowingSupport = false
+    /// Teklif önce yüklenir, kaplama ancak sonra açılır: arada ekran yok.
+    @State private var purchaseOffer: PathPaywallViewModel?
+    @State private var isOpeningOffer = false
     @State private var isChangeRevealed = true
     @State private var scrollOffset: CGFloat = 0
     @State private var isShowingPhotoViewer = false
@@ -132,6 +135,14 @@ private struct MeContent: View {
                         if viewModel.supportPlacement == .top {
                             supportRow
                                 .woodlandReveal(1, enabled: !viewModel.isInCrisisMode)
+                        }
+
+                        if viewModel.showsContinuePathRow {
+                            ContinuePathCard(
+                                walked: viewModel.walkedStepCount,
+                                total: viewModel.totalStepCount
+                            ) { Task { await openPurchaseOffer() } }
+                            .woodlandReveal(1)
                         }
 
                         // Kriz modunda anonim hesap çağrısı da gösterilmez.
@@ -236,6 +247,11 @@ private struct MeContent: View {
         .fullScreenCover(isPresented: $isShowingSupport) {
             SupportView()
         }
+        .fullScreenCover(item: $purchaseOffer, onDismiss: {
+            Task { await viewModel.load() }
+        }) { offer in
+            PathPurchaseOfferView(viewModel: offer) { purchaseOffer = nil }
+        }
         .fullScreenCover(item: $editablePhoto) { photo in
             ProfilePhotoEditor(photo: photo) { data in
                 Task { await viewModel.setPhoto(data) }
@@ -270,6 +286,22 @@ private struct MeContent: View {
 
     /// Kriz sinyalinde ya da üç katman birden kötüleştiğinde destek yukarı çıkar;
     /// orada tek başına durduğu için kendi kartını alır.
+    /// Teklifi yükler, sonra açar. Yükleme sürerken ekran değişmez.
+    private func openPurchaseOffer() async {
+        guard purchaseOffer == nil, !isOpeningOffer, let path = viewModel.activePath else { return }
+        isOpeningOffer = true
+        defer { isOpeningOffer = false }
+        let offer = PathPaywallViewModel(
+            services: viewModel.services,
+            pathID: path.id,
+            days: path.steps.count,
+            context: .return,
+            reminderTime: nil
+        )
+        await offer.load()
+        purchaseOffer = offer
+    }
+
     private var supportRow: some View {
         ProfileCard(padding: 0) {
             MeEntryRow(

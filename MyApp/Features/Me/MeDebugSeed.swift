@@ -66,6 +66,11 @@ enum MeDebugSeed {
 
     /// `-patika-debug-me-tap-journal` — defter kartına dokunulmuş gibi kapak açılışını
     /// ve zoom geçişini oynatır (rota argümanı kartı atlayıp doğrudan sayfayı açar).
+    /// `-patika-debug-me-offer`: patika teklif kartını sunucu hakkına bakmadan gösterir.
+    static var forcesPathOffer: Bool {
+        ProcessInfo.processInfo.arguments.contains("-patika-debug-me-offer")
+    }
+
     static var tapsJournalCard: Bool {
         ProcessInfo.processInfo.arguments.contains("-patika-debug-me-tap-journal")
     }

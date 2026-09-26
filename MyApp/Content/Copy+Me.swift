@@ -345,6 +345,13 @@ extension Copy {
 
         static let supportTitle: LocalizedStringResource = .meSupportTitle
         static let supportSubtitle: LocalizedStringResource = .meSupportSubtitle
+        static let continuePathTitle: LocalizedStringResource = .meContinuePathTitle
+        static func continuePathCaption(remaining: Int) -> LocalizedStringResource { .meContinuePathCaption(remaining) }
+        static let continuePathCTA: LocalizedStringResource = .meContinuePathCTA
+        static func continuePathProgress(walked: Int, total: Int) -> LocalizedStringResource {
+            .meContinuePathProgress(walked, total)
+        }
+        static func continuePathCardLabel(remaining: Int) -> LocalizedStringResource { .meContinuePathCardLabel(remaining) }
         static let settingsRow: LocalizedStringResource = .meSettingsRow
         static let anonymousTitle: LocalizedStringResource = .meAnonymousTitle
         static let linkAccount: LocalizedStringResource = .meLinkAccount

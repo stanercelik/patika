@@ -15,6 +15,11 @@ enum AnalyticsEvent: Sendable {
     case reminderPreferenceChanged(enabled: Bool)
     case authenticationFinished(provider: AuthProvider, succeeded: Bool)
     case accountLinkFinished(provider: AuthProvider, succeeded: Bool)
+    /// Paywall hunisi. Yalnız bağlam (`first`/`return`); fiyat, patika ve sorun gitmez.
+    case paywallShown(AnalyticsPaywallContext)
+    case paywallClosed(AnalyticsPaywallContext)
+    case purchaseStarted(AnalyticsPaywallContext)
+    case purchaseVerified(AnalyticsPaywallContext)
 
     var name: String {
         switch self {
@@ -31,6 +36,10 @@ enum AnalyticsEvent: Sendable {
         case .reminderPreferenceChanged: "reminder_preference_changed"
         case .authenticationFinished: "authentication_finished"
         case .accountLinkFinished: "account_link_finished"
+        case .paywallShown: "paywall_shown"
+        case .paywallClosed: "paywall_closed"
+        case .purchaseStarted: "purchase_started"
+        case .purchaseVerified: "purchase_verified"
         }
     }
 
@@ -52,6 +61,9 @@ enum AnalyticsEvent: Sendable {
             ["screen": screen.rawValue]
         case .reminderPreferenceChanged(let enabled):
             ["enabled": enabled ? "yes" : "no"]
+        case .paywallShown(let context), .paywallClosed(let context),
+             .purchaseStarted(let context), .purchaseVerified(let context):
+            ["context": context.rawValue]
         case .pathGenerationStarted, .preparedPathSelected:
             [:]
         }
@@ -72,6 +84,12 @@ enum AnalyticsSessionSource: String, Sendable {
 
 enum AnalyticsAccountChoice: String, Sendable {
     case apple, google, later
+}
+
+/// Paywall'ın açıldığı yer: onboarding'deki ilk teklif ya da sonraki dönüşler.
+enum AnalyticsPaywallContext: String, Sendable {
+    case first
+    case `return`
 }
 
 enum AnalyticsScreen: String, Sendable {
@@ -101,6 +119,34 @@ enum AnalyticsDeployment {
         return environment == "staging"
             || (environment == "production" && releaseApproved == "YES")
     }
+
+    /// Hangi projeye gönderileceğine karar verir (docs/posthog-integration.md).
+    ///
+    /// - Derleme ayarları (`Info.plist`) gerçekten doluysa onlar kazanır: Production
+    ///   yalnız böyle ve `POSTHOG_RELEASE_APPROVED=YES` ile açılır.
+    /// - Doldurulmamışsa (`$(POSTHOG_…)` hiç genişlemediyse ya da boşsa) Release
+    ///   derlemesi **Staging**'e gönderir; TestFlight da böylece veri üretir.
+    /// - Debug hiçbir şey göndermez; yalnız `-patika-analytics-staging` başlatma
+    ///   argümanıyla Staging doğrulaması yapılabilir.
+    ///
+    /// Döndürülen token nil ise olay gönderilmez.
+    static func resolveToken(
+        info: [String: Any],
+        stagingToken: String,
+        isDebug: Bool,
+        arguments: [String]
+    ) -> String? {
+        if isDebug && !arguments.contains("-patika-analytics-staging") { return nil }
+        let plistToken = info["POSTHOG_PROJECT_TOKEN"] as? String
+        if plistToken?.hasPrefix("phc_") == true {
+            return canSend(
+                environment: info["POSTHOG_ENVIRONMENT"] as? String,
+                token: plistToken,
+                releaseApproved: info["POSTHOG_RELEASE_APPROVED"] as? String
+            ) ? plistToken : nil
+        }
+        return canSend(environment: "staging", token: stagingToken, releaseApproved: nil) ? stagingToken : nil
+    }
 }
 
 struct NoOpAnalyticsClient: AnalyticsClient {
@@ -112,7 +158,8 @@ struct PostHogHTTPClient: AnalyticsClient {
     let host: URL
     let session: URLSession
 
-    init(projectToken: String, host: URL = URL(string: "https://eu.i.posthog.com")!, session: URLSession = .shared) {
+    /// ABD bulutu (proje 624242; 25 Eylül 2026 ürün sahibi kararı, önceki AB projesinin yerine).
+    init(projectToken: String, host: URL = URL(string: "https://us.i.posthog.com")!, session: URLSession = .shared) {
         self.projectToken = projectToken
         self.host = host
         self.session = session

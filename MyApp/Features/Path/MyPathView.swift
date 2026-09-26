@@ -22,7 +22,9 @@ struct MyPathView: View {
 
     @State private var viewModel: MyPathViewModel?
     @State private var runningStep: PathStepRecord?
-    @State private var showsPurchaseOffer = false
+    /// Teklif önce yüklenir, kaplama ancak sonra açılır: arada ekran yok.
+    @State private var purchaseOffer: PathPaywallViewModel?
+    @State private var isOpeningOffer = false
     @State private var isCreatingPath = false
     @State private var headerHeight: CGFloat = 150
     @State private var headerHidden = false
@@ -56,19 +58,21 @@ struct MyPathView: View {
                 PathSessionView(services: services, path: path, step: step)
             }
         }
-        .sheet(isPresented: $showsPurchaseOffer, onDismiss: {
+        // Tam ekran ve doğrudan RevenueCat paywall'ı (teklif önceden yüklendi).
+        .fullScreenCover(item: $purchaseOffer, onDismiss: {
             Task { await viewModel?.load() }
-        }) {
-            if let path = viewModel?.path {
-                PathPurchaseOfferView(pathID: path.id, days: path.steps.count) {
-                    showsPurchaseOffer = false
-                }
-            }
+        }) { offer in
+            PathPurchaseOfferView(viewModel: offer) { purchaseOffer = nil }
         }
         .onChange(of: runningStep) { old, new in
             // Oturum kapandı: tamamlanma sunucuda, ekran yeniden okuyor.
-            guard old != nil, new == nil else { return }
-            Task { await viewModel?.load() }
+            guard let old, new == nil else { return }
+            Task {
+                await viewModel?.load()
+                if viewModel?.consumeReplayOffer(finishedDay: old.day) == true {
+                    await openPurchaseOffer()
+                }
+            }
         }
         .onChange(of: viewModel?.recentlyCompletedStepID) { _, completedID in
             guard completedID != nil, !reduceMotion else { return }
@@ -192,7 +196,7 @@ struct MyPathView: View {
         if PathPreviewFixture.isEnabled || viewModel.isDesignPreview { return }
         #endif
         if viewModel.requiresPurchase(step) {
-            showsPurchaseOffer = true
+            Task { await openPurchaseOffer() }
         } else {
             runningStep = step
         }
@@ -200,3 +204,22 @@ struct MyPathView: View {
 }
 
 extension PathStepRecord: Identifiable {}
+
+extension MyPathView {
+    /// Teklifi yükler, sonra açar. Yükleme sürerken ekran değişmez.
+    @MainActor
+    private func openPurchaseOffer() async {
+        guard purchaseOffer == nil, !isOpeningOffer, let path = viewModel?.path else { return }
+        isOpeningOffer = true
+        defer { isOpeningOffer = false }
+        let offer = PathPaywallViewModel(
+            services: services,
+            pathID: path.id,
+            days: path.steps.count,
+            context: .return,
+            reminderTime: nil
+        )
+        await offer.load()
+        purchaseOffer = offer
+    }
+}

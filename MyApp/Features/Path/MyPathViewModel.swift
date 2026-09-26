@@ -154,6 +154,26 @@ final class MyPathViewModel {
         path?.kind == .personalized && step.day > 1 && !pathUnlocked
     }
 
+    /// Paywall'ın "1. adım tekrarı" dönüş noktası (docs/paywall-stratejisi.md §2).
+    ///
+    /// Kullanıcı ödenmemiş bir patikada 1. adımı yeniden dinleyip oturumu kapattıysa
+    /// teklif bir kez açılır, **günde en fazla bir kez**: her dinlemede aynı ekranı
+    /// göstermek dinlemeyi satışın bedeli yapar. Kriz sinyali varken hiç açılmaz.
+    func consumeReplayOffer(finishedDay: Int, now: Date = .now, calendar: Calendar = .current) -> Bool {
+        guard finishedDay == 1,
+              let next = path?.steps.first(where: { $0.day == 2 }),
+              requiresPurchase(next),
+              services.profile.record?.crisisSignalAt == nil
+        else { return false }
+        let defaults = UserDefaults.standard
+        let key = "patika.paywall.replayOfferDate"
+        if let last = defaults.object(forKey: key) as? Date, calendar.isDate(last, inSameDayAs: now) {
+            return false
+        }
+        defaults.set(now, forKey: key)
+        return true
+    }
+
     func isMeasurementDay(_ step: PathStepRecord) -> Bool {
         measurementDays.contains(step.day)
     }

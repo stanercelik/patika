@@ -91,7 +91,8 @@ struct RoadmapView: View {
     }
 
     private var continueButton: some View {
-        PrimaryButton(title: Copy.Onboarding.roadmapContinue, isEnabled: true) {
+        // "Yola çık" taahhütten buraya taşındı: F2 doğrudan ilk oturuma açılır.
+        HoldToStartButton(title: Copy.Onboarding.commitmentHoldToStart) {
             flow.finishRoadmap()
         }
     }

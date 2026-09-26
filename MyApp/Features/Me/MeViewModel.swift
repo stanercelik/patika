@@ -92,6 +92,33 @@ final class MeViewModel {
         return nil
     }
 
+    /// Kişisel patikanın ilk adımı bitmiş ama kalanı henüz satın alınmamış.
+    /// Sunucudaki hak okunamazsa false: emin olmadığımız bir teklif gösterilmez.
+    private(set) var pathAwaitsPurchase = false
+
+    /// "Continue this path" satırı: paywall'ın Ben'deki dönüş noktası
+    /// (docs/paywall-stratejisi.md §2). Kriz modunda görünmez.
+    var showsContinuePathRow: Bool {
+        #if DEBUG
+        if MeDebugSeed.forcesPathOffer { return !isInCrisisMode && activePath != nil }
+        #endif
+        return pathAwaitsPurchase && !isInCrisisMode
+    }
+
+    var walkedStepCount: Int { activePath?.completedStepCount ?? 0 }
+    var totalStepCount: Int { activePath?.steps.count ?? 0 }
+
+    private func refreshPurchaseState(path: ActivePath?, token: String) async {
+        guard let path, path.kind == .personalized, !path.isCompleted,
+              path.completedStepCount >= 1, path.completedStepCount < path.steps.count
+        else {
+            pathAwaitsPurchase = false
+            return
+        }
+        let unlocked = try? await services.purchaseBackend.isUnlocked(pathID: path.id, accessToken: token)
+        pathAwaitsPurchase = unlocked == false
+    }
+
     /// Aktif yol ve profil kaydı birlikte okunur. Kayıt okunamazsa cihazdaki son
     /// kayıt gösterilir — kullanıcı sayfayı hiçbir zaman boş görmemeli, ama
     /// uydurulmuş bir şey de görmemeli.
@@ -120,6 +147,8 @@ final class MeViewModel {
         } catch {
             if previouslyLoadedPath == nil { pathLoad = .unavailable }
         }
+
+        await refreshPurchaseState(path: activePath, token: token)
 
         do {
             let snapshot = try await snapshotRequest

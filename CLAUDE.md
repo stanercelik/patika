@@ -15,7 +15,7 @@ Bu depoda asıl kaynak kod değil, **ürün spesifikasyonudur** — herhangi bir
 özellik yazmadan önce ilgili PRD bölümü okunmalı (bkz. Doküman haritası).
 
 **Çalışan:** onboarding'in tamamı (A1 → identity → A2 → B → C → D → E1 → H2 →
-F1 → F2 → commitment → G1 → G2 → price → H1), ilk oturum (G1) ve günlük oturum
+F1 → F2 → G1 → G2 → commitment → price → H1), ilk oturum (G1) ve günlük oturum
 ("Yolum" sekmesi, aynı motor), "Ben" sekmesi (v2), Keşfet (hazır patikalar v2,
 yalnızca İngilizce), path üretimi + JIT ses (ElevenLabs `eleven_v3`, aracısız),
 ölçüm skorlaması (istemci + sunucu, deterministik). **Faz 0 hâlâ tamamlanmadı**
@@ -45,7 +45,7 @@ xcrun simctl boot "iPhone 17 Pro"; open -a Simulator
 xcodebuild -project patika.xcodeproj -scheme MyApp \
   -destination 'id=<UDID>' -derivedDataPath /tmp/patika-dd SWIFT_EMIT_LOC_STRINGS=NO build
 xcrun simctl install booted /tmp/patika-dd/Build/Products/Debug-iphonesimulator/MyApp.app
-xcrun simctl launch booted devplaceholder.X9RQKIJ8.MyApp
+xcrun simctl launch booted com.tanercelik.patika
 xcrun simctl io booted screenshot /tmp/shot.png
 
 # Swift testleri (Xcode test hedefi yok, elle derlenir — bkz. dosya başları için Tests/*/main.swift)
@@ -144,9 +144,12 @@ tarif ettiği emoji ölçek uygulanmadı — `MoodLevel` monokrom hava metaforu 
   kararlarında kullanılmaz**.
 - **F bölümü:** F1 (üretim, gerçek ağ isteğine bağlı ilerleme, buton yok — iş
   bitince kendi geçer) → F2 (kısa, ekrana sığan özet — otomatik kaydırılan uzun
-  harita değil) → **commitment** (imza/işaret, yerel kalır, sunucuya gitmez) →
-  G1. F1/F2'de geri yok. "Yola çık" `HoldToStartButton` ile basılı tutulur
-  (1.4 sn), kırık beyaz dolgu büyür (gradyan yok).
+  harita değil) → G1. F1/F2'de geri yok. "Yola çık" F2'de `HoldToStartButton`
+  ile basılı tutulur (1.4 sn), kırık beyaz dolgu büyür (gradyan yok).
+- **Commitment ilk adımdan sonra** (2026-09-24): G2 → **commitment** ("devam
+  ediyorum"; işaret isteğe bağlı, yerel kalır, sunucuya gitmez) → paywall (`price`,
+  RevenueCat, tam ekran) → H1. Yalnız tam dinlenen kişisel ilk adımdan sonra;
+  yarımda G2 → H1. Ayrıntı: `docs/paywall-stratejisi.md`.
 - **G1/G2:** G1 path'in JIT üretilen 1. adım sesini oynatır, sahneler nefes
   döngüsüyle zamanlanır (saniyeyle değil). Ses eksikse ekran sessiz sürüme
   düşer (hata değil). G2 kutlama şiddeti 1/5; sonuna kadar dinlenmediyse

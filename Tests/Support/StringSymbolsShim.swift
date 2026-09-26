@@ -53,11 +53,13 @@ extension LocalizedStringResource {
     static var buttonStart: LocalizedStringResource { LocalizedStringResource("button.start") }
     static var buttonUnderstood: LocalizedStringResource { LocalizedStringResource("button.understood") }
     static var clinicalDisclaimer: LocalizedStringResource { LocalizedStringResource("clinicalDisclaimer") }
-    static var commitmentBody: LocalizedStringResource { LocalizedStringResource("commitment.body") }
+    static func commitmentBody(_ arg1: Int) -> LocalizedStringResource { LocalizedStringResource("commitment.body") }
     static var commitmentClearSignature: LocalizedStringResource { LocalizedStringResource("commitment.clearSignature") }
+    static var commitmentContinueTransition: LocalizedStringResource { LocalizedStringResource("commitment.continueTransition") }
     static var commitmentDayOneTransition: LocalizedStringResource { LocalizedStringResource("commitment.dayOneTransition") }
     static var commitmentDrawHint: LocalizedStringResource { LocalizedStringResource("commitment.drawHint") }
     static var commitmentHeadline: LocalizedStringResource { LocalizedStringResource("commitment.headline") }
+    static var commitmentHoldToContinue: LocalizedStringResource { LocalizedStringResource("commitment.holdToContinue") }
     static var commitmentHoldToStart: LocalizedStringResource { LocalizedStringResource("commitment.holdToStart") }
     static var commitmentLeadAvoidance: LocalizedStringResource { LocalizedStringResource("commitment.leadAvoidance") }
     static var commitmentLeadProblem: LocalizedStringResource { LocalizedStringResource("commitment.leadProblem") }
@@ -213,6 +215,11 @@ extension LocalizedStringResource {
     static var meChartWorseSelfEfficacy: LocalizedStringResource { LocalizedStringResource("me.chartWorse.selfEfficacy") }
     static var meChartXAxis: LocalizedStringResource { LocalizedStringResource("me.chartXAxis") }
     static var meChartYAxis: LocalizedStringResource { LocalizedStringResource("me.chartYAxis") }
+    static var meContinuePathCTA: LocalizedStringResource { LocalizedStringResource("me.continuePathCTA") }
+    static func meContinuePathCaption(_ arg1: Int) -> LocalizedStringResource { LocalizedStringResource("me.continuePathCaption") }
+    static func meContinuePathCardLabel(_ arg1: Int) -> LocalizedStringResource { LocalizedStringResource("me.continuePathCardLabel") }
+    static func meContinuePathProgress(_ arg1: Int, _ arg2: Int) -> LocalizedStringResource { LocalizedStringResource("me.continuePathProgress") }
+    static var meContinuePathTitle: LocalizedStringResource { LocalizedStringResource("me.continuePathTitle") }
     static var meDirectionWordBehaviorImproved: LocalizedStringResource { LocalizedStringResource("me.directionWord.behavior.improved") }
     static var meDirectionWordBehaviorWorsened: LocalizedStringResource { LocalizedStringResource("me.directionWord.behavior.worsened") }
     static var meDirectionWordEmotionImproved: LocalizedStringResource { LocalizedStringResource("me.directionWord.emotion.improved") }
@@ -698,7 +705,7 @@ extension LocalizedStringResource {
     static var returningAfterBreak: LocalizedStringResource { LocalizedStringResource("returning.afterBreak") }
     static var returningAfterLongBreak: LocalizedStringResource { LocalizedStringResource("returning.afterLongBreak") }
     static var sessionAudioPreparing: LocalizedStringResource { LocalizedStringResource("session.audioPreparing") }
-    static func sessionCompletedBody(_ arg1: Int, _ arg2: String) -> LocalizedStringResource { LocalizedStringResource("session.completedBody") }
+    static func sessionCompletedBody(_ arg1: Int) -> LocalizedStringResource { LocalizedStringResource("session.completedBody") }
     static var sessionCompletedCTA: LocalizedStringResource { LocalizedStringResource("session.completedCTA") }
     static var sessionCompletedHeadline: LocalizedStringResource { LocalizedStringResource("session.completedHeadline") }
     static var sessionFallbackClosing: LocalizedStringResource { LocalizedStringResource("session.fallbackClosing") }

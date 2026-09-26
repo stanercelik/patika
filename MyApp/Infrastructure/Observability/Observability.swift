@@ -23,21 +23,22 @@ final class Observability {
 
     static func live() -> Observability {
         let info = Bundle.main.infoDictionary ?? [:]
-        let analytics: any AnalyticsClient
         #if DEBUG
-        analytics = NoOpAnalyticsClient()
+        let isDebug = true
         #else
-        if let token = info["POSTHOG_PROJECT_TOKEN"] as? String,
-           AnalyticsDeployment.canSend(
-               environment: info["POSTHOG_ENVIRONMENT"] as? String,
-               token: token,
-               releaseApproved: info["POSTHOG_RELEASE_APPROVED"] as? String
-           ) {
+        let isDebug = false
+        #endif
+        let analytics: any AnalyticsClient
+        if let token = AnalyticsDeployment.resolveToken(
+            info: info,
+            stagingToken: AppConfiguration.live.postHogProjectToken,
+            isDebug: isDebug,
+            arguments: ProcessInfo.processInfo.arguments
+        ) {
             analytics = PostHogHTTPClient(projectToken: token)
         } else {
             analytics = NoOpAnalyticsClient()
         }
-        #endif
         let errors: any ErrorReporter
         if let dsn = info["SENTRY_DSN"] as? String, let reporter = SentryHTTPReporter(dsn: dsn) {
             errors = reporter

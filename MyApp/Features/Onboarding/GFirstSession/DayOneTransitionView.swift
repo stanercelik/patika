@@ -2,10 +2,14 @@ import SwiftUI
 
 /// Covers the entire onboarding shell, including its persistent header.
 struct DayOneTransitionView: View {
+    var threshold: OnboardingThreshold = .dayOne
+
     var body: some View {
         ZStack {
-            OnboardingSceneLayer(artwork: .session, dimming: 0.48)
-            Text(Copy.Onboarding.commitmentDayOneTransition)
+            OnboardingSceneLayer(artwork: threshold == .dayOne ? .session : .prepare, dimming: 0.48)
+            Text(threshold == .dayOne
+                 ? Copy.Onboarding.commitmentDayOneTransition
+                 : Copy.Onboarding.commitmentContinueTransition)
                 .font(Theme.TypeFace.sectionTitle)
                 .foregroundStyle(Theme.textPrimary.color)
                 .multilineTextAlignment(.center)

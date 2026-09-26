@@ -37,8 +37,13 @@ check(IntensityScaleModel.step(at: 10, width: 0) == 0, "zero width")
 let flowSource = try String(contentsOfFile: "MyApp/Features/Onboarding/OnboardingFlowViewModel.swift", encoding: .utf8)
 check(flowSource.contains("advance(to: .h2Priming)"), "E1 must lead to priming")
 check(flowSource.contains("advance(to: .f1Generation)"), "priming must lead to generation")
-check(flowSource.contains("advance(to: .commitment)"), "F2 must lead to commitment")
-check(flowSource.contains("step = .g1FirstSession"), "commitment must lead to G1")
+// 2026-09-24: taahhüt ilk adımdan sonra, paywall'ın hemen önünde (docs/paywall-stratejisi.md).
+check(flowSource.contains("func finishRoadmap() {\n        beginDayOneTransition()"), "F2 must lead to the day-one threshold")
+check(flowSource.contains("case .dayOne: startFirstSession()"), "day-one threshold must lead to G1")
+check(flowSource.contains("step = .g1FirstSession"), "G1 is entered through startFirstSession")
+check(flowSource.contains("didCompleteFirstSession && generatedPath?.kind == .personalized ? .commitment : .h1Account"),
+      "only a completed personal first session leads to commitment")
+check(flowSource.contains("case .continuePath: advance(to: .price)"), "commitment must lead to the paywall")
 check(flowSource.contains("advance(to: .h1Account)"), "price must lead to account")
 
 await MainActor.run {

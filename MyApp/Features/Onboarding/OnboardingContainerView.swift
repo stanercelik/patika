@@ -42,17 +42,19 @@ struct OnboardingContainerView: View {
             }
         }
         .overlay {
-            if flow.showsDayOneTransition {
-                DayOneTransitionView()
+            if let threshold = flow.threshold {
+                DayOneTransitionView(threshold: threshold)
                     .transition(.opacity)
                     .task {
-                        do { try await Task.sleep(for: .seconds(3)) }
+                        // Paywall'dan önceki eşik kısa: satın alma kararını bekletmesin.
+                        let seconds = threshold == .dayOne ? 3.0 : 2.0
+                        do { try await Task.sleep(for: .seconds(seconds)) }
                         catch { return }
-                        flow.finishDayOneTransition()
+                        flow.finishThreshold()
                     }
             }
         }
-        .animation(Theme.Motion.crossFade, value: flow.showsDayOneTransition)
+        .animation(Theme.Motion.crossFade, value: flow.threshold)
         #if DEBUG
         .task {
             flow.applyDebugLaunchStepIfNeeded()

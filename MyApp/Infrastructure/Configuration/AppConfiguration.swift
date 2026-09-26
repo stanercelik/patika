@@ -8,6 +8,15 @@ struct AppConfiguration: Sendable {
     /// Dashboard > Auth > Providers > Google'daki "Client IDs" listesine de
     /// eklenmesi gerekir, yoksa id_token doğrulaması sunucu tarafında reddedilir.
     let googleClientID: String
+    /// RevenueCat **public** Apple SDK key (`appl_…`). İstemci için tasarlanmış açık
+    /// anahtardır: yalnızca bu uygulamanın satın alma ve teklif okumasına izin verir.
+    /// Gizli `sk_…` anahtarı asla burada durmaz; yalnız Supabase Edge Function
+    /// secret'ı `REVENUECAT_SECRET_API_KEY` olarak sunucuda kalır.
+    let revenueCatAPIKey: String
+    /// PostHog **Patika** projesi (ABD bulutu, proje 624242) proje token'ı. Yalnız
+    /// olay göndermeye yarayan, istemcide görünmek üzere tasarlanmış açık anahtar;
+    /// okuma yetkisi yok (docs/posthog-integration.md).
+    let postHogProjectToken: String
 
     static let live = AppConfiguration(
         supabaseURL: URL(string: "https://aapxqeqduphafisyaadk.supabase.co")!,
@@ -17,6 +26,8 @@ struct AppConfiguration: Sendable {
         // iOS OAuth client ID'leri gizli değildir (client secret'ı yoktur, PKCE
         // benzeri public-client akışı kullanır) — GoogleService-Info.plist'te de
         // aynı şekilde açık dağıtılır.
-        googleClientID: "497996763293-lmjj5qco7qbrtvpmbkbo3udae8me8d4c.apps.googleusercontent.com"
+        googleClientID: "497996763293-lmjj5qco7qbrtvpmbkbo3udae8me8d4c.apps.googleusercontent.com",
+        revenueCatAPIKey: "appl_wTmOzyIWRKDPSvMJSHQRhKDtYpP",
+        postHogProjectToken: "phc_Bq7CWoigoQLzLRTRQSCRHtpRKhkfig7itjLyNo8qCzC7"
     )
 }

@@ -1,53 +1,32 @@
 # PostHog olcum sozlesmesi
 
-## Durum ve yayin kapisi
+## Durum (25 Eylul 2026)
 
-**Hedef hesap:** `tnrclk2001hd@gmail.com`. Bu hesapta AB bolgesinde
-[Patika Staging](https://eu.posthog.com/project/282221/) projesi (282221)
-kuruldu. IP kaydini atma ayari acik, autocapture ve session replay kapali.
-Codex PostHog baglantisi 23 Eylul 2026 kontrolunde hedef e-posta adresini
-dogruladi, ancak ABD bolgesindeki `Default project` (624242) projesini
-gosteriyor. AB bolgesindeki 282221 projesi MCP'de listelenmiyor. AB projesi
-ayni hesapla acik olan PostHog arayuzunde dogrulandi ve panolar orada kuruldu.
-MCP uzerinden yazma islemleri bu projeye yonlendirilmemelidir. Eski hesaptaki
-88885 ve yeni hesaptaki 624242 projeleri bu entegrasyonun hedefi degildir.
+**Hedef proje: ABD bulutu, [Patika](https://us.posthog.com/project/624242) (624242)**,
+hesap `tnrclk2001hd@gmail.com`. Urun sahibi AB projesinden (282221) ABD'ye gecisi
+secti: PostHog MCP'si yalniz ABD bolgesini gorebiliyor ve panolar oradan yonetilecek.
+Eski AB projesi 282221, 88885 ve PolyNap projeleri bu entegrasyonun hedefi degildir.
+Gizlilik bildirimi guncellendi (PostHog, Amerika Birlesik Devletleri).
 
-Bu olcum, urun sahibinin istedigi gibi varsayilan aciktir; kullaniciya izin
-ekrani veya Ayarlar anahtari gostermez. **Uretim gonderimi varsayilan olarak
-kapalidir.** AB pazarlarinda hukuki dayanak, PostHog veri isleme sozlesmesi,
-saklama suresi, gizlilik bildirimi ve App Store veri beyanlari onaylanmadan
-`POSTHOG_RELEASE_APPROVED=YES` verilmez. TestFlight ve yerel Debug derlemeleri
-uretim projesine veri gondermez.
+Proje ayarlari (MCP ile, 25 Eylul): IP adresi atilir (`anonymize_ips`), autocapture,
+web vitals, konsol, performans, isi haritasi, dead click ve session replay kapali.
 
-Patika Production henuz kurulamadı: hedef hesabin mevcut ucretsiz plani tek
-projeye izin veriyor ve ikinci proje icin odeme bilgisi istiyor. Hedef Staging
-projesine 18 sentetik, hassas veri icermeyen olay gonderildi; PostHog arayuzunde
-olaylar ve pano sorgulari dogrulandi. Gercek kullanici verisiyle dogrulama
-henüz yapilmadi. Production projesi kurulunca bolgesi ve tokeni ayrica
-dogrulanmalidir.
-Patika Production acildiginda onun IP ayari da kapatilmali. Session replay, autocapture,
-feature flags ve kisi profilleri kullanilmaz. Proje tokenlari baska sistemlerin
-kimlikleriyle eslestirilmez.
+**Token uygulamaya nasil ulasir.** Karar `AnalyticsDeployment.resolveToken` icinde:
 
-Release derlemesinde `Config/Info.plist` su build settings degerlerini alir.
-Hedef Staging anahtari `Config/PostHogStaging.xcconfig` icindedir; bu anahtar
-yalnizca olay gondermeye yarayan, mobil uygulamada da gorunecek public proje
-anahtaridir. Staging derlemesi icin `xcodebuild -configuration Release -xcconfig
-Config/PostHogStaging.xcconfig ... build` kullanilir. Bu dosya varsayilan
-Release veya Debug derlemesine kendiliginden uygulanmaz:
+| Durum | Sonuc |
+| --- | --- |
+| Debug | Gonderim yok. Dogrulama icin `-patika-analytics-staging` baslatma argumani. |
+| Release, `POSTHOG_*` derleme ayarlari dolu | Ayarlar kazanir. `production` yalniz `POSTHOG_RELEASE_APPROVED=YES` ile. |
+| Release, derleme ayari yok (varsayilan Archive/TestFlight) | 624242'ye gonderir; token `AppConfiguration.postHogProjectToken`. |
 
-| Ayar | Staging | Production |
-| --- | --- | --- |
-| `POSTHOG_ENVIRONMENT` | `staging` | `production` |
-| `POSTHOG_PROJECT_TOKEN` | Patika Staging proje tokeni | Patika Production proje tokeni |
-| `POSTHOG_RELEASE_APPROVED` | gerekmez | hukuki kapidan sonra `YES` |
+Uc nokta `https://us.i.posthog.com/i/v0/e/`. Proje tokeni (`phc_…`) yalnizca olay
+gondermeye yarar, okuma yetkisi yoktur; istemcide ve depoda gorunmesi sizinti degildir.
+25 Eylul'de `flags` ucunda gecerli oldugu ve `synthetic_verification=true` isaretli
+tek bir `app_screen_viewed` olayinin projeye ulastigi dogrulandi.
 
-Eksik konfigurasyonda uygulama olay gondermez. Tokenin gercek proje/bolgesi
-derleme sirasinda otomatik dogrulanamaz; CI'da Staging ve Production tokenlari
-ayri tutulmali ve yayin kontrolunde eslesmeleri onaylanmali. iOS
-Debug her zaman NoOp kullanir. Proje tokeni yalnizca build sisteminden gelir;
-PolyNap anahtari kullanilmaz. Staging dogrulamasi icin Debug yerine
-Release konfigürasyonlu test derlemesi kullanilir.
+Kapi: ayri bir Production projesi, App Store veri beyanlari ve PostHog veri isleme
+sozlesmesi onaylanmadan `production` + `RELEASE_APPROVED=YES` verilmez. O zamana kadar
+TestFlight ve yayin derlemeleri bu tek projeye gider.
 
 ## Veri siniri
 
@@ -80,57 +59,48 @@ PostHog SDK'si eklenmez; mevcut dar HTTP istemcisi kullanilir.
 | `reminder_preference_changed` | `enabled=yes/no` | H2 ve sonradan Ayarlar kaydi |
 
 Kimlik dogrulama ve hesap baglama teknik sonuc olaylari devam eder; hassas
-icerik veya hesap kimligi tasimaz. Gun 7 paywall ve RevenueCat akisi kodda
-olustugunda odeme olaylari ayrica tasarlanir; su anda sahte olay eklenmez.
+icerik veya hesap kimligi tasimaz.
 
-## PostHog panolari
+**Paywall hunisi (24 Eylul 2026, `docs/paywall-stratejisi.md`).** Tek alan
+`context=first/return`; fiyat, urun, patika ve sorun gonderilmez.
 
-Hedef Staging projesinde uc pano ve dokuz grafik kuruldu:
-[Onboarding gecisleri](https://eu.posthog.com/project/282221/dashboard/971298),
-[Ilk deger](https://eu.posthog.com/project/282221/dashboard/971303),
-[Ekran kullanimi](https://eu.posthog.com/project/282221/dashboard/971308).
-Grafikler 30 gunluk pencereyi ve gecici oturum kimligini kullanir; Ilk deger
-hunisinin donusum penceresi bir gundur. PostHog funnel sonucunda
-gorunen `person count` etiketi bu projede
-**kisi** degil, uygulama acilisinda degisen `distinct_id` sayisidir.
-Proje saat dilimi raporlarda acikca gosterilir; ekran hedefleri eski PRD
-sirasindan degil mevcut A1 → kimlik → A2 → B/C → D → E1 → H2 → F1/F2 →
-commitment → G1/G2 → fiyat → H1 akisindan kurulur.
+| Olay | Ne zaman |
+| --- | --- |
+| `paywall_shown` | RevenueCat paywall'i ekranda (G2 → taahhut sonrasi `first`; Yolum, Ben, 1. adim tekrari `return`) |
+| `paywall_closed` | Satin almadan kapatildi |
+| `purchase_started` | Sunucu niyeti onayladi, StoreKit aciliyor |
+| `purchase_verified` | Sunucu hakki yazdi (webhook + RevenueCat API dogrulamasi) |
 
-1. **Onboarding gecisleri (3 grafik):** `onboarding_step_viewed` ve
-   `onboarding_step_completed` icin `step` kirilimli sayilar; B1 icin
-   `problem_text_submitted` olayinin `written=yes/no` kirilimli sayilari.
-   B1 grafigi oran degil sayi gosterir. D0 → D8 adimlari ayni `step`
-   kiriliminda izlenir. Adim sayilari tekrar gorunmeyle sismez.
-2. **Ilk deger (1 grafik):** F1 baslama → basarili bitis → F2 gorulme → G1
-   `session_started` → G1 `session_completed`. Tekil `distinct_id`
-   oturumlari uzerinden funnel. Kriz sonucu raporlanmaz.
-3. **Ekran kullanimi (5 grafik):** `app_screen_viewed` icin `screen` kirilimi;
-   `session_started` ve `session_completed` icin ayri `source` kirilimlari;
-   hazir patika secimi sayisi ve `reminder_preference_changed` icin
-   `enabled=yes/no` kirilimli sayilar.
+## PostHog panolari (624242)
 
-Panolardaki payda **oturum**dur. Bir adimin gorulmesi ile sonraki adimin
-gorulmesi arasindaki fark ag kaybi, kapanma ve baska cikislari da icerir; kesin
-"terk eden kisi" olarak adlandirilmaz. Haftalik gorusmede once veri kalitesi
-(bos, beklenmeyen property, Debug olayi, bolge) incelenir, sonra funnel karari
-verilir.
+Hepsi 30 gunluk pencere, `synthetic_verification` olaylarini disarida birakir. Payda
+**oturum**dur (uygulama acilisinda degisen `distinct_id`), kisi degil.
+
+- [Patika · Onboarding](https://us.posthog.com/project/624242/dashboard/2133792):
+  adim goruntulenme ve tamamlama (`step` kirilimli), B1 yazma orani (`written`).
+- [Patika · Ilk deger ve satin alma](https://us.posthog.com/project/624242/dashboard/2133793):
+  ilk deger hunisi (F1 → patika hazir → ilk oturum basladi → tamamlandi, 1 gun);
+  paywall hunisi (G2 → taahhut → `paywall_shown context=first` → `purchase_started` →
+  `purchase_verified`, 1 gun); baglama gore paywall ve dogrulanan satin alma;
+  kapatma orani (`paywall_closed / paywall_shown`).
+- [Patika · Kullanim](https://us.posthog.com/project/624242/dashboard/2133794):
+  sekme kullanimi (`screen`), oturumlar (`source`), hatirlatma tercihi (`enabled`).
 
 ## Dogrulama
 
-- `swiftc` ile AnalyticsContract testi: istek sekli, AB host, profil
-  olusturmama, allowlist, adim tekrarini onleme ve Debug/uretim kapisi.
+- `swiftc` ile AnalyticsContract testi: istek sekli, ABD host, profil
+  olusturmama, allowlist, adim tekrarini onleme ve token cozumu (Debug kapali,
+  Release varsayilan proje, Production onayli).
 - Simulator build; Staging Release derlemesinde ornek akistan tekil olay
   sirasi. Test olayi Production'a dusmemeli.
 - PostHog panolarinda sayilarin ornek akisla eslesmesi; IP kaydi ve kisi
   profili yoklugu; kriz ve serbest metin senaryolarinda yasak verinin yoklugu.
 
-Onceki hesaptaki 88885 projesine gonderilmis sentetik veriler ve panolar
-hedef hesap icin dogrulama sayilmaz. 282221 projesindeki 18 sentetik olay,
-PostHog arayuzunde ve huni sorgusunda dogrulandi. Bu olaylar
-`synthetic_verification=true` ozelligiyle isaretlidir ve gercek kullanim
-raporlanirken dislanmalidir. Staging Release uygulamasindan canli olay
-gonderimi henüz dogrulanmadi.
+624242 projesine 25 Eylul'de tek bir sentetik olay gonderildi ve SQL ile
+dogrulandi. `synthetic_verification=true` ozelligi tasiyan olaylar bu panolarin
+hepsinde dislanir. Release uygulamasindan canli olay gonderimi henuz
+dogrulanmadi. Eski 88885 ve 282221 projelerindeki sentetik veriler bu projeyi
+ilgilendirmez.
 
 Referanslar: [PostHog Capture API](https://posthog.com/docs/api/capture),
 [anonim olaylar](https://posthog.com/docs/data/anonymous-vs-identified-events),

@@ -6,8 +6,12 @@ final class RevenueCatPurchaseService {
     private(set) var configuredUserID: UUID?
 
     func configure(for userID: UUID) async throws {
-        let key = (Bundle.main.object(forInfoDictionaryKey: "REVENUECAT_IOS_API_KEY") as? String)?
+        // Derleme ayarı (`REVENUECAT_IOS_API_KEY`) tanımlıysa o kazanır; yoksa açık
+        // anahtar `AppConfiguration`'dan gelir. Yalnız `appl_` kabul edilir: gizli
+        // `sk_` anahtarı yanlışlıkla buraya konursa uygulama onu kullanmaz.
+        let plistKey = (Bundle.main.object(forInfoDictionaryKey: "REVENUECAT_IOS_API_KEY") as? String)?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let key = plistKey.hasPrefix("appl_") ? plistKey : AppConfiguration.live.revenueCatAPIKey
         guard key.hasPrefix("appl_") else { throw RevenueCatConfigurationError.missingPublicKey }
         if configuredUserID == userID { return }
         if configuredUserID == nil {

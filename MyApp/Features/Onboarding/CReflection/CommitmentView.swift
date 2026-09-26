@@ -1,6 +1,9 @@
 import SwiftUI
 
-/// Taahhüt anı — hazır path kullanıcıya gösterildikten sonra, G1'den önce.
+/// Taahhüt anı — ilk adım tam dinlendikten sonra, G2 ile paywall arasında
+/// (2026-09-24, docs/paywall-stratejisi.md). Söz "başlıyorum" değil "devam ediyorum":
+/// hemen ardından gelen teklif, kullanıcının az önce verdiği kararın devamı gibi okunur.
+/// İşaret isteğe bağlı; basılı tutma tek başına yeter, sürtünme paywall'ın önünde durmasın.
 ///
 /// Oyunlaştırmaya izin verildikten sonra akışın en güçlü, kullanılmamış dönüşüm
 /// aracı ve sunucuda hiçbir değişiklik istemiyor. **Söz kullanıcının kendine, kendi
@@ -8,9 +11,9 @@ import SwiftUI
 /// kendi sözü varsa (B4, yoksa B1) kartta serif yazılır; hiçbiri yoksa yalnızca cümle
 /// ve imza alanı kalır, **uydurma bir cümle yansıtılmaz** (aynı kural G1'de de var).
 ///
-/// Söz bir başarı vaadi değil: "düzeltmek zorunda değilsin, yalnızca ilk adımı at".
+/// Söz bir başarı vaadi değil: "kalan adımlar senin, kendi hızında".
 /// İmza ham koordinatları sunucuya veya analitiğe gitmez; yalnızca cihazdaki korumalı
-/// dosyaya yazılır. Basılı tutma tamamlanınca G1'e geçmeden önce kısa ve okunur
+/// dosyaya yazılır. Basılı tutma tamamlanınca paywall'dan önce kısa ve okunur
 /// bir eşik cümlesi gösterilir.
 struct CommitmentView: View {
     let flow: OnboardingFlowViewModel
@@ -43,7 +46,7 @@ struct CommitmentView: View {
                     .statementReveal(2)
                 }
 
-                BodyText(.commitmentBody)
+                BodyText(Copy.Onboarding.commitmentBody(remaining: flow.remainingSteps))
                     .statementReveal(3)
 
                 Text(Copy.Onboarding.signatureDrawHint)
@@ -61,21 +64,17 @@ struct CommitmentView: View {
             }
         } footer: {
             VStack(spacing: 0) {
-                if !signature.isEmpty {
-                    HoldToStartButton(title: Copy.Onboarding.commitmentHoldToStart) {
-                        guard flow.services.promiseSignature.save(signature) else {
-                            showsSaveError = true
-                            return
-                        }
-                        flow.beginDayOneTransition()
+                HoldToStartButton(title: Copy.Onboarding.commitmentHoldToContinue) {
+                    if !signature.isEmpty, !flow.services.promiseSignature.save(signature) {
+                        showsSaveError = true
+                        return
                     }
-                    .transition(.opacity)
+                    flow.beginContinueTransition()
                 }
                 // Alt bölgenin yeri diğer soru ekranlarıyla aynı: birincil satır zıplamasın.
                 Color.clear.frame(height: 44)
             }
         }
-        .animation(Theme.Motion.crossFade, value: signature.isEmpty)
 
     }
 }

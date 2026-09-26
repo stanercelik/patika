@@ -2,9 +2,13 @@ import Foundation
 import Observation
 import RevenueCat
 
+/// Tek patika teklifinin durumu. Çağıran (onboarding akışı, Yolum, Ben) bunu
+/// **paywall açılmadan önce** kurar ve `load()` eder: tam ekran kaplama ancak teklif
+/// hazır olunca açılır ve içeriği doğrudan RevenueCat paywall'ıdır. Arada uygulamanın
+/// kendi yükleniyor ekranı görünmez (ürün sahibi, 25 Eylül 2026).
 @Observable
 @MainActor
-final class PathPaywallViewModel {
+final class PathPaywallViewModel: Identifiable {
     enum State {
         case loading
         case ready(Offering)
@@ -14,18 +18,74 @@ final class PathPaywallViewModel {
     }
 
     private(set) var state: State = .loading
+
+    func clearError() { hasError = false }
+
+    var isLoading: Bool {
+        if case .loading = state { return true }
+        return false
+    }
     private(set) var hasError = false
     private(set) var restoreUnavailable = false
     let days: Int
     let remainingSessions: Int
+    let context: AnalyticsPaywallContext
+    private let reminderTime: String?
     private let pathID: UUID
     private let services: AppServices
 
-    init(services: AppServices, pathID: UUID, days: Int) {
+    init(
+        services: AppServices,
+        pathID: UUID,
+        days: Int,
+        context: AnalyticsPaywallContext,
+        reminderTime: String?
+    ) {
         self.services = services
         self.pathID = pathID
         self.days = days
         self.remainingSessions = max(0, days - 1)
+        self.context = context
+        self.reminderTime = reminderTime
+    }
+
+    /// RevenueCat editöründeki custom değişkenlerin değerleri (docs/paywall-stratejisi.md
+    /// §5.1). Yalnız sayılar, saat ve mağaza fiyatından türeyen metin: sorun, patika adı
+    /// ve ölçüm RevenueCat'e gitmez. `CustomVariableValue`'ya görünüm çevirir (RevenueCatUI
+    /// SwiftUI getirir, ViewModel onu import etmez).
+    enum PaywallVariable {
+        case number(Double)
+        case text(String)
+    }
+
+    func paywallVariables(for offering: Offering) -> [String: PaywallVariable] {
+        [
+            "path_days": .number(Double(days)),
+            "remaining_sessions": .number(Double(remainingSessions)),
+            "reminder_time": .text(reminderTime ?? ""),
+            "price_per_session": .text(
+                offering.availablePackages.first.map {
+                    Self.pricePerSession($0.storeProduct, sessions: remainingSessions)
+                } ?? ""
+            ),
+            "context": .text(context.rawValue),
+        ]
+    }
+
+    /// Mağaza fiyatının kalan oturuma bölümü, ürünün kendi para birimi biçimiyle.
+    /// Biçimlendirici yoksa boş döner; editördeki kural o zaman satırı değiştirir.
+    nonisolated static func pricePerSession(_ product: StoreProduct, sessions: Int) -> String {
+        guard sessions > 0, let formatter = product.priceFormatter else { return "" }
+        let value = product.price / Decimal(sessions)
+        return formatter.string(from: value as NSDecimalNumber) ?? ""
+    }
+
+    func paywallShown() {
+        services.observability.capture(.paywallShown(context))
+    }
+
+    func paywallClosed() {
+        services.observability.capture(.paywallClosed(context))
     }
 
     func load() async {
@@ -71,7 +131,9 @@ final class PathPaywallViewModel {
                 state = .unlocked
                 return false
             case .ready(let expectedProduct):
-                return productID == expectedProduct
+                guard productID == expectedProduct else { return false }
+                services.observability.capture(.purchaseStarted(context))
+                return true
             }
         } catch {
             hasError = true
@@ -88,6 +150,7 @@ final class PathPaywallViewModel {
                 let token = try await services.auth.validAccessToken()
                 if try await services.purchaseBackend.isUnlocked(pathID: pathID, accessToken: token) {
                     state = .unlocked
+                    services.observability.capture(.purchaseVerified(context))
                     return
                 }
             } catch {

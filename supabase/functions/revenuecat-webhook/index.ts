@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.116.0";
 import { productForLength } from "../_shared/path-access.ts";
+import { requestIsAuthentic } from "../_shared/webhook-auth.ts";
 
 type Event = {
   id?: string;
@@ -19,7 +20,7 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("method_not_allowed", { status: 405 });
   try {
     const raw = await req.text();
-    if (!await signatureIsValid(req.headers.get("X-RevenueCat-Webhook-Signature"), raw)) {
+    if (!await requestIsAuthentic(req.headers, raw)) {
       return new Response("unauthorized", { status: 401 });
     }
     const event = (JSON.parse(raw) as { event?: Event }).event;
@@ -104,35 +105,6 @@ async function verifiedPromo(userId: string): Promise<string | null> {
   };
   const expiration = body.subscriber?.entitlements?.shipaton_review?.expires_date;
   return expiration && new Date(expiration).getTime() > Date.now() ? expiration : null;
-}
-
-async function signatureIsValid(header: string | null, raw: string): Promise<boolean> {
-  const secret = Deno.env.get("REVENUECAT_WEBHOOK_SIGNING_SECRET");
-  const match = /^t=(\d+),v1=([0-9a-f]{64})$/i.exec(header ?? "");
-  if (!secret || !match || Math.abs(Date.now() / 1000 - Number(match[1])) > 300) return false;
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const signature = new Uint8Array(await crypto.subtle.sign("HMAC", key,
-    new TextEncoder().encode(`${match[1]}.${raw}`)));
-  const supplied = Uint8Array.from(match[2].match(/.{2}/g) ?? [], (pair) => parseInt(pair, 16));
-  let difference = 0;
-  for (let i = 0; i < signature.length; i++) difference |= signature[i] ^ supplied[i];
-  return difference === 0;
-}
-
-async function verifiedPurchase(transactionId: string): Promise<{ status: string } | null> {
-  const project = required("REVENUECAT_PROJECT_ID");
-  const key = required("REVENUECAT_SECRET_API_KEY");
-  const url = new URL(`https://api.revenuecat.com/v2/projects/${encodeURIComponent(project)}/purchases`);
-  url.searchParams.set("store_purchase_identifier", transactionId);
-  const response = await fetch(url, { headers: { Authorization: `Bearer ${key}` } });
-  if (!response.ok) return null;
-  const body = await response.json() as { items?: Array<{
-    store_purchase_identifier?: string | number; status?: string;
-  }> };
-  const item = body.items?.find((purchase) =>
-    String(purchase.store_purchase_identifier) === transactionId);
-  return item ? { status: item.status ?? "unknown" } : null;
 }
 
 function required(name: string): string {

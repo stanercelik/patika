@@ -359,6 +359,9 @@ enum Copy {
         static let commitmentHoldToStart: LocalizedStringResource = .commitmentHoldToStart
         static let roadmapContinue: LocalizedStringResource = .onboardingRoadmapContinue
         static let commitmentDayOneTransition: LocalizedStringResource = .commitmentDayOneTransition
+        static let commitmentHoldToContinue: LocalizedStringResource = .commitmentHoldToContinue
+        static let commitmentContinueTransition: LocalizedStringResource = .commitmentContinueTransition
+        static func commitmentBody(remaining: Int) -> LocalizedStringResource { .commitmentBody(remaining) }
         static let signatureClear: LocalizedStringResource = .commitmentClearSignature
         static let signatureSimpleMark: LocalizedStringResource = .commitmentSimpleMark
         static let signatureDrawHint: LocalizedStringResource = .commitmentDrawHint
@@ -404,8 +407,8 @@ enum Copy {
         static let leftEarlyHeadline: LocalizedStringResource = .sessionLeftEarlyHeadline
 
         /// "Yolunda 20 adım daha var. Yarın 22:30'da buradayız."
-        static func completedBody(remaining: Int, time: String) -> LocalizedStringResource {
-            .sessionCompletedBody(remaining, time)
+        static func completedBody(remaining: Int) -> LocalizedStringResource {
+            .sessionCompletedBody(remaining)
     }
 
         /// Yarıda bırakanda kalan adım sayısı **yazılmıyor**: bitirmemiş birine

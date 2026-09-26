@@ -102,9 +102,10 @@ enum OnboardingStep: Equatable {
     /// gerekirdi, ikisi de kullanıcıya açıklanamaz.
     var canGoBack: Bool {
         switch self {
-        // Fiyat ekranında geri yok: G2'ye dönmek, bitmiş oturumun özetini yeniden açardı.
+        // Taahhüt ve fiyat ekranında geri yok: G2'ye dönmek, bitmiş oturumun özetini
+        // (ve cevabı gönderilmiş soruyu) yeniden açardı.
         case .a1Welcome, .f1Generation, .f2Roadmap, .g1FirstSession, .g2SessionComplete,
-             .price, .h1Account, .crisis: false
+             .commitment, .price, .h1Account, .crisis: false
         default: true
         }
     }
@@ -116,7 +117,7 @@ enum OnboardingStep: Equatable {
         // ruh hâline göre perde) ve önüne kart koymak neden-sonucu koparırdı.
         case .identityName, .identityGender, .identityAge, .b1ProblemText, .b2Duration, .b3Timing,
              .b4Avoidance, .b5PreviousAttempts, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
-             .c4HonestExpectation, .commitment, .d0MeasurementIntro, .price,
+             .c4HonestExpectation, .commitment, .d0MeasurementIntro,
              .h2Priming, .h1Account: .paper
         default: .plain
         }
@@ -224,7 +225,8 @@ final class OnboardingFlowViewModel {
     /// B6'da henüz commit edilmemiş canlı seçim — `currentSceneDimming` bunu okur.
     private var previewedMood: MoodLevel?
     private var previewedReminderHour: Int?
-    private(set) var showsDayOneTransition = false
+    /// Tam ekran eşik cümlesi: F2 → G1 ("day one") ve commitment → paywall.
+    private(set) var threshold: OnboardingThreshold?
     /// The wheel value survives Back only in memory; it is never persisted or uploaded.
     private(set) var selectedExactAge: Int?
 
@@ -295,11 +297,11 @@ final class OnboardingFlowViewModel {
             .measure
         case .e1Reminder:
             OnboardingArtwork.time(hour: previewedReminderHour ?? suggestedReminderHour)
-        case .h2Priming, .f1Generation, .f2Roadmap, .commitment:
+        case .h2Priming, .f1Generation, .f2Roadmap, .commitment, .price:
             .prepare
         case .g1FirstSession:
             .session
-        case .g2SessionComplete, .price, .h1Account:
+        case .g2SessionComplete, .h1Account:
             .settle
         case .crisis:
             nil
@@ -434,13 +436,41 @@ final class OnboardingFlowViewModel {
         previewedReminderHour = hour
     }
 
+    /// F2'deki "Yola çık" basılı tutması: eşik cümlesinden sonra G1.
     func beginDayOneTransition() {
-        showsDayOneTransition = true
+        threshold = .dayOne
     }
 
-    func finishDayOneTransition() {
-        showsDayOneTransition = false
-        startFirstSession()
+    /// G2 sonrası taahhüt: eşik cümlesinden sonra paywall. Teklif burada yüklenmeye
+    /// başlar; eşik cümlesi ekrandayken biter ve paywall ara ekransız açılır.
+    func beginContinueTransition() {
+        threshold = .continuePath
+        prepareOffer()
+    }
+
+    /// Paywall adımının teklifi. Kaplama yalnız yükleme bitince açılır.
+    private(set) var purchaseOffer: PathPaywallViewModel?
+
+    func prepareOffer() {
+        guard purchaseOffer == nil, let path = generatedPath else { return }
+        let offer = PathPaywallViewModel(
+            services: services,
+            pathID: path.id,
+            days: path.steps.count,
+            context: .first,
+            reminderTime: reminderTimeText
+        )
+        purchaseOffer = offer
+        Task { await offer.load() }
+    }
+
+    func finishThreshold() {
+        guard let current = threshold else { return }
+        threshold = nil
+        switch current {
+        case .dayOne: startFirstSession()
+        case .continuePath: advance(to: .price)
+        }
     }
 
     /// Cevap E1'deki varsayılan hatırlatma saatini belirler — sorduğumuz her
@@ -696,7 +726,7 @@ final class OnboardingFlowViewModel {
         }
     }
 
-    /// Taahhüt ekranındaki imza sonrası basılı tutma bunu tetikler. Buradan sonrası G1:
+    /// F2'deki basılı tutma (eşik cümlesinden sonra) bunu tetikler. Buradan sonrası G1:
     /// kullanıcı kayıt olmadan ilk oturumunu dinliyor (PRD-Ek Onboarding §8).
     ///
     /// **Geri dönülmez.** Harita geride kalıyor ve oturum başlıyor; geçmişi
@@ -708,8 +738,10 @@ final class OnboardingFlowViewModel {
         markStepViewed(step)
     }
 
+    /// Taahhüt ilk adımdan sonraya taşındı (2026-09-24, docs/paywall-stratejisi.md):
+    /// F2 doğrudan G1'e geçer.
     func finishRoadmap() {
-        advance(to: .commitment)
+        beginDayOneTransition()
     }
 
     /// G1 bitti. `completed` false ise kullanıcı "Burada duralım" dedi.
@@ -768,12 +800,15 @@ final class OnboardingFlowViewModel {
         sessionVoiceEnergy = min(max(value, 0), 1)
     }
 
-    /// Only a completed first session can lead to a purchase offer.
+    /// Only a completed first session can lead to the commitment and the purchase
+    /// offer. The promise sits right before the paywall so the offer reads as the
+    /// continuation of a decision the user just made (docs/paywall-stratejisi.md).
     func finishSessionSummary() {
-        advance(to: didCompleteFirstSession && generatedPath?.kind == .personalized ? .price : .h1Account)
+        advance(to: didCompleteFirstSession && generatedPath?.kind == .personalized ? .commitment : .h1Account)
     }
 
     func finishPrice() {
+        guard step == .price else { return }
         advance(to: .h1Account)
     }
 
@@ -898,3 +933,10 @@ extension OnboardingFlowViewModel {
     }
 }
 #endif
+
+/// Tam ekran eşik cümlesi (`DayOneTransitionView`). İki yerde kullanılır:
+/// F2 → G1 ve G2 sonrası taahhüt → paywall.
+enum OnboardingThreshold: Equatable {
+    case dayOne
+    case continuePath
+}
