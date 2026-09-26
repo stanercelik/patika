@@ -1,57 +1,57 @@
-# Onboarding görselleri
+# Görsel kaynaklar
 
-Üretilen görsellerin **kaynak dosyaları** burada durur. Uygulamaya giren kopyalar
-`MyApp/Assets.xcassets/Onboarding/` altındaki hazır yuvalara konur.
+Üretilen görsellerin **kaynak dosyaları** ve prompt'ları burada durur. Uygulamaya giren
+kopyalar `MyApp/Assets.xcassets/` altındaki imageset'lerdedir.
 
-Prompt'ların tamamı (ChatGPT'ye yapıştırılacak haliyle):
-[`docs/PRD-Ek-Gorsel-Sistem-ve-Promptlar.md`](../../docs/PRD-Ek-Gorsel-Sistem-ve-Promptlar.md) §11.
+## Güncel yön: ortak guaj ailesi (17 Eylül 2026 kararı)
+
+Koyu teal, adaçayı, soluk mavi, krem ve kayısı; guaj dokusu, düzensiz kesme-kâğıt
+kenarlar. Bu, önceki "tek mürekkepli, monokrom kırık beyaz" brief'inin yerini alır: o
+brief gerçek zeminin paletle değiştiği bir dönemden kalmaydı ve bu dosyanın eski
+sürümü hâlâ onu buyuruyordu. Yeni parçalar tam da bu çizgide durduğu için düzeltildi.
+
+### Gradyan kalktı (22 Eylül 2026 kararı) — renkli guaj artık nerede durabilir
+
+`MeshGradient` + Metal shader + 10 kategori paleti tamamen kaldırıldı
+(`docs/onboarding-redesign.md`). "Canlı kategori mesh'i" diye bir şey artık yok;
+onun yerini **tam ekran opak guaj sahneler** aldı — A2'den B6'ya kadar sahne
+kategoriye göre değişir, bu işi eskiden canlı palet yapıyordu.
+
+| Nerede | Ne durabilir |
+| --- | --- |
+| **Kâğıt kart** (krem `#EDE7D9`) | Renkli, şeffaf alfalı guaj kesit |
+| **Tam ekran sahne zemini** (artık **her** onboarding ekranında) | Tam ekran **opak** guaj manzara; kodda düz bir perde (`WoodlandStyle.background.opacity(dimming)`) bindirilir |
 
 ## Klasörler
 
-Her görselin kendi klasörü var. Ürettiğin PNG'yi ilgili klasöre koy, sonra
-Xcode yuvasına sürükle.
-
-```
-assets/illustrations/
-├── c1-mirror/          ← C1 Aynalama
-├── c2-common/          ← C2 Yalnız değilsin
-└── f2-path-ready/      ← F2 Yolun hazır
-```
-
-C3, C4 ve F1'de raster görsel yok — üçü de kodla çiziliyor
-(`ComparisonColumns`, `ExpectationCurveChart`, `TrailRow`).
+| Klasör | İçerik | Prompt'lar |
+| --- | --- | --- |
+| `gouache/` | Ortak aile: yansıtma, aidiyet, sığınak, iz, dinlenme, defter; Yolum dünyası | `prompts.json`, `world-prompts.json` |
+| `onboarding/` | Kâğıt kart içi 9 şeffaf kesit (isim, B3, C3, C4, taahhüt, D0, F2, H2, H1) | `prompts.md` |
+| `scenes/` | **16 tam ekran opak sahne** (6 bölüm + 10 kategori) — henüz üretilmedi | `prompts.md` |
+| `session/` | Oturum ekranı faz görselleri (`session-trailhead` vb.) | `prompts.md` |
+| `discover/` | Keşfet v2 kart görselleri ve manzara | `prompts.md` |
+| `me/`, `me-v2/`, `journey/` | Ben sekmesi ve Yolum faz görselleri | kendi klasöründe |
+| `c1-mirror/`, `c2-common/`, `f2-path-ready/` | **Eski kaynaklar.** C1 ve C2 artık `illustration-reflection` ve `illustration-belonging` kullanıyor; buradaki iki imageset silindi (yetimdi). Kaynak PNG'ler tarihçe için durur | — |
 
 ## Nasıl eklenir
 
-1. ChatGPT görsel üretiminde ilgili prompt'u §11'den **aynen** yapıştır
-   (her görsel ayrı sohbet).
-2. **Arka planı sil** — PNG şeffaf olmalı. Görsel bizim gradyanımızın üstünde
-   duracak; kendi arka planıyla gelirse ekranda bir kutu gibi görünür.
-3. Kaynağı ilgili klasöre kaydet: `c1-mirror.png` vb.
-4. Xcode'da `Assets.xcassets → Onboarding` altındaki ilgili yuvaya sürükle
-   (2x kutusuna). Yuvalar zaten açık, yenisini oluşturmaya gerek yok.
-
-| Yuva | Ekran | Klasör | Kaynak dosya |
-|---|---|---|---|
-| `illustration-c1-mirror` | C1 — Aynalama | `c1-mirror/` | `c1-mirror.png` |
-| `illustration-c2-common` | C2 — Yalnız değilsin | `c2-common/` | `c2-common.png` |
-| `illustration-f2-path-ready` | F2 — Yolun hazır | `f2-path-ready/` | `f2-path-ready.png` |
-
-`illustration-c4-horizon` yuvası **kullanımdan kalktı**: C4 artık kodla çizilen bir
-grafik kullanıyor.
-
-## Teknik gereksinimler
-
-- **Boyut:** 1024×1024 üret, sonra içeriğin etrafındaki boşluğu kırp.
-- **Ölçek:** 2x yuvaya konacak dosya en az 640 px genişliğinde olsun
-  (ekranda ~156 pt yüksekliğinde çiziliyor).
-- **Format:** şeffaf PNG.
-- **Renk:** kırık beyaz (`#F2EFE9`) ve grileri. Görsel kendi rengini getirmemeli —
-  arka plan paleti kullanıcının kategorisine ve ruh hâline göre değişiyor, sabit
-  renkli bir görsel bu paletlerin bir kısmıyla çakışır.
+1. İlgili klasördeki `prompts.md` içinde parçanın bloğunu **aynen** yapıştır (her parça ayrı
+   sohbet). Referans olarak mevcut aile görsellerini ver.
+2. Şeffaf parçalarda arka planı sil ve gerçek alfa bırak; opak sahnelerde alfa olmasın.
+3. Dosyayı ilgili imageset'e koy. Şeffaf: `<ad>.png` (`Contents.json`ta 2x). Opak: `<ad>.jpg`
+   (universal). Düz `.png` dosyasını katalog dışında bırakma: `UIImage(named:)` onu görmez.
+4. `-patika-debug-no-art` ile bütün ekranlarda görselsiz hâli de aç.
 
 ## Görsel yokken ne olur
 
-Hiçbir şey. `OnboardingIllustration` varlığı bulamazsa hiç yer kaplamaz; ekranlar
-görselsiz de eksiksiz çalışır. Yani görselleri istediğin sırayla, tek tek
-ekleyebilirsin.
+Hiçbir şey kırılmaz. Her yerleşim önce `PatikaArt.exists(_:)` ile varlığı sorar; yoksa
+görsel yer kaplamaz (kâğıt içi kesit) ya da düz `WoodlandStyle.background`'a düşer (tam
+ekran sahne, `OnboardingSceneLayer`). Görselleri istediğin sırayla, tek tek ekleyebilirsin.
+
+## Ortak kurallar
+
+- Metin, rakam, işaret, UI, insan, yüz, el yok. Ödül, zirve, kupa, bayrak imgesi yok.
+- Ölçüm ekranlarında ve kriz modunda dekoratif görsel gösterilmez.
+- Görseller VoiceOver'dan gizlidir; anlamı hiçbir zaman yalnızca görsel taşımaz.
+- Erişilebilirlik boyutlarında (AX Dynamic Type) dekoratif görseller saklanır.

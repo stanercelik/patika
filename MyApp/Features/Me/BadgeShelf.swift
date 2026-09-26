@@ -118,6 +118,8 @@ struct BadgeShelf: View {
 /// nasıl kazanılacağı **tek cümleyle** yazar; sayı ya da ilerleme çubuğu yok.
 struct BadgesView: View {
     let earned: [EarnedBadge]
+    @State private var selectedBadge: BadgeID?
+    @State private var cardContentHeight: CGFloat = 0
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -137,6 +139,10 @@ struct BadgesView: View {
             }
             .scrollIndicators(.hidden)
         }
+        .onPreferenceChange(BadgeCardHeightKey.self) { cardContentHeight = $0 }
+        .sheet(item: $selectedBadge) { badge in
+            BadgePreviewSheet(badge: badge, isEarned: earned.contains { $0.badgeID == badge })
+        }
         .navigationTitle(Text(Copy.Me.badgesTitle))
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -149,13 +155,18 @@ struct BadgesView: View {
                 .foregroundStyle(Theme.textPrimary.color)
                 .accessibilityAddTraits(.isHeader)
 
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 240 : 150), spacing: 12)],
-                alignment: .leading,
-                spacing: 12
-            ) {
-                ForEach(badges) { badge in
-                    cell(for: badge)
+            let columnCount = dynamicTypeSize.isAccessibilitySize ? 1 : 2
+            VStack(spacing: 12) {
+                ForEach(Array(stride(from: 0, to: badges.count, by: columnCount)), id: \.self) { start in
+                    HStack(alignment: .top, spacing: 12) {
+                        ForEach(Array(badges[start..<min(start + columnCount, badges.count)])) { badge in
+                            cell(for: badge)
+                                .frame(maxWidth: .infinity)
+                        }
+                        if columnCount == 2 && start + 1 == badges.count {
+                            Color.clear.frame(maxWidth: .infinity)
+                        }
+                    }
                 }
             }
         }
@@ -164,7 +175,8 @@ struct BadgesView: View {
     private func cell(for badge: BadgeID) -> some View {
         let isEarned = earned.contains { $0.badgeID == badge }
         let detail = isEarned ? Copy.Me.Badge.earned(badge) : Copy.Me.Badge.howToEarn(badge)
-        return ProfileCard {
+        return Button { selectedBadge = badge } label: {
+          ProfileCard {
             VStack(spacing: 10) {
                 BadgeMedallion(id: badge, isEarned: isEarned, size: 88)
                 Text(Copy.Me.Badge.title(badge))
@@ -176,7 +188,16 @@ struct BadgesView: View {
             }
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
+            .fixedSize(horizontal: false, vertical: true)
+            .background {
+                GeometryReader { geometry in
+                    Color.clear.preference(key: BadgeCardHeightKey.self, value: geometry.size.height)
+                }
+            }
+            .frame(minHeight: cardContentHeight, alignment: .top)
+          }
         }
+        .buttonStyle(.plain)
         .opacity(isEarned ? 1 : 0.85)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(Copy.Me.badgeAccessibility(

@@ -3,8 +3,8 @@ import SwiftUI
 /// Hazır patikanın detayı — Keşfet'ten yakınlaştırma geçişiyle açılır ("Ben"deki
 /// defter geçişiyle aynı) ve katılınmış patikanın canlı hâlini de çizer.
 ///
-/// - **Zemin patikanın kendi kategorisinin paletidir** (`Palette.forCategory`):
-///   Keşfet ana ekranı kullanıcının paletini, detay patikanın paletini kullanır.
+/// - **Zemin düz `WoodlandStyle.background`**: gradyan ve palet kalktı (2026-09-22);
+///   patikanın kimliğini zeminin rengi değil hero görseli taşır.
 /// - **Hero** `MeBackdrop`un fade/parallax matematiğiyle: 220 pt'de söner, en çok
 ///   10 pt kayar; Reduce Motion, Reduce Transparency ve AX boyutlarında çizilmez.
 ///   Yazı hero'nun üstüne binmez, altındaki zeminde durur.
@@ -19,11 +19,9 @@ struct DiscoverPathView: View {
 
     @Environment(DiscoverLibrary.self) private var library
     @Environment(AppServices.self) private var services
-    @Environment(PaletteController.self) private var palette
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
-    @State private var selectedVoice: SessionVoice = .feminine
     @State private var confirmsJoin = false
     @State private var session: DiscoverStep?
     @State private var expandedStepID: String?
@@ -47,15 +45,6 @@ struct DiscoverPathView: View {
     var body: some View {
         ZStack(alignment: .top) {
             WoodlandStyle.background.ignoresSafeArea()
-            BreathingMeshBackground(
-                palette: Palette.forCategory(path.category).nightAdjusted(),
-                safeY: 0.12,
-                breathAmplitude: BreathAmplitude.measurement
-            )
-            .opacity(0.22)
-            .ignoresSafeArea()
-            .accessibilityHidden(true)
-
             DiscoverHero(box: scroll, assetName: path.artwork, height: Self.heroHeight)
 
             ScrollView {
@@ -65,7 +54,6 @@ struct DiscoverPathView: View {
                     if !isPreview, library.nextStep(path) == nil {
                         allDone.woodlandReveal(1)
                     }
-                    voiceRow.woodlandReveal(1)
                     VStack(alignment: .leading, spacing: PatikaSurfaceMetrics.labelSpacing) {
                         PatikaSectionLabel(verbatim: DiscoverCopy.steps)
                             .padding(.horizontal, Theme.Spacing.screenMargin)
@@ -124,19 +112,22 @@ struct DiscoverPathView: View {
                     }
             }
         }
-        .confirmationDialog(DiscoverCopy.joinTitle, isPresented: $confirmsJoin, titleVisibility: .visible) {
-            Button(DiscoverCopy.join) {
-                library.enroll(path, voice: selectedVoice)
+        .sheet(isPresented: $confirmsJoin) {
+            DiscoverJoinSheet {
+                library.enroll(path)
+                if library.isEnrolled(path) {
+                    services.observability.capture(.preparedPathSelected)
+                }
                 expandedStepID = library.nextStep(path)?.id
+                confirmsJoin = false
             }
-            Button(DiscoverCopy.cancel, role: .cancel) {}
-        } message: { Text(DiscoverCopy.joinBody) }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
         .fullScreenCover(item: $session) { step in
             PathSessionView(services: services, preparedPath: path, step: step, library: library)
-                .environment(palette)
         }
         .onAppear {
-            selectedVoice = library.voice(for: path)
             if expandedStepID == nil, !isPreview { expandedStepID = library.nextStep(path)?.id }
             #if DEBUG
             // `-patika-debug-discover-expanded <n>`: n. adımı (1 tabanlı) açık başlatır.
@@ -154,9 +145,6 @@ struct DiscoverPathView: View {
                 session = path.steps[number - 1]
             }
             #endif
-        }
-        .onChange(of: selectedVoice) { _, voice in
-            if !isPreview { library.selectVoice(voice, for: path) }
         }
     }
 
@@ -208,38 +196,6 @@ struct DiscoverPathView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private var voiceRow: some View {
-        let layout = isAccessible
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
-            : AnyLayout(HStackLayout(alignment: .center, spacing: 12))
-        return VStack(alignment: .leading, spacing: 6) {
-            layout {
-                Text(verbatim: DiscoverCopy.voice)
-                    .font(Theme.TypeFace.rowTitle)
-                    .foregroundStyle(WoodlandStyle.ink)
-                    .fixedSize(horizontal: false, vertical: true)
-                if !isAccessible { Spacer(minLength: 8) }
-                Picker(DiscoverCopy.voice, selection: $selectedVoice) {
-                    Text(verbatim: DiscoverCopy.feminine).tag(SessionVoice.feminine)
-                    Text(verbatim: DiscoverCopy.masculine).tag(SessionVoice.masculine)
-                }
-                .pickerStyle(.menu)
-                .labelsHidden()
-                .tint(WoodlandStyle.ink)
-                .frame(minHeight: 44)
-            }
-            Text(verbatim: DiscoverCopy.voiceNote)
-                .font(Theme.TypeFace.rowCaption)
-                .foregroundStyle(WoodlandStyle.secondaryInk)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(.horizontal, PatikaSurfaceMetrics.compactPadding + 2)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, minHeight: PatikaSurfaceMetrics.rowMinHeight, alignment: .leading)
-        .paperSurface(radius: PatikaSurfaceMetrics.compactRadius, isProminent: false)
-        .padding(.horizontal, Theme.Spacing.screenMargin)
-    }
-
     /// Ses yokken düğme kartlardaki durumla aynı şeyi söyler: "Yakında".
     private var joinTitle: String {
         if library.isEnrolled(path) { return DiscoverCopy.continuePath }
@@ -257,6 +213,42 @@ struct DiscoverPathView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+}
+
+private struct DiscoverJoinSheet: View {
+    let onJoin: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+                .font(.title2.weight(Theme.Weight.emphasis))
+                .foregroundStyle(WoodlandStyle.sage)
+                .accessibilityHidden(true)
+
+            Text(verbatim: DiscoverCopy.joinTitle)
+                .font(Theme.TypeFace.sectionTitle)
+                .foregroundStyle(Theme.textPrimary.color)
+
+            Text(verbatim: DiscoverCopy.joinBody)
+                .font(Theme.TypeFace.rowValue)
+                .foregroundStyle(Theme.textSecondary.color)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: 8)
+
+            DiscoverAction(title: DiscoverCopy.join, action: onJoin)
+
+            Button(DiscoverCopy.cancel) { dismiss() }
+                .font(Theme.TypeFace.action)
+                .foregroundStyle(Theme.textSecondary.color)
+                .frame(maxWidth: .infinity, minHeight: 44)
+        }
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+        .padding(.top, 22)
+        .padding(.bottom, 12)
+        .background(WoodlandStyle.background)
     }
 }
 

@@ -1,4 +1,3 @@
-import PhotosUI
 import SwiftUI
 
 /// Ayarlar ve gizlilik (`docs/profile-v2-plan.md` Aşama 6).
@@ -9,29 +8,20 @@ import SwiftUI
 /// en altta ortada soluk sürüm yazısı. Yıkıcı işlem saklanmaz, ayrı bir başlık
 /// altında durur.
 ///
-/// Adım uzunluğu, anlatım ve ses **salt okunur**: yol kurulurken seçildi ve
-/// sunucuda bunları güncelleyen bir uç nokta yok. Değişiyormuş gibi davranan bir
-/// düğme koymak yerine bunu söylüyoruz (`preferencesFootnote`).
+/// Kullanıcının sonradan değiştirebildiği tercih olarak yalnızca hatırlatma
+/// görünür; path kurulurken kullanılan anlatım tercihi ayarlarda tekrarlanmaz.
 struct SettingsSheet: View {
     let viewModel: MeViewModel
 
     @Environment(\.dismiss) private var dismiss
     @Environment(AppState.self) private var appState
-    @Environment(PaletteController.self) private var palette
-    @State private var analyticsConsent: Bool
     @State private var confirmsJournalDeletion = false
     @State private var confirmsAccountDeletion = false
+    @State private var confirmsSignOut = false
     @State private var isShowingSupport = false
-    @State private var isShowingLinkSheet = false
-    @State private var pickedPhoto: PhotosPickerItem?
     #if DEBUG
     @State private var isShowingDebugPage = false
     #endif
-
-    init(viewModel: MeViewModel) {
-        self.viewModel = viewModel
-        _analyticsConsent = State(initialValue: viewModel.analyticsConsent)
-    }
 
     var body: some View {
         NavigationStack {
@@ -46,14 +36,27 @@ struct SettingsSheet: View {
                         if viewModel.record != nil { dataGroup }
                         aboutGroup
                         irreversibleGroup
+                        #if DEBUG
+                        debugGroup
+                        #endif
 
-                        // Sürüm ayarların en altında, ortada ve soluk: profilden
-                        // buraya taşındı.
+                        // Sürüm bilgisi çıkış eyleminden önce, sakin bir meta satırı.
                         Text(verbatim: viewModel.versionText)
                             .font(Theme.TypeFace.rowCaption)
                             .foregroundStyle(Theme.textSecondary.color.opacity(0.7))
                             .frame(maxWidth: .infinity)
                             .padding(.top, 4)
+
+                        if viewModel.isAccountLinked {
+                            Button { confirmsSignOut = true } label: {
+                                SettingsRow(
+                                    title: Copy.Me.Settings.signOut,
+                                    symbol: "rectangle.portrait.and.arrow.right"
+                                )
+                            }
+                            .buttonStyle(.calm)
+                            .disabled(viewModel.isWorking)
+                        }
                     }
                     .padding(.horizontal, Theme.Spacing.screenMargin)
                     .padding(.top, 8)
@@ -68,17 +71,6 @@ struct SettingsSheet: View {
                     Button(role: .close) { dismiss() }
                 }
             }
-            .onChange(of: pickedPhoto) { _, item in
-                guard let item else { return }
-                Task {
-                    defer { pickedPhoto = nil }
-                    guard let data = try? await item.loadTransferable(type: Data.self) else {
-                        viewModel.actionError = Copy.Me.photoFailed
-                        return
-                    }
-                    await viewModel.setPhoto(data)
-                }
-            }
             #if DEBUG
             // `-patika-debug-settings-page reminder|name|method` — alt sayfa doğrudan açılır.
             .task { isShowingDebugPage = MeDebugSeed.settingsPage != nil }
@@ -90,9 +82,6 @@ struct SettingsSheet: View {
                 }
             }
             #endif
-            .sheet(isPresented: $isShowingLinkSheet) {
-                AccountLinkSheet(viewModel: viewModel)
-            }
             .fullScreenCover(isPresented: $isShowingSupport) {
                 SupportView()
             }
@@ -116,6 +105,16 @@ struct SettingsSheet: View {
             } message: {
                 Text(Copy.Me.Settings.deleteAccountBody)
             }
+            .alert(Text(Copy.Me.Settings.signOutTitle), isPresented: $confirmsSignOut) {
+                Button(role: .destructive) {
+                    Task { await signOut() }
+                } label: {
+                    Text(Copy.Me.Settings.signOut)
+                }
+                Button(role: .cancel) {} label: { Text(Copy.Button.cancel) }
+            } message: {
+                Text(Copy.Me.Settings.signOutBody)
+            }
             .alert(
                 Text(viewModel.actionError ?? ""),
                 isPresented: Binding(
@@ -132,21 +131,6 @@ struct SettingsSheet: View {
 
     private var accountGroup: some View {
         SettingsGroup(title: Copy.Me.Settings.accountHeader) {
-            PhotosPicker(selection: $pickedPhoto, matching: .images) {
-                SettingsRow(title: Copy.Me.photoChoose, symbol: "photo", showsChevron: true)
-            }
-            .buttonStyle(.calm)
-
-            if viewModel.services.avatar.hasImage {
-                Button {
-                    Task { await viewModel.removePhoto() }
-                } label: {
-                    SettingsRow(title: Copy.Me.photoRemove, symbol: "trash")
-                }
-                .buttonStyle(.calm)
-                .disabled(viewModel.isWorking)
-            }
-
             NavigationLink {
                 NameEditor(viewModel: viewModel)
             } label: {
@@ -158,27 +142,12 @@ struct SettingsSheet: View {
             }
             .buttonStyle(.calm)
 
-            if viewModel.isAccountLinked {
-                SettingsRow(title: Copy.Me.Settings.linkedRow, value: String(localized: Copy.Me.Settings.linkedYes))
-            } else {
-                Button { isShowingLinkSheet = true } label: {
-                    SettingsRow(
-                        title: Copy.Me.Settings.linkedRow,
-                        value: String(localized: Copy.Me.Settings.linkedNo),
-                        showsChevron: true
-                    )
-                }
-                .buttonStyle(.calm)
-            }
         }
     }
 
-    /// Hatırlatma düzenlenebilir; uzunluk, anlatım ve ses salt okunur.
+    /// Hatırlatma ayarlardaki tek kişiselleştirme satırıdır.
     private var preferencesGroup: some View {
-        SettingsGroup(
-            title: Copy.Me.preferencesTitle,
-            footer: viewModel.preferenceItems.contains { !$0.isEditable } ? Copy.Me.preferencesFootnote : nil
-        ) {
+        SettingsGroup(title: Copy.Me.preferencesTitle) {
             ForEach(viewModel.preferenceItems) { item in
                 if item.isEditable {
                     NavigationLink {
@@ -202,15 +171,11 @@ struct SettingsSheet: View {
     private static func label(for kind: MeViewModel.PreferenceItem.Kind) -> LocalizedStringResource {
         switch kind {
         case .reminder: Copy.Me.reminderLabel
-        case .sessionLength: Copy.Me.sessionLengthLabel
-        case .tone: Copy.Me.toneLabel
-        case .voice: Copy.Me.voiceLabel
         }
     }
 
     private var privacyGroup: some View {
-        // İzin bilgilendirilmiş olmalı: altbilgi neyin paylaşılmadığını söyler.
-        SettingsGroup(title: Copy.Me.Settings.privacyHeader, footer: Copy.Me.Settings.analyticsFooter) {
+        SettingsGroup(title: Copy.Me.Settings.privacyHeader) {
             if viewModel.record != nil {
                 SettingsToggleRow(
                     title: Copy.Me.Settings.appLock,
@@ -231,11 +196,6 @@ struct SettingsSheet: View {
                     )
                 }
             }
-
-            SettingsToggleRow(title: Copy.Me.Settings.analytics, isOn: $analyticsConsent)
-                .onChange(of: analyticsConsent) { _, consent in
-                    viewModel.setAnalyticsConsent(consent)
-                }
         }
     }
 
@@ -288,14 +248,41 @@ struct SettingsSheet: View {
         }
     }
 
-    /// Silme tamamlanınca uygulama en başa döner: kayıt, oturum ve palet sıfır.
+    /// Silme tamamlanınca uygulama en başa döner: kayıt ve oturum sıfır.
     private func deleteAccount() async {
         guard await viewModel.deleteAccount() else { return }
         dismiss()
-        palette.select([])
-        palette.setMood(nil)
         appState.hasCompletedOnboarding = false
     }
+
+    /// Çıkış da aynı şekilde en başa döner — hesap sunucuda kalır, yalnızca
+    /// cihaz sıfırlanır (bkz. `MeViewModel.signOut`).
+    private func signOut() async {
+        await viewModel.signOut()
+        dismiss()
+        appState.hasCompletedOnboarding = false
+    }
+
+    #if DEBUG
+    /// Yalnızca geliştirme: hesabı/veriyi silmeden onboarding'i tekrar izlemek
+    /// için. `PatikaApp.body` `appState.hasCompletedOnboarding`i canlı okuyor,
+    /// bu yüzden bayrağı çevirmek yeniden başlatmadan onboarding'e döner —
+    /// sunucudaki path ve kayıt olduğu gibi kalır (bu bilerek `deleteAccount`
+    /// çağırmıyor). Uygulama kapanıp açılırsa `adoptExistingPathIfAny` sunucuda
+    /// zaten bir path bulup bayrağı hemen geri `true` yapar; bu yüzden akışı
+    /// tek oturumda, uygulamayı arka plana atmadan izlemek gerekir.
+    private var debugGroup: some View {
+        SettingsGroup(title: "Debug") {
+            Button {
+                dismiss()
+                appState.hasCompletedOnboarding = false
+            } label: {
+                SettingsRow(title: "Restart onboarding", symbol: "arrow.counterclockwise")
+            }
+            .buttonStyle(.calm)
+        }
+    }
+    #endif
 }
 
 /// Hatırlatma saati ve anahtarı. İzin, kullanıcı anahtarı açıp kaydettiği anda

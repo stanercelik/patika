@@ -61,15 +61,46 @@ enum CrisisClassifier {
         // Plan / araç
         "ilaclarin hepsini",
         "yuksek yerden atla",
-        // English — the app defaults to English outside Turkish devices.
+        // English. MVP yalnızca İngilizce (2026-09-21): bu liste artık asıl liste.
+        // Karşılaştırma öncesi kesme işaretleri ve tireler düşürülür ("don't" ve
+        // "dont", "self-harm" ve "self harm" aynı yazılır), aşağıdaki ifadeler o
+        // normalize edilmiş biçimde yazılı. Kural aynı: ifade **tek başına** ciddi olmalı.
+        // Niyet
         "suicide",
+        "suicidal",
         "kill myself",
+        "killing myself",
         "end my life",
-        "do not want to live",
-        "don't want to live",
+        "ending my life",
+        "take my own life",
+        "want to die",
+        "wanna die",
         "wish i were dead",
+        "wish i was dead",
+        "better off dead",
+        "better off without me",
+        "dont want to live",
+        "do not want to live",
+        "dont want to be alive",
+        "no reason to live",
+        "not worth living",
+        "no point in living",
+        "dont want to wake up",
+        "end it all",
+        // Kendine zarar
         "hurt myself",
+        "harm myself",
         "self harm",
+        "cut myself",
+        "cutting myself",
+        "slit my wrists",
+        // Plan / araç
+        "hang myself",
+        "shoot myself",
+        "overdose",
+        "take all my pills",
+        "jump off a bridge",
+        "jump off a building",
     ]
 
     static func evaluate(_ text: String) -> Result {
@@ -92,10 +123,17 @@ enum CrisisClassifier {
     ]
 
     private static func normalize(_ text: String) -> String {
-        String(
+        let mapped = String(
             text
                 .lowercased(with: Locale(identifier: "tr_TR"))
                 .map { turkishToASCII[$0] ?? $0 }
         )
+        // Kesme işareti düşer ("don't" = "dont", akıllı tırnak dahil), tire boşluk olur,
+        // ardışık boşluklar tek boşluk: "self-harm" ve "self  harm" aynı şeydir.
+        let cleaned = mapped
+            .replacingOccurrences(of: "\u{2019}", with: "")
+            .replacingOccurrences(of: "'", with: "")
+            .replacingOccurrences(of: "-", with: " ")
+        return cleaned.split(whereSeparator: \.isWhitespace).joined(separator: " ")
     }
 }

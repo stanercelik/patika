@@ -60,7 +60,7 @@ final class MeViewModel {
 
     struct PreferenceItem: Identifiable, Equatable {
         enum Kind: String {
-            case reminder, sessionLength, tone, voice
+            case reminder
         }
 
         let kind: Kind
@@ -92,16 +92,46 @@ final class MeViewModel {
         return nil
     }
 
+    /// Kişisel patikanın ilk adımı bitmiş ama kalanı henüz satın alınmamış.
+    /// Sunucudaki hak okunamazsa false: emin olmadığımız bir teklif gösterilmez.
+    private(set) var pathAwaitsPurchase = false
+
+    /// "Continue this path" satırı: paywall'ın Ben'deki dönüş noktası
+    /// (docs/paywall-stratejisi.md §2). Kriz modunda görünmez.
+    var showsContinuePathRow: Bool {
+        #if DEBUG
+        if MeDebugSeed.forcesPathOffer { return !isInCrisisMode && activePath != nil }
+        #endif
+        return pathAwaitsPurchase && !isInCrisisMode
+    }
+
+    var walkedStepCount: Int { activePath?.completedStepCount ?? 0 }
+    var totalStepCount: Int { activePath?.steps.count ?? 0 }
+
+    private func refreshPurchaseState(path: ActivePath?, token: String) async {
+        guard let path, path.kind == .personalized, !path.isCompleted,
+              path.completedStepCount >= 1, path.completedStepCount < path.steps.count
+        else {
+            pathAwaitsPurchase = false
+            return
+        }
+        let unlocked = try? await services.purchaseBackend.isUnlocked(pathID: path.id, accessToken: token)
+        pathAwaitsPurchase = unlocked == false
+    }
+
     /// Aktif yol ve profil kaydı birlikte okunur. Kayıt okunamazsa cihazdaki son
     /// kayıt gösterilir — kullanıcı sayfayı hiçbir zaman boş görmemeli, ama
     /// uydurulmuş bir şey de görmemeli.
     func load() async {
         let backend = services.backend
+        // Yenileme sırasında geçici boş/hatalı yanıt, doğrulanmış yol başlığını
+        // karttan kaldırmamalı.
+        let previouslyLoadedPath = activePath
         let token: String
         do {
             token = try await services.auth.validAccessToken()
         } catch {
-            pathLoad = .unavailable
+            if previouslyLoadedPath == nil { pathLoad = .unavailable }
             return
         }
 
@@ -111,12 +141,14 @@ final class MeViewModel {
         do {
             if let path = try await pathRequest, !path.steps.isEmpty {
                 pathLoad = .active(path)
-            } else {
+            } else if previouslyLoadedPath == nil {
                 pathLoad = .none
             }
         } catch {
-            pathLoad = .unavailable
+            if previouslyLoadedPath == nil { pathLoad = .unavailable }
         }
+
+        await refreshPurchaseState(path: activePath, token: token)
 
         do {
             let snapshot = try await snapshotRequest
@@ -466,22 +498,13 @@ final class MeViewModel {
     /// Yalnızca değeri bilinen satırlar. Hazır patikada uzunluk, ton ve ses yok.
     var preferenceItems: [PreferenceItem] {
         guard let record else { return [] }
-        var items = [PreferenceItem(
+        let items = [PreferenceItem(
             kind: .reminder,
             value: record.reminder.isEnabled
                 ? record.reminder.timeText
                 : String(localized: Copy.Me.reminderOffValue),
             caption: reminderSourceCaption
         )]
-        if let length = record.sessionLength {
-            items.append(PreferenceItem(kind: .sessionLength, value: String(localized: Copy.Me.minutes(length.minutes)), caption: nil))
-        }
-        if let tone = record.tone {
-            items.append(PreferenceItem(kind: .tone, value: String(localized: tone.label), caption: nil))
-        }
-        if let voice = record.voice {
-            items.append(PreferenceItem(kind: .voice, value: String(localized: voice.label), caption: nil))
-        }
         return items
     }
 
@@ -511,6 +534,7 @@ final class MeViewModel {
         let outcome = await ReminderScheduler.apply(reminder)
         if outcome == .denied { reminder.isEnabled = false }
         services.profile.setReminder(reminder)
+        services.observability.capture(.reminderPreferenceChanged(enabled: reminder.isEnabled))
         return outcome
     }
 
@@ -578,6 +602,8 @@ final class MeViewModel {
             ReminderScheduler.cancel()
             await services.appLock.setEnabled(false)
             services.profile.erase()
+            services.promiseSignature.clear()
+            services.avatar.clear()
             await services.auth.signOut()
             return true
         } catch {
@@ -585,6 +611,22 @@ final class MeViewModel {
             actionError = Copy.Me.Settings.deleteAccountFailed
             return false
         }
+    }
+
+    /// Hesaptan çıkar; sunucudaki kayıt **silinmez**, yalnızca cihazdaki oturum ve
+    /// yerel veri sıfırlanır (aynı Apple/Google hesabıyla tekrar giriş yapılabilir).
+    /// Yalnızca bağlı (anonim olmayan) bir hesapta anlamlı — anonim kimliğin geri
+    /// dönüşü olmadığı için `AccountLinkSheet` `isAccountLinked` false iken bu
+    /// satırı hiç göstermez.
+    func signOut() async {
+        isWorking = true
+        defer { isWorking = false }
+        ReminderScheduler.cancel()
+        await services.appLock.setEnabled(false)
+        services.profile.erase()
+        services.promiseSignature.clear()
+        services.avatar.clear()
+        await services.auth.signOut()
     }
 
     // MARK: - Gizlilik ve veri
@@ -601,12 +643,6 @@ final class MeViewModel {
         guard var privacy = record?.privacy else { return }
         privacy.hidesJournal = hides
         services.profile.setPrivacy(privacy)
-    }
-
-    var analyticsConsent: Bool { services.observability.analyticsConsent }
-
-    func setAnalyticsConsent(_ consent: Bool) {
-        services.observability.setAnalyticsConsent(consent)
     }
 
     var exportPayload: ProfileExport? {

@@ -20,6 +20,12 @@ enum Theme {
         static let tight: CGFloat = 8
     }
 
+    enum OnboardingLayout {
+        static let comfortableMinimumHeight: CGFloat = 760
+        static let compactMinimumHeight: CGFloat = 640
+        static let plateCornerRadius: CGFloat = 24
+    }
+
     /// Tipografi ağırlıkları — **tek kaynak**.
     ///
     /// Ürünün genel tavrı bilinçli olarak sistem varsayılanından bir kademe kalındır
@@ -176,29 +182,20 @@ enum Theme {
         ///
         /// 1.0'dan 1.5'e çıkarıldı (ürün sahibi kararı, 2026-09-08): bir saniye,
         /// önceki cümleyi okuyup bitirmeye yetmiyordu — sonraki cümle okuma
-        /// devam ederken beliriyor ve gözü aşağı çekiyordu. Ritmi yavaşlatmak bu
-        /// ekranlarda maliyetsiz, çünkü CTA baştan beri basılabilir durumda:
-        /// beklemek isteyen bekliyor, istemeyen geçiyor.
+        /// devam ederken beliriyor ve gözü aşağı çekiyordu.
+        ///
+        /// **2026-09-21: C bölümü artık bunu kullanmıyor.** Ürün sahibi kararı
+        /// geri aldı: cümle cümle bekleme uygulamanın yavaş olduğu hissini
+        /// veriyordu. Kâğıt ekranlar `woodlandReveal` (0,045 sn adım, en fazla 5
+        /// adım) kullanır (`statementReveal`). Bu değer yalnızca zemin
+        /// malzemesinde kalan tek tüketici için duruyor: `PathSessionView`
+        /// (oturumun ortası, bilerek dokunulmadı; D0 kâğıda alındı). O da geçerse
+        /// `revealStagger` ve `sequentialReveal` silinmeli; ikisi de silinene kadar
+        /// bu değeri geri yükseltmek C'yi etkilemez.
         static let revealStagger: Double = 1.50
         /// Her cümlenin kendi solması. Kısa olursa "belirdi" okunmaz, uzun
         /// olursa takılmış gibi durur.
         static let revealFade: Double = 0.70
-
-        /// F2'nin kendiliğinden aşağı inip geri çıkması (ürün sahibi kararı,
-        /// 2026-09-09). Harita ekrana sığmıyor ve alt satırların varlığı yalnızca
-        /// kaydıran kullanıcıya görünüyordu; ekran kendi kendine bir kez aşağı
-        /// inip geri çıkınca "burada daha var" bilgisi kaydırma gerektirmeden
-        /// veriliyor.
-        ///
-        /// **800 ms kuralının bilinçli istisnası.** O kural durum geçişleri için:
-        /// bir dokunuşun karşılığı 800 ms'den uzun sürerse arayüz ağır hissedilir.
-        /// Buradaki hareket bir geçiş değil, içeriğin gösterilmesi — ve hızlısı
-        /// okunmuyor, savrulma gibi duruyordu. Kullanıcı ekrana dokunduğu anda
-        /// iptal ediliyor ve Reduce Motion'da hiç çalışmıyor.
-        static let roadmapTourLeadIn: Double = 1.10
-        static let roadmapTourDown: Double = 1.50
-        static let roadmapTourHold: Double = 0.55
-        static let roadmapTourUp: Double = 1.20
 
         /// "Yolum"da bir adımın açılıp kapanması.
         ///
@@ -240,12 +237,6 @@ enum Theme {
         /// "Ne değişti" satırları arası gecikme: noktalar başlangıç işaretinden
         /// sırayla kayar (her biri `measurementBar` sürer).
         static let changeRowStagger: Double = 0.12
-
-        /// Liste hâlindeki öğeler için çok daha kısa aralık. C'nin 1.5 saniyesi
-        /// okunacak cümleler içindi; yedi satırlık bir yol haritasında aynı ritim
-        /// son satırı 14. saniyede gösterirdi. Burada beliriş bir okuma temposu
-        /// değil, izin yukarıdan aşağı çizilmesi.
-        static let listRevealStagger: Double = 0.11
 
         /// Sırada `index` numaralı öğenin belirmeye başlama anı. Sıraya dahil
         /// olmayan ama sırayı bekleyen öğeler (C4 grafiği) de bunu kullanıyor.
@@ -330,16 +321,13 @@ private struct SequentialReveal: ViewModifier {
 }
 
 extension View {
-    /// C bölümünün cümle cümle belirmesi. `index` sıradaki yerdir, 0'dan başlar.
+    /// Cümle cümle belirme, okuma temposunda (1,5 sn adım). **C bölümü artık
+    /// kullanmaz** (2026-09-21, bkz. `revealStagger`); C ekranları
+    /// `statementReveal` ile malzemeyi izler. `index` sıradaki yerdir, 0'dan başlar.
     func sequentialReveal(_ index: Int) -> some View {
         modifier(SequentialReveal(index: index, stagger: nil))
     }
 
-    /// Liste öğeleri için hızlı sıra — F2'nin yol haritası gibi. Aynı beliriş,
-    /// okuma temposu yerine çizilme temposu.
-    func listReveal(_ index: Int) -> some View {
-        modifier(SequentialReveal(index: index, stagger: Theme.Motion.listRevealStagger))
-    }
 }
 
 extension AnyTransition {

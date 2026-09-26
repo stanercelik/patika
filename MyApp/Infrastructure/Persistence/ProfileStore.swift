@@ -372,11 +372,12 @@ extension ProfileRecord {
         categories = draft.categories
         mood = draft.currentMood
         timing = draft.timing
+        previousAttemptOtherText = draft.previousAttemptOtherText
         let isSuggested = draft.timing.map {
             $0 != .noPattern && $0.suggestedReminderHour == draft.reminderHour
         } ?? false
         reminder = ReminderSetting(
-            isEnabled: reminder.isEnabled,
+            isEnabled: draft.reminderEnabled,
             hour: draft.reminderHour,
             minute: draft.reminderMinute,
             isSuggested: isSuggested

@@ -1,0 +1,2850 @@
+{
+  "beat-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "beat-1.en.feminine.segment-0": {
+    "durationMs": 9120,
+    "file": "discover-851b911ccc85.mp3",
+    "locale": "en",
+    "renditionKey": "851b911ccc851ad202ed17bd603bfc221027f2e2e63e713ebd44998d1ff893a0",
+    "sha256": "d9d6b3c74fff502b2750d895500eda964d31b60591d055780e1624c7450f071d",
+    "voice": "feminine"
+  },
+  "beat-1.en.feminine.segment-1": {
+    "durationMs": 11920,
+    "file": "discover-2cf72caeb67f.mp3",
+    "locale": "en",
+    "renditionKey": "2cf72caeb67f434c7aca11d16a0bc424ba69cdec271bc3d58b0b5bfa0d29b171",
+    "sha256": "c1adb3fa6b906b06aad9207ca7d791bbe13ba16a695721c515fc58ec7edcd108",
+    "voice": "feminine"
+  },
+  "beat-1.en.feminine.segment-2": {
+    "durationMs": 6800,
+    "file": "discover-e629e7fda0ef.mp3",
+    "locale": "en",
+    "renditionKey": "e629e7fda0ef93b8c5c8c31653f440b4dca5318d1900e3dd0b753654cc183f83",
+    "sha256": "3bf4e71e278e7b654686822895e7dc71db2e7f76eaa3d5269703fff6959dafe9",
+    "voice": "feminine"
+  },
+  "beat-1.en.feminine.segment-3": {
+    "durationMs": 9120,
+    "file": "discover-1b5065abdf71.mp3",
+    "locale": "en",
+    "renditionKey": "1b5065abdf7178f04c8ab4b63d2e5cd697d32ad113dd69208a511434288521c5",
+    "sha256": "55e3cb15549fbb1abeef3e32c0db9c351ea35aa04f767e2dcb41360784d43c53",
+    "voice": "feminine"
+  },
+  "beat-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "beat-2.en.feminine.segment-0": {
+    "durationMs": 8960,
+    "file": "discover-ea0f3c4cd5c1.mp3",
+    "locale": "en",
+    "renditionKey": "ea0f3c4cd5c17d116fa564fb0fabd3bd5d95aef7a8055a217a2134ab1b25ac80",
+    "sha256": "380190568a9922dcc1f44005d2d6e6ec6af2bd782893088f05658acd221105a8",
+    "voice": "feminine"
+  },
+  "beat-2.en.feminine.segment-1": {
+    "durationMs": 4720,
+    "file": "discover-c9b77b8e4de6.mp3",
+    "locale": "en",
+    "renditionKey": "c9b77b8e4de62227d76b4296545b7cb740ad7a7081f7dd42a56004ab2e40806f",
+    "sha256": "8f1f011af4c18347d8f4c1199b33dcd2d07ac41799cb933fbae89025014f851e",
+    "voice": "feminine"
+  },
+  "beat-2.en.feminine.segment-2": {
+    "durationMs": 10000,
+    "file": "discover-3e4b665bcc56.mp3",
+    "locale": "en",
+    "renditionKey": "3e4b665bcc56588a53e83721fd77dead983e14eccff8c6657ce02b240b675cbd",
+    "sha256": "9a2475cd214c059e22f3526ec2b38e8fedd764a59bfd36b561a9ab0fde0c5dfb",
+    "voice": "feminine"
+  },
+  "beat-2.en.feminine.segment-3": {
+    "durationMs": 9440,
+    "file": "discover-ec28e3fe3de8.mp3",
+    "locale": "en",
+    "renditionKey": "ec28e3fe3de83320767113c4a513e6c1eb2d1c8a5958d2c4b422739371eccfa6",
+    "sha256": "616abbcad13e792bf0a63140179bd980b9c0d62a719839cbf23059e447b1cb5d",
+    "voice": "feminine"
+  },
+  "beat-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "beat-3.en.feminine.segment-0": {
+    "durationMs": 12800,
+    "file": "discover-59d792be16e3.mp3",
+    "locale": "en",
+    "renditionKey": "59d792be16e32501f27c0983a5ef925c6218a9c086969a2d03bf55e210d73a5b",
+    "sha256": "9b6d8aa3bb7536c17e9d2a7e0ae7af3d0403a81eaa2e29da93e6892b4cbbcbb0",
+    "voice": "feminine"
+  },
+  "beat-3.en.feminine.segment-1": {
+    "durationMs": 4320,
+    "file": "discover-d3047d79d9a5.mp3",
+    "locale": "en",
+    "renditionKey": "d3047d79d9a5525b17326ab2acfe6c40cc0c9a1ae24c4cb321fd138e36cdef7b",
+    "sha256": "de23e460efd76c62c7d7edba529819c2cd33ca0b687809b1c75825fecc68dc33",
+    "voice": "feminine"
+  },
+  "beat-3.en.feminine.segment-2": {
+    "durationMs": 5440,
+    "file": "discover-891ba8dfee27.mp3",
+    "locale": "en",
+    "renditionKey": "891ba8dfee27f7013cd06b83e2cd1320da59beb7442aa429a1df2cd5c67a4cb7",
+    "sha256": "2bf6aa6e5177f40690c27449f5b1f96bdd571bf9e76b16eda1de897a63326552",
+    "voice": "feminine"
+  },
+  "beat-3.en.feminine.segment-3": {
+    "durationMs": 7200,
+    "file": "discover-ac03ee52c939.mp3",
+    "locale": "en",
+    "renditionKey": "ac03ee52c939ea1a889810af417974c0a2579275169e1dbfd35aeb47970f35f7",
+    "sha256": "449a182132eab327b27c44d041ded295be4a18a1ffd78d1f812b90f38836039b",
+    "voice": "feminine"
+  },
+  "beat-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "beat-4.en.feminine.segment-0": {
+    "durationMs": 10000,
+    "file": "discover-1cdc5bcbf1d8.mp3",
+    "locale": "en",
+    "renditionKey": "1cdc5bcbf1d822a81cffa90be297b3e32826050eaef71229dfc3fb9ca7960e78",
+    "sha256": "5474f8dca473c6542f051d98f881d0c276cb49c852395ae8232afcac8e5102c4",
+    "voice": "feminine"
+  },
+  "beat-4.en.feminine.segment-1": {
+    "durationMs": 8960,
+    "file": "discover-bd507451d50e.mp3",
+    "locale": "en",
+    "renditionKey": "bd507451d50ecb83a84f8e9322a9e746b143d00458ee5c64acaab3c67bf60651",
+    "sha256": "311d2fff7295f4cef0b588f4979f1f92952bb4767943687f561f43527a21ed5a",
+    "voice": "feminine"
+  },
+  "beat-4.en.feminine.segment-2": {
+    "durationMs": 8320,
+    "file": "discover-91c23159b581.mp3",
+    "locale": "en",
+    "renditionKey": "91c23159b58105040f102a4b78cf5a4c02ff814ad4dc4c2cce228ea3812a08ad",
+    "sha256": "cfe8972e2bfa8c97a44886e9d6e74737efaa79e62969f511270dbc4081d8df80",
+    "voice": "feminine"
+  },
+  "beat-4.en.feminine.segment-3": {
+    "durationMs": 2000,
+    "file": "discover-6330ea4caa15.mp3",
+    "locale": "en",
+    "renditionKey": "6330ea4caa15c8939f984b90a81250e852bb89f3de5da173ed854d5535e74696",
+    "sha256": "67c3d63a33e7bfb01e4cae53fc6488cb2eba97807e305ba26bc584d192a6232b",
+    "voice": "feminine"
+  },
+  "beat-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "beat-5.en.feminine.segment-0": {
+    "durationMs": 6640,
+    "file": "discover-5d1bc328624f.mp3",
+    "locale": "en",
+    "renditionKey": "5d1bc328624fdb78cde9df78ee43026bb034c166b7c66f47671003356bf77476",
+    "sha256": "fcd4c0f6d4b351588e82c4d3ead0fe3d61de5511fd18ea3d2a3a5c418381a360",
+    "voice": "feminine"
+  },
+  "beat-5.en.feminine.segment-1": {
+    "durationMs": 3680,
+    "file": "discover-524d53d2a8d5.mp3",
+    "locale": "en",
+    "renditionKey": "524d53d2a8d54cb844e782d8a12f067c5e2e9e6ce007efe06cb2278f6a6cf592",
+    "sha256": "0237718667a12511566607ead4cb3e2c3e298dbfbc840fa14cf8a8bc97ad1630",
+    "voice": "feminine"
+  },
+  "beat-5.en.feminine.segment-2": {
+    "durationMs": 8720,
+    "file": "discover-4ef801dd715d.mp3",
+    "locale": "en",
+    "renditionKey": "4ef801dd715d621e51c88320c08b0c5f2f43651b76c444233098e43368d3731f",
+    "sha256": "f344831f2f9cc63dce9fec61785f0e0cff2881bc8eb9f9c463fe7ddee23e5c37",
+    "voice": "feminine"
+  },
+  "beat-5.en.feminine.segment-3": {
+    "durationMs": 9120,
+    "file": "discover-92ace5f2f89e.mp3",
+    "locale": "en",
+    "renditionKey": "92ace5f2f89e5b78be9d53f2ce0c493598d94f70131762953a6bd8f7735f8ebb",
+    "sha256": "3f5db51e74370874c671b9e49866158603947e97394970ee242d8bb80f4a64be",
+    "voice": "feminine"
+  },
+  "beat-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "beat-6.en.feminine.segment-0": {
+    "durationMs": 10080,
+    "file": "discover-1273b1b7d8a5.mp3",
+    "locale": "en",
+    "renditionKey": "1273b1b7d8a54873c1709d220261857d4639b73920ff40d76960c367981de480",
+    "sha256": "e8fe83940f168fd0f5f17063d19385efee7dff70326f5f287427c21a2cf2c859",
+    "voice": "feminine"
+  },
+  "beat-6.en.feminine.segment-1": {
+    "durationMs": 6080,
+    "file": "discover-7013b9de02bd.mp3",
+    "locale": "en",
+    "renditionKey": "7013b9de02bd4760e61f414ef87d33c8da070a57bfe9edd1300511db72f6697f",
+    "sha256": "29410a75f3feb340d873d6026db4a6c243140c523f5383857ba06f185e88e01d",
+    "voice": "feminine"
+  },
+  "beat-6.en.feminine.segment-2": {
+    "durationMs": 3280,
+    "file": "discover-cd548606cc10.mp3",
+    "locale": "en",
+    "renditionKey": "cd548606cc104dcd41a6ebb89c0fbb3ce9eb4c9542bf47d63801adbcda7fcf32",
+    "sha256": "8a2b5e2026b83a1e61fb32dcf1ba0ba6127a685d6bd6536c34b6c6cf1dab13ab",
+    "voice": "feminine"
+  },
+  "beat-6.en.feminine.segment-3": {
+    "durationMs": 9200,
+    "file": "discover-1cdab51a09e3.mp3",
+    "locale": "en",
+    "renditionKey": "1cdab51a09e34d0bc734ee2bebf2a5d81f44a293933507b55f45764bced299e4",
+    "sha256": "0902ac2621caab2ac50e34bf4dcb94dec65f190c2d93601afe29652048a39d59",
+    "voice": "feminine"
+  },
+  "beat-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "beat-7.en.feminine.segment-0": {
+    "durationMs": 10640,
+    "file": "discover-adda8b19eaa9.mp3",
+    "locale": "en",
+    "renditionKey": "adda8b19eaa979acd0e65a92c027f1cb8ea72ba76bfdc2ce82d5d39349cd069c",
+    "sha256": "881ce5932a353fb28f68b025c7f5d5015d7d79be12c5c051feb410ed8774e208",
+    "voice": "feminine"
+  },
+  "beat-7.en.feminine.segment-1": {
+    "durationMs": 6960,
+    "file": "discover-50cc5207e4f6.mp3",
+    "locale": "en",
+    "renditionKey": "50cc5207e4f6480d9faf0d45fe3058c372c9bb5f73f3094d9f27114892337a73",
+    "sha256": "66ad9b5adaa35e4b60bdc7af269ded4a74303f115f83b61644802b89976c939c",
+    "voice": "feminine"
+  },
+  "beat-7.en.feminine.segment-2": {
+    "durationMs": 8240,
+    "file": "discover-8b9773b2c232.mp3",
+    "locale": "en",
+    "renditionKey": "8b9773b2c2324af07362d43c992ce7a1e87a9bc550ee742695edfcb8c45fb7bb",
+    "sha256": "6fcf40513341c54891fb6136cb3e487a4a937decdb5942d98bf439b19b93d3b4",
+    "voice": "feminine"
+  },
+  "beat-7.en.feminine.segment-3": {
+    "durationMs": 7280,
+    "file": "discover-c91f61e023ed.mp3",
+    "locale": "en",
+    "renditionKey": "c91f61e023eda07e273832fbe9d87ece9181a07d436b82fad8361d8216a86456",
+    "sha256": "8f317273e166dcd96a0f7f321df012774c01e4132abe12f8bf3407abab1a2a17",
+    "voice": "feminine"
+  },
+  "breath-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "breath-1.en.feminine.segment-0": {
+    "durationMs": 7120,
+    "file": "discover-2d6499aab39a.mp3",
+    "locale": "en",
+    "renditionKey": "2d6499aab39a81f1984923fc7f99b95f5d167878451e993941969c78230e4caf",
+    "sha256": "d1b6761591b899880f98d72b8bf36cea2385dfc218b93dacd80d07d8b645cd15",
+    "voice": "feminine"
+  },
+  "breath-1.en.feminine.segment-1": {
+    "durationMs": 10320,
+    "file": "discover-59f4c288834a.mp3",
+    "locale": "en",
+    "renditionKey": "59f4c288834acbfef8d91b9080f701a717b59223334f7f17976a0fbaf65f974f",
+    "sha256": "71b31fcd602733ded60f34d9a3b5cf97d9eb1a4999e4d5328c924b2d73f95d57",
+    "voice": "feminine"
+  },
+  "breath-1.en.feminine.segment-2": {
+    "durationMs": 4320,
+    "file": "discover-16c3d0da0187.mp3",
+    "locale": "en",
+    "renditionKey": "16c3d0da01872ec85a7e4c05bb740689c8bfb9a7468674d2fca712c912fd20a6",
+    "sha256": "7830acf1c820b808ec7e1cc9d0ec9652a76463c7479340ec4c659b056bfcf914",
+    "voice": "feminine"
+  },
+  "breath-1.en.feminine.segment-3": {
+    "durationMs": 3520,
+    "file": "discover-c627bdb73246.mp3",
+    "locale": "en",
+    "renditionKey": "c627bdb7324664328b6d4e43df0216a9814a2c815cf058e844a7871043ca5d2c",
+    "sha256": "100ec9408307ac899605adb27b34f93dbbdb1b5187b27bd493034c02175aab9f",
+    "voice": "feminine"
+  },
+  "breath-1.en.feminine.segment-4": {
+    "durationMs": 12000,
+    "file": "discover-41c5b9b4893c.mp3",
+    "locale": "en",
+    "renditionKey": "41c5b9b4893c3322f015b401154bcf7d27c4c6b9b8106e5d24301e1f1023c2e4",
+    "sha256": "b1812db6d47d64345d23f7cd8bb65cbc070285bc09992135560f1603a007bc6e",
+    "voice": "feminine"
+  },
+  "breath-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "breath-2.en.feminine.segment-0": {
+    "durationMs": 9040,
+    "file": "discover-a246c4f63091.mp3",
+    "locale": "en",
+    "renditionKey": "a246c4f63091a2a8f2364ddadc34f01a14502126421ba21aaa9f69497b3077db",
+    "sha256": "3924ce3232101b7d7bede31a2e56527f1a5e79fd8e7f3d9106b2adc16f473577",
+    "voice": "feminine"
+  },
+  "breath-2.en.feminine.segment-1": {
+    "durationMs": 5760,
+    "file": "discover-a4fdcd38689d.mp3",
+    "locale": "en",
+    "renditionKey": "a4fdcd38689d7dcae25762e729ef81978de508209ab3af29ecf800c297be644d",
+    "sha256": "b933fe745428a537eb38238fdc2aa90a4ebac4fec1c2c8744c0e41b38219f8f7",
+    "voice": "feminine"
+  },
+  "breath-2.en.feminine.segment-2": {
+    "durationMs": 8720,
+    "file": "discover-c1231fd3b9b6.mp3",
+    "locale": "en",
+    "renditionKey": "c1231fd3b9b6e404dcce0216c24ae62d15b4883b05a72f3e416c68303985b847",
+    "sha256": "bd06f92b4b67f97cff0bfdc1c048675107e890023baa8a908acf1f5c39c7be48",
+    "voice": "feminine"
+  },
+  "breath-2.en.feminine.segment-3": {
+    "durationMs": 8080,
+    "file": "discover-8cd22774d3e3.mp3",
+    "locale": "en",
+    "renditionKey": "8cd22774d3e34b50193091c518ef0655abc5769e8b573a85f57c6ac4af761a2b",
+    "sha256": "c40980701b7831ec4a058361de6234fae9246cb92b9c5cc6564db3e49d16a786",
+    "voice": "feminine"
+  },
+  "breath-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "breath-3.en.feminine.segment-0": {
+    "durationMs": 2880,
+    "file": "discover-0816389960e5.mp3",
+    "locale": "en",
+    "renditionKey": "0816389960e52306e58207082d30f263c7acaa9438b0fc80b144d947fee79744",
+    "sha256": "1aa50622c3373ca2be4f29d5b2fb9aecaf263b6a8e19a7d7be8d43c2f5a81e76",
+    "voice": "feminine"
+  },
+  "breath-3.en.feminine.segment-1": {
+    "durationMs": 9360,
+    "file": "discover-23ce50427f46.mp3",
+    "locale": "en",
+    "renditionKey": "23ce50427f463a48fb465003494f7eae60ca99fae2c9927ab2f2c9ddb4683714",
+    "sha256": "52d0c3d8ddc71c49c5948f7fedfcea8c196f2abfdcf840841151367439f6c2ee",
+    "voice": "feminine"
+  },
+  "breath-3.en.feminine.segment-2": {
+    "durationMs": 8240,
+    "file": "discover-8e60f31325cd.mp3",
+    "locale": "en",
+    "renditionKey": "8e60f31325cdaff8c4984dde4750ae64eb832704c5391765e9f61fd13891e56a",
+    "sha256": "e55ec977d03dbd0a013c39a0b897b5abd1f5178f8ee0322f8d91884fdd2d4ece",
+    "voice": "feminine"
+  },
+  "breath-3.en.feminine.segment-3": {
+    "durationMs": 12000,
+    "file": "discover-a5860f7d6e60.mp3",
+    "locale": "en",
+    "renditionKey": "a5860f7d6e600c60cc87e7ffbe03a589f3187134859f49d177760c1860e6be5a",
+    "sha256": "d3275015176f081ee1a8344cbfd049c142a3aa255e0e6ca4050e2df6f534d19a",
+    "voice": "feminine"
+  },
+  "breath-3.en.feminine.segment-4": {
+    "durationMs": 4720,
+    "file": "discover-70765aaa5461.mp3",
+    "locale": "en",
+    "renditionKey": "70765aaa546126019c41d971cf066155d0e4ce115d7b3f0822011990905077c3",
+    "sha256": "ac7bf5c1eb6af913d422fb0d9fe5983692efb041cad415fb23960a67eaa9ed29",
+    "voice": "feminine"
+  },
+  "breath-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "breath-4.en.feminine.segment-0": {
+    "durationMs": 7920,
+    "file": "discover-c208d771371d.mp3",
+    "locale": "en",
+    "renditionKey": "c208d771371dcffe78ed159f7b2ae3f1e2ffa709cb8d1986114798eab0c422bf",
+    "sha256": "91fa150c159987413b67d9f9182c298ba2ed2e7719b1fbf2aae2292c1480e2f9",
+    "voice": "feminine"
+  },
+  "breath-4.en.feminine.segment-1": {
+    "durationMs": 13280,
+    "file": "discover-a784da6306ca.mp3",
+    "locale": "en",
+    "renditionKey": "a784da6306caa80c2adc41b21cf1e9119b377371ec1b5b0be55da6c67871851a",
+    "sha256": "ae2f2f9424b08794a097909503e0e6a94a2c3d1ff121fc8fe6dd0fe11c27f1eb",
+    "voice": "feminine"
+  },
+  "breath-4.en.feminine.segment-2": {
+    "durationMs": 9200,
+    "file": "discover-585fedf7f01c.mp3",
+    "locale": "en",
+    "renditionKey": "585fedf7f01c32861e01e87a2c6526540a2de4833874b30b893cefd174189265",
+    "sha256": "373881bc4f316699440a1fe1862712bd12f27e13add15bf4b58a1b73d6fecd4e",
+    "voice": "feminine"
+  },
+  "breath-4.en.feminine.segment-3": {
+    "durationMs": 8160,
+    "file": "discover-64cc2156f88f.mp3",
+    "locale": "en",
+    "renditionKey": "64cc2156f88f14f1582b4fd5fb3ae5ca63566ce5cf94ca88f5b5aaf887ee5313",
+    "sha256": "8bd09a02e55cf0f7d69173b377a3d1b17bdf17f9a5556bc8abd7a15ce24d33fb",
+    "voice": "feminine"
+  },
+  "breath-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "breath-5.en.feminine.segment-0": {
+    "durationMs": 5760,
+    "file": "discover-2951deb6bd1e.mp3",
+    "locale": "en",
+    "renditionKey": "2951deb6bd1e1a52f65f13cdef9b065c4c6845aab8955bc94ba8d8448ab25e88",
+    "sha256": "78cf545c9415b8729a9a5c603830a3e3b255fc80729ab9f7f80640409f21906c",
+    "voice": "feminine"
+  },
+  "breath-5.en.feminine.segment-1": {
+    "durationMs": 10560,
+    "file": "discover-06ec91973cae.mp3",
+    "locale": "en",
+    "renditionKey": "06ec91973cae9c6332fef1120bafeebebde8b61e346374e7a2aa1067893b98fc",
+    "sha256": "c0726c24e56dfa19bbfa361f087249fc5641d361ce82d4a0814b15f7161d9ba2",
+    "voice": "feminine"
+  },
+  "breath-5.en.feminine.segment-2": {
+    "durationMs": 4560,
+    "file": "discover-c5f5edf2dd5c.mp3",
+    "locale": "en",
+    "renditionKey": "c5f5edf2dd5cb89b6ea0e7cb35cda5ffba3f8c7fcf1cf0a132c507a42f8127b1",
+    "sha256": "9e4f11f57bc27aa66f285b591fc25fe325ac7ebf2733d42169a72abbb36f7b14",
+    "voice": "feminine"
+  },
+  "breath-5.en.feminine.segment-3": {
+    "durationMs": 10880,
+    "file": "discover-4cf62ac9ca71.mp3",
+    "locale": "en",
+    "renditionKey": "4cf62ac9ca7123771c3439cd58890bdf5a4fad67cd6e15f8e8ac6489c9b8c463",
+    "sha256": "68427164f67592a84ce7b64857eb906763b26fa99064e40038d64a5c604e3cbe",
+    "voice": "feminine"
+  },
+  "breath-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "breath-6.en.feminine.segment-0": {
+    "durationMs": 6400,
+    "file": "discover-a1ba1fa9f9b7.mp3",
+    "locale": "en",
+    "renditionKey": "a1ba1fa9f9b7b5f1e8a8109e7ae5fd66573db1bf5a06852a40ecc21a7c21e226",
+    "sha256": "ea8a6635aba5e878b105f6af43a1f2ae695ad494e14eae4d4f5d9d61d91fc3c8",
+    "voice": "feminine"
+  },
+  "breath-6.en.feminine.segment-1": {
+    "durationMs": 12160,
+    "file": "discover-c92179275da8.mp3",
+    "locale": "en",
+    "renditionKey": "c92179275da8df2fd219a7c55793f5973e38552284eb87ad6bf8dbc36d922c80",
+    "sha256": "f42fa9c6c02cbca599bf81fdc3838f57dbc468ea0774e376a74c0ea5db937db5",
+    "voice": "feminine"
+  },
+  "breath-6.en.feminine.segment-2": {
+    "durationMs": 12080,
+    "file": "discover-26c8c607f858.mp3",
+    "locale": "en",
+    "renditionKey": "26c8c607f858edd6d156106ee0334c32785c89c8608db7472f94c9c6fab48d15",
+    "sha256": "30acca7ebfe94d15b581bb8b1f4f6e3c32b0cefb6ff2a3bc0d5381397cc44c0a",
+    "voice": "feminine"
+  },
+  "breath-6.en.feminine.segment-3": {
+    "durationMs": 3680,
+    "file": "discover-9940bdb3a2b3.mp3",
+    "locale": "en",
+    "renditionKey": "9940bdb3a2b36c91625bfb6f252165e931ab56e26a2db9b30726910513228823",
+    "sha256": "942e70617f15913b8c6f27d52c3ecff7cbcaf730a714f6bda2448c8a06def7ab",
+    "voice": "feminine"
+  },
+  "breath-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "breath-7.en.feminine.segment-0": {
+    "durationMs": 7760,
+    "file": "discover-1ce5407498dd.mp3",
+    "locale": "en",
+    "renditionKey": "1ce5407498dda722451787be3c403060f1df1fdde76e8e0367e4d30169a56f1a",
+    "sha256": "89d4cd7ea2a4d7f78f83bc7aa5b663d086ab606d53d962fa31bdbea05be2fc9c",
+    "voice": "feminine"
+  },
+  "breath-7.en.feminine.segment-1": {
+    "durationMs": 3520,
+    "file": "discover-e1b5347915b3.mp3",
+    "locale": "en",
+    "renditionKey": "e1b5347915b39a43b2198a5cd492473bec92b63996aa3daa60928cbc942dd2c3",
+    "sha256": "8944c8b665c78133c46fc6a3b286e41156249a61413505809342469b446717f6",
+    "voice": "feminine"
+  },
+  "breath-7.en.feminine.segment-2": {
+    "durationMs": 9120,
+    "file": "discover-a2085b4dbd9e.mp3",
+    "locale": "en",
+    "renditionKey": "a2085b4dbd9e249684888b4dae3d809ee1ec6e9af9cdae2df0b7138180ca36b4",
+    "sha256": "d95554b2670dbf85351e8503726ad3b33794f885ccc3102793a5e8f5ce991ed6",
+    "voice": "feminine"
+  },
+  "breath-7.en.feminine.segment-3": {
+    "durationMs": 10560,
+    "file": "discover-14cabfa6fef2.mp3",
+    "locale": "en",
+    "renditionKey": "14cabfa6fef2703e7034caffdcdfb9764067d3b601dc537b897d97c936fa1b4f",
+    "sha256": "793adaad209ef606f313feb2583c07ae7fecc5a31df1239bcd14942d7b004887",
+    "voice": "feminine"
+  },
+  "carry-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "carry-1.en.feminine.segment-0": {
+    "durationMs": 5120,
+    "file": "discover-141dafe3ee0c.mp3",
+    "locale": "en",
+    "renditionKey": "141dafe3ee0c01a6624286f52e3a8cd95a227711ab9623ecd0194476f3a148fd",
+    "sha256": "eef96a96e6afcb79ea87bbaf9d338e8864b8924f75b3cff6e06019138c78f4da",
+    "voice": "feminine"
+  },
+  "carry-1.en.feminine.segment-1": {
+    "durationMs": 8400,
+    "file": "discover-18b97eab4dcf.mp3",
+    "locale": "en",
+    "renditionKey": "18b97eab4dcfd16aa833a27462292feb9216341f0ebfb3ab3115a69d04a42666",
+    "sha256": "b9fa56aaaa5fd14a4b19bdafde6598a34e53834790d77f1e3d5321106a3e0d3e",
+    "voice": "feminine"
+  },
+  "carry-1.en.feminine.segment-2": {
+    "durationMs": 11520,
+    "file": "discover-42dd2340d7ce.mp3",
+    "locale": "en",
+    "renditionKey": "42dd2340d7ce32c60a92734c63fda9d4ec8727ad9f79a2799fdf5426bc20e534",
+    "sha256": "365fd8c95c34e6dea16cbe523ab2f8950118a9082711b8cfdb11b3aedc378a7a",
+    "voice": "feminine"
+  },
+  "carry-1.en.feminine.segment-3": {
+    "durationMs": 9200,
+    "file": "discover-c81959dbef44.mp3",
+    "locale": "en",
+    "renditionKey": "c81959dbef447b46cbb86511908b4fec9acb8e1fc381c2b100ea0aaba11165b0",
+    "sha256": "a900345355d047b566371ca92e0cb351b3539912b5bf43aa57a4f4edb1fe23e7",
+    "voice": "feminine"
+  },
+  "carry-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "carry-2.en.feminine.segment-0": {
+    "durationMs": 14320,
+    "file": "discover-d1d0e5eddd22.mp3",
+    "locale": "en",
+    "renditionKey": "d1d0e5eddd227ae094d9510764f93c7a8f8c5086ee4db8e6caa8e71dd57074e1",
+    "sha256": "05aad1911f06aba26ee972458804af76b3812b83b7ac0f16a726e07536c0176f",
+    "voice": "feminine"
+  },
+  "carry-2.en.feminine.segment-1": {
+    "durationMs": 9360,
+    "file": "discover-deb74168cc44.mp3",
+    "locale": "en",
+    "renditionKey": "deb74168cc442df2e248d574a22f7b41deb4704b5414aa4657e5ecd38a6cf751",
+    "sha256": "368cd965aa5c739da7c3bcc1b821385c4ef5a62ec31374c6582758603b3b9b28",
+    "voice": "feminine"
+  },
+  "carry-2.en.feminine.segment-2": {
+    "durationMs": 5600,
+    "file": "discover-d61615a38842.mp3",
+    "locale": "en",
+    "renditionKey": "d61615a3884263dbacdbf49fc402568234306fc4a7e9b0d9ef63d73c05272c3b",
+    "sha256": "5770f7267776a014dbcaee4ec0d68aac98b7ae2c782618c8f3aed47b591d6b1f",
+    "voice": "feminine"
+  },
+  "carry-2.en.feminine.segment-3": {
+    "durationMs": 1640,
+    "file": "discover-9a73b148d04f.mp3",
+    "locale": "en",
+    "renditionKey": "9a73b148d04f9a9e7318412df74c7775cc3251df517d2ea2aa4596e5f195b80a",
+    "sha256": "f94b6b9edd4f699b70cbd9705610c86d7c78faa07d7d93c1fc17e19d12f5f22f",
+    "voice": "feminine"
+  },
+  "carry-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "carry-3.en.feminine.segment-0": {
+    "durationMs": 5440,
+    "file": "discover-5c9d9b6c7b13.mp3",
+    "locale": "en",
+    "renditionKey": "5c9d9b6c7b1379098cccd88615d1735e1cc930e2804cb17163669262ca0d1b89",
+    "sha256": "b7830fb49b5ab4fc790cd08505937ce47029cdfd20bac4ca10e8602766aef89b",
+    "voice": "feminine"
+  },
+  "carry-3.en.feminine.segment-1": {
+    "durationMs": 5120,
+    "file": "discover-17f95f61252a.mp3",
+    "locale": "en",
+    "renditionKey": "17f95f61252acb27c5ade529aadcf59747ece0c58eba20f598764b3ecb324ef4",
+    "sha256": "69953758605ba664aeb9bef82779d4b556c0101a7bbbe9602798d93efefc5f8b",
+    "voice": "feminine"
+  },
+  "carry-3.en.feminine.segment-2": {
+    "durationMs": 8640,
+    "file": "discover-4e6cfa7dd10a.mp3",
+    "locale": "en",
+    "renditionKey": "4e6cfa7dd10a0b7e3d9cbefa23062911033a6f614c9c38738839161dbd16a260",
+    "sha256": "5d4d45e0f804a196314920f2771518a18a512061926cb87444c1bcfa3ecec22d",
+    "voice": "feminine"
+  },
+  "carry-3.en.feminine.segment-3": {
+    "durationMs": 11440,
+    "file": "discover-745651098532.mp3",
+    "locale": "en",
+    "renditionKey": "745651098532bbfb85418305cc3ce3db147e9d8a4e4ece901ae2a973b5f9fe18",
+    "sha256": "5c0584075e7270055179c8387bbe866f73e13dfa524bcae487534078c04aebe5",
+    "voice": "feminine"
+  },
+  "carry-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "carry-4.en.feminine.segment-0": {
+    "durationMs": 16240,
+    "file": "discover-42a12cc68c21.mp3",
+    "locale": "en",
+    "renditionKey": "42a12cc68c21a4d97eb844396e0fe161c1e3d70019fa952d1cbef934dabc3699",
+    "sha256": "4be018ca73b9ca0bf77861facd2e23f8d489547692332894c757d75dc6867df0",
+    "voice": "feminine"
+  },
+  "carry-4.en.feminine.segment-1": {
+    "durationMs": 5520,
+    "file": "discover-d854a8ef5a59.mp3",
+    "locale": "en",
+    "renditionKey": "d854a8ef5a59881da862d58ef0d02af5ecc76b053b176f5bdd8ba2a4110f142d",
+    "sha256": "3af10e378f8ad38892af48a460a21a0a51b35927fe789193321a70f1d2dabb4f",
+    "voice": "feminine"
+  },
+  "carry-4.en.feminine.segment-2": {
+    "durationMs": 7280,
+    "file": "discover-7a4caa52b80a.mp3",
+    "locale": "en",
+    "renditionKey": "7a4caa52b80a658ec349a88ed3a6a53f83aace1f8f280415c81284d18ff5205f",
+    "sha256": "978e597353c4a6b9bdcf00c34d862ea3d62385e98bc090864a8a32483ac8d6d1",
+    "voice": "feminine"
+  },
+  "carry-4.en.feminine.segment-3": {
+    "durationMs": 2960,
+    "file": "discover-8904bc89a34d.mp3",
+    "locale": "en",
+    "renditionKey": "8904bc89a34d40013a78045afcd18d96b9460d349b0d08553f637513f43214ce",
+    "sha256": "021c9999aa2434cadb4bae188fb77837a388a8ee1ad4b767d8718c011bee877e",
+    "voice": "feminine"
+  },
+  "carry-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "carry-5.en.feminine.segment-0": {
+    "durationMs": 7120,
+    "file": "discover-dd5b7a8407a1.mp3",
+    "locale": "en",
+    "renditionKey": "dd5b7a8407a10c676cc5dff2c22e91279c3deb5e54fea8b1ef1f3fb31e5bde56",
+    "sha256": "cabe390ffa7f59f22d8c2a652f2514cdd863479c7115436eb6ca1cab24dc6380",
+    "voice": "feminine"
+  },
+  "carry-5.en.feminine.segment-1": {
+    "durationMs": 8320,
+    "file": "discover-f52bb2c5998b.mp3",
+    "locale": "en",
+    "renditionKey": "f52bb2c5998b5e2532bddba1c6153d525cdca4827b08f662a705343d9b37180a",
+    "sha256": "f5cde090beec4c2375e488148ef584890fbb196d19aa4163c14708980f9c7ba1",
+    "voice": "feminine"
+  },
+  "carry-5.en.feminine.segment-2": {
+    "durationMs": 8720,
+    "file": "discover-f65cf7a5e6ee.mp3",
+    "locale": "en",
+    "renditionKey": "f65cf7a5e6ee0e09b903b6eb5e5f1672d2564a4d070ae502782eb0a313cc8b29",
+    "sha256": "cb26dd70ec64f889288ffc925588b28274a718b4d5f547ec522af9c977efe932",
+    "voice": "feminine"
+  },
+  "carry-5.en.feminine.segment-3": {
+    "durationMs": 7280,
+    "file": "discover-3467b27f6a51.mp3",
+    "locale": "en",
+    "renditionKey": "3467b27f6a510850ced31a8357e0f623710bc86d1385250509bb21642483fe79",
+    "sha256": "7c039586a211e2444b31962a20ff6ce6c9204dcdfecf3b3f2fa0923ef492d55a",
+    "voice": "feminine"
+  },
+  "carry-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "carry-6.en.feminine.segment-0": {
+    "durationMs": 10720,
+    "file": "discover-2a424c078d52.mp3",
+    "locale": "en",
+    "renditionKey": "2a424c078d5231efdf90b543acda213330d2cc677c458c4c9cda3b579a342243",
+    "sha256": "317b7597c1e6052596c2bc924c9443c6f61233fd11cbc30eb0fa5a0e79e304da",
+    "voice": "feminine"
+  },
+  "carry-6.en.feminine.segment-1": {
+    "durationMs": 4480,
+    "file": "discover-ec0e4177af06.mp3",
+    "locale": "en",
+    "renditionKey": "ec0e4177af0695f04ef1c37c817c37c6180da712b522184e9a3e681542f6515b",
+    "sha256": "3d18449292fa349973a59963304e9614005590149f5bdf80b6bb374f0ec577a8",
+    "voice": "feminine"
+  },
+  "carry-6.en.feminine.segment-2": {
+    "durationMs": 8880,
+    "file": "discover-57c5dfea8dc9.mp3",
+    "locale": "en",
+    "renditionKey": "57c5dfea8dc97af04c55d14d47680249b51da4d10b9718b51a8037219ce18068",
+    "sha256": "e58d9ca656f4c64f7f3b160d077a9fa00c9236ec3a3ea41c7e88bcfae5e071e0",
+    "voice": "feminine"
+  },
+  "carry-6.en.feminine.segment-3": {
+    "durationMs": 4160,
+    "file": "discover-8e156a778096.mp3",
+    "locale": "en",
+    "renditionKey": "8e156a778096c6ca383f251f1bb6edced66df5e0d53e2587083b5df571e12675",
+    "sha256": "25a45ec34c13989a697bbae3eb237597ef300c0f38449b9dbd539a90b04db834",
+    "voice": "feminine"
+  },
+  "carry-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "carry-7.en.feminine.segment-0": {
+    "durationMs": 9840,
+    "file": "discover-c4b98ec91adc.mp3",
+    "locale": "en",
+    "renditionKey": "c4b98ec91adc90a2d240a4e772851b407bd50b52dc08dd5c748cea9697025dad",
+    "sha256": "6901df563535d50b927cbb7676514e80462b4d85c680bb7ae22be7b3b36b4788",
+    "voice": "feminine"
+  },
+  "carry-7.en.feminine.segment-1": {
+    "durationMs": 2000,
+    "file": "discover-a2b3b8ff970b.mp3",
+    "locale": "en",
+    "renditionKey": "a2b3b8ff970b36698dfa4fea38f085a5fd34432f6b1afcb222e540e38bb58080",
+    "sha256": "6c6a025b053b966c6aa7a24b0bde43570033fa9bbb025258cff56e8b1f818833",
+    "voice": "feminine"
+  },
+  "carry-7.en.feminine.segment-2": {
+    "durationMs": 4160,
+    "file": "discover-d12aa6155776.mp3",
+    "locale": "en",
+    "renditionKey": "d12aa6155776f7dd9e8db206edbfc08bc7572aa7096989459e41b94f556f4e48",
+    "sha256": "ab95fba5022af186fe816f7cf12fb8afdb35a4e3632655caf216e2d23ba16742",
+    "voice": "feminine"
+  },
+  "carry-7.en.feminine.segment-3": {
+    "durationMs": 12320,
+    "file": "discover-500c0ea5fe30.mp3",
+    "locale": "en",
+    "renditionKey": "500c0ea5fe3054dfd73e839078ec52d0c5b9306815760db657080c0cd42166cb",
+    "sha256": "e3f47d3f0d062a9457cbbfb0606bd3c7ca58d2b57b9187b3db7e09448f7e2234",
+    "voice": "feminine"
+  },
+  "evening-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "evening-1.en.feminine.segment-0": {
+    "durationMs": 10080,
+    "file": "discover-e0719b53f832.mp3",
+    "locale": "en",
+    "renditionKey": "e0719b53f832c2b23ccd2ed0249a97ac69374c5c2388dc2d16b8259a78356b31",
+    "sha256": "ff292753abd686b8e43c2912d498f8b6d11b52552744239afbc49b9f4ffede11",
+    "voice": "feminine"
+  },
+  "evening-1.en.feminine.segment-1": {
+    "durationMs": 3520,
+    "file": "discover-415583c30317.mp3",
+    "locale": "en",
+    "renditionKey": "415583c30317eed7a7881babdbd1f3cd053f93a66f291926fd2ef627fbf75800",
+    "sha256": "48e0d21cd7cc2e9e44ed9b7fe791179142c3ad809e82f50b18ad5ec6320d7149",
+    "voice": "feminine"
+  },
+  "evening-1.en.feminine.segment-2": {
+    "durationMs": 4560,
+    "file": "discover-9c4b2ffb8aa4.mp3",
+    "locale": "en",
+    "renditionKey": "9c4b2ffb8aa4167de4e9b985b2dae305429bcca8ebcbdbcc9e09b44ab4b4c3be",
+    "sha256": "b1a7d6a41a6ae1eb1289d1887c85dd6db7cffbe5c2c2198e6e2430c499fdd361",
+    "voice": "feminine"
+  },
+  "evening-1.en.feminine.segment-3": {
+    "durationMs": 8080,
+    "file": "discover-ad333b30e42b.mp3",
+    "locale": "en",
+    "renditionKey": "ad333b30e42b55c715d7fb3a59512b6f4f7a52e25de9feea5c049400aa638d8d",
+    "sha256": "f18ecdecf01998277096ec32fb265da9d4c72efce7aa622f5b044848e8934e7e",
+    "voice": "feminine"
+  },
+  "evening-1.en.feminine.segment-4": {
+    "durationMs": 7840,
+    "file": "discover-f884d5d27643.mp3",
+    "locale": "en",
+    "renditionKey": "f884d5d276434617b2f49be3f44122f64ab5a34b0349369763785ffa10108b76",
+    "sha256": "68cdc5d7c71c3eb760fbede15ea5ebb4cd12a24feb0379c3f4646edaadd5c816",
+    "voice": "feminine"
+  },
+  "evening-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "evening-2.en.feminine.segment-0": {
+    "durationMs": 8080,
+    "file": "discover-11dc4e43dc01.mp3",
+    "locale": "en",
+    "renditionKey": "11dc4e43dc01532707c8776070545d77875ff640b7b04f7ab39919b52a9fcf4a",
+    "sha256": "80d9407f63dad3bb55f294cd529691e8682e490f8b34d88f3e0cabbff5fb38f7",
+    "voice": "feminine"
+  },
+  "evening-2.en.feminine.segment-1": {
+    "durationMs": 3120,
+    "file": "discover-e88ce5c07e52.mp3",
+    "locale": "en",
+    "renditionKey": "e88ce5c07e52f28db44afaafc0a861c34a836c694346b7dbfc8c21751a20ab35",
+    "sha256": "997e853da1b0dfa6d2b5dba7eee82cfb4ad1635b702f7f541d356eb6dfd0936b",
+    "voice": "feminine"
+  },
+  "evening-2.en.feminine.segment-2": {
+    "durationMs": 12720,
+    "file": "discover-5fe990a1244c.mp3",
+    "locale": "en",
+    "renditionKey": "5fe990a1244c8bdd28b886c84e24d077b1f2a40e695db3eb5bbd300694d64ba5",
+    "sha256": "a390685f43f5871f8f84556861c9dd051886e13a54ae53b5c2eb290f9c8bf043",
+    "voice": "feminine"
+  },
+  "evening-2.en.feminine.segment-3": {
+    "durationMs": 12400,
+    "file": "discover-fc26ecb6c326.mp3",
+    "locale": "en",
+    "renditionKey": "fc26ecb6c326c6d5ea6243ed0e02b8e00d8d5e98762406a24969286094a9e94f",
+    "sha256": "72088df332bb5551801293aca13aa450f8956eb2a6c3d738a501378539192eba",
+    "voice": "feminine"
+  },
+  "evening-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "evening-3.en.feminine.segment-0": {
+    "durationMs": 5680,
+    "file": "discover-e45850948933.mp3",
+    "locale": "en",
+    "renditionKey": "e458509489339b853cd458ad7656587c226d1068c7d36039db6435710463a3a9",
+    "sha256": "7fed13ebe61ba7190d573c5fbf4e7b8b88e0637faab73c10763a3c380cd4c1e0",
+    "voice": "feminine"
+  },
+  "evening-3.en.feminine.segment-1": {
+    "durationMs": 5680,
+    "file": "discover-e46005104c1f.mp3",
+    "locale": "en",
+    "renditionKey": "e46005104c1f7f88e6b72f8147e505ed3cbca27ced27720e19077338f83f0780",
+    "sha256": "912b85b6a0deb6a555b2e9049400ed49b712cd6e8bc59201da6f7692d2ddaec3",
+    "voice": "feminine"
+  },
+  "evening-3.en.feminine.segment-2": {
+    "durationMs": 9840,
+    "file": "discover-b282a9496882.mp3",
+    "locale": "en",
+    "renditionKey": "b282a94968828e64c8a857ae45dfd6627dd161551b6c0249ae16180fd99d9a89",
+    "sha256": "d745891daa9bd0d6bbb1cb48404a6624c09ce39951da160a0181aa352fe28463",
+    "voice": "feminine"
+  },
+  "evening-3.en.feminine.segment-3": {
+    "durationMs": 2240,
+    "file": "discover-1445117371d7.mp3",
+    "locale": "en",
+    "renditionKey": "1445117371d720c68971e94b8f45c5f9ed524793766d0679ba52fbf0082d166d",
+    "sha256": "8d5ccf25e5ec92218e6a4b1b83113a84641deed01efd464997a68a16288f213b",
+    "voice": "feminine"
+  },
+  "evening-3.en.feminine.segment-4": {
+    "durationMs": 9120,
+    "file": "discover-4badf5083d4d.mp3",
+    "locale": "en",
+    "renditionKey": "4badf5083d4dc08d2f88cc5a7452f0ff76e00503477b65a970b5c0bcb2e2163f",
+    "sha256": "b98958408a12a6df5441f34af21b07ce8033f5b7540f993fc26d28924ca95a09",
+    "voice": "feminine"
+  },
+  "evening-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "evening-4.en.feminine.segment-0": {
+    "durationMs": 12640,
+    "file": "discover-fbee6a93e102.mp3",
+    "locale": "en",
+    "renditionKey": "fbee6a93e102c210ce8b02dbb4c3b46616345604bc5a20befa03ed5d326ad9b6",
+    "sha256": "8a70931cb16cd4afb7d08467bee6897d9c3628e68a4d4ed00e78b5ea6431c48e",
+    "voice": "feminine"
+  },
+  "evening-4.en.feminine.segment-1": {
+    "durationMs": 5680,
+    "file": "discover-dcee5244dcf2.mp3",
+    "locale": "en",
+    "renditionKey": "dcee5244dcf2c0de029cd364eff87ed8b6712c3e9c94886e0881fc86874b886f",
+    "sha256": "41de53690122e3890478676db7e26cd213b57f5b5669caeceb2376dfad3b563e",
+    "voice": "feminine"
+  },
+  "evening-4.en.feminine.segment-2": {
+    "durationMs": 8000,
+    "file": "discover-c85c3084c918.mp3",
+    "locale": "en",
+    "renditionKey": "c85c3084c9189a528469c364bea76548ae0038e085fc3b040a2f2a7bf969123e",
+    "sha256": "c3eb95ca706a0af896a968573dc44fd39e4da9174416aa7ea283b5b71469e58d",
+    "voice": "feminine"
+  },
+  "evening-4.en.feminine.segment-3": {
+    "durationMs": 5680,
+    "file": "discover-0bb20ae2b047.mp3",
+    "locale": "en",
+    "renditionKey": "0bb20ae2b047c4e7a06e8f75743fa0bed840b2e06e8e95c45ffc999bca099ce9",
+    "sha256": "a18a9d9e92462819025a03e91bd884dc81f898d41911bce87c122ec37ce9a1f4",
+    "voice": "feminine"
+  },
+  "evening-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "evening-5.en.feminine.segment-0": {
+    "durationMs": 12160,
+    "file": "discover-5e44f8788421.mp3",
+    "locale": "en",
+    "renditionKey": "5e44f87884214a1bd89499000b7253d2c8995b91755fee5a80acc5bf5e860610",
+    "sha256": "1d1df005cc38d7b8011f117c3da8d74f000e5043938a259ecd9ab1cb789a00e4",
+    "voice": "feminine"
+  },
+  "evening-5.en.feminine.segment-1": {
+    "durationMs": 7680,
+    "file": "discover-d9e9932ad046.mp3",
+    "locale": "en",
+    "renditionKey": "d9e9932ad0467fdfd22a0862f957f22edcd05b3c4c274181d7b433042085f613",
+    "sha256": "fd8e45ed9f6f3153f80458e789412f7d16d5963a75df3a8375e409d77b196ca4",
+    "voice": "feminine"
+  },
+  "evening-5.en.feminine.segment-2": {
+    "durationMs": 5280,
+    "file": "discover-eb1b57ceccdd.mp3",
+    "locale": "en",
+    "renditionKey": "eb1b57ceccdd697bf3db2b565769a28aa13490c77647b9890b6c1e8ccf438684",
+    "sha256": "648237e50579663298ccd8866ccf48ba7d3ad80e5221bd0bfabae87c56bd39d2",
+    "voice": "feminine"
+  },
+  "evening-5.en.feminine.segment-3": {
+    "durationMs": 7840,
+    "file": "discover-83a76459eb47.mp3",
+    "locale": "en",
+    "renditionKey": "83a76459eb47c57096520af74600825fb128029096504a981bf6295cff5b81e1",
+    "sha256": "6ac6621aa709c125621b2f2b5f2a7ca49fd6b9d69dc28add2efa9aaf5bd69710",
+    "voice": "feminine"
+  },
+  "evening-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "evening-6.en.feminine.segment-0": {
+    "durationMs": 8640,
+    "file": "discover-2f3ff0f75a51.mp3",
+    "locale": "en",
+    "renditionKey": "2f3ff0f75a51c6d3b5eb656a31a898c6d475a0d7a6ca254116af19efeb6c059c",
+    "sha256": "6805be9750d063c3a810e5a8182a7134b152f2d815fd2c62370e3c8c7162946f",
+    "voice": "feminine"
+  },
+  "evening-6.en.feminine.segment-1": {
+    "durationMs": 5440,
+    "file": "discover-bee838dd6218.mp3",
+    "locale": "en",
+    "renditionKey": "bee838dd62182278cc9079f297c6352d8e3627fae405c1c83a5122e9bb8905e9",
+    "sha256": "ff3add605ef77d1403becfe5f7369c4b0633f32fe606e5961d14060b5165febf",
+    "voice": "feminine"
+  },
+  "evening-6.en.feminine.segment-2": {
+    "durationMs": 10240,
+    "file": "discover-da5a0ba3f25a.mp3",
+    "locale": "en",
+    "renditionKey": "da5a0ba3f25a0135aa3d1df14ab0e99b255fa4e2116c6b1150e9701a806ab958",
+    "sha256": "b82edd792d1b6e9a19f5b62b102aeeb29923754208ced562808d7071611fe95a",
+    "voice": "feminine"
+  },
+  "evening-6.en.feminine.segment-3": {
+    "durationMs": 9760,
+    "file": "discover-2911bcc14d18.mp3",
+    "locale": "en",
+    "renditionKey": "2911bcc14d18be9b30e8ee757c1c12cbd6f5874e3c675048b266b9632dee646b",
+    "sha256": "2fc8d87dfae692ecd5b18d42fcdc21b60502ceb2079d82f02e9d8bbfc1408207",
+    "voice": "feminine"
+  },
+  "evening-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "evening-7.en.feminine.segment-0": {
+    "durationMs": 11280,
+    "file": "discover-93f53e1ebaeb.mp3",
+    "locale": "en",
+    "renditionKey": "93f53e1ebaeb704558e5eb682ebe6b4e75cb1180cb65d759fbef16e3e242ccbb",
+    "sha256": "287f53c679084fd952f42289ebb8ed602181efd2433e6bc26d2aa0ab73cec225",
+    "voice": "feminine"
+  },
+  "evening-7.en.feminine.segment-1": {
+    "durationMs": 4400,
+    "file": "discover-3a0e051578bd.mp3",
+    "locale": "en",
+    "renditionKey": "3a0e051578bd504056f98df7873c6e3170586ad35e36d32778d0b7c3b327761c",
+    "sha256": "36c36fdda3360c15ffc9f09dbe1d0ccf7278308df281c849415395480bd2c70f",
+    "voice": "feminine"
+  },
+  "evening-7.en.feminine.segment-2": {
+    "durationMs": 10320,
+    "file": "discover-e5780f0ff2cf.mp3",
+    "locale": "en",
+    "renditionKey": "e5780f0ff2cfde2c3d543b30a66f470a42af24b9a33f9e8f217ab567506b901d",
+    "sha256": "4a2aaf7e302e18d94fc7d1ccfcabae1a686084857e1ac33033cd58ed204a9214",
+    "voice": "feminine"
+  },
+  "evening-7.en.feminine.segment-3": {
+    "durationMs": 4000,
+    "file": "discover-1960e373fdaa.mp3",
+    "locale": "en",
+    "renditionKey": "1960e373fdaabd650e6addfa1cd6babc945101eae7ae11816d1fe7630b27648f",
+    "sha256": "a61f2faaba54c8c836df677fb0c6007108863db16143ef1d5c19f5974189ad7f",
+    "voice": "feminine"
+  },
+  "evening-7.en.feminine.segment-4": {
+    "durationMs": 3760,
+    "file": "discover-ff1ccd302a3f.mp3",
+    "locale": "en",
+    "renditionKey": "ff1ccd302a3f84ea949c811cf99dbb51df49a5ad4cdb214fcd0ba17ba2c4d1ba",
+    "sha256": "61f03a9f2f258eabaa06df01eaab74093be9a512d32546b03368adf25710700c",
+    "voice": "feminine"
+  },
+  "focus-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "focus-1.en.feminine.segment-0": {
+    "durationMs": 5280,
+    "file": "discover-007dbebc065b.mp3",
+    "locale": "en",
+    "renditionKey": "007dbebc065b59a71e19d3cf1dfc48b35a2559e3295321859c07768ba852395a",
+    "sha256": "dba5194bb33a3b3c2f2665d5af4efad516c79ec8239bf7dcdd0e6b0b927b798a",
+    "voice": "feminine"
+  },
+  "focus-1.en.feminine.segment-1": {
+    "durationMs": 7760,
+    "file": "discover-65cbbe692dd3.mp3",
+    "locale": "en",
+    "renditionKey": "65cbbe692dd32148dc243152d35150d6475d21bc184b1eefe32f0982a98d8559",
+    "sha256": "67cf14a30f1723908c14bee9b91cf519984a480be81931836a512e48fa56d28b",
+    "voice": "feminine"
+  },
+  "focus-1.en.feminine.segment-2": {
+    "durationMs": 9360,
+    "file": "discover-02905af8f812.mp3",
+    "locale": "en",
+    "renditionKey": "02905af8f8121407658a3a9b49e248c32742c2ad5d511e2facabffa23799b663",
+    "sha256": "ce9282709272836162b3a9a605308bf7821f5e2216c9d63f5978044dfd03f9c4",
+    "voice": "feminine"
+  },
+  "focus-1.en.feminine.segment-3": {
+    "durationMs": 6880,
+    "file": "discover-cec9c036d30b.mp3",
+    "locale": "en",
+    "renditionKey": "cec9c036d30b99402e291479ab9ffd94e995cfecb1cb54356f0aa151eb7aaf25",
+    "sha256": "2f9ce6988c56b586834e7ef888e45c4daff2911c412db649cd4fda5181511bb8",
+    "voice": "feminine"
+  },
+  "focus-1.en.feminine.segment-4": {
+    "durationMs": 7280,
+    "file": "discover-4f5db3c064c8.mp3",
+    "locale": "en",
+    "renditionKey": "4f5db3c064c8c0824c3031f85fdf7726b2a1d7af6297b88e3a2cad505ffe9255",
+    "sha256": "8eb865fb38252023ad3d9bd6b8cf70fa5103592381d87a39b268e62035518fdd",
+    "voice": "feminine"
+  },
+  "focus-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "focus-2.en.feminine.segment-0": {
+    "durationMs": 6720,
+    "file": "discover-5d9049d8206f.mp3",
+    "locale": "en",
+    "renditionKey": "5d9049d8206f3db143ffe281a00d264a2e0241917cd81ba212418dbcb1f21c1b",
+    "sha256": "20167d6c5387e358e43604a015617175daede80f88ce9dff37624b5a3a5cf513",
+    "voice": "feminine"
+  },
+  "focus-2.en.feminine.segment-1": {
+    "durationMs": 5200,
+    "file": "discover-f9be73816fa1.mp3",
+    "locale": "en",
+    "renditionKey": "f9be73816fa11e1c85a45e2ddf1890f6ad22b2e1bd3ccf31d1865941d10eba0d",
+    "sha256": "a617a298988454d85c7503967a1de0a1482b2480d41c8cde93dd5a4f2212988a",
+    "voice": "feminine"
+  },
+  "focus-2.en.feminine.segment-2": {
+    "durationMs": 10320,
+    "file": "discover-6d9ea840bca5.mp3",
+    "locale": "en",
+    "renditionKey": "6d9ea840bca5227b0a5af69c858f293e6e4728ea8d639a10f05345f4dcc6c15f",
+    "sha256": "bc025e0dae47ec9020e70cf041349e580f34df1109d7387dcd35abce57707000",
+    "voice": "feminine"
+  },
+  "focus-2.en.feminine.segment-3": {
+    "durationMs": 9920,
+    "file": "discover-611cfbb8a213.mp3",
+    "locale": "en",
+    "renditionKey": "611cfbb8a2132cb6543f90711ffc81d58636e08f8efb5a2657e6f533c939d86d",
+    "sha256": "aa1be633b5b4e4684bbe8f2e2bb86885a650622d0437fe104a8a20e6a9a750e1",
+    "voice": "feminine"
+  },
+  "focus-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "focus-3.en.feminine.segment-0": {
+    "durationMs": 8720,
+    "file": "discover-4d9277cbf62f.mp3",
+    "locale": "en",
+    "renditionKey": "4d9277cbf62f86a2a594342dcbb3ce8f09a60e385c6440b6cb7f3a76052a8d25",
+    "sha256": "5c97cbde1aeb84e02ebbf4945ee39f15ac49dcd3f0290d9a7d0fe3655dd0df7f",
+    "voice": "feminine"
+  },
+  "focus-3.en.feminine.segment-1": {
+    "durationMs": 5040,
+    "file": "discover-6b03dca97631.mp3",
+    "locale": "en",
+    "renditionKey": "6b03dca976310c6720abcaca03d16ecde2438e9f6237ea08b18384571e77f1d4",
+    "sha256": "175b25af9c60cf9484f8dd6fdfd7767a620b7b9d3c8167930bacb25bee7ea1e1",
+    "voice": "feminine"
+  },
+  "focus-3.en.feminine.segment-2": {
+    "durationMs": 9200,
+    "file": "discover-3d4a695cb322.mp3",
+    "locale": "en",
+    "renditionKey": "3d4a695cb322273660021db3ffc66350106da7395ffb0eff779b3454dfc64f19",
+    "sha256": "93c5d4d911eb63982ff1675b37da079cce295066b30423c996a152f5afc46bcb",
+    "voice": "feminine"
+  },
+  "focus-3.en.feminine.segment-3": {
+    "durationMs": 6960,
+    "file": "discover-f71786b7cf24.mp3",
+    "locale": "en",
+    "renditionKey": "f71786b7cf24333500ba50e041dcacb4a5a5a3be1239f2aa96aee48fa3bd0b00",
+    "sha256": "0bf910cd58617df4c7115d1e40f629b3d99b6d00321e2227c4cce70cba53bd26",
+    "voice": "feminine"
+  },
+  "focus-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "focus-4.en.feminine.segment-0": {
+    "durationMs": 2720,
+    "file": "discover-04f62dadb471.mp3",
+    "locale": "en",
+    "renditionKey": "04f62dadb471610125e687e478036b2f2947713dfc9338c3faae028187c48949",
+    "sha256": "feae8133caa04de2642e0c37865fc17033c59ad01b0bde8bc34ff0dc9273c132",
+    "voice": "feminine"
+  },
+  "focus-4.en.feminine.segment-1": {
+    "durationMs": 9680,
+    "file": "discover-007ec4f959dd.mp3",
+    "locale": "en",
+    "renditionKey": "007ec4f959dd24193854432de874735c4b90aa3b21f484547e1e79c7e3fa1df9",
+    "sha256": "a2f3c5488a578b7b3d612eaf190f283f12da4077cfa0e55d13b77e1444d7017a",
+    "voice": "feminine"
+  },
+  "focus-4.en.feminine.segment-2": {
+    "durationMs": 10480,
+    "file": "discover-5eedaefcac32.mp3",
+    "locale": "en",
+    "renditionKey": "5eedaefcac32d92b3631473ceefad9600395e5568909f351f7291aa03b8b9d97",
+    "sha256": "41399fd133c1882a9a0f71115f4743012a0a413b67395201934bce092d17dbd0",
+    "voice": "feminine"
+  },
+  "focus-4.en.feminine.segment-3": {
+    "durationMs": 6400,
+    "file": "discover-2b6c3961b474.mp3",
+    "locale": "en",
+    "renditionKey": "2b6c3961b47492513354eebaa86e3a6736b16b399b74bb0a9e31f5f69e38b76d",
+    "sha256": "281197c4b0d805c8b3c0dbbdb0f56e6458ad1598650221a3ec84b4ee22cb61c5",
+    "voice": "feminine"
+  },
+  "focus-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "focus-5.en.feminine.segment-0": {
+    "durationMs": 7680,
+    "file": "discover-0d627757ef38.mp3",
+    "locale": "en",
+    "renditionKey": "0d627757ef38d53359205af79d886f30eafd6949f622e1985b102e8e31c8344c",
+    "sha256": "8a5a6c0a6d2b269b1828b9430a90404c98a52fcf7ab0228b01b19bea6aecbd57",
+    "voice": "feminine"
+  },
+  "focus-5.en.feminine.segment-1": {
+    "durationMs": 6400,
+    "file": "discover-5f82d40106b2.mp3",
+    "locale": "en",
+    "renditionKey": "5f82d40106b28f6454660a131cb708887061271db25cec6f1835bbcd4c499518",
+    "sha256": "eb994c5906ba4c80bd11ae519ed6c67e34f4b752cbd0cba24de82ecdaae5ef25",
+    "voice": "feminine"
+  },
+  "focus-5.en.feminine.segment-2": {
+    "durationMs": 9280,
+    "file": "discover-eed703a76548.mp3",
+    "locale": "en",
+    "renditionKey": "eed703a76548307e8f26a6efd6dbe192283df22c101a5d26eb7b4d5f52558543",
+    "sha256": "9ab1c70cd6fa01a854e58d0cfccf2afa0bca00eb5b1944cbd955db804024fa2e",
+    "voice": "feminine"
+  },
+  "focus-5.en.feminine.segment-3": {
+    "durationMs": 9360,
+    "file": "discover-1d54f9f65a99.mp3",
+    "locale": "en",
+    "renditionKey": "1d54f9f65a999822dc61f41223c54dca136f3281c00af657c67fa37d5cea4403",
+    "sha256": "e784daf2eeb97b86454edd9a68957045c02e833c38cc6f2fbcf079785990e175",
+    "voice": "feminine"
+  },
+  "focus-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "focus-6.en.feminine.segment-0": {
+    "durationMs": 8880,
+    "file": "discover-6a6088e99c17.mp3",
+    "locale": "en",
+    "renditionKey": "6a6088e99c1717808ef6450fcb644d23be3e234413582eb93411dc911369f93e",
+    "sha256": "5655b8ce8cf728d5911d6ed54684c393827467fbf7cad66599efa4b93775fe68",
+    "voice": "feminine"
+  },
+  "focus-6.en.feminine.segment-1": {
+    "durationMs": 13440,
+    "file": "discover-8d466536f45f.mp3",
+    "locale": "en",
+    "renditionKey": "8d466536f45fcc5018934e06a74b14a464e418390f2004aaa48d9ba398919c29",
+    "sha256": "93358e726c4377c42929ba8176ada817a631c601868d468a19f404a2d114c9ad",
+    "voice": "feminine"
+  },
+  "focus-6.en.feminine.segment-2": {
+    "durationMs": 9760,
+    "file": "discover-1f99375caf62.mp3",
+    "locale": "en",
+    "renditionKey": "1f99375caf62d6c81ed97b4f745411d4fe540d07fa202497c2c3326fc276fb25",
+    "sha256": "f48afc9269ac8b324c7ba7a13abf0df469c64b6a19289e60d589c83cc2707979",
+    "voice": "feminine"
+  },
+  "focus-6.en.feminine.segment-3": {
+    "durationMs": 4800,
+    "file": "discover-3036f047900f.mp3",
+    "locale": "en",
+    "renditionKey": "3036f047900f93dced5c83350e1d774bcdfbed290fb3ad9f3008021621c89cb6",
+    "sha256": "94232b6f6dfc77953004d9427a379e58b238b411f1e9484d8a759e757f285817",
+    "voice": "feminine"
+  },
+  "focus-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "focus-7.en.feminine.segment-0": {
+    "durationMs": 14400,
+    "file": "discover-dc1ce33feeb4.mp3",
+    "locale": "en",
+    "renditionKey": "dc1ce33feeb47230229e414d429e6ec8c9f7371d0eb32db8e8eacd19a23402e2",
+    "sha256": "616a3f4c990a79c62cd3b591cd8562714608c1b6cd5ed711f3b37af5c95c6a75",
+    "voice": "feminine"
+  },
+  "focus-7.en.feminine.segment-1": {
+    "durationMs": 9200,
+    "file": "discover-6a39e751d469.mp3",
+    "locale": "en",
+    "renditionKey": "6a39e751d469e327cd26eab0a1e03b02566fa17d42bfa011378fddf100f77f1e",
+    "sha256": "1f120f6a7b511318d093aff84c308ca25b222d3757c9a79b24f0008bdb14b10f",
+    "voice": "feminine"
+  },
+  "focus-7.en.feminine.segment-2": {
+    "durationMs": 8960,
+    "file": "discover-17bdcf44e79a.mp3",
+    "locale": "en",
+    "renditionKey": "17bdcf44e79a5c8b74e395083114f926eac27069c9ccafb8de629168d32ab4c3",
+    "sha256": "d8b3c21c86653a13bdb94c00440ea3efbfa7b3a14e0c14494821a24c739b0351",
+    "voice": "feminine"
+  },
+  "focus-7.en.feminine.segment-3": {
+    "durationMs": 4560,
+    "file": "discover-d9d05fef727a.mp3",
+    "locale": "en",
+    "renditionKey": "d9d05fef727a1143daf52a36a7103424f4bf34a0c119076235e0326358393e86",
+    "sha256": "49c9bb3e240262787fb190bf7fb346eb6eb4b592a915da377653b28c90803f35",
+    "voice": "feminine"
+  },
+  "kinder-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "kinder-1.en.feminine.segment-0": {
+    "durationMs": 3600,
+    "file": "discover-9d3841da1849.mp3",
+    "locale": "en",
+    "renditionKey": "9d3841da1849edb1d76d0febb725198ffede76498d09344ba843d6514eb71708",
+    "sha256": "a9f9fc9bc15b1342b6d5686bf486348afb72a235951335ee2d540220437199c1",
+    "voice": "feminine"
+  },
+  "kinder-1.en.feminine.segment-1": {
+    "durationMs": 5200,
+    "file": "discover-07ebc8c9125f.mp3",
+    "locale": "en",
+    "renditionKey": "07ebc8c9125fe42188a2320568b89adc3f1d4d2098eb7a190920131d9595d7ca",
+    "sha256": "d6a2796f55b2e628513e6373afae95d9c7f9c8941d61430bb0a4d6d3aeaab251",
+    "voice": "feminine"
+  },
+  "kinder-1.en.feminine.segment-2": {
+    "durationMs": 8080,
+    "file": "discover-1d742e95a9fa.mp3",
+    "locale": "en",
+    "renditionKey": "1d742e95a9fad3218a6dc65e0ad61cc9010e5051d6eab14ee1ac36a3ebb00732",
+    "sha256": "3d3b34c0c6356f7f77a2dd7028afc51fd9361ae2c1601f9308ffd7b38a1eb128",
+    "voice": "feminine"
+  },
+  "kinder-1.en.feminine.segment-3": {
+    "durationMs": 13480,
+    "file": "discover-c37fdd7cb093.mp3",
+    "locale": "en",
+    "renditionKey": "c37fdd7cb0936e35e98b63dec6f356b80e837c27b7a9e48215e1d7b1e46288e9",
+    "sha256": "969cf5308ee61c243f052b60ac1cd661d85aabdb25ca10570f48a47f25402b65",
+    "voice": "feminine"
+  },
+  "kinder-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "kinder-2.en.feminine.segment-0": {
+    "durationMs": 8080,
+    "file": "discover-179bb6f687a6.mp3",
+    "locale": "en",
+    "renditionKey": "179bb6f687a61e319b63c3d08d457bea61d045e5fbee809e83a4f890992f7efa",
+    "sha256": "2c866aa1c9396c9d33a275ad4ace00e88377ace1aa841d12a6a448da79fad2a1",
+    "voice": "feminine"
+  },
+  "kinder-2.en.feminine.segment-1": {
+    "durationMs": 6080,
+    "file": "discover-269ff2849b69.mp3",
+    "locale": "en",
+    "renditionKey": "269ff2849b692b2c6a74cef174d490dc96e25294e0d622c8ef6a21fa446e7d55",
+    "sha256": "3dd2206296bbbf807d87fe11d74fa5044029030643fef0e3d2ab148e980d5c7e",
+    "voice": "feminine"
+  },
+  "kinder-2.en.feminine.segment-2": {
+    "durationMs": 6160,
+    "file": "discover-2f43700f16b4.mp3",
+    "locale": "en",
+    "renditionKey": "2f43700f16b4078d7106155602325389c6ef9cc3bf12ac98a2bd4a5446e57d44",
+    "sha256": "966cb30b7a4f4c7e5936145dbec144fb218a77b001a3a5da83d52c98e897f0a5",
+    "voice": "feminine"
+  },
+  "kinder-2.en.feminine.segment-3": {
+    "durationMs": 14880,
+    "file": "discover-942fe5c8c588.mp3",
+    "locale": "en",
+    "renditionKey": "942fe5c8c588e6b4631a19c527a13a8ba6b573464f9d5d2a99525be0a3f9635d",
+    "sha256": "9e84c90874488e5102d3bbda8ca3ca8cc7abbc2d192da0e390c7d3e311340632",
+    "voice": "feminine"
+  },
+  "kinder-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "kinder-3.en.feminine.segment-0": {
+    "durationMs": 7040,
+    "file": "discover-7c7a1f1ff9f7.mp3",
+    "locale": "en",
+    "renditionKey": "7c7a1f1ff9f7fbd1b28de572630989ccbc266f0d00eb7f07530d29b815ad1d97",
+    "sha256": "345b17b7ecd3ca3c9d0b1ccefbf97cffb118eb0627663117ceac5263d05391a6",
+    "voice": "feminine"
+  },
+  "kinder-3.en.feminine.segment-1": {
+    "durationMs": 7920,
+    "file": "discover-e646a58bf0af.mp3",
+    "locale": "en",
+    "renditionKey": "e646a58bf0af3359055851ea5593787f09c777360de99625ef3aad87d27c0772",
+    "sha256": "cc749d193593860369110d27809e1e9b19591c5fc646846cd7030ed75cca94fb",
+    "voice": "feminine"
+  },
+  "kinder-3.en.feminine.segment-2": {
+    "durationMs": 7520,
+    "file": "discover-5e27c878d340.mp3",
+    "locale": "en",
+    "renditionKey": "5e27c878d3405aeff98eb6d97f4e66de02d9c715bd7c0b7fa87effd63dbcb98b",
+    "sha256": "6c1ae6e8b32cd95936d32f94a9a0a766e97ec23081020d6bd0da9a20b09cc0c1",
+    "voice": "feminine"
+  },
+  "kinder-3.en.feminine.segment-3": {
+    "durationMs": 8800,
+    "file": "discover-41100a1f4bce.mp3",
+    "locale": "en",
+    "renditionKey": "41100a1f4bce02d584f8537931e63f0b5fe576c5dce1abc4bd7533e4a351f142",
+    "sha256": "488f80ec31a23d9e0dbd5a85471fc1ab2b75d5772baf13e6fe194cc2c5f519ca",
+    "voice": "feminine"
+  },
+  "kinder-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "kinder-4.en.feminine.segment-0": {
+    "durationMs": 3760,
+    "file": "discover-a938fddd8947.mp3",
+    "locale": "en",
+    "renditionKey": "a938fddd89475abe045644441b8ccbe0ca7669f07061b41aba4b78c151b0f1d3",
+    "sha256": "0af99d8d6dcd58a2a5307e2bdf712644d4187757a5e9e4d13cc0992b68635bad",
+    "voice": "feminine"
+  },
+  "kinder-4.en.feminine.segment-1": {
+    "durationMs": 6720,
+    "file": "discover-4ab7b03ec56a.mp3",
+    "locale": "en",
+    "renditionKey": "4ab7b03ec56ab27ffc94573ead1d346784d235fdb5842425143b89b01feb2571",
+    "sha256": "07343062305706ece34b20b6ca5fc93b590eacfa79ad4a8232329c762935609e",
+    "voice": "feminine"
+  },
+  "kinder-4.en.feminine.segment-2": {
+    "durationMs": 9360,
+    "file": "discover-aae971941579.mp3",
+    "locale": "en",
+    "renditionKey": "aae971941579cea41fd68e93bd4a8eff8a28c98772f53eabd4241f55850a65c4",
+    "sha256": "efd4a6eb996516f046d6660c7e8cf69a5b4d8834e498621980d1d521d907af5c",
+    "voice": "feminine"
+  },
+  "kinder-4.en.feminine.segment-3": {
+    "durationMs": 6160,
+    "file": "discover-4452fa33a611.mp3",
+    "locale": "en",
+    "renditionKey": "4452fa33a611cec7b10c09db84a6c12c3cb4ba14d9bbe82c1ce5d90cf9f8362f",
+    "sha256": "6ec5fbce68fe01f4a785a37f7cfb9593a2ed5930e7b63576ff34ab8f21280f1a",
+    "voice": "feminine"
+  },
+  "kinder-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "kinder-5.en.feminine.segment-0": {
+    "durationMs": 15120,
+    "file": "discover-3cc60319db01.mp3",
+    "locale": "en",
+    "renditionKey": "3cc60319db01d5db26c04fad1bb95b03c70c0c04e94ccc817e4eb4a65f33c064",
+    "sha256": "6454833ea90f0b9a27fca34e160e456b4aa0ad536013ee567e118fc23d9c6e21",
+    "voice": "feminine"
+  },
+  "kinder-5.en.feminine.segment-1": {
+    "durationMs": 3440,
+    "file": "discover-3d84f5ecba95.mp3",
+    "locale": "en",
+    "renditionKey": "3d84f5ecba958a34fcd3ba6b5547c6033c238e06df3e5deeac01158df8b60fa5",
+    "sha256": "b798b93ca71b4b065fcf1e182822fb16578a46a1004e34c55387c7180877797d",
+    "voice": "feminine"
+  },
+  "kinder-5.en.feminine.segment-2": {
+    "durationMs": 3120,
+    "file": "discover-670211ddf43d.mp3",
+    "locale": "en",
+    "renditionKey": "670211ddf43d5dba9c4f72d895c57adea87bf01151917ac6fbaef1658ecdeed6",
+    "sha256": "44218078c004f0923fdfa892205d4fd08ad69c6bff353c85d0a8278245618b20",
+    "voice": "feminine"
+  },
+  "kinder-5.en.feminine.segment-3": {
+    "durationMs": 8240,
+    "file": "discover-e9009ac2641d.mp3",
+    "locale": "en",
+    "renditionKey": "e9009ac2641deb648da27354f51abd57956e3250143512495264a43c08e3c2b3",
+    "sha256": "3654c0381e55f5ec0695a4054de002c96366918a1cfdfb7923e167632cc8f202",
+    "voice": "feminine"
+  },
+  "kinder-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "kinder-6.en.feminine.segment-0": {
+    "durationMs": 9120,
+    "file": "discover-25cb62e79189.mp3",
+    "locale": "en",
+    "renditionKey": "25cb62e791899e64dedb3d1369dcb09d3e36c2a1bda3a08945660348e86a8267",
+    "sha256": "790df8e15d6fe613b57ca036a3d24a43c144a2d7eb62e8d0c99828304c84d94c",
+    "voice": "feminine"
+  },
+  "kinder-6.en.feminine.segment-1": {
+    "durationMs": 9520,
+    "file": "discover-9eabafc5ad77.mp3",
+    "locale": "en",
+    "renditionKey": "9eabafc5ad778c763b159cc1325164c3d206992a1dd90476e11a3672f4085b7c",
+    "sha256": "93715f907b3fd0f87f754cab1a0d498344dab1a26b1bd0e82e751b168fc78c45",
+    "voice": "feminine"
+  },
+  "kinder-6.en.feminine.segment-2": {
+    "durationMs": 3040,
+    "file": "discover-8cd6cbfc9ced.mp3",
+    "locale": "en",
+    "renditionKey": "8cd6cbfc9ced8822153f2900edc91d97c1a9ee85e565b26fece1e2d0eb29bc4e",
+    "sha256": "fec9677ecc002ced66528ade4b69647d131f3ae23cd3207b696c935a9f47092d",
+    "voice": "feminine"
+  },
+  "kinder-6.en.feminine.segment-3": {
+    "durationMs": 6240,
+    "file": "discover-75144d109b68.mp3",
+    "locale": "en",
+    "renditionKey": "75144d109b685c3678f722cea4af850d27ebf2f790eb9097e70e3d6904ec7711",
+    "sha256": "f05d100093a89775004b69d30a0187f1ac57f7d2ead1f30d8a79cd9bc77a6697",
+    "voice": "feminine"
+  },
+  "kinder-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "kinder-7.en.feminine.segment-0": {
+    "durationMs": 15280,
+    "file": "discover-30d1c0ba13b6.mp3",
+    "locale": "en",
+    "renditionKey": "30d1c0ba13b6a4c40ce720d641c99a4480ee41d3ee1a5d1ac7dd23cb0295767f",
+    "sha256": "8ec4a38497f738efbbf42655904d28ba2df85274f32076531f2e3ec5a913ce0a",
+    "voice": "feminine"
+  },
+  "kinder-7.en.feminine.segment-1": {
+    "durationMs": 3920,
+    "file": "discover-c59df8c7318e.mp3",
+    "locale": "en",
+    "renditionKey": "c59df8c7318eaa1b33680f567ac933acc381a65ab7e1310908da1d9820ab3162",
+    "sha256": "60dc8a64e95652ebe02bc0410650c76ac69112b7c974aa7a0ce8c65101d7aa90",
+    "voice": "feminine"
+  },
+  "kinder-7.en.feminine.segment-2": {
+    "durationMs": 6640,
+    "file": "discover-b29cdcfeb909.mp3",
+    "locale": "en",
+    "renditionKey": "b29cdcfeb909b37a227bc65a48645d3214485ededa75465bba908a1243aee046",
+    "sha256": "ddb4e51ad4bde022dab17a5a38dc6317fa59041fef8748f1c33c1e63cbb48b1e",
+    "voice": "feminine"
+  },
+  "kinder-7.en.feminine.segment-3": {
+    "durationMs": 6640,
+    "file": "discover-0bfa3366a51a.mp3",
+    "locale": "en",
+    "renditionKey": "0bfa3366a51afe0ebd3afeea1aa38bf43c95cdab6c585f11e1d862547475aad0",
+    "sha256": "16b9563da16ca5dfdc9955cfbbb7531eebcf627f6df0234ed640e58105999629",
+    "voice": "feminine"
+  },
+  "pressure-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "pressure-1.en.feminine.segment-0": {
+    "durationMs": 8480,
+    "file": "discover-fe191629c706.mp3",
+    "locale": "en",
+    "renditionKey": "fe191629c7067b6c24c6aea3b49d9e77fbba8511c488c1d3c0b15759e5c02713",
+    "sha256": "cf18bd6af7c08f8343ffd82759b82d5809786d3fcf9ca00812460de44cee8ffa",
+    "voice": "feminine"
+  },
+  "pressure-1.en.feminine.segment-1": {
+    "durationMs": 6480,
+    "file": "discover-08d4077eb4d6.mp3",
+    "locale": "en",
+    "renditionKey": "08d4077eb4d62b9f0538e2e711a634d1ad1c1653558b12501e09b130b042cf1b",
+    "sha256": "f9c76636a2849b44e0482079aa7998d9fd543f7a9ad9066694ae5a8ae1aa3fcd",
+    "voice": "feminine"
+  },
+  "pressure-1.en.feminine.segment-2": {
+    "durationMs": 7360,
+    "file": "discover-9877a552becc.mp3",
+    "locale": "en",
+    "renditionKey": "9877a552beccb603547b6895098c91372574446ee650e0366aa9f06168567554",
+    "sha256": "59e6a120123e4d031280805b205aa1aef7405c2034b9736b6e2ccefba16ac40f",
+    "voice": "feminine"
+  },
+  "pressure-1.en.feminine.segment-3": {
+    "durationMs": 9520,
+    "file": "discover-ac09f1d679ed.mp3",
+    "locale": "en",
+    "renditionKey": "ac09f1d679ed9cf468fd23fb7107e35f3991e62b731e3d263c893b3ab000ee23",
+    "sha256": "0b869b9099e81783574625fa499ef3123cf27ad572a1c41feb1f8d33580b93c8",
+    "voice": "feminine"
+  },
+  "pressure-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "pressure-2.en.feminine.segment-0": {
+    "durationMs": 4160,
+    "file": "discover-c44479ee82e5.mp3",
+    "locale": "en",
+    "renditionKey": "c44479ee82e54075ef2baf79ce73a78a1e067476faf9fbdeb098e7776c180864",
+    "sha256": "1e700bb2493adeace3226b983402faf12d474db326867d1719fe0b5c7aed04cb",
+    "voice": "feminine"
+  },
+  "pressure-2.en.feminine.segment-1": {
+    "durationMs": 11840,
+    "file": "discover-317e251a1899.mp3",
+    "locale": "en",
+    "renditionKey": "317e251a189900ea93583ce3c10ffb3ee9047760c4dbfa1aaae05770c1b37dba",
+    "sha256": "71bdc9654e2feab5ba3b9814dc2423dfc8e0e77d6d3bfc3819fac4621a47557a",
+    "voice": "feminine"
+  },
+  "pressure-2.en.feminine.segment-2": {
+    "durationMs": 3200,
+    "file": "discover-f69613fa0c21.mp3",
+    "locale": "en",
+    "renditionKey": "f69613fa0c213cb7c666a8813a5a88b02ea1fa3f6d8f85f2f79ef0e7c0e47375",
+    "sha256": "d662bca5f4ceb1df3e331a90228613715010a4cf57474267484900d6719459a0",
+    "voice": "feminine"
+  },
+  "pressure-2.en.feminine.segment-3": {
+    "durationMs": 9200,
+    "file": "discover-de713082b6e5.mp3",
+    "locale": "en",
+    "renditionKey": "de713082b6e50efa8ff98cb66e7ed486a178a849efa9a97c9cd91df8b24e161e",
+    "sha256": "5d6e24b9e27ee85cac2ca239bd6b6b3d00461941c3f9bae25ec06bcdcc17ecd1",
+    "voice": "feminine"
+  },
+  "pressure-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "pressure-3.en.feminine.segment-0": {
+    "durationMs": 7840,
+    "file": "discover-67d834b11215.mp3",
+    "locale": "en",
+    "renditionKey": "67d834b112153c831f17219b2073e9458312a3eca94f2c56a113e0006ce40273",
+    "sha256": "2e8185556b8af4cc23fecbdd78e3d887f1cfb1c3db9b0632ecc7d4b2d95ce28b",
+    "voice": "feminine"
+  },
+  "pressure-3.en.feminine.segment-1": {
+    "durationMs": 7680,
+    "file": "discover-1848d0f88d13.mp3",
+    "locale": "en",
+    "renditionKey": "1848d0f88d134b7eafce4a60c30f5497f77e9c450b4ce1be4f7279d25987f6ac",
+    "sha256": "54e04c76e98335ffbb71f760b89f332147cc7e5af982644318df075383ad77b4",
+    "voice": "feminine"
+  },
+  "pressure-3.en.feminine.segment-2": {
+    "durationMs": 8960,
+    "file": "discover-7ef9360a1561.mp3",
+    "locale": "en",
+    "renditionKey": "7ef9360a15618ff2554fc04a53ab5587c155d0df4b508faf7807acb729222497",
+    "sha256": "3e41b0bb6d6a13d6f1946c77216c52adb8f265408d93371f1c75299a04941dd7",
+    "voice": "feminine"
+  },
+  "pressure-3.en.feminine.segment-3": {
+    "durationMs": 8240,
+    "file": "discover-0ca8497efd74.mp3",
+    "locale": "en",
+    "renditionKey": "0ca8497efd7466987e54cd3f819bbe247f2a8348be6240c5370de968e77932b7",
+    "sha256": "969749510b6b45a1c324757b8e3956048da7130ea791375be1ebaec6517b463a",
+    "voice": "feminine"
+  },
+  "pressure-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "pressure-4.en.feminine.segment-0": {
+    "durationMs": 9040,
+    "file": "discover-49e9dd989d95.mp3",
+    "locale": "en",
+    "renditionKey": "49e9dd989d95922b227d1661fc5b25b3935973c5d5db6057e28afb94ccbddb21",
+    "sha256": "93e2e31193b0dc9e9782558af90ba633e0694fb2dfdc9627700614a4a15dd336",
+    "voice": "feminine"
+  },
+  "pressure-4.en.feminine.segment-1": {
+    "durationMs": 8400,
+    "file": "discover-044126102b3c.mp3",
+    "locale": "en",
+    "renditionKey": "044126102b3c4344034d4574190977fa720a78f11ed98e47b2689d51509c3096",
+    "sha256": "04aa355044822ce2065fcfaa63cfef75b313ba7d8558d0122ececf02836ddd4c",
+    "voice": "feminine"
+  },
+  "pressure-4.en.feminine.segment-2": {
+    "durationMs": 3600,
+    "file": "discover-a3ceaf0a4f26.mp3",
+    "locale": "en",
+    "renditionKey": "a3ceaf0a4f26f313fda2fca4564623e1b8facdfaf8acb86b7f03e69c98a6669d",
+    "sha256": "627034ef8dd89ece91ff55c4e8922210062d2cadf0f36ec7e5211951165d5cad",
+    "voice": "feminine"
+  },
+  "pressure-4.en.feminine.segment-3": {
+    "durationMs": 10960,
+    "file": "discover-799f0dfaa864.mp3",
+    "locale": "en",
+    "renditionKey": "799f0dfaa864d39f7089e02c1eb5643f06b503679030ca2226d06a421f7f2f82",
+    "sha256": "400c9b9279ac88c2765928a995c24166cf97598d35011616a29004a05c18dd02",
+    "voice": "feminine"
+  },
+  "pressure-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "pressure-5.en.feminine.segment-0": {
+    "durationMs": 4400,
+    "file": "discover-4b6263117920.mp3",
+    "locale": "en",
+    "renditionKey": "4b6263117920521a2f5c770e8889cacebbc7b8dd260013c90099001983729902",
+    "sha256": "c7744712a8c67eb995c2430aace51b20f26e19bc8e50e0c77b6ac71ca15742d4",
+    "voice": "feminine"
+  },
+  "pressure-5.en.feminine.segment-1": {
+    "durationMs": 9120,
+    "file": "discover-ab273d4970ab.mp3",
+    "locale": "en",
+    "renditionKey": "ab273d4970ab703e6c90f96dce40c1214563bc861cbebfd90449533099897195",
+    "sha256": "1f8eb8dfbafb09f3d0ff895bc180e1ae56ea269aca220d4270b2944f860c877d",
+    "voice": "feminine"
+  },
+  "pressure-5.en.feminine.segment-2": {
+    "durationMs": 7600,
+    "file": "discover-53f48f7b2e4d.mp3",
+    "locale": "en",
+    "renditionKey": "53f48f7b2e4d85b987c72ffd1abc28b78bd3be7af8cb9b8dbf01ff2458c071cd",
+    "sha256": "3a7837f08bd571af0c76c21623578a72631285e58aedf7d09093fac97f6dba2e",
+    "voice": "feminine"
+  },
+  "pressure-5.en.feminine.segment-3": {
+    "durationMs": 7600,
+    "file": "discover-75579ba326f1.mp3",
+    "locale": "en",
+    "renditionKey": "75579ba326f13cb0bd456da38eaae05e3af998497195461608802dca7d0052a7",
+    "sha256": "29fb71b3b9ecbdc47b2f326ec8b4e15358ac68260075bb47b4ecec05936f9c4f",
+    "voice": "feminine"
+  },
+  "pressure-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "pressure-6.en.feminine.segment-0": {
+    "durationMs": 3600,
+    "file": "discover-5d45964a802e.mp3",
+    "locale": "en",
+    "renditionKey": "5d45964a802ee87f27062632764073c32cbbd380c49e64a9e64e8f928c3e6d39",
+    "sha256": "c5bbcf9860fa231248123e2ff3a90ca23e5735985f2dfd2e50c8ad9311ec4ac8",
+    "voice": "feminine"
+  },
+  "pressure-6.en.feminine.segment-1": {
+    "durationMs": 11440,
+    "file": "discover-932d01c9fdf6.mp3",
+    "locale": "en",
+    "renditionKey": "932d01c9fdf6400b01ba1cb9168329e7cd408aa16bcf92d1da9489d1688c6c13",
+    "sha256": "443327114a05d8ef63a33ab530635071d8746578e6ef7bb210dba9cbcbe8ab91",
+    "voice": "feminine"
+  },
+  "pressure-6.en.feminine.segment-2": {
+    "durationMs": 8880,
+    "file": "discover-551b2a495a6f.mp3",
+    "locale": "en",
+    "renditionKey": "551b2a495a6f92fa41fcba2ab1e2d31f1f7759ae806b4d959b8186652ddc1168",
+    "sha256": "20822d939e74b27fadfe041dc0c4ef17a6e936a1b9aa65a633cfbd7911afd07f",
+    "voice": "feminine"
+  },
+  "pressure-6.en.feminine.segment-3": {
+    "durationMs": 6880,
+    "file": "discover-2e782e4b4f7a.mp3",
+    "locale": "en",
+    "renditionKey": "2e782e4b4f7a721f951b554f9d9663d8e1cc5ce3dcca9d0d29adff03f735d820",
+    "sha256": "250b8efc4c12a278ba2a329da4d28f8d9a4b8039c690d19d15a215487411e00d",
+    "voice": "feminine"
+  },
+  "pressure-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "pressure-7.en.feminine.segment-0": {
+    "durationMs": 18160,
+    "file": "discover-87388ae05742.mp3",
+    "locale": "en",
+    "renditionKey": "87388ae05742e21733d1bb78704c38d07ca1a4dbb5bfe6e13770cebbd36f5441",
+    "sha256": "6350d230e56058086731d3864d9561f075748495ce797d329b9476ecd8e25cb4",
+    "voice": "feminine"
+  },
+  "pressure-7.en.feminine.segment-1": {
+    "durationMs": 2080,
+    "file": "discover-0e9778a2ddeb.mp3",
+    "locale": "en",
+    "renditionKey": "0e9778a2ddeb82d7deb301d9879d80f5ae111b3fd501c43dc043071ae321cc96",
+    "sha256": "4a20cab2ecd2cf08c2c945af8e8273511ea537df511ed5374c01f09a166ac37c",
+    "voice": "feminine"
+  },
+  "pressure-7.en.feminine.segment-2": {
+    "durationMs": 7120,
+    "file": "discover-b4dd202a5032.mp3",
+    "locale": "en",
+    "renditionKey": "b4dd202a5032df40e03a7ed148dc5defe4423b19d4c5dca0409b882e32614f86",
+    "sha256": "8df0c4d3479adbbae56ea2a53813c876c18eb80616335ec5e06bee17c80163c9",
+    "voice": "feminine"
+  },
+  "pressure-7.en.feminine.segment-3": {
+    "durationMs": 4400,
+    "file": "discover-2ea50e47459b.mp3",
+    "locale": "en",
+    "renditionKey": "2ea50e47459ba6982a240b669fcf127e770df69517437daf1e5f43555b1857f4",
+    "sha256": "0c4affc4f16ddf02f49bc8346c5d6178529a266119a069d2423aa6696912bf3b",
+    "voice": "feminine"
+  },
+  "refill-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "refill-1.en.feminine.segment-0": {
+    "durationMs": 6240,
+    "file": "discover-1b66928aa0c5.mp3",
+    "locale": "en",
+    "renditionKey": "1b66928aa0c5971519f10eb14a606a5678cab0c44c498d10bcc0f8c90fd88d3d",
+    "sha256": "93e8d1631d31df1d3ad8903b0c908113f3ac12f9f7c512a34131291990e8958d",
+    "voice": "feminine"
+  },
+  "refill-1.en.feminine.segment-1": {
+    "durationMs": 8240,
+    "file": "discover-e93df844fa83.mp3",
+    "locale": "en",
+    "renditionKey": "e93df844fa839f79a3525da65a8351bcafbafe26f82de28f394da325257c31f6",
+    "sha256": "92f2a153de258ef608d7049f156aa47fb0584fdd3e5193c961e9ff1f9c3e96f1",
+    "voice": "feminine"
+  },
+  "refill-1.en.feminine.segment-2": {
+    "durationMs": 8000,
+    "file": "discover-1dcfe09eb423.mp3",
+    "locale": "en",
+    "renditionKey": "1dcfe09eb4239d85afa02a833629e769f4168660bce317e232effd4e36fb7ffa",
+    "sha256": "eee9360d767717e03a9bf01fa2af3973edb653038bede41d2815bac2a006b04a",
+    "voice": "feminine"
+  },
+  "refill-1.en.feminine.segment-3": {
+    "durationMs": 9440,
+    "file": "discover-f4b442e0a198.mp3",
+    "locale": "en",
+    "renditionKey": "f4b442e0a1987e6e423889fe8085b63f1a800d6297c47928c3ed90c8c6743289",
+    "sha256": "86c415b33691d9a17543f24fe458408681a41c39c7185969ba1b634a3105fde9",
+    "voice": "feminine"
+  },
+  "refill-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "refill-2.en.feminine.segment-0": {
+    "durationMs": 10880,
+    "file": "discover-60b8c8e40ef0.mp3",
+    "locale": "en",
+    "renditionKey": "60b8c8e40ef07527f211dc435e25622a25c2d624b30f65701cbcdceb88233518",
+    "sha256": "64c4b67cb845225cdeb1d153b9e46610f14a02b4d840903caef9dfb76aa0cbfd",
+    "voice": "feminine"
+  },
+  "refill-2.en.feminine.segment-1": {
+    "durationMs": 2240,
+    "file": "discover-cb7757a33b8d.mp3",
+    "locale": "en",
+    "renditionKey": "cb7757a33b8df66b1bc89c4f9a8810460d2d93f64cdedc62d53880f255e235ed",
+    "sha256": "38cd685b9e6e5c05892c302501a53a85bc3e0cd063f52d7a24bdd2aa126bec19",
+    "voice": "feminine"
+  },
+  "refill-2.en.feminine.segment-2": {
+    "durationMs": 7760,
+    "file": "discover-7268e91605bb.mp3",
+    "locale": "en",
+    "renditionKey": "7268e91605bb1f09fb02b4188390e92050dc10825a4004c753338ef6a3ce704c",
+    "sha256": "c73db31897dde1e91474945fe57e7faa96bdc933881efca77a1d617d544c7794",
+    "voice": "feminine"
+  },
+  "refill-2.en.feminine.segment-3": {
+    "durationMs": 9360,
+    "file": "discover-f8292de1f2bf.mp3",
+    "locale": "en",
+    "renditionKey": "f8292de1f2bf59fe0043448a43f53d4a19f334bffacf40a0f7dda031d2312e80",
+    "sha256": "fa3ff76cb484d864f8139231bffce6c433fa410624a526f7a610bd954d7d128f",
+    "voice": "feminine"
+  },
+  "refill-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "refill-3.en.feminine.segment-0": {
+    "durationMs": 4160,
+    "file": "discover-38d28ab60ad5.mp3",
+    "locale": "en",
+    "renditionKey": "38d28ab60ad504176bb7a1608253103e73250ac99116fac1e1df21c2dd70710d",
+    "sha256": "5b3e4fd77c244a37a085caa70c5d77c81a1ef015357d132a7941c74c01082c38",
+    "voice": "feminine"
+  },
+  "refill-3.en.feminine.segment-1": {
+    "durationMs": 5120,
+    "file": "discover-89a82a06b8eb.mp3",
+    "locale": "en",
+    "renditionKey": "89a82a06b8eb85fbaf39bb187c1271c4d69a71759287e30a6aaf74b967ccdafa",
+    "sha256": "7da452de2ba9b881b56d22744baef9a26b94a487526f1c90bbfc59f653c799a4",
+    "voice": "feminine"
+  },
+  "refill-3.en.feminine.segment-2": {
+    "durationMs": 5520,
+    "file": "discover-5f289adc259f.mp3",
+    "locale": "en",
+    "renditionKey": "5f289adc259f243453598240cbf679232b865f4051bba0a776f9e41599c02a2e",
+    "sha256": "6183402332b5eab7d94f8e9160d0ed6de94cb0e01d137c9b957d0b50d99fca79",
+    "voice": "feminine"
+  },
+  "refill-3.en.feminine.segment-3": {
+    "durationMs": 14160,
+    "file": "discover-3321c9f16889.mp3",
+    "locale": "en",
+    "renditionKey": "3321c9f1688918235e31471635a1461003f85378b8a4ad66f542808ec8631217",
+    "sha256": "f03e812543faaa80c1dab3dd58fa225ce9680b44e6eeac7aff6b330953ba4394",
+    "voice": "feminine"
+  },
+  "refill-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "refill-4.en.feminine.segment-0": {
+    "durationMs": 15520,
+    "file": "discover-47f3a0330049.mp3",
+    "locale": "en",
+    "renditionKey": "47f3a03300495fbf0a3b5272de03b178acf2d8d74eebd7199f70d683a8633fbf",
+    "sha256": "7e14057c8623c4ef1bc617384d9b76bc4768847bfd30c0435992b92c1a4453bc",
+    "voice": "feminine"
+  },
+  "refill-4.en.feminine.segment-1": {
+    "durationMs": 3360,
+    "file": "discover-74f6552095c5.mp3",
+    "locale": "en",
+    "renditionKey": "74f6552095c58d0bdff968d7579f6df192efa6751f1dbb8d17ea697adb9c6b8c",
+    "sha256": "22bd405ceb121c28532fc135f9b0eb9ff826621ec4be34dbee954c4e09b6d97c",
+    "voice": "feminine"
+  },
+  "refill-4.en.feminine.segment-2": {
+    "durationMs": 3680,
+    "file": "discover-e2d8b716b07a.mp3",
+    "locale": "en",
+    "renditionKey": "e2d8b716b07af7f85f2786a2ffb29c9309f15eec54590274286d02fa19aa081e",
+    "sha256": "e33f7deba14741d6d0b14803d42be08c2e344cfcd3c08f43c36aa7e80469b9d2",
+    "voice": "feminine"
+  },
+  "refill-4.en.feminine.segment-3": {
+    "durationMs": 7440,
+    "file": "discover-92ff37c9f04f.mp3",
+    "locale": "en",
+    "renditionKey": "92ff37c9f04fe4d51138b1f9e36389f3699efd731331c38bb4a31492af5da9b3",
+    "sha256": "1c5066e57b0284b8d6a498e5241139c9022b27062244555ddf7fd6b103fb37c0",
+    "voice": "feminine"
+  },
+  "refill-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "refill-5.en.feminine.segment-0": {
+    "durationMs": 9600,
+    "file": "discover-b09740a4ddf7.mp3",
+    "locale": "en",
+    "renditionKey": "b09740a4ddf76613ef78fb811392af3b355eb18bb38d6e5eddc72c6a6c457dcd",
+    "sha256": "c809a7ff9b9cb242fc372ed770fe292270d7a8ba3bdf66097144dcb39b546a81",
+    "voice": "feminine"
+  },
+  "refill-5.en.feminine.segment-1": {
+    "durationMs": 4880,
+    "file": "discover-52ea05566220.mp3",
+    "locale": "en",
+    "renditionKey": "52ea055662201671d011466eb174a9c2e187635ff8d4fb8e15da083fc4d92d0c",
+    "sha256": "8d8e407a9f3b70c9a23e6a1b9990d34bbd26082b03f76976d4bfe14d322e0341",
+    "voice": "feminine"
+  },
+  "refill-5.en.feminine.segment-2": {
+    "durationMs": 7200,
+    "file": "discover-04e2c0651711.mp3",
+    "locale": "en",
+    "renditionKey": "04e2c06517114d47f1d39f87e61fc8d62833745a7c4ce48d353ee0605c349abb",
+    "sha256": "ffd94895d95ee4ab4eddce20da8fc5aabbc436c4b15495fc6e66a38347804ef7",
+    "voice": "feminine"
+  },
+  "refill-5.en.feminine.segment-3": {
+    "durationMs": 10080,
+    "file": "discover-611368dd76f9.mp3",
+    "locale": "en",
+    "renditionKey": "611368dd76f9d4f01bb69849f0a5f444b9851cda7b7499b88936db31ca227b21",
+    "sha256": "e7f8735e5a2c929925a0aa357a33bc90f27779bff22976f2df251e9f0e3d1e05",
+    "voice": "feminine"
+  },
+  "refill-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "refill-6.en.feminine.segment-0": {
+    "durationMs": 15040,
+    "file": "discover-12e3bab31a93.mp3",
+    "locale": "en",
+    "renditionKey": "12e3bab31a936671ea6a4701c7f6526ea3fef170695c1cb625a0fb2bb6f21fd6",
+    "sha256": "9df9e75d3804badac9d5cec70b470074b2b7902bf9d79d160a79c90a5f3c4f14",
+    "voice": "feminine"
+  },
+  "refill-6.en.feminine.segment-1": {
+    "durationMs": 3120,
+    "file": "discover-f83374087af1.mp3",
+    "locale": "en",
+    "renditionKey": "f83374087af1865156062bd7269a49bfebb0000a36f097b12e820b1915e7eabd",
+    "sha256": "83fe9a5fd9081966f06105ff82b17a75765578005f0addb551c0cc70e86f5f29",
+    "voice": "feminine"
+  },
+  "refill-6.en.feminine.segment-2": {
+    "durationMs": 2880,
+    "file": "discover-423270e3de8f.mp3",
+    "locale": "en",
+    "renditionKey": "423270e3de8f1a3bf8c7a171aec25e6ddc8d3fc2d96d89c2d7b51f209a91a9e5",
+    "sha256": "4065be9fa07700b674f761ddc1a664b513d40287465239d6ea7c03607eb8aba9",
+    "voice": "feminine"
+  },
+  "refill-6.en.feminine.segment-3": {
+    "durationMs": 10880,
+    "file": "discover-db328c564837.mp3",
+    "locale": "en",
+    "renditionKey": "db328c564837c2ed08332ed33e8701164144b29e7fb2f088b1b5856d1c670495",
+    "sha256": "78d14f47427a0e80436c24cf8548180870ef0c132cc1b40af072ee0276abec65",
+    "voice": "feminine"
+  },
+  "refill-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "refill-7.en.feminine.segment-0": {
+    "durationMs": 16400,
+    "file": "discover-d93f254457ec.mp3",
+    "locale": "en",
+    "renditionKey": "d93f254457ecc545a166f7215e111c12817c7525f832444a243548b8f8836489",
+    "sha256": "32348528c01a06f5217aeed895d45efb4726607003f9b43af374ea031b69716b",
+    "voice": "feminine"
+  },
+  "refill-7.en.feminine.segment-1": {
+    "durationMs": 2080,
+    "file": "discover-0e9778a2ddeb.mp3",
+    "locale": "en",
+    "renditionKey": "0e9778a2ddeb82d7deb301d9879d80f5ae111b3fd501c43dc043071ae321cc96",
+    "sha256": "4a20cab2ecd2cf08c2c945af8e8273511ea537df511ed5374c01f09a166ac37c",
+    "voice": "feminine"
+  },
+  "refill-7.en.feminine.segment-2": {
+    "durationMs": 11040,
+    "file": "discover-82e027640f19.mp3",
+    "locale": "en",
+    "renditionKey": "82e027640f1967f184627767f8c3ea10fe7e1ebd181fb7d145fc22e41d275631",
+    "sha256": "a3df26488d5a7233a30ef38b9f99232e1a4dc3c06b14d98184142cc3ad3b8ab0",
+    "voice": "feminine"
+  },
+  "refill-7.en.feminine.segment-3": {
+    "durationMs": 3280,
+    "file": "discover-13ca6208fbdb.mp3",
+    "locale": "en",
+    "renditionKey": "13ca6208fbdb807237c818e430d9c3fa4c1b69c2e5feeaf25f5a30f7fc011348",
+    "sha256": "7fd9883a3e2f0186ce94c265775ab91870fde2b9270bcd01b59498403de70b62",
+    "voice": "feminine"
+  },
+  "rooms-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "rooms-1.en.feminine.segment-0": {
+    "durationMs": 6080,
+    "file": "discover-0413b437eaaf.mp3",
+    "locale": "en",
+    "renditionKey": "0413b437eaaf9c49c60d98234a59d36daee00b731fdecb69dddcf64b356291fb",
+    "sha256": "b0b1aa4b890a705e7abfb78564d83c0d4bd4a44fe5a66e3b79f649c02c98b742",
+    "voice": "feminine"
+  },
+  "rooms-1.en.feminine.segment-1": {
+    "durationMs": 10560,
+    "file": "discover-fde6dde30a4a.mp3",
+    "locale": "en",
+    "renditionKey": "fde6dde30a4a7e73af75d2b2640d17e6340c8785833a65e5061537220a16230c",
+    "sha256": "d41720c13003aff8ecdb6704680f07733971c4d31c99eff0d9ef747003658005",
+    "voice": "feminine"
+  },
+  "rooms-1.en.feminine.segment-2": {
+    "durationMs": 3200,
+    "file": "discover-c6ce31a0a507.mp3",
+    "locale": "en",
+    "renditionKey": "c6ce31a0a507ec0d02afc28881131cdf64ee4b4bbd2962d585578e58605bba91",
+    "sha256": "18c6246cc4f0bfb5d2becfe8c4c6ce9730b1a4d2dbfb1489067bdfbd7594cee8",
+    "voice": "feminine"
+  },
+  "rooms-1.en.feminine.segment-3": {
+    "durationMs": 9120,
+    "file": "discover-806a9158aa5f.mp3",
+    "locale": "en",
+    "renditionKey": "806a9158aa5f1ec2fea3d3e53019e9d3f104d8ebd9111ffe0817f630ea3999e7",
+    "sha256": "d1c5cdb22469d715367de5497fa7b42d2b4c9f2c33d0db78b9e8761edb06a360",
+    "voice": "feminine"
+  },
+  "rooms-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "rooms-2.en.feminine.segment-0": {
+    "durationMs": 4160,
+    "file": "discover-4aaa2e0f54bb.mp3",
+    "locale": "en",
+    "renditionKey": "4aaa2e0f54bb2ee5dc034f9f6270491f028ad61dd14a80ad3a3ef6fb35a20bab",
+    "sha256": "09e01d5f0de4eba7a3ee88b2411f200e30ac3cc794ceba436852837d48036e01",
+    "voice": "feminine"
+  },
+  "rooms-2.en.feminine.segment-1": {
+    "durationMs": 10480,
+    "file": "discover-b2b264fced4d.mp3",
+    "locale": "en",
+    "renditionKey": "b2b264fced4d8fc541f2dae215aee8915e12b79e81c37febf1e31bb28b8c73e6",
+    "sha256": "8bff73e32d2858ac591a7eaa7d270be84c2a428bcf886c2df4df95e931212f43",
+    "voice": "feminine"
+  },
+  "rooms-2.en.feminine.segment-2": {
+    "durationMs": 3600,
+    "file": "discover-64c76f52e4b4.mp3",
+    "locale": "en",
+    "renditionKey": "64c76f52e4b4ef0394cc1cf1be7bc6fa9b349430b52df33631ac60ebfabdc2b2",
+    "sha256": "ecc7743440c6adc6c91e1fa2511fc55302eb90849ba35fdb1dd5f4004dee1ef7",
+    "voice": "feminine"
+  },
+  "rooms-2.en.feminine.segment-3": {
+    "durationMs": 9440,
+    "file": "discover-38901f037f1f.mp3",
+    "locale": "en",
+    "renditionKey": "38901f037f1f3cd6c02dbee510d804d98714b9e64d583dddb511cac88e202699",
+    "sha256": "9fc10db3f349f8255cb66238e3f3bf85ece882a71a6603516a43313d5fdcf667",
+    "voice": "feminine"
+  },
+  "rooms-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "rooms-3.en.feminine.segment-0": {
+    "durationMs": 8320,
+    "file": "discover-71222b1fb2bc.mp3",
+    "locale": "en",
+    "renditionKey": "71222b1fb2bc1e77bb2b6cd6c28aa4b368e2e486460327ca80aa9760016dfef1",
+    "sha256": "0db31e14a67ab976cfe4ec5e144a87cfbaaaec66be88955ae7354a7e4627b70c",
+    "voice": "feminine"
+  },
+  "rooms-3.en.feminine.segment-1": {
+    "durationMs": 8240,
+    "file": "discover-a27ebfb7d414.mp3",
+    "locale": "en",
+    "renditionKey": "a27ebfb7d414c10f3d7d773c5cd1f4af097d8cfcee7edbe0e289a56d9ac30d01",
+    "sha256": "d83879f5823ce9457a05cebe6c806eadb96304a92d39874a08ab7012c412d64e",
+    "voice": "feminine"
+  },
+  "rooms-3.en.feminine.segment-2": {
+    "durationMs": 4320,
+    "file": "discover-47fcac1dffe8.mp3",
+    "locale": "en",
+    "renditionKey": "47fcac1dffe8a4d3090e344fa5547c80724b141b33169f78802e8e2809b168f0",
+    "sha256": "57208d64b68ba7bae8b188daf3d244f5d047364b1c8127a998b8dd4ef1a1495c",
+    "voice": "feminine"
+  },
+  "rooms-3.en.feminine.segment-3": {
+    "durationMs": 8320,
+    "file": "discover-caa92724fa54.mp3",
+    "locale": "en",
+    "renditionKey": "caa92724fa54ae74d178fbde8b08c1883b147b77bf998d6968ac1bf155eb8c30",
+    "sha256": "3704a1737053f2188225335325b07a9df465c52a27659f8f60766700f306e637",
+    "voice": "feminine"
+  },
+  "rooms-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "rooms-4.en.feminine.segment-0": {
+    "durationMs": 3920,
+    "file": "discover-048c2e09daac.mp3",
+    "locale": "en",
+    "renditionKey": "048c2e09daaca7ff3817062ddbc7d8885227088f9358d528cdce99752410df53",
+    "sha256": "a073c0cea4265f252779904efbfa7e96dcae6e6b00fc06c1d8c5fe3a1e95678e",
+    "voice": "feminine"
+  },
+  "rooms-4.en.feminine.segment-1": {
+    "durationMs": 10400,
+    "file": "discover-9ad9ca5c70d6.mp3",
+    "locale": "en",
+    "renditionKey": "9ad9ca5c70d66b317ac39851c265e4d802e61d32b90c94db0b849f4541e5a3a7",
+    "sha256": "0125bde261a43aca32b59dab0f366c5c6bb174159e90aa190a57099c1b0bae91",
+    "voice": "feminine"
+  },
+  "rooms-4.en.feminine.segment-2": {
+    "durationMs": 11760,
+    "file": "discover-80637fb725e4.mp3",
+    "locale": "en",
+    "renditionKey": "80637fb725e444420b24920a5b6a13adee7ff8ab89a84b55cedef7a06fb83cdd",
+    "sha256": "a9328f187cd4f754195c54e27687bc551db56d44f4d962c1bc3539d93c228e08",
+    "voice": "feminine"
+  },
+  "rooms-4.en.feminine.segment-3": {
+    "durationMs": 6160,
+    "file": "discover-41ab6a53ed98.mp3",
+    "locale": "en",
+    "renditionKey": "41ab6a53ed9812c1eb74c0f21518e5c191049379233a1f4d2ecb46b5e3ce829d",
+    "sha256": "23100fc888c4c83e1bcaedefd860766179d37a3add8e3f7829316167d9c52241",
+    "voice": "feminine"
+  },
+  "rooms-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "rooms-5.en.feminine.segment-0": {
+    "durationMs": 15600,
+    "file": "discover-2e7bfe0a474f.mp3",
+    "locale": "en",
+    "renditionKey": "2e7bfe0a474f1193e112cfeb5b9e39a7dbf90cd8170252db2699d7fce41d62fb",
+    "sha256": "278a5371732de883d9d7136104b176a42f5fdab53a9130041c74e2743a3df8e4",
+    "voice": "feminine"
+  },
+  "rooms-5.en.feminine.segment-1": {
+    "durationMs": 5120,
+    "file": "discover-947fb7c1e14d.mp3",
+    "locale": "en",
+    "renditionKey": "947fb7c1e14d851d3d35fa15f1e0a6557ad6318784b845f44c086293f7185c80",
+    "sha256": "ef18720f580d541bd847c6c8319653cee693bb2aedd7f2762bad2b3c8d92e570",
+    "voice": "feminine"
+  },
+  "rooms-5.en.feminine.segment-2": {
+    "durationMs": 10320,
+    "file": "discover-af4e0abfe1cb.mp3",
+    "locale": "en",
+    "renditionKey": "af4e0abfe1cb7b4a97c7b47f56a0c2439cb27af2a5fc7cb8c48b2ed5501a06ab",
+    "sha256": "62fd90f4116da8fd19c9679856a3cec593e1c79df2ce4a9e9a1e18cac9cb5255",
+    "voice": "feminine"
+  },
+  "rooms-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "rooms-6.en.feminine.segment-0": {
+    "durationMs": 12080,
+    "file": "discover-2a8ca48e7dac.mp3",
+    "locale": "en",
+    "renditionKey": "2a8ca48e7dac20131a25fe46bdc139d42c6d70e8990349566d4bb0590879a00c",
+    "sha256": "adc4772a4bc58035df02cabe51a2dc5fa1cde1c5861eca22897feff089b8f311",
+    "voice": "feminine"
+  },
+  "rooms-6.en.feminine.segment-1": {
+    "durationMs": 5120,
+    "file": "discover-cd017f0f6401.mp3",
+    "locale": "en",
+    "renditionKey": "cd017f0f640146dabe733884a7399f9abd4257e32830466cc3c1830ba2005f32",
+    "sha256": "0f49959da003bf6273ccce40ff9c64dbb8e6b90043feacc187881c4c15d66bf5",
+    "voice": "feminine"
+  },
+  "rooms-6.en.feminine.segment-2": {
+    "durationMs": 5280,
+    "file": "discover-5dc2bdf92e2f.mp3",
+    "locale": "en",
+    "renditionKey": "5dc2bdf92e2f2feceeb6429d1db193599c119a77d1b5ddbe2bfa72b31920dd85",
+    "sha256": "489b7caedf7d9d72c97870d4b2d769310d739b3b7a41bd8d78cd060a0e242f56",
+    "voice": "feminine"
+  },
+  "rooms-6.en.feminine.segment-3": {
+    "durationMs": 7680,
+    "file": "discover-cd94d6c3b22d.mp3",
+    "locale": "en",
+    "renditionKey": "cd94d6c3b22d1736714bfdc409bb5c9ac6baa5feab86ebb2894433bc0db111f0",
+    "sha256": "c9f2469605982c68e6ee7e447a15edc9b8979221bcdf60e8aec8805ff99eb423",
+    "voice": "feminine"
+  },
+  "rooms-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "rooms-7.en.feminine.segment-0": {
+    "durationMs": 8560,
+    "file": "discover-676d885cb7bf.mp3",
+    "locale": "en",
+    "renditionKey": "676d885cb7bf16400a65395e1989151aff5a833c60c07786e6f890f26ed6e466",
+    "sha256": "fc323eb2c87a2867bd153d3ce732e7aefe2053f6287a35a9c287ed146bc2d5c3",
+    "voice": "feminine"
+  },
+  "rooms-7.en.feminine.segment-1": {
+    "durationMs": 6800,
+    "file": "discover-d8f364711b47.mp3",
+    "locale": "en",
+    "renditionKey": "d8f364711b473d48e13717a197771200dee02ee44156a62de69a9bb80e8dd772",
+    "sha256": "d7e7766972c2c974261c7517e016d7567f5ac0d06077ed4e39a26fc9c398235b",
+    "voice": "feminine"
+  },
+  "rooms-7.en.feminine.segment-2": {
+    "durationMs": 7280,
+    "file": "discover-bda0b3f631b9.mp3",
+    "locale": "en",
+    "renditionKey": "bda0b3f631b9bc993adaab4c0c538935051d97c7adfe054f119b1fe8cd7062a3",
+    "sha256": "8b3270370237326d3f745fff050c2839563485cc44c74cec1647b14b355cfc71",
+    "voice": "feminine"
+  },
+  "rooms-7.en.feminine.segment-3": {
+    "durationMs": 8080,
+    "file": "discover-08a35c1adbcb.mp3",
+    "locale": "en",
+    "renditionKey": "08a35c1adbcbefeebe3acfac348e2b5b221411c7492290f5423db301b4921e5a",
+    "sha256": "d7cc6de262ecef48a6bda7340dbedbfe98dfaf6896880a566fd0dbd4b7d9e9d2",
+    "voice": "feminine"
+  },
+  "unnamed-1.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "unnamed-1.en.feminine.segment-0": {
+    "durationMs": 3360,
+    "file": "discover-a43c7f389846.mp3",
+    "locale": "en",
+    "renditionKey": "a43c7f389846cb9b4f512d93d4e18f72890dbb77c5bac5a47e7398ecf93fe854",
+    "sha256": "a7ed1e45d1d6b223166fcd9d2774e81a37ac331866d1e35acfca15253f632360",
+    "voice": "feminine"
+  },
+  "unnamed-1.en.feminine.segment-1": {
+    "durationMs": 7520,
+    "file": "discover-588fba8edd8c.mp3",
+    "locale": "en",
+    "renditionKey": "588fba8edd8cb4eca32192a2d781ab5fac14e8e4c663dbb5de5b53281695e119",
+    "sha256": "b2c1fa328b4a58fe67494d023b80fe4f328cc497ab32ae87e258d4596cfbb1fa",
+    "voice": "feminine"
+  },
+  "unnamed-1.en.feminine.segment-2": {
+    "durationMs": 7200,
+    "file": "discover-8f43a2ac4958.mp3",
+    "locale": "en",
+    "renditionKey": "8f43a2ac49581f7fa6b802d5b0adbbfe8d7142ab0c693ced00a77b1efe23572d",
+    "sha256": "a47f5bc13e53260aa879b5a20ad8329f8efe41aa9b55c3ebdfbc919d99ba2321",
+    "voice": "feminine"
+  },
+  "unnamed-1.en.feminine.segment-3": {
+    "durationMs": 11200,
+    "file": "discover-43a27a1fda61.mp3",
+    "locale": "en",
+    "renditionKey": "43a27a1fda61c6b4de10efb4a4745b2ce55547b6968a233137c01b081ea11856",
+    "sha256": "c7aa462004ad1812f015e07eaf368b54577c045fcc3e060a13bc6c36ab21b87e",
+    "voice": "feminine"
+  },
+  "unnamed-2.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "unnamed-2.en.feminine.segment-0": {
+    "durationMs": 16720,
+    "file": "discover-f6debae52e2a.mp3",
+    "locale": "en",
+    "renditionKey": "f6debae52e2a1876d085045fb1d79595816490123c03cb75385f1169c951a34e",
+    "sha256": "b6dbdb0605d50d3a3af8a9403903dcc139ba99239a65931f2df0dcd62aa7e6da",
+    "voice": "feminine"
+  },
+  "unnamed-2.en.feminine.segment-1": {
+    "durationMs": 3200,
+    "file": "discover-d2d3028f24a9.mp3",
+    "locale": "en",
+    "renditionKey": "d2d3028f24a90a4b2b6cee83cb4d6b220945e72bef6b30d4f5455faf6b27236d",
+    "sha256": "8f3be8d2d0c44ac7d995dab92fb64ad20b00528a8d469ea20fd3286ae4a83aac",
+    "voice": "feminine"
+  },
+  "unnamed-2.en.feminine.segment-2": {
+    "durationMs": 11920,
+    "file": "discover-5701c15663ec.mp3",
+    "locale": "en",
+    "renditionKey": "5701c15663ece0196a31c4e663f69d6c96a1dd19d9898325ae553c5b42ab9ea2",
+    "sha256": "3a6c052f53966ad5e40d093c1b1dc708d4cec3ec7517cebadf6a05eb10ac6988",
+    "voice": "feminine"
+  },
+  "unnamed-2.en.feminine.segment-3": {
+    "durationMs": 6800,
+    "file": "discover-c36ef363aff4.mp3",
+    "locale": "en",
+    "renditionKey": "c36ef363aff41a0c4d7ed437cd9fe5d70e631bb7c1b98e25518d9590915038f3",
+    "sha256": "6850c420a4f2be849f0ac9211fdc5cc146305498d224e2dac776ba5fc84a85b8",
+    "voice": "feminine"
+  },
+  "unnamed-3.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "unnamed-3.en.feminine.segment-0": {
+    "durationMs": 13680,
+    "file": "discover-a88d6460a6fe.mp3",
+    "locale": "en",
+    "renditionKey": "a88d6460a6fe3e6a70042dc8e79a01b39cdde30712e7bf61676492078a633844",
+    "sha256": "69568c885218a0b54764cb26e534c2c354dc5a04d64530cf69641047bf28abf5",
+    "voice": "feminine"
+  },
+  "unnamed-3.en.feminine.segment-1": {
+    "durationMs": 6080,
+    "file": "discover-a1d1252fc3fa.mp3",
+    "locale": "en",
+    "renditionKey": "a1d1252fc3fa7e8f3b58225d4abbe71f9fc5680dfa3116f5dfb9d3761a2f213c",
+    "sha256": "4fe080002d5c4b27f91b5178fce7b191ef0b1054faecbcc19f9253e4fbcb8da4",
+    "voice": "feminine"
+  },
+  "unnamed-3.en.feminine.segment-2": {
+    "durationMs": 5760,
+    "file": "discover-59f47d9c42bf.mp3",
+    "locale": "en",
+    "renditionKey": "59f47d9c42bf75ac25981bdb8add9816eeefe8ce8e23d654ac86c49a888f96dd",
+    "sha256": "e44dba00f1bce6884c1d99e39af0aec382ae8d46208e11b10439740ffaa80818",
+    "voice": "feminine"
+  },
+  "unnamed-3.en.feminine.segment-3": {
+    "durationMs": 7760,
+    "file": "discover-e38eefef64f7.mp3",
+    "locale": "en",
+    "renditionKey": "e38eefef64f70e8490465a423715f74531afb77e5803b7ac053a770f117c7262",
+    "sha256": "2e72564011b8aacada6c640b810ead400ffd8bf0247dda08e45e6b3ab7da6c32",
+    "voice": "feminine"
+  },
+  "unnamed-4.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "unnamed-4.en.feminine.segment-0": {
+    "durationMs": 11360,
+    "file": "discover-bb0df7941728.mp3",
+    "locale": "en",
+    "renditionKey": "bb0df7941728070327c56d29c92037860b400b5ee0e162332180cb07982b0789",
+    "sha256": "679843bb6e7bef4c8dc5054fcbb8c0776ba084579daa7923a84ff1f2e48c914a",
+    "voice": "feminine"
+  },
+  "unnamed-4.en.feminine.segment-1": {
+    "durationMs": 5120,
+    "file": "discover-83faa3ba2c56.mp3",
+    "locale": "en",
+    "renditionKey": "83faa3ba2c56fa763dc2a91b3d51ffd1a27613112a0f6a426d84fefeaffec4c0",
+    "sha256": "4b0a7c62079465d7a3e4f9a2c5e3f0255b2e7000f86d718c505850dba81be967",
+    "voice": "feminine"
+  },
+  "unnamed-4.en.feminine.segment-2": {
+    "durationMs": 7280,
+    "file": "discover-db4c34c1ca89.mp3",
+    "locale": "en",
+    "renditionKey": "db4c34c1ca89b7fa1b751ab7630e7135f499e573fde02c1619ae6cc3db88ebb0",
+    "sha256": "c4aa066ab3c949220889204bbdb46efaa8200fcf74e3944dff3d32d19da580cf",
+    "voice": "feminine"
+  },
+  "unnamed-4.en.feminine.segment-3": {
+    "durationMs": 6960,
+    "file": "discover-ec26bc58bb7b.mp3",
+    "locale": "en",
+    "renditionKey": "ec26bc58bb7bc1b208746a2a8e14bfa8ed024ec1aa9a5ad38bfa926ae93e83bb",
+    "sha256": "021f359bfbc596798621f4c2eb74143da784530457596ef5bb4953e6d015c77d",
+    "voice": "feminine"
+  },
+  "unnamed-4.en.feminine.segment-4": {
+    "durationMs": 5520,
+    "file": "discover-6ee2341eee34.mp3",
+    "locale": "en",
+    "renditionKey": "6ee2341eee34e07521c0349cc8a9d125f4323fec50c89787a8356ae54e43e64c",
+    "sha256": "e10b3132af4f9e79761e4170ae76d62ed1eb58d1f26de081afbcab28a418c6f0",
+    "voice": "feminine"
+  },
+  "unnamed-5.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "unnamed-5.en.feminine.segment-0": {
+    "durationMs": 18560,
+    "file": "discover-5c9c94ae40c5.mp3",
+    "locale": "en",
+    "renditionKey": "5c9c94ae40c57179741a02bf28e5001aab2c9bf7205ffca6bf822140521a449e",
+    "sha256": "2f512a97f18cb256172c9c3aad9c350a5e0d77f3f906b62aea7d5ecfc47e1f27",
+    "voice": "feminine"
+  },
+  "unnamed-5.en.feminine.segment-1": {
+    "durationMs": 4320,
+    "file": "discover-022380ceca9f.mp3",
+    "locale": "en",
+    "renditionKey": "022380ceca9faab923442ad3aa3aeea58b2297c4268af1e9f814f46d53ae8a7b",
+    "sha256": "032dd4ee15d876aa7126407befc68ef22288e6aa9cc842b458d7786873785040",
+    "voice": "feminine"
+  },
+  "unnamed-5.en.feminine.segment-2": {
+    "durationMs": 3440,
+    "file": "discover-1171f209496f.mp3",
+    "locale": "en",
+    "renditionKey": "1171f209496fdac433aa6ecd30b10c2b254a44f1b9686d2e30e356623d673a47",
+    "sha256": "80086ccd709c9e5c900dd5b2ed81a16bb1af18601ffeb51bbb37e60bbbc41d5d",
+    "voice": "feminine"
+  },
+  "unnamed-5.en.feminine.segment-3": {
+    "durationMs": 8320,
+    "file": "discover-bb476807cca9.mp3",
+    "locale": "en",
+    "renditionKey": "bb476807cca9439c88218ee3db973395de5fc40b4e409df0518804cd4fcc9c08",
+    "sha256": "71a32d049887a46a6b4044c3b65e8bf69e4510a34a00f857906819ad2194e6fc",
+    "voice": "feminine"
+  },
+  "unnamed-6.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "unnamed-6.en.feminine.segment-0": {
+    "durationMs": 9600,
+    "file": "discover-04cef98439ed.mp3",
+    "locale": "en",
+    "renditionKey": "04cef98439ed3a7d95d4cdcda9508875985c6a2bdf628d21bf79f2820fd2bcbc",
+    "sha256": "58b2fd7ce2444e2d2416d775dfdcb24ee6c58e7c96298ccfe2c79f9a8773133e",
+    "voice": "feminine"
+  },
+  "unnamed-6.en.feminine.segment-1": {
+    "durationMs": 7920,
+    "file": "discover-8bb86c8424ad.mp3",
+    "locale": "en",
+    "renditionKey": "8bb86c8424adab1be20db9621316d14ee5639e93f9d76c177484e61c355c1d3c",
+    "sha256": "df37b3eea74d321b0268b837b0682807d931884facac4f4989b7da47c092bf49",
+    "voice": "feminine"
+  },
+  "unnamed-6.en.feminine.segment-2": {
+    "durationMs": 6560,
+    "file": "discover-adb526bc042e.mp3",
+    "locale": "en",
+    "renditionKey": "adb526bc042e864bf9b252eac792027fa4d59e767f35171e8b98ffd6a502a103",
+    "sha256": "aea38c9288770aedcbd3efaba17db0509520965975d1c45302d62f7642365476",
+    "voice": "feminine"
+  },
+  "unnamed-6.en.feminine.segment-3": {
+    "durationMs": 9040,
+    "file": "discover-7ae0774cd12d.mp3",
+    "locale": "en",
+    "renditionKey": "7ae0774cd12db8e468148fe0aa83930f4d2fb4e1e7b1ead7f5ff6e733aee36a9",
+    "sha256": "8c35ee51eaef277593105719bae216bd06afd2eb86da1013761921b6d748f825",
+    "voice": "feminine"
+  },
+  "unnamed-7.en.feminine.closing": {
+    "durationMs": 19600,
+    "file": "discover-8434081daabe.mp3",
+    "locale": "en",
+    "renditionKey": "8434081daabe2ecbe80f9eb234f7ceaef0e0f0f34bbd75f4b6f8e98febd098f2",
+    "sha256": "26c381de4f164d2277d51dea47862aaebb6202e8a4060ab5fc80bf7a3e3907ce",
+    "voice": "feminine"
+  },
+  "unnamed-7.en.feminine.segment-0": {
+    "durationMs": 12720,
+    "file": "discover-f46e1ce6def6.mp3",
+    "locale": "en",
+    "renditionKey": "f46e1ce6def6b514c92ecada48b48526f8853c4ea9b60f1f5cf85dd90e35d352",
+    "sha256": "bb5d603f359eae8a32d2e0be1faf95cddb22a64b5f17217c46a7bc18b0cea645",
+    "voice": "feminine"
+  },
+  "unnamed-7.en.feminine.segment-1": {
+    "durationMs": 6080,
+    "file": "discover-cc19997434f0.mp3",
+    "locale": "en",
+    "renditionKey": "cc19997434f02f74f9262e9d71983484fd43a3146af46a2a58edbe48c49faf24",
+    "sha256": "2aad217a4f506460fbaf7d94e46d65c90771cb466f8c953776d406f44cce0fb3",
+    "voice": "feminine"
+  },
+  "unnamed-7.en.feminine.segment-2": {
+    "durationMs": 7120,
+    "file": "discover-7f357c9b9feb.mp3",
+    "locale": "en",
+    "renditionKey": "7f357c9b9febd3e7d0fa583cb89e2bc29ab31e33adccf82b25e67d86d44b79aa",
+    "sha256": "631f8079ce316f7980c440e5936e0dc51a68659553ec6b6a358a3b11e16a0e5e",
+    "voice": "feminine"
+  },
+  "unnamed-7.en.feminine.segment-3": {
+    "durationMs": 8480,
+    "file": "discover-ed842f1bb828.mp3",
+    "locale": "en",
+    "renditionKey": "ed842f1bb8280658bbc647db3ff68167ec77b112bf2fa6c393106775736cb9f2",
+    "sha256": "a4fe0390ed64b044b18921d3d969bc88073458988b4db81536236d771f55a478",
+    "voice": "feminine"
+  }
+}

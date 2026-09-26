@@ -18,10 +18,10 @@ extension OnboardingDraft {
         draft.gender = .man
         draft.ageRange = .twentyFiveToThirtyFour
         draft.categories = [category]
-        draft.problemText = "Geceleri yatağa girince kafam durmuyor, uyumam saatler sürüyor."
+        draft.problemText = "My mind won't stop when I get into bed at night, and falling asleep takes hours."
         draft.duration = .months
         draft.timing = .bedtime
-        draft.avoidanceText = "Akşamları arkadaşlarla buluşmayı erteliyorum."
+        draft.avoidanceText = "I keep putting off meeting friends in the evening."
         draft.previousAttempts = [.otherApps, .youtube]
         draft.currentMood = .heavy
         draft.tonePreference = .calmAndShort
@@ -55,6 +55,7 @@ extension OnboardingFlowViewModel {
     /// eşleşmemesi, ekranın gerçekte nasıl göründüğünü yanlış gösteriyordu.
     func debugJump(to target: OnboardingStep, category: ProblemCategory = .sleep) {
         debugApply(draft: .debugSample(category: category))
+        if target == .price { debugPreparePaywallPreview() }
         debugSetStep(target)
     }
 }
@@ -82,14 +83,26 @@ extension OnboardingFlowViewModel {
 extension OnboardingStep {
     init?(debugName: String) {
         switch debugName.lowercased() {
+        case "identity", "name": self = .identityName
+        case "gender": self = .identityGender
+        case "age": self = .identityAge
+        case "commit": self = .commitment
+        case "price": self = .price
+        case "h2": self = .h2Priming
         case "a2": self = .a2Categories
         case "b1": self = .b1ProblemText
+        case "b2": self = .b2Duration
+        case "b3": self = .b3Timing
+        case "b4": self = .b4Avoidance
+        case "b5": self = .b5PreviousAttempts
+        case "b6": self = .b6CurrentMood
         case "c1": self = .c1Mirroring
         case "c2": self = .c2NotAlone
+        case "c3": self = .c3PathNotLibrary
+        case "c4": self = .c4HonestExpectation
         case "d0": self = .d0MeasurementIntro
         case "d1": self = .dMeasurement(1)
         case "e1": self = .e1Reminder
-        case "e4": self = .e4Voice
         case "f1": self = .f1Generation
         case "f2": self = .f2Roadmap
         case "g1": self = .g1FirstSession
@@ -111,6 +124,14 @@ extension OnboardingStep {
 ///
 /// `xcrun simctl launch booted <bundle-id> -patika-debug-step yolum`
 enum DebugDirectEntry {
+    static var opensOnboardingStep: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-patika-debug-step"),
+              arguments.index(after: index) < arguments.endIndex
+        else { return false }
+        return OnboardingStep(debugName: arguments[arguments.index(after: index)]) != nil
+    }
+
     static var opensRoot: Bool {
         let arguments = ProcessInfo.processInfo.arguments
         guard let index = arguments.firstIndex(of: "-patika-debug-step"),
@@ -130,11 +151,9 @@ enum DebugDirectEntry {
         return Int(arguments[arguments.index(after: index)])
     }
 
-    static func prepareIfNeeded(services: AppServices, palette: PaletteController) async {
+    static func prepareIfNeeded(services: AppServices) async {
         guard opensRoot else { return }
         let draft = OnboardingDraft.debugSample()
-        palette.select(draft.categories)
-        palette.setMood(draft.currentMood)
         if PathPreviewFixture.isEnabled || PathPreviewFixture.showsEmpty { return }
         do {
             let token = try await services.auth.validAccessToken()
@@ -163,13 +182,16 @@ struct OnboardingDebugSkipButton: View {
 
     var body: some View {
         Menu {
-            Button("F1 · Üretim") { flow.debugJump(to: .f1Generation) }
-            Button("G1 · İlk oturum") { flow.debugJump(to: .g1FirstSession) }
-            Button("G2 · Oturum sonu") { flow.debugJump(to: .g2SessionComplete) }
-            Button("H1 · Hesap") { flow.debugJump(to: .h1Account) }
+            Button("H2 · Notification") { flow.debugJump(to: .h2Priming) }
+            Button("F1 · Generation") { flow.debugJump(to: .f1Generation) }
+            Button("F2 · Path ready") { flow.debugJump(to: .f2Roadmap) }
+            Button("Promise · Signature") { flow.debugJump(to: .commitment) }
+            Button("G1 · First session") { flow.debugJump(to: .g1FirstSession) }
+            Button("G2 · Session end") { flow.debugJump(to: .g2SessionComplete) }
+            Button("H1 · Account") { flow.debugJump(to: .h1Account) }
             Divider()
-            Button("D1 · Ölçüm") { flow.debugJump(to: .dMeasurement(1)) }
-            Button("E1 · Tercihler") { flow.debugJump(to: .e1Reminder) }
+            Button("D1 · Measurement") { flow.debugJump(to: .dMeasurement(1)) }
+            Button("E1 · Preferences") { flow.debugJump(to: .e1Reminder) }
         } label: {
             Image(systemName: "forward.end.alt")
                 .font(.footnote.weight(Theme.Weight.action))
@@ -177,7 +199,7 @@ struct OnboardingDebugSkipButton: View {
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
-        .accessibilityLabel("Geliştirici: akışı ileri sar")
+        .accessibilityLabel("Developer: fast-forward the flow")
     }
 }
 #endif

@@ -15,13 +15,12 @@ import SwiftUI
 /// Cevap yazılmazsa sonraki adım mevcut özetle hazır kalıyor. Zorunlu bir
 /// günlük, meditasyonun sonuna ödev eklemek olurdu.
 struct AdaptiveQuestionView: View {
+    @Binding var answer: String
     let question: String
     let isSubmitting: Bool
     let showsError: Bool
     var onSave: (String) -> Void
     var onSkip: () -> Void
-
-    @State private var answer = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

@@ -19,7 +19,6 @@ enum DiscoverRoute: Hashable {
 /// eski ekran ham sistem fontlarıyla SF Pro çiziyordu, uygulamanın kalanı Rounded.
 struct DiscoverView: View {
     @Environment(DiscoverLibrary.self) private var library
-    @Environment(PaletteController.self) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -41,14 +40,6 @@ struct DiscoverView: View {
         NavigationStack(path: $route) {
             ZStack {
                 WoodlandStyle.background.ignoresSafeArea()
-                BreathingMeshBackground(
-                    palette: palette.current,
-                    safeY: 0.12,
-                    breathAmplitude: BreathAmplitude.measurement
-                )
-                .opacity(0.20)
-                .ignoresSafeArea()
-                .accessibilityHidden(true)
                 content
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -197,7 +188,7 @@ struct DiscoverView: View {
             let steps = value(after: "-patika-debug-discover-progress").flatMap(Int.init) ?? 0
             for id in ids.split(separator: ",") {
                 guard let path = library.paths.first(where: { $0.id == id }) else { continue }
-                library.enroll(path, voice: .feminine)
+                library.enroll(path)
                 for step in path.steps.prefix(steps) { library.complete(step, in: path) }
             }
         }

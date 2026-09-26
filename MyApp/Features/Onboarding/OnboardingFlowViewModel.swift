@@ -15,6 +15,7 @@ enum OnboardingStep: Equatable {
     // Kimlik — PRD'de yok, sonradan eklendi (ürün sahibi kararı, 2026-09-08).
     // A1'in **sonrasında**: kanca ekranı markanın ilk izlenimi, önüne form
     // koyulmaz. A2'nin **öncesinde**: hitap adı akışın geri kalanında kullanılıyor.
+    // 2026-09-22: her soru kendi sayfasında — üç ayrı ekran (bkz. karar günlüğü).
     case identityName
     case identityGender
     case identityAge
@@ -31,18 +32,18 @@ enum OnboardingStep: Equatable {
     case c2NotAlone
     case c3PathNotLibrary
     case c4HonestExpectation
+    /// Taahhüt anı (2026-09-22): F2 sonrasında imza/işaret ve basılı tutma.
+    case commitment
     // D — Baseline ölçüm (9 ekran: giriş + 8 soru). Atlanamayan tek bölüm.
     case d0MeasurementIntro
     /// D1–D8. `index` 1 tabanlı ve `OnboardingDraft.measurementItems`
     /// dizisindeki sırayı gösterir.
     case dMeasurement(Int)
-    // E — Tercihler (3 ekran). Üçünün de ürün davranışında görünür karşılığı var.
+    // E — Tercihler (2 ekran). İkisinin de ürün davranışında görünür karşılığı var.
+    // E2 (adım uzunluğu) ve E4 (rehber sesi) 2026-09-21'de kaldırıldı: uzunluğu ürün
+    // sahibi ayarlıyor (varsayılan 10 dk), MVP tek ses (kadın). E3 (ton) 2026-09-22'de
+    // kaldırıldı — E bölümü artık yalnızca E1.
     case e1Reminder
-    case e2SessionLength
-    case e3Tone
-    /// E4 — rehber sesi. PRD'de yok, sonradan eklendi (ürün sahibi kararı,
-    /// 2026-09-09): ses kimliği kullanıcının en uzun temas ettiği yer.
-    case e4Voice
     // F — Üretim ve teslim. PRD'de 4 ekran; F2 ile F3 **birleştirildi**
     // (ürün sahibi kararı, 2026-09-09), yani 3 ekran.
     case f1Generation
@@ -50,7 +51,10 @@ enum OnboardingStep: Equatable {
     // G — İlk değer / aha momenti (2 ekran, PRD-Ek Onboarding §8)
     case g1FirstSession
     case g2SessionComplete
-    // H — hesap baglama. Bildirim izni sonraki uygulama diliminde eklenecek.
+    /// F4 — fiyat şeffaflığı, G2'den sonra (2026-09-21). Ödeme istemez, yalnızca söyler.
+    case price
+    // H — bildirim ön hazırlığı ve hesap bağlama.
+    case h2Priming
     case h1Account
     // Kriz sinyali: akış buraya düşer ve devam etmez.
     case crisis
@@ -66,6 +70,7 @@ enum OnboardingStep: Equatable {
         // Soru bölümü kimlik ekranlarıyla birlikte 10 ekran: iz onların da
         // sorulduğunu gösteriyor, yoksa üç ekran boyunca hiç ilerlemiyor gibi
         // görünüyordu.
+        // Soru bölümü 10 ekran: kimlik (3, ayrı sayfa) + A2 + B1–B6.
         case .identityName: 1.0 / 10.0
         case .identityGender: 2.0 / 10.0
         case .identityAge: 3.0 / 10.0
@@ -81,14 +86,11 @@ enum OnboardingStep: Equatable {
         // sorulmadığı için iz solar — tıpkı C bölümünde olduğu gibi.
         case .dMeasurement(let index):
             Double(index) / Double(MeasurementPoint.baseline.questionCount)
-        // E kendi ölçeğiyle yeniden başlar — üç ekranlık kısa bir bölüm.
-        case .e1Reminder: 1.0 / 4.0
-        case .e2SessionLength: 2.0 / 4.0
-        case .e3Tone: 3.0 / 4.0
-        case .e4Voice: 1.0
+        // E artık tek ekran (E3 kaldırıldı); dolu iz onaylandığını gösterir.
+        case .e1Reminder: 1.0
         case .a1Welcome, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
-             .c4HonestExpectation, .d0MeasurementIntro, .f1Generation, .f2Roadmap,
-             .g1FirstSession, .g2SessionComplete, .h1Account, .crisis: nil
+             .c4HonestExpectation, .commitment, .d0MeasurementIntro, .f1Generation, .f2Roadmap,
+             .g1FirstSession, .g2SessionComplete, .price, .h2Priming, .h1Account, .crisis: nil
         }
     }
 
@@ -100,30 +102,24 @@ enum OnboardingStep: Equatable {
     /// gerekirdi, ikisi de kullanıcıya açıklanamaz.
     var canGoBack: Bool {
         switch self {
+        // Taahhüt ve fiyat ekranında geri yok: G2'ye dönmek, bitmiş oturumun özetini
+        // (ve cevabı gönderilmiş soruyu) yeniden açardı.
         case .a1Welcome, .f1Generation, .f2Roadmap, .g1FirstSession, .g2SessionComplete,
-             .h1Account, .crisis: false
+             .commitment, .price, .h1Account, .crisis: false
         default: true
         }
     }
 
-    /// Metin bandının dikey merkezi — ekran bazlı değerler Görsel Sistem eki §7'de.
-    var backgroundSafeY: Float {
+    /// Adımın malzemesi (docs/onboarding-redesign.md, Bölüm 2.2/Faz 2). Kabuk yalnızca okur.
+    var surfaceStyle: OnboardingSurfaceStyle {
         switch self {
-        case .a1Welcome: 0.72   // başlık alt yarıda
-        case .crisis: 0.40
-        // C ekranlarında soru yok, paragraf var: metin bandı soru ekranlarından
-        // uzun ve biraz daha aşağı iniyor.
-        case .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation,
-             .d0MeasurementIntro: 0.30
-        // F1'de metin en üstte ve tek: iz aşağı doğru iniyor, arka planın açık
-        // bandı onun altında kalmalı. F2 uzun bir liste; scrim üst şeride.
-        case .f1Generation: 0.16
-        case .f2Roadmap: 0.14
-        // G1'de tek bir cümle ekranın ortasında duruyor; açık bant onun altında.
-        case .g1FirstSession: 0.50
-        // G2 oturumdan çıkış: metin bloğu alt yarıda, A1'in kanca yerleşimi gibi.
-        case .g2SessionComplete: 0.62
-        default: 0.18           // soru ekranlarında metin üstte
+        // A2 ve B6 kartsız kalır: cevabın karşılığı sahnenin kendisi (kategori sahnesi,
+        // ruh hâline göre perde) ve önüne kart koymak neden-sonucu koparırdı.
+        case .identityName, .identityGender, .identityAge, .b1ProblemText, .b2Duration, .b3Timing,
+             .b4Avoidance, .b5PreviousAttempts, .c1Mirroring, .c2NotAlone, .c3PathNotLibrary,
+             .c4HonestExpectation, .commitment, .d0MeasurementIntro,
+             .h2Priming, .h1Account: .paper
+        default: .plain
         }
     }
 
@@ -146,6 +142,45 @@ enum OnboardingStep: Equatable {
     }
 }
 
+extension OnboardingStep {
+    /// Crisis is deliberately absent from analytics.
+    var analyticsStep: AnalyticsOnboardingStep? {
+        switch self {
+        case .a1Welcome: .a1
+        case .identityName: .identityName
+        case .identityGender: .identityGender
+        case .identityAge: .identityAge
+        case .a2Categories: .a2
+        case .b1ProblemText: .b1
+        case .b2Duration: .b2
+        case .b3Timing: .b3
+        case .b4Avoidance: .b4
+        case .b5PreviousAttempts: .b5
+        case .b6CurrentMood: .b6
+        case .c1Mirroring: .c1
+        case .c2NotAlone: .c2
+        case .c3PathNotLibrary: .c3
+        case .c4HonestExpectation: .c4
+        case .d0MeasurementIntro: .d0
+        case .dMeasurement(let index):
+            [AnalyticsOnboardingStep.d1, .d2, .d3, .d4, .d5, .d6, .d7, .d8]
+                .indices.contains(index - 1)
+                ? [AnalyticsOnboardingStep.d1, .d2, .d3, .d4, .d5, .d6, .d7, .d8][index - 1]
+                : nil
+        case .e1Reminder: .e1
+        case .h2Priming: .h2
+        case .f1Generation: .f1
+        case .f2Roadmap: .f2
+        case .commitment: .commitment
+        case .g1FirstSession: .g1
+        case .g2SessionComplete: .g2
+        case .price: .price
+        case .h1Account: .h1
+        case .crisis: nil
+        }
+    }
+}
+
 /// Onboarding akışının sahibi. Adım yönlendirmesi, taslak veri ve palet
 /// senkronizasyonu buradadır; görünümler karar vermez.
 @Observable
@@ -154,8 +189,6 @@ final class OnboardingFlowViewModel {
     private(set) var step: OnboardingStep = .a1Welcome
     private(set) var draft = OnboardingDraft()
 
-    /// Palet, kategori seçimiyle canlı değişir (Görsel Sistem eki §6.4).
-    private let palette: PaletteController
     /// Oturum ekranı da aynı istemcileri kullanıyor (ses üretimi, imzalı adres);
     /// ikinci bir servis kabı kurmak yerine akışınki paylaşılıyor.
     let services: AppServices
@@ -163,38 +196,125 @@ final class OnboardingFlowViewModel {
     private let onFinished: () -> Void
 
     private var history: [OnboardingStep] = []
+    private var analyticsSteps = AnalyticsStepTracker()
+    private var didTrackPathGenerationStart = false
+    private var didTrackProblemSubmission = false
+    private var didTrackAccountChoice = false
     /// F1'de başlatılan ses üretimi. Görev tutuluyor ki ekran değişince iptal
     /// edilebilsin ve iki kez başlatılmasın.
     private var audioPreparation: Task<Void, Never>?
+    /// F1 ve G1 aynı ses isteği için **aynı** anahtarı kullanır: sunucu idempotency'yi
+    /// (kullanıcı, anahtar) çiftine göre tutuyor, yeni bir anahtar ikinci bir iş ve
+    /// ikinci bir TTS faturası demek.
+    private let firstStepAudioKey = UUID()
+    /// Bir ses isteği sunucuya gerçekten gönderildi mi (yanıt ne olursa olsun)?
+    private var didRequestFirstStepAudio = false
+    /// Sağlayıcı sunucuda yok ya da seslendirilecek metin yok (503/422): tekrar
+    /// denemek anlamsız, G1 sessiz sürüme düşer.
+    private(set) var isFirstStepAudioUnavailable = false
     /// 1. adımın sunucudaki satır kimliği — G1 sesi bununla arıyor, G2 de
     /// tamamlanmayı bununla yazıyor.
     private(set) var firstStepId: UUID?
     /// G1 sonuna kadar dinlendi mi? G2'nin metnini bu belirliyor.
     private(set) var didCompleteFirstSession = false
-    /// Oturumdaki ses zarfı. Yalnızca dekoratif mesh bunu okur; analitiğe ve
+    /// Oturumdaki ses zarfı. Yalnızca dekoratif nefes küresi bunu okur; analitiğe ve
     /// kalıcı depoya gitmez.
     private(set) var sessionVoiceEnergy: Double = 0
+    /// A2'de henüz commit edilmemiş canlı seçim — `currentScene` bunu taslaktan önce okur.
+    private var previewedCategories: [ProblemCategory]?
+    /// B6'da henüz commit edilmemiş canlı seçim — `currentSceneDimming` bunu okur.
+    private var previewedMood: MoodLevel?
+    private var previewedReminderHour: Int?
+    /// Tam ekran eşik cümlesi: F2 → G1 ("day one") ve commitment → paywall.
+    private(set) var threshold: OnboardingThreshold?
+    /// The wheel value survives Back only in memory; it is never persisted or uploaded.
+    private(set) var selectedExactAge: Int?
 
     init(
-        palette: PaletteController,
         services: AppServices,
         onFinished: @escaping () -> Void = {}
     ) {
-        self.palette = palette
         self.services = services
         self.onFinished = onFinished
+        markStepViewed(.a1Welcome)
     }
 
     // MARK: - Navigasyon
 
     func advance(to next: OnboardingStep) {
+        markStepCompleted(step)
         history.append(step)
         step = next
+        markStepViewed(next)
+    }
+
+    private func markStepViewed(_ step: OnboardingStep) {
+        guard let id = step.analyticsStep, analyticsSteps.firstView(of: id) else { return }
+        services.observability.capture(.onboardingStepViewed(step: id))
+    }
+
+    private func markStepCompleted(_ step: OnboardingStep) {
+        guard let id = step.analyticsStep, analyticsSteps.firstCompletion(of: id) else { return }
+        services.observability.capture(.onboardingStepCompleted(step: id))
+    }
+
+    private func markProblemSubmission(wasWritten: Bool) {
+        guard !didTrackProblemSubmission else { return }
+        didTrackProblemSubmission = true
+        services.observability.capture(.problemTextSubmitted(wasWritten: wasWritten))
     }
 
     func goBack() {
         guard let previous = history.popLast() else { return }
+        previewedCategories = nil
+        previewedMood = nil
+        previewedReminderHour = nil
         step = previous
+    }
+
+    // MARK: - Sahne (docs/onboarding-redesign.md, Faz 2)
+    //
+    // Gradyan kalktı (2026-09-22): arka plan artık bölüm başına tam ekran bir guaj
+    // sahnesi. A2'den B6'ya kadar sahne **kategoriye göre** değişir — eskiden bu işi
+    // canlı palet yapıyordu; kategori bilinmeden önce ve C'den sonra bölüm sahnesi
+    // kullanılır. Sahne enum'da değil burada hesaplanıyor çünkü taslağa (ve A2/B6'nın
+    // henüz commit edilmemiş canlı seçimine) bakması gerekiyor.
+
+    /// Adımın sahnesi. Kriz ekranında hiç sahne yok (`nil`); kalanında görsel eksikse
+    /// `OnboardingSceneLayer` düz zemine düşer, hiçbir ekran kırılmaz.
+    var currentScene: OnboardingArtwork? {
+        switch step {
+        case .a1Welcome: .threshold
+        case .identityName, .identityGender, .identityAge: .gathering
+        case .b6CurrentMood:
+            OnboardingArtwork.mood(previewedMood ?? draft.currentMood)
+        case .a2Categories, .b1ProblemText, .b2Duration, .b3Timing, .b4Avoidance, .b5PreviousAttempts:
+            (previewedCategories ?? draft.categories).last.map(OnboardingArtwork.category)
+                ?? .categoryUnnamed
+        case .c1Mirroring, .c2NotAlone, .c3PathNotLibrary, .c4HonestExpectation:
+            .reflection
+        case .d0MeasurementIntro, .dMeasurement:
+            .measure
+        case .e1Reminder:
+            OnboardingArtwork.time(hour: previewedReminderHour ?? suggestedReminderHour)
+        case .h2Priming, .f1Generation, .f2Roadmap, .commitment, .price:
+            .prepare
+        case .g1FirstSession:
+            .session
+        case .g2SessionComplete, .h1Account:
+            .settle
+        case .crisis:
+            nil
+        }
+    }
+
+    /// Sahne perdesi. Yalnızca B6'da ruh hâline göre değişir — ağır kademede daha koyu,
+    /// sakin kademede daha açık; ekranı ayrıca kısıp yavaşlatmak "neşelen" demenin görsel
+    /// karşılığı olurdu, o yüzden yalnızca perde değişir (Görsel Sistem eki §3.4'ün
+    /// gradyansız karşılığı). Kalan her yerde sabit.
+    var currentSceneDimming: Double {
+        let base = 0.34
+        return base
     }
 
     // MARK: - A1
@@ -206,18 +326,23 @@ final class OnboardingFlowViewModel {
             services.observability.capture(.anonymousAuthentication)
             return false
         }
-        services.observability.capture(.onboardingStarted)
         advance(to: .identityName)
         return true
     }
 
     // MARK: - Kimlik
+    //
+    // Üç ayrı ekran (2026-09-22, docs/onboarding-redesign.md, Faz 4): her soru kendi
+    // sayfasında. Cinsiyet ve yaş ürünün hiçbir davranışını değiştirmiyor, ama her ikisi
+    // de tek başına bir sayfa — "her soru kendi sayfasında" kuralının istisnası yok.
 
     /// Ad da serbest metin — "kullanıcının yazdığı **her** serbest metin
     /// sınıflandırıcıdan geçer" kuralının istisnası yok. Ad alanına kriz sinyali
     /// yazılması beklenmiyor ama kuralın istisnası olduğu an kural değildir.
-    func commitName(_ text: String) {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    ///
+    /// Ad boşsa isimsiz devam eder: isimsiz sürüm eksik bir sürüm değil.
+    func commitName(_ name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if CrisisClassifier.evaluate(trimmed).hasSignal {
             flagCrisis()
@@ -228,20 +353,32 @@ final class OnboardingFlowViewModel {
         advance(to: .identityGender)
     }
 
-    /// "İsim vermek istemiyorum". Akışın hiçbir yeri kapanmaz; metinler
-    /// isimsiz sürümlerine düşer.
+    /// "İsim vermek istemiyorum". Akışın hiçbir yeri kapanmaz.
     func skipName() {
         draft.name = nil
         advance(to: .identityGender)
     }
 
+    /// Cinsiyet cevapsız kalabilir ve `undisclosed` yazılır — karşılığı olmayan bir
+    /// soruyu (`identityStatsNote`) varmış gibi sunmuyoruz.
     func commitGender(_ gender: Gender) {
         draft.gender = gender
         advance(to: .identityAge)
     }
 
-    func commitAgeRange(_ range: AgeRange) {
-        draft.ageRange = range
+    func previewAge(_ age: Int?) {
+        selectedExactAge = age
+    }
+
+    func commitAge(_ age: Int) {
+        selectedExactAge = age
+        draft.ageRange = AgeSelection.range(for: age)
+        advance(to: .a2Categories)
+    }
+
+    func commitAgeUndisclosed() {
+        selectedExactAge = nil
+        draft.ageRange = .undisclosed
         advance(to: .a2Categories)
     }
 
@@ -249,13 +386,14 @@ final class OnboardingFlowViewModel {
 
     func commitCategories(_ categories: [ProblemCategory]) {
         draft.categories = categories
-        palette.select(categories)
+        previewedCategories = nil
         advance(to: .b1ProblemText)
     }
 
-    /// Kategori seçimi değiştikçe arka plan anında tepki verir.
+    /// Kategori seçimi değiştikçe arka plan anında tepki verir — henüz commit
+    /// edilmemiş seçim `currentScene`i besliyor.
     func previewCategories(_ categories: [ProblemCategory]) {
-        palette.select(categories)
+        previewedCategories = categories
     }
 
     // MARK: - B1 · Kendi cümlelerinle
@@ -274,12 +412,14 @@ final class OnboardingFlowViewModel {
         }
 
         draft.problemText = trimmed
+        markProblemSubmission(wasWritten: !trimmed.isEmpty)
         advance(to: .b2Duration)
     }
 
     /// "Yazmak istemiyorum". Kişiselleştirme zayıflar, akış durmaz (§10).
     func skipProblemText() {
         draft.problemText = ""
+        markProblemSubmission(wasWritten: false)
         advance(to: .b2Duration)
     }
 
@@ -291,6 +431,47 @@ final class OnboardingFlowViewModel {
     }
 
     // MARK: - B3 · Zamanlama
+
+    func previewReminder(hour: Int) {
+        previewedReminderHour = hour
+    }
+
+    /// F2'deki "Yola çık" basılı tutması: eşik cümlesinden sonra G1.
+    func beginDayOneTransition() {
+        threshold = .dayOne
+    }
+
+    /// G2 sonrası taahhüt: eşik cümlesinden sonra paywall. Teklif burada yüklenmeye
+    /// başlar; eşik cümlesi ekrandayken biter ve paywall ara ekransız açılır.
+    func beginContinueTransition() {
+        threshold = .continuePath
+        prepareOffer()
+    }
+
+    /// Paywall adımının teklifi. Kaplama yalnız yükleme bitince açılır.
+    private(set) var purchaseOffer: PathPaywallViewModel?
+
+    func prepareOffer() {
+        guard purchaseOffer == nil, let path = generatedPath else { return }
+        let offer = PathPaywallViewModel(
+            services: services,
+            pathID: path.id,
+            days: path.steps.count,
+            context: .first,
+            reminderTime: reminderTimeText
+        )
+        purchaseOffer = offer
+        Task { await offer.load() }
+    }
+
+    func finishThreshold() {
+        guard let current = threshold else { return }
+        threshold = nil
+        switch current {
+        case .dayOne: startFirstSession()
+        case .continuePath: advance(to: .price)
+        }
+    }
 
     /// Cevap E1'deki varsayılan hatırlatma saatini belirler — sorduğumuz her
     /// şeyin görünür bir karşılığı olmalı (PRD-Ek Onboarding §3.3).
@@ -323,22 +504,24 @@ final class OnboardingFlowViewModel {
 
     // MARK: - B5 · Daha önce ne denedin?
 
-    func commitPreviousAttempts(_ attempts: [PreviousAttempt]) {
+    func commitPreviousAttempts(_ attempts: [PreviousAttempt], otherText: String? = nil) {
         draft.previousAttempts = attempts
+        draft.previousAttemptOtherText = otherText
         advance(to: .b6CurrentMood)
     }
 
     // MARK: - B6 · Şu an nasılsın?
 
     /// Kademe seçildiği anda arka plan tepki verir — A2'deki kategori
-    /// önizlemesiyle aynı mantık, cevabın karşılığı hemen görünür.
+    /// önizlemesiyle aynı mantık, cevabın karşılığı hemen görünür (sahne perdesi
+    /// koyulaşır/açılır, bkz. `currentSceneDimming`).
     func previewCurrentMood(_ mood: MoodLevel) {
-        palette.setMood(mood)
+        previewedMood = mood
     }
 
     func commitCurrentMood(_ mood: MoodLevel) {
         draft.currentMood = mood
-        palette.setMood(mood)
+        previewedMood = nil
         advance(to: .c1Mirroring)
     }
 
@@ -410,9 +593,10 @@ final class OnboardingFlowViewModel {
 
     // MARK: - E · Tercihler
     //
-    // Üç cevabın üçü de ürünün davranışını değiştiriyor: hatırlatma saati
-    // bildirimi, süre blok seçimini, ton TTS istemini. "Kişiselleştirme
-    // tiyatrosu" değil (PRD-Ek Onboarding §6).
+    // E3 (ton) 2026-09-22'de kaldırıldı (ürün sahibi kararı, bkz. karar günlüğü):
+    // `TonePreference` sıralı bir küme değildi ve ekranın yerini alacak bir kaydırıcı
+    // yoktu. Enum, `resolvedTonePreference` ve sunucu alanı kalıyor — sunucu şeması
+    // `tone`u zorunlu ve doğrulanan bir alan olarak istiyor.
 
     /// E1'in önerdiği saat B3'ten geliyor — sorduğumuz her şeyin görünür bir
     /// karşılığı olmalı.
@@ -422,25 +606,13 @@ final class OnboardingFlowViewModel {
     func commitReminder(hour: Int, minute: Int) {
         draft.reminderHour = hour
         draft.reminderMinute = minute
-        advance(to: .e2SessionLength)
-    }
-
-    func commitSessionLength(_ length: SessionLength) {
-        draft.sessionLength = length
-        advance(to: .e3Tone)
-    }
-
-    func commitTonePreference(_ tone: TonePreference) {
-        draft.tonePreference = tone
-        advance(to: .e4Voice)
-    }
-
-    /// E4 — rehber sesi. Ton (E3) metnin nasıl **yazıldığını**, ses kimliği
-    /// nasıl **okunduğunu** belirliyor; ikisi ayrı karar ve ikisi de gerçekten
-    /// ürünün davranışını değiştiriyor.
-    func commitVoicePreference(_ voice: VoicePreference) {
-        draft.voicePreference = voice
-        advance(to: .f1Generation)
+        // Adım uzunluğu ve ses kullanıcıya sorulmuyor (2026-09-21): uzunluk taslağın
+        // varsayılanı (10 dk, `SessionLength.standard`), ses MVP'nin tek sesi. Sunucu ve
+        // oturum bu alanları okumaya devam ediyor. Bu satır E3 silinince (2026-09-22)
+        // buraya taşındı — E3'ün commit'i bu satırı taşımıyordu, yoksa ses tercihi hiç
+        // kurulmazdı.
+        draft.voicePreference = .feminine
+        advance(to: .h2Priming)
     }
 
     // MARK: - F · Üretim ve teslim
@@ -493,48 +665,83 @@ final class OnboardingFlowViewModel {
                 )
                 firstStepId = step.id
                 guard step.audioStatus == .pending else { return }
-                _ = try await services.backend.requestAudioWithRetry(
-                    pathStepId: step.id,
-                    accessToken: token,
-                    idempotencyKey: UUID()
-                )
+                try await requestFirstStepAudio(stepId: step.id, accessToken: token)
             } catch {
                 services.observability.capture(.audioGeneration)
             }
         }
     }
 
-    func generatePath(idempotencyKey: UUID) async throws -> PathGenerationResult {
-        let token = try await services.auth.validAccessToken()
+    /// G1 adımı hâlâ `pending` görüyorsa çağrılır: F1'in isteği ya sunucuya
+    /// ulaşmadı ya da başarısız oldu.
+    ///
+    /// Önce F1'in görevini bekler — isteği uçuştayken ikinci bir istek aynı iş için
+    /// ikinci bir kuyruk mesajı demek (`enqueue_audio_job`), yani iki işçinin aynı
+    /// slotları aynı anda seslendirmesi. F1 isteği yaptıysa burada hiçbir şey yapılmaz.
+    func requestFirstStepAudioIfStillPending(stepId: UUID) async {
+        await audioPreparation?.value
+        guard !didRequestFirstStepAudio else { return }
         do {
+            let token = try await services.auth.validAccessToken()
+            try await requestFirstStepAudio(stepId: stepId, accessToken: token)
+        } catch {
+            services.observability.capture(.audioGeneration)
+        }
+    }
+
+    private func requestFirstStepAudio(stepId: UUID, accessToken: String) async throws {
+        didRequestFirstStepAudio = true
+        let outcome = try await services.backend.requestAudioWithRetry(
+            pathStepId: stepId,
+            accessToken: accessToken,
+            idempotencyKey: firstStepAudioKey
+        )
+        if case .unavailable = outcome { isFirstStepAudioUnavailable = true }
+    }
+
+    func generatePath(idempotencyKey: UUID) async throws -> PathGenerationResult {
+        if !didTrackPathGenerationStart {
+            didTrackPathGenerationStart = true
+            services.observability.capture(.pathGenerationStarted)
+        }
+        do {
+            let token = try await services.auth.validAccessToken()
             let result = try await services.backend.generatePathWithReconciliation(
                 from: draft,
                 measurementVariant: measurementVariant,
                 accessToken: token,
                 idempotencyKey: idempotencyKey
             )
-            services.observability.capture(.pathGenerationFinished(
-                result: result == .crisis ? .crisis : .ready
-            ))
+            if case .ready = result {
+                services.observability.capture(.pathGenerationFinished(succeeded: true))
+            }
             if case .ready(let path) = result {
                 generatedPath = path
             }
             return result
         } catch {
-            services.observability.capture(.pathGenerationFinished(result: .failed))
+            services.observability.capture(.pathGenerationFinished(succeeded: false))
             services.observability.capture(.pathGeneration)
             throw error
         }
     }
 
-    /// F2'nin "Yola çık"ı — basılı tutularak tetiklenir. Buradan sonrası G1:
+    /// F2'deki basılı tutma (eşik cümlesinden sonra) bunu tetikler. Buradan sonrası G1:
     /// kullanıcı kayıt olmadan ilk oturumunu dinliyor (PRD-Ek Onboarding §8).
     ///
     /// **Geri dönülmez.** Harita geride kalıyor ve oturum başlıyor; geçmişi
     /// temizlemek, oturumun ortasında geri tuşuyla haritaya düşmeyi engelliyor.
     func startFirstSession() {
+        markStepCompleted(step)
         history.removeAll()
         step = .g1FirstSession
+        markStepViewed(step)
+    }
+
+    /// Taahhüt ilk adımdan sonraya taşındı (2026-09-24, docs/paywall-stratejisi.md):
+    /// F2 doğrudan G1'e geçer.
+    func finishRoadmap() {
+        beginDayOneTransition()
     }
 
     /// G1 bitti. `completed` false ise kullanıcı "Burada duralım" dedi.
@@ -545,11 +752,14 @@ final class OnboardingFlowViewModel {
     /// kaydını yalanlamak olurdu. Akış yine G2'ye gider — yarıda bırakmak bir
     /// hata değil ve cezası yok.
     func finishFirstSession(completed: Bool) {
+        markStepCompleted(step)
+        if completed { services.observability.capture(.sessionCompleted(source: .first)) }
         sessionVoiceEnergy = 0
         didCompleteFirstSession = completed
         // Geri dönülmez: oturum arkada kaldı.
         history.removeAll()
         step = .g2SessionComplete
+        markStepViewed(step)
     }
 
     var firstStepQuestion: String? {
@@ -590,9 +800,36 @@ final class OnboardingFlowViewModel {
         sessionVoiceEnergy = min(max(value, 0), 1)
     }
 
-    /// G2'nin "Devam"ı.
+    /// Only a completed first session can lead to the commitment and the purchase
+    /// offer. The promise sits right before the paywall so the offer reads as the
+    /// continuation of a decision the user just made (docs/paywall-stratejisi.md).
     func finishSessionSummary() {
+        advance(to: didCompleteFirstSession && generatedPath?.kind == .personalized ? .commitment : .h1Account)
+    }
+
+    func finishPrice() {
+        guard step == .price else { return }
         advance(to: .h1Account)
+    }
+
+    /// H2. İzin yalnızca "İzin ver" ile ve ekranda ne alınacağı görüldükten sonra istenir
+    /// (`ReminderScheduler.apply` sistem penceresini o an açar). Reddetmek ya da izin
+    /// verilmemesi akışı durdurmaz: hatırlatma kapalı kalır, Ben sekmesi ayarlardan açmayı
+    /// gösterir. Sonuç taslakta tutulur; profil G2/H1'de kurulurken E1 saatiyle birlikte yazılır.
+    func finishReminderPriming(enable: Bool) async {
+        if enable {
+            let reminder = ReminderSetting(
+                isEnabled: true,
+                hour: draft.reminderHour,
+                minute: draft.reminderMinute,
+                isSuggested: draft.timing?.suggestedReminderHour == draft.reminderHour
+            )
+            draft.reminderEnabled = await ReminderScheduler.apply(reminder) == .scheduled
+        } else {
+            draft.reminderEnabled = false
+        }
+        services.observability.capture(.reminderPreferenceChanged(enabled: draft.reminderEnabled))
+        advance(to: .f1Generation)
     }
 
     /// Kalan adım sayısı — G2'nin "yolunda N adım daha var" cümlesi.
@@ -601,6 +838,10 @@ final class OnboardingFlowViewModel {
     var reminderTimeText: String { draft.reminderTimeText }
 
     func linkAccount(_ provider: AuthProvider) async -> Bool {
+        if !didTrackAccountChoice {
+            didTrackAccountChoice = true
+            services.observability.capture(.accountChoice(provider == .apple ? .apple : .google))
+        }
         guard await services.auth.link(provider: provider) else {
             services.observability.capture(.accountLinkFinished(provider: provider, succeeded: false))
             services.observability.capture(.accountLink)
@@ -609,6 +850,14 @@ final class OnboardingFlowViewModel {
         services.observability.capture(.accountLinkFinished(provider: provider, succeeded: true))
         await completeOnboarding()
         return true
+    }
+
+    func skipAccountLink() async {
+        if !didTrackAccountChoice {
+            didTrackAccountChoice = true
+            services.observability.capture(.accountChoice(.later))
+        }
+        await completeOnboarding()
     }
 
     // MARK: - Güvenlik
@@ -621,6 +870,7 @@ final class OnboardingFlowViewModel {
     }
 
     func completeOnboarding() async {
+        if step == .h1Account { markStepCompleted(step) }
         // "Ben" sekmesinin başlangıcı: ad, ilk cümle, baseline ve tercihler
         // cihazda kalır. Kriz sinyali verilmiş akış kaydedilmez.
         services.profile.recordOnboarding(draft)
@@ -641,34 +891,52 @@ final class OnboardingFlowViewModel {
     }
 }
 
-#if DEBUG
 extension OnboardingFlowViewModel {
     /// Preview'lar için akışı ortasından kurar. Aynı dosyada duruyor çünkü
     /// `step` ve `draft` yalnızca burada yazılabilir — ve öyle kalmalı.
     static func preview(
         step: OnboardingStep,
-        draft: OnboardingDraft,
-        palette: PaletteController
+        draft: OnboardingDraft
     ) -> OnboardingFlowViewModel {
-        let flow = OnboardingFlowViewModel(palette: palette, services: .live())
+        let flow = OnboardingFlowViewModel(services: .live())
         flow.step = step
         flow.draft = draft
         return flow
     }
+}
 
+#if DEBUG
+extension OnboardingFlowViewModel {
     /// Geliştirme sırasında akışı ileri sarmak için — `OnboardingDebugSkip`.
     ///
     /// `step` ve `draft` bilerek `private(set)`: dışarıdan yazılamamalı. Bu iki
     /// kapı aynı dosyada duruyor ve `#if DEBUG` içinde; Release'te yok.
     func debugApply(draft: OnboardingDraft) {
         self.draft = draft
-        palette.select(draft.categories)
-        palette.setMood(draft.currentMood)
     }
 
     func debugSetStep(_ target: OnboardingStep) {
         history.removeAll()
         step = target
     }
+
+    func debugPreparePaywallPreview() {
+        generatedPath = GeneratedPath(
+            id: UUID(uuidString: "AB000000-0000-4000-8000-000000000007")!,
+            kind: .personalized,
+            title: "Preview path",
+            steps: (1...7).map {
+                GeneratedPathStep(day: $0, title: "Preview step", blockIds: [], slotCopy: [:], question: nil)
+            }
+        )
+        didCompleteFirstSession = true
+    }
 }
 #endif
+
+/// Tam ekran eşik cümlesi (`DayOneTransitionView`). İki yerde kullanılır:
+/// F2 → G1 ve G2 sonrası taahhüt → paywall.
+enum OnboardingThreshold: Equatable {
+    case dayOne
+    case continuePath
+}

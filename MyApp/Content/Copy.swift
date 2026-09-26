@@ -2,79 +2,82 @@ import Foundation
 
 /// Mikrometin kütüphanesi — Ton eki §3.
 ///
-/// Metinler `String Catalog`'a çıkarılabilsin diye `LocalizedStringResource` olarak
-/// tanımlanır. PRD-Ek Onboarding §14: nihai hedef bunların remote config üzerinden
-/// yönetilmesi — bir kelime değişikliği için mağaza incelemesi beklenemez.
+/// **Bu dosyada metin yok.** Metnin tek yeri `Localizable.xcstrings` (kaynak dil
+/// İngilizce); buradaki her satır, katalogdan Xcode'un ürettiği sembole işaret eden
+/// gruplanmış bir ad alanı. Yeni metin katalogda başlar. Yorumlar Türkçe kaldı: tasarım
+/// gerekçesi, metnin kendisi değil. PRD-Ek Onboarding §14: nihai hedef bunların remote
+/// config üzerinden yönetilmesi — bir kelime değişikliği için mağaza incelemesi beklenemez.
 enum Copy {
 
     enum Auth {
-        static let returningLink: LocalizedStringResource = "Zaten hesabım var"
-        static let returningTitle: LocalizedStringResource = "Hesabına dön"
+        static let returningLink: LocalizedStringResource = .authReturningLink
+        static let returningTitle: LocalizedStringResource = .authReturningTitle
         static let returningBody: LocalizedStringResource =
-            "Apple veya Google ile devam edebilirsin."
-        static let apple: LocalizedStringResource = "Apple ile devam et"
-        static let google: LocalizedStringResource = "Google ile devam et"
-        static let notNow: LocalizedStringResource = "Şimdilik değil"
-        static let linkTitle: LocalizedStringResource = "İlerlemeni kaydedelim mi?"
-        static let linkBody: LocalizedStringResource = """
-            Yolun ve ölçümlerin bu hesapta durur. Apple veya Google hesabını bağlarsan başka bir cihazdan geri dönebilirsin.
-            """
-        static let skipLink: LocalizedStringResource = "Şimdilik geç"
+            .authReturningBody
+        static let apple: LocalizedStringResource = .authApple
+        static let google: LocalizedStringResource = .authGoogle
+        static let notNow: LocalizedStringResource = .authNotNow
+        static let linkTitle: LocalizedStringResource = .authLinkTitle
+        static let linkBody: LocalizedStringResource = .authLinkBody
+        static let skipLink: LocalizedStringResource = .authSkipLink
         static let failed: LocalizedStringResource =
-            "Bağlantı kurulamadı. Bu senin yüzünden değil; cihazındaki ilerleme olduğu gibi duruyor."
+            .authFailed
         static let sessionMissing: LocalizedStringResource =
-            "Oturum bulunamadı. Cihazındaki ilerleme kaybolmadı; yeniden deneyebilirsin."
+            .authSessionMissing
         static let identityAlreadyLinked: LocalizedStringResource =
-            "Bu hesap başka bir Patika yoluna bağlı. Buradaki ilerleme kaybolmadı."
+            .authIdentityAlreadyLinked
         static let noSavedPath: LocalizedStringResource =
-            "Bu hesapta tamamlanmış bir Patika yolu bulamadık. Buradaki ilerleme kaybolmadı."
-        static let working: LocalizedStringResource = "Bağlantı kuruluyor"
+            .authNoSavedPath
+        static let working: LocalizedStringResource = .authWorking
     }
 
     /// Buton metinleri standart değil, ürüne özeldir (Ton eki §3.4).
     enum Button {
         /// "Başla" değil — metafor tutarlılığı.
-        static let start: LocalizedStringResource = "Yola çık"
+        static let start: LocalizedStringResource = .buttonStart
         /// "Devam et" değil — kayıp değil süreklilik vurgusu.
-        static let resume: LocalizedStringResource = "Kaldığın yerden"
+        static let resume: LocalizedStringResource = .buttonResume
         /// "İptal" değil — reddetmeyi suçsuzlaştırır.
-        static let cancel: LocalizedStringResource = "Şimdilik değil"
+        static let cancel: LocalizedStringResource = .buttonCancel
         /// "Atla" değil — "atlamak" kalıcı, "geçmek" geçici.
-        static let skip: LocalizedStringResource = "Bugün geç"
+        static let skip: LocalizedStringResource = .buttonSkip
         /// Onboarding sorularının çıkışı. Aynı gerekçe: geçmek geçicidir,
         /// kullanıcı isterse geri dönüp cevaplayabilir.
-        static let skipQuestion: LocalizedStringResource = "Bu soruyu geç"
+        static let skipQuestion: LocalizedStringResource = .buttonSkipQuestion
         /// "Kaydet" değil — sahiplik.
-        static let save: LocalizedStringResource = "Bende kalsın"
+        static let save: LocalizedStringResource = .buttonSave
         /// "Bitir" değil — off-ramp tonu.
-        static let finish: LocalizedStringResource = "Burada duralım"
+        static let finish: LocalizedStringResource = .buttonFinish
         /// "Tekrar dene" değil — yumuşak.
-        static let retry: LocalizedStringResource = "Bir daha bakalım"
-        static let understood: LocalizedStringResource = "Anladım"
-        static let next: LocalizedStringResource = "Devam"
+        static let retry: LocalizedStringResource = .buttonRetry
+        static let understood: LocalizedStringResource = .buttonUnderstood
+        static let next: LocalizedStringResource = .buttonNext
+        /// Çok satırlı yazı alanlarının klavye araç çubuğu — `return` sonraki satıra
+        /// geçtiği için klavyeyi kapatan ayrı bir yol gerekiyor.
+        static let doneKeyboard: LocalizedStringResource = .buttonDoneKeyboard
     }
 
     /// Boş durumlar (Ton eki §3.1). Hiçbirinde şaka yok, hiçbirinde suçlama yok.
     /// "Acelesi yok" cümlesi ürünün imzasıdır.
     enum Empty {
-        static let discoverHeadline: LocalizedStringResource = "Kendi ritminde."
-        static let discoverBody: LocalizedStringResource = "Şu an burada keşfedilecek bir içerik yok. Kendi yoluna Yolum’dan devam edebilirsin."
-        static let returnToPath: LocalizedStringResource = "Yoluma dön"
-        static let pathInvitation: LocalizedStringResource = "Bir yol, seninle başlar."
-        static let pathInvitationBody: LocalizedStringResource = "Şu an bu hesapta bir patika görünmüyor. Kendinden biraz söz ederek sana özel bir yol oluşturabilirsin."
-        static let pathInvitationNote: LocalizedStringResource = "Daha önce bir yol oluşturduysan önce yeniden kontrol edebilirsin."
-        static let checkPath: LocalizedStringResource = "Yolumu yeniden kontrol et"
+        static let discoverHeadline: LocalizedStringResource = .emptyDiscoverHeadline
+        static let discoverBody: LocalizedStringResource = .emptyDiscoverBody
+        static let returnToPath: LocalizedStringResource = .emptyReturnToPath
+        static let pathInvitation: LocalizedStringResource = .emptyPathInvitation
+        static let pathInvitationBody: LocalizedStringResource = .emptyPathInvitationBody
+        static let pathInvitationNote: LocalizedStringResource = .emptyPathInvitationNote
+        static let checkPath: LocalizedStringResource = .emptyCheckPath
 
         static let noPath: LocalizedStringResource =
-            "Burası şimdilik boş. Bir şey anlatmaya hazır olduğunda buradayız."
+            .emptyNoPath
         static let noBadges: LocalizedStringResource =
-            "İlk patikanı bitirdiğinde burada bir şey olacak. Acelesi yok."
+            .emptyNoBadges
         static let noSavedSessions: LocalizedStringResource =
-            "Bir patikayı tamamladığında, sana ait kalıcı bir kayıt burada duracak."
+            .emptyNoSavedSessions
         static let noSearchResults: LocalizedStringResource =
-            "Bunu bulamadık. Ama belki aradığın şey aşağıdakilerden biridir."
+            .emptyNoSearchResults
         static let noMeasurements: LocalizedStringResource =
-            "İlk ölçümünü yaptığında burada bir çizgi belirmeye başlayacak."
+            .emptyNoMeasurements
     }
 
     /// Hata durumları (Ton eki §3.2).
@@ -83,15 +86,15 @@ enum Copy {
     /// hatayı otomatik olarak kendine mal eder, bunu her seferinde kesiyoruz.
     enum Error {
         static let offline: LocalizedStringResource =
-            "Bağlantı gitti. Merak etme — indirdiğin oturumlar çevrimdışı da çalışıyor."
+            .errorOffline
         static let audioFailed: LocalizedStringResource =
-            "Ses yüklenemedi. Tekrar deneyelim mi, yoksa şimdilik metin olarak mı okuyalım?"
+            .errorAudioFailed
         static let pathGenerationFailed: LocalizedStringResource =
-            "Bir şeyler ters gitti, bizim tarafımızda. Yazdıkların kayboldu değil — tekrar deniyoruz."
+            .errorPathGenerationFailed
         static let paymentFailed: LocalizedStringResource =
-            "Ödeme geçmedi. Yolun olduğu gibi duruyor, hiçbir şey kaybolmadı."
+            .errorPaymentFailed
         static let server: LocalizedStringResource =
-            "Şu an bir sorun yaşıyoruz. Bu senin yüzünden değil ve birazdan düzelecek."
+            .errorServer
     }
 
     /// Path üretimi sırasında sırayla gösterilir (Ton eki §3.3, Onboarding F1).
@@ -99,111 +102,107 @@ enum Copy {
     /// Espri yok. Bu an ciddi — kullanıcı az önce derdini anlattı.
     enum Loading {
         static let steps: [LocalizedStringResource] = [
-            "Yazdıklarını okuyorum...",
-            "Sana uygun adımları seçiyorum...",
-            "Yolu sıraya diziyorum...",
-            "Neredeyse hazır.",
+            .loadingSteps1,
+            .loadingSteps2,
+            .loadingSteps3,
+            .loadingSteps4,
         ]
         /// Keşfet sekmesi Oyuncu — Oyuncu kademesinde — burada hafifleyebilir.
-        static let discover: LocalizedStringResource = "Rafları karıştırıyoruz..."
+        static let discover: LocalizedStringResource = .loadingDiscover
     }
 
     /// Dönüş ve kaçırılan gün (PRD §7.5). Suçluluk dili yok, "seni özledik" yok.
     enum Returning {
         static let afterBreak: LocalizedStringResource =
-            "Buradasın. Kaldığın yerden devam edelim."
+            .returningAfterBreak
         static let afterLongBreak: LocalizedStringResource =
-            "Bir ara buradaydın. Ne zaman istersen."
+            .returningAfterLongBreak
     }
 
     /// Onboarding metinleri — PRD-Ek Onboarding §2.
     enum Onboarding {
         // A1 — Kanca. Özellik listelemez, sonucu satar.
-        static let welcomeHeadline: LocalizedStringResource = "Sonu olan bir yol."
-        static let welcomeBody: LocalizedStringResource = """
-            Derdini anlat, sana özel bir program çıkaralım. \
-            21 gün sonra neyin değiştiğini birlikte görelim.
-            """
-        static let welcomeCTA: LocalizedStringResource = "Başlayalım"
-        static let firstSessionHeadline: LocalizedStringResource = "İlk adımın."
+        static let welcomeHeadline: LocalizedStringResource = .onboardingWelcomeHeadline
+        static let welcomeBody: LocalizedStringResource = .onboardingWelcomeBody
+        static let welcomeCTA: LocalizedStringResource = .onboardingWelcomeCTA
+        static let firstSessionHeadline: LocalizedStringResource = .onboardingFirstSessionHeadline
         static let firstSessionBody: LocalizedStringResource =
-            "Şimdi birlikte kısa bir duruş yapacağız."
-        static let firstSessionComplete: LocalizedStringResource = "İlk adımı tamamla"
+            .onboardingFirstSessionBody
+        static let firstSessionComplete: LocalizedStringResource = .onboardingFirstSessionComplete
 
         // MARK: Kimlik — akışın girişi (PRD'de yok, ürün sahibi kararı)
 
         /// Ad sorusu. "Adın ne?" değil "nasıl hitap edelim": kullanıcı takma ad
         /// da verebilir, kısaltma da — ürünün istediği kimlik değil, seslenme
         /// biçimi.
-        static let nameHeadline: LocalizedStringResource = "Sana nasıl hitap edelim?"
+        static let nameHeadline: LocalizedStringResource = .onboardingNameHeadline
         /// Ne için kullanıldığını söylüyoruz ve boş bırakmanın serbest olduğunu
         /// aynı cümlede yazıyoruz — kaygılı kullanıcı zorunlu alan görünce çıkar.
         static let nameHint: LocalizedStringResource =
-            "Yalnızca sana seslenirken kullanıyoruz. Boş bırakabilirsin."
-        static let namePlaceholder: LocalizedStringResource = "Adın"
-        static let nameSkip: LocalizedStringResource = "İsim vermek istemiyorum"
+            .onboardingNameHint
+        static let namePlaceholder: LocalizedStringResource = .onboardingNamePlaceholder
+        static let nameSkip: LocalizedStringResource = .onboardingNameSkip
 
-        static let genderHeadline: LocalizedStringResource = "Kendini nasıl tanımlıyorsun?"
-        static let ageHeadline: LocalizedStringResource = "Kaç yaşındasın?"
+        static let genderHeadline: LocalizedStringResource = .onboardingGenderHeadline
+        static let ageHeadline: LocalizedStringResource = .onboardingAgeHeadline
         /// Cinsiyet ve yaş ekranlarının ortak notu.
         ///
         /// Sorduğumuz her şeyin görünür bir karşılığı olmalı; bu ikisinin yok ve
         /// bunu **saklamıyoruz**. Karşılığı olmayan bir soruyu varmış gibi
         /// sunmak, akışın geri kalanındaki dürüstlük iddiasını zayıflatırdı.
         static let identityStatsNote: LocalizedStringResource =
-            "Bu cevap programını değiştirmiyor — kimin kullandığını bilmek için soruyoruz."
+            .onboardingIdentityStatsNote
 
         // A2 — İlk soru, hemen.
-        static let categoriesHeadline: LocalizedStringResource = "Seni buraya ne getirdi?"
-        static let categoriesHint: LocalizedStringResource = "En fazla iki tane seçebilirsin."
+        static let categoriesHeadline: LocalizedStringResource = .onboardingCategoriesHeadline
+        static let categoriesHint: LocalizedStringResource = .onboardingCategoriesHint
         /// Pasif CTA metni — ne eksik olduğunu suçlamadan söyler. A2 ve tek
         /// seçimlik B ekranlarının hepsinde aynı cümle: kullanıcı bir kez
         /// öğrendiği kalıbı her ekranda tanır.
-        static let chooseOneCTA: LocalizedStringResource = "Birini seçelim"
+        static let chooseOneCTA: LocalizedStringResource = .onboardingChooseOneCTA
 
         // MARK: B — Problem keşfi (PRD-Ek Onboarding §3)
 
         /// B1 — akışın en değerli ekranı. Bu metin F2'de kullanıcıya geri yansıtılır
         /// ve G1'de kendi kelimeleriyle seslendirilir; aha momentinin yakıtı burada.
         static let problemTextHeadline: LocalizedStringResource =
-            "Kendi cümlelerinle anlatır mısın?"
+            .onboardingProblemTextHeadline
         /// "Kimse okumuyor" cümlesi gizlilik vaadinin kendisi (PRD §13.5) —
         /// süsleme değil, doldurma oranını taşıyan kısım.
-        static let problemTextHint: LocalizedStringResource = """
-            Ne kadar kısa ya da uzun istersen. Bu metni kimse okumuyor — \
-            sadece sana bir yol çizmek için kullanılıyor.
-            """
+        static let problemTextHint: LocalizedStringResource = .onboardingProblemTextHint
         /// Atlama görünür ama ikincil: teşvik ediyoruz, zorlamıyoruz.
-        static let problemTextSkip: LocalizedStringResource = "Yazmak istemiyorum"
+        static let problemTextSkip: LocalizedStringResource = .onboardingProblemTextSkip
 
-        static let durationHeadline: LocalizedStringResource = "Bu ne kadar zamandır böyle?"
+        static let durationHeadline: LocalizedStringResource = .onboardingDurationHeadline
 
         static let timingHeadline: LocalizedStringResource =
-            "Genelde ne zaman ortaya çıkıyor?"
+            .onboardingTimingHeadline
         /// Sorunun karşılığını hemen söylüyoruz — cevabın nereye gittiğini
         /// göstermek anket hissini kırar.
         static let timingHint: LocalizedStringResource =
-            "Hatırlatma saatini buna göre öneriyoruz. Sonra değiştirebilirsin."
+            .onboardingTimingHint
 
         static let avoidanceHeadline: LocalizedStringResource =
-            "Bu yüzden yapmaktan kaçındığın bir şey var mı?"
+            .onboardingAvoidanceHeadline
         static let avoidanceHint: LocalizedStringResource =
-            "Örneğin: bir konuşmayı ertelemek, bir yere gitmemek, bir işe başlamamak."
+            .onboardingAvoidanceHint
         static let avoidancePlaceholder: LocalizedStringResource =
-            "Bir türlü başlayamadığım şey..."
-        static let avoidanceSkip: LocalizedStringResource = "Yok / emin değilim"
+            .onboardingAvoidancePlaceholder
+        static let avoidanceSkip: LocalizedStringResource = .onboardingAvoidanceSkip
 
-        static let attemptsHeadline: LocalizedStringResource = "Daha önce ne denedin?"
-        static let attemptsHint: LocalizedStringResource = "Birden fazla seçebilirsin."
+        static let attemptsHeadline: LocalizedStringResource = .onboardingAttemptsHeadline
+        static let attemptsHint: LocalizedStringResource = .onboardingAttemptsHint
+        static let attemptsOtherPlaceholder: LocalizedStringResource = .onboardingAttemptsOtherPlaceholder
+        static let attemptsOtherRequired: LocalizedStringResource = .onboardingAttemptsOtherRequired
         /// Terapi devam ediyorsa gösterilir. Ürün terapinin yerine geçme imasında
         /// **asla** bulunmaz (PRD §4) — bu cümle o sınırı açıkça çiziyor.
         static let attemptsTherapyNote: LocalizedStringResource =
-            "Terapinle birlikte kullanabileceğin bir şey kuralım."
+            .onboardingAttemptsTherapyNote
 
-        static let moodHeadline: LocalizedStringResource = "Şu an, tam bu anda nasılsın?"
+        static let moodHeadline: LocalizedStringResource = .onboardingMoodHeadline
         /// Ölçüm bölümüne ısınma; bu ölçek günlük ön kontrolün aynısı.
         static let moodHint: LocalizedStringResource =
-            "Şu anki hâlin, arka planın rengine yansır."
+            .onboardingMoodHint
 
         // MARK: C — Yansıtma ve ikna (PRD-Ek Onboarding §4)
         //
@@ -216,22 +215,22 @@ enum Copy {
         /// akışın en yüksek güven üreten anı burası ve isimle seslenmek o anı
         /// taşıyor. Her ekranda tekrarlansaydı samimi değil ısrarcı olurdu.
         static func mirroringHeadline(name: String?) -> LocalizedStringResource {
-            guard let name else { return "Anladığım kadarıyla:" }
-            return "Anladığım kadarıyla, \(name):"
+            guard let name else { return .onboardingMirroringHeadline1 }
+            return .onboardingMirroringHeadline2(name)
         }
-        static let mirroringDurationLead: LocalizedStringResource = "Bu"
-        static let mirroringDurationTail: LocalizedStringResource = "sürüyor."
+        static let mirroringDurationLead: LocalizedStringResource = .onboardingMirroringDurationLead
+        static let mirroringDurationTail: LocalizedStringResource = .onboardingMirroringDurationTail
         static let mirroringAvoidanceLead: LocalizedStringResource =
-            "Bu yüzden kaçındığın bir şey de var:"
+            .onboardingMirroringAvoidanceLead
         /// Kapanış: durumu normalleştirir ama "geçecek" demez — vaat değil, çerçeve.
         static let mirroringClosing: LocalizedStringResource =
-            "Bu, en sık karşılaştığımız örüntülerden biri. Ve üzerine çalışılabilir bir şey."
+            .onboardingMirroringClosing
 
         /// C2 — sosyal kanıt, **sayısız**. Kategori cümlesi
         /// `ProblemCategory.commonalityLine`dan gelir; sayı kuralı orada yazılı.
-        static let notAloneHeadline: LocalizedStringResource = "Bu çok yaygın."
+        static let notAloneHeadline: LocalizedStringResource = .onboardingNotAloneHeadline
         static let notAloneResearchLine: LocalizedStringResource =
-            "İyi haber şu: bu, üzerine çalışılabilir bir alan — ve nasıl çalışıldığı biliniyor."
+            .onboardingNotAloneResearchLine
 
         /// C3 — yalnızca B5'te başka uygulama denemiş kullanıcıya gösterilir.
         /// Tarif edilen başarısızlık onun kendi hikâyesi; denememişe anlamsız gelir.
@@ -242,28 +241,28 @@ enum Copy {
         /// cümlesiydi. Yan yana iki sütun aynı farkı tek bakışta, hiçbir sayı
         /// ima etmeden gösteriyor.
         static let libraryComparisonHeadline: LocalizedStringResource =
-            "Daha önce denediysen tanıdık gelecek:"
-        static let libraryComparisonTheirsTitle: LocalizedStringResource = "Kütüphane"
-        static let libraryComparisonOursTitle: LocalizedStringResource = "Patika"
+            .onboardingLibraryComparisonHeadline
+        static let libraryComparisonTheirsTitle: LocalizedStringResource = .onboardingLibraryComparisonTheirsTitle
+        static let libraryComparisonOursTitle: LocalizedStringResource = .onboardingLibraryComparisonOursTitle
         /// İki dizi **satır satır eşleşir**: aynı indeksteki iki metin aynı
         /// satırda yan yana durur ve aynı şeyin iki hâlini anlatır. Uzunlukları
         /// eşit olmalı; biri değişirse karşılığı da değişir.
         static let libraryComparisonTheirs: [LocalizedStringResource] = [
-            "Yüzlerce başlık",
-            "Nereden başlayacağın belirsiz",
-            "Birkaç gün, sonra unutulur",
-            "İşe yaradı mı, belirsiz",
+            .onboardingLibraryComparisonTheirs1,
+            .onboardingLibraryComparisonTheirs2,
+            .onboardingLibraryComparisonTheirs3,
+            .onboardingLibraryComparisonTheirs4,
         ]
         static let libraryComparisonOurs: [LocalizedStringResource] = [
-            "Tek bir yol",
-            "Sırası belli adımlar",
-            "Sonu olan bir program",
-            "Başında ve sonunda ölçüm",
+            .onboardingLibraryComparisonOurs1,
+            .onboardingLibraryComparisonOurs2,
+            .onboardingLibraryComparisonOurs3,
+            .onboardingLibraryComparisonOurs4,
         ]
         /// Kapanış: sütunların söylediğini tek cümlede toplar. Sayı vermez —
         /// "rakamla görürsün" ölçümün yapılacağını söyler, sonucunu değil.
         static let libraryComparisonClosing: LocalizedStringResource =
-            "Sonunda ne değiştiğini rakamla görüyorsun."
+            .onboardingLibraryComparisonClosing
 
         /// C4 — aşırı vaat vermemek erken churn'ü düşürür ve 7. gün paywall'ını
         /// sürpriz olmaktan çıkarıp beklenen bir kilometre taşına çevirir.
@@ -271,15 +270,15 @@ enum Copy {
         /// bir şey söylüyoruz ("ilk günlerde fark hissetmeyeceksin"); isimle
         /// seslenmek cümleyi kişisel ve dürüst tutuyor.
         static func honestExpectationHeadline(name: String?) -> LocalizedStringResource {
-            guard let name else { return "Baştan söyleyelim:" }
-            return "Baştan söyleyelim, \(name):"
+            guard let name else { return .onboardingHonestExpectationHeadline1 }
+            return .onboardingHonestExpectationHeadline2(name)
         }
         static let honestExpectationEarlyDays: LocalizedStringResource =
-            "İlk 2–3 gün muhtemelen büyük bir fark hissetmeyeceksin. Bu normal."
+            .onboardingHonestExpectationEarlyDays
         static let honestExpectationTimeline: LocalizedStringResource =
-            "Değişim genelde 7–10. günde fark edilmeye başlıyor."
+            .onboardingHonestExpectationTimeline
         static let honestExpectationMeasurement: LocalizedStringResource =
-            "Zaten ilk ölçümünü 7. günde yapacağız — o zaman rakamlarla göreceksin."
+            .onboardingHonestExpectationMeasurement
 
         /// C4 süreç grafiği. Dikey eksen bilinçli olarak sayısızdır: çizgiler
         /// sonuç değil, iki yaklaşımın zaman içindeki ritmini anlatır.
@@ -289,14 +288,11 @@ enum Copy {
         /// çevresindeki dört metin katmanı onlarla yarışıyordu. Dönüm noktasını
         /// kesik dikey çizgi gösteriyor, sözünü `honestExpectationTimeline`
         /// cümlesi söylüyor.
-        static let expectationOtherAppsLabel: LocalizedStringResource = "Diğer uygulamalar"
-        static let expectationPatikaLabel: LocalizedStringResource = "Patika"
-        static let expectationStartCaption: LocalizedStringResource = "Başlangıç"
-        static let expectationEndCaption: LocalizedStringResource = "21. gün"
-        static let expectationChartAccessibilityLabel: LocalizedStringResource = """
-            Süreç grafiği. Diğer uygulamalar çizgisi dalgalanarak başlangıçtan daha aşağıda bitiyor. \
-            Patika çizgisi ilk sekiz gün küçük adımlarla ilerliyor, ardından giderek hızlanarak yükseliyor.
-            """
+        static let expectationOtherAppsLabel: LocalizedStringResource = .onboardingExpectationOtherAppsLabel
+        static let expectationPatikaLabel: LocalizedStringResource = .onboardingExpectationPatikaLabel
+        static let expectationStartCaption: LocalizedStringResource = .onboardingExpectationStartCaption
+        static let expectationEndCaption: LocalizedStringResource = .onboardingExpectationEndCaption
+        static let expectationChartAccessibilityLabel: LocalizedStringResource = .onboardingExpectationChartAccessibilityLabel
 
         // MARK: D — Baseline ölçüm (PRD-Ek Onboarding §5)
 
@@ -304,114 +300,99 @@ enum Copy {
         /// madde listesi değiştiğinde cümle de değişsin, kullanıcıya yanlış bir
         /// sayı söylemeyelim.
         static func measurementIntroHeadline(_ count: Int) -> LocalizedStringResource {
-            "Şimdi \(count) kısa soru."
+            .onboardingMeasurementIntroHeadline(count)
         }
         /// Ölçümün gerekçesi. Sorunun **neden** sorulduğunu bilmeyen kullanıcı
         /// form dolduruyor gibi hisseder ve terk eder.
-        static let measurementIntroPurpose: LocalizedStringResource = """
-            Bunlar senin başlangıç noktan. Aynılarını 7. günde tekrar soracağız — \
-            ne değiştiğini görmek için.
-            """
+        static let measurementIntroPurpose: LocalizedStringResource = .onboardingMeasurementIntroPurpose
         /// "Doğru cevap yok" cümlesi ölçüm kaygısını kesen kısım; ölçüm bir sınav
         /// değil, kullanıcının kendi zemini.
         static let measurementIntroEffort: LocalizedStringResource =
-            "Yaklaşık bir dakika sürüyor. Doğru cevap yok."
-        static let measurementIntroCTA: LocalizedStringResource = "Başlayalım"
+            .onboardingMeasurementIntroEffort
+        static let measurementIntroCTA: LocalizedStringResource = .onboardingMeasurementIntroCTA
 
         // MARK: E — Tercihler (PRD-Ek Onboarding §6)
 
         /// E1. Saat cümlenin içinde geçiyor çünkü ekranın işi bir **öneriyi
         /// onaylatmak**, boş bir alan doldurtmak değil.
         static func reminderHeadline(_ time: String) -> LocalizedStringResource {
-            "Günlük adımın için \(time)'u ayarladım."
+            .onboardingReminderHeadline(time)
         }
-        static let reminderAccept: LocalizedStringResource = "Uygun"
-        static let reminderChange: LocalizedStringResource = "Başka saat seç"
-        static let reminderPickerLabel: LocalizedStringResource = "Hatırlatma saati"
-
-        static let sessionLengthHeadline: LocalizedStringResource =
-            "Adımların ne kadar sürsün?"
-        /// Süre gerçekten değişiyor: seçilen uzunluk blok seçimini ve ses
-        /// uzunluğunu belirliyor. Bunu söylemek "tiyatro değil" iddiasını
-        /// kullanıcıya da gösteriyor.
-        static let sessionLengthHint: LocalizedStringResource =
-            "Sonra değiştirebilirsin. Adımlar seçtiğin süreye göre kuruluyor."
-
-        static let toneHeadline: LocalizedStringResource = "Sana nasıl bir ses iyi gelir?"
-        static let toneHint: LocalizedStringResource =
-            "Seslendirmenin dili buna göre değişiyor."
+        /// H2. Saat cümlenin içinde: izin, ne alacağını görmüş kullanıcıdan isteniyor.
+        static func notificationPrimingHeadline(_ time: String) -> LocalizedStringResource {
+            .notificationPrimingHeadline(time)
+        }
+        static let reminderAccept: LocalizedStringResource = .onboardingReminderAccept
+        static let reminderChange: LocalizedStringResource = .onboardingReminderChange
+        static let reminderPickerLabel: LocalizedStringResource = .onboardingReminderPickerLabel
 
         // MARK: F — Üretim ve teslim (PRD-Ek Onboarding §7)
 
         /// F1. Tek cümle, tek fiil. "Lütfen bekleyin" demiyoruz — bekleyen
         /// kullanıcı değil, kurulan bir şey var.
-        static let generationHeadline: LocalizedStringResource = "Yolun kuruluyor."
+        static let generationHeadline: LocalizedStringResource = .onboardingGenerationHeadline
 
         /// F2. Akışın karşılığının verildiği cümle; adın kullanıldığı üçüncü ve
         /// son yer (diğerleri C1 ve C4).
         static func roadmapHeadline(name: String?) -> LocalizedStringResource {
-            guard let name else { return "Yolun hazır." }
-            return "Yolun hazır, \(name)."
+            guard let name else { return .onboardingRoadmapHeadline1 }
+            return .onboardingRoadmapHeadline2(name)
         }
         /// "21 adım · günde 10 dakika". Sayılar **kullanıcının kendi seçimi ve
         /// programın yapısı** — uydurulmuş bir sonuç değil, sayı yasağının
         /// kapsamına girmiyor.
         static func roadmapMeta(steps: Int, minutes: Int) -> LocalizedStringResource {
-            "\(steps) adım · günde \(minutes) dakika"
+            .onboardingRoadmapMeta(steps, minutes)
         }
         static func dayLabel(_ range: ClosedRange<Int>) -> LocalizedStringResource {
             range.lowerBound == range.upperBound
-                ? "Gün \(range.lowerBound)"
-                : "Gün \(range.lowerBound)–\(range.upperBound)"
+                ? .onboardingDayLabel1(range.lowerBound)
+                : .onboardingDayLabel2(range.lowerBound, range.upperBound)
         }
-        static let roadmapFirstMeasurement: LocalizedStringResource = "İlk ölçüm"
-        static let roadmapMeasurement: LocalizedStringResource = "Ara ölçüm"
+        static let roadmapFirstMeasurement: LocalizedStringResource = .onboardingRoadmapFirstMeasurement
+        static let roadmapMeasurement: LocalizedStringResource = .onboardingRoadmapMeasurement
         /// Ölçüm satırının vaadi: **karşılaştırma** vaat ediyor, sonuç değil.
         /// "Ne kadar iyileşeceğini göreceksin" deseydi sonuç vaat etmiş olurduk.
         static let roadmapMeasurementDescription: LocalizedStringResource =
-            "Ne değiştiğini rakamla göreceksin"
+            .onboardingRoadmapMeasurementDescription
 
-        /// Basılı tutma jesti görünmez; yazıyla söylenmek zorunda.
-        static let holdToStartHint: LocalizedStringResource = "Başlamak için basılı tut"
+        static let commitmentHoldToStart: LocalizedStringResource = .commitmentHoldToStart
+        static let roadmapContinue: LocalizedStringResource = .onboardingRoadmapContinue
+        static let commitmentDayOneTransition: LocalizedStringResource = .commitmentDayOneTransition
+        static let commitmentHoldToContinue: LocalizedStringResource = .commitmentHoldToContinue
+        static let commitmentContinueTransition: LocalizedStringResource = .commitmentContinueTransition
+        static func commitmentBody(remaining: Int) -> LocalizedStringResource { .commitmentBody(remaining) }
+        static let signatureClear: LocalizedStringResource = .commitmentClearSignature
+        static let signatureSimpleMark: LocalizedStringResource = .commitmentSimpleMark
+        static let signatureDrawHint: LocalizedStringResource = .commitmentDrawHint
+        static let signatureSaveError: LocalizedStringResource = .commitmentSaveError
 
         /// D1'in pasif CTA metni. Kova listelerinde "Birini seçelim" kullanılıyor;
         /// şiddet ölçeğinde seçilecek bir liste yok, dokunulacak bir yer var.
-        static let pickPointCTA: LocalizedStringResource = "Ölçekten bir yer seç"
-
-        // MARK: E4 — Rehber sesi
-
-        /// Ses seçimi. Sıfat sorulmuyor, örnek dinletiliyor.
-        static let voiceHeadline: LocalizedStringResource = "Hangi ses sana daha iyi geliyor?"
-        static let voiceHint: LocalizedStringResource = "Dinlemek için dokun. Sonradan değiştirebilirsin."
-        static let voiceChooseCTA: LocalizedStringResource = "Bir ses seç"
-        static let voicePreviewHint: LocalizedStringResource = "Örneği çalar ve bu sesi seçer"
-        /// Önizleme dosyası pakette yoksa. Gizlenmiyor — sessiz kalan bir düğme
-        /// arızalı görünüyor.
-        static let voicePreviewUnavailable: LocalizedStringResource =
-            "Örnekler şu an dinlenemiyor. Seçimini yine yapabilirsin, ilk oturumda duyacaksın."
+        static let pickPointCTA: LocalizedStringResource = .onboardingPickPointCTA
     }
 
     /// G1 — ilk oturum (PRD-Ek Onboarding §8). Sakin kademe: bu ekranda
     /// kutlama, alkış ve "harika gidiyorsun" yok. Kullanıcı bir şey yapmıyor,
     /// bir yerde duruyor.
     enum Session {
-        static let preparing: LocalizedStringResource = "Başlıyoruz."
+        static let preparing: LocalizedStringResource = .sessionPreparing
         /// Sesin gelmesi bekleniyor. Gizlenmiyor ama özür de dilenmiyor.
-        static let audioPreparing: LocalizedStringResource = "Ses hazırlanıyor..."
+        static let audioPreparing: LocalizedStringResource = .sessionAudioPreparing
         /// Kullanıcının kendi cümlesinden hemen önce okunan çerçeve.
-        static let ownWordsFraming: LocalizedStringResource = "Kendi cümlelerinle şöyle demiştin:"
-        static let pause: LocalizedStringResource = "Duraklat"
-        static let resume: LocalizedStringResource = "Devam"
+        static let ownWordsFraming: LocalizedStringResource = .sessionOwnWordsFraming
+        static let pause: LocalizedStringResource = .sessionPause
+        static let resume: LocalizedStringResource = .sessionResume
         /// Oturumdan çıkış. "İptal" değil, "vazgeç" değil.
-        static let leave: LocalizedStringResource = "Burada duralım"
+        static let leave: LocalizedStringResource = .sessionLeave
         /// Sarma düğmeleri görünür metin taşımaz; VoiceOver bunu okur.
-        static let skipBackward: LocalizedStringResource = "15 saniye geri"
-        static let skipForward: LocalizedStringResource = "15 saniye ileri"
+        static let skipBackward: LocalizedStringResource = .sessionSkipBackward
+        static let skipForward: LocalizedStringResource = .sessionSkipForward
         /// Duraklatıldığında sahnenin altındaki tek satır. Süre yok, uyarı yok.
-        static let pausedNote: LocalizedStringResource = "Kaldığın yer duruyor."
+        static let pausedNote: LocalizedStringResource = .sessionPausedNote
         /// Oturum ekranının üst satırı.
         static func stepEyebrow(day: Int, title: String) -> LocalizedStringResource {
-            "\(day). adım · \(title)"
+            .sessionStepEyebrow(day, title)
         }
 
         // MARK: G2 — Oturum sonu (PRD-Ek Onboarding §8)
@@ -419,39 +400,35 @@ enum Copy {
         // Kutlama şiddeti 1/5. Konfeti yok, rozet yok, "harika iş" yok.
         // Söylenen şey yapılan şey: bir adım atıldı, yolun geri kalanı duruyor.
 
-        static let completedHeadline: LocalizedStringResource = "İlk adım tamam."
+        static let completedHeadline: LocalizedStringResource = .sessionCompletedHeadline
         /// Yarıda bırakıldığında. **"Tamam" denmiyor** — olmayan bir şeyi
         /// olmuş göstermek, ölçtüğünü iddia eden bir üründe ilk yalan olurdu.
         /// Ama suçlama da yok: yarıda bırakmak bir hata değil.
-        static let leftEarlyHeadline: LocalizedStringResource = "Bugünlük burada bıraktık."
+        static let leftEarlyHeadline: LocalizedStringResource = .sessionLeftEarlyHeadline
 
         /// "Yolunda 20 adım daha var. Yarın 22:30'da buradayız."
-        static func completedBody(remaining: Int, time: String) -> LocalizedStringResource {
-            "Yolunda \(remaining) adım daha var. Yarın \(time)'da buradayız."
+        static func completedBody(remaining: Int) -> LocalizedStringResource {
+            .sessionCompletedBody(remaining)
     }
 
         /// Yarıda bırakanda kalan adım sayısı **yazılmıyor**: bitirmemiş birine
         /// "20 adım daha var" demek, kalan yolu bir borç gibi okutuyor.
         static func leftEarlyBody(time: String) -> LocalizedStringResource {
-            "Kaldığın yer duruyor. Yarın \(time)'da buradayız."
+            .sessionLeftEarlyBody(time)
         }
 
-        static let completedCTA: LocalizedStringResource = "Devam"
-        static let reflectionHint: LocalizedStringResource = "Bunu yazmak sonraki adımın sana daha uygun hazırlanmasına yardımcı olur."
-        static let reflectionPlaceholder: LocalizedStringResource = "Kısaca yazabilirsin"
-        static let reflectionSave: LocalizedStringResource = "Bende kalsın"
-        static let reflectionSkip: LocalizedStringResource = "Şimdilik değil"
-        static let reflectionError: LocalizedStringResource = "Yazdığın kaybolmadı. Bağlantıyı kontrol edip yeniden deneyebilirsin."
+        static let completedCTA: LocalizedStringResource = .sessionCompletedCTA
+        static let reflectionHint: LocalizedStringResource = .sessionReflectionHint
+        static let reflectionPlaceholder: LocalizedStringResource = .sessionReflectionPlaceholder
+        static let reflectionSave: LocalizedStringResource = .sessionReflectionSave
+        static let reflectionSkip: LocalizedStringResource = .sessionReflectionSkip
+        static let reflectionError: LocalizedStringResource = .sessionReflectionError
 
         /// Sunucudan içerik gelmediğinde. Jenerik ama dürüst — uydurma bir
         /// kişiselleştirme cümlesi yazmaktansa sade bir açılış.
-        static let fallbackStepTitle: LocalizedStringResource = "İlk adım"
-        static let fallbackOpening: LocalizedStringResource = """
-            Şimdilik yapman gereken bir şey yok. Birkaç dakika burada duracağız.
-            """
-        static let fallbackClosing: LocalizedStringResource = """
-            Burada bırakıyoruz. Gözlerini açtığında acele etme.
-            """
+        static let fallbackStepTitle: LocalizedStringResource = .sessionFallbackStepTitle
+        static let fallbackOpening: LocalizedStringResource = .sessionFallbackOpening
+        static let fallbackClosing: LocalizedStringResource = .sessionFallbackClosing
     }
 
     /// "Yolum" sekmesi — onboarding sonrası günlük adım.
@@ -460,59 +437,59 @@ enum Copy {
     /// "streak" yok, kaçırılan gün için tek kelime yok — kaçırılan gün hiçbir
     /// şeyi geri almıyor (Değiştirilemez kurallar: gamification yasağı).
     enum Path {
-        static let currentLocation: LocalizedStringResource = "Buradasın"
-        static let expandDetails: LocalizedStringResource = "Adım ayrıntılarını aç"
-        static let collapseDetails: LocalizedStringResource = "Adım ayrıntılarını kapat"
-        static let detailsExpanded: LocalizedStringResource = "Ayrıntılar açık"
-        static let detailsCollapsed: LocalizedStringResource = "Ayrıntılar kapalı"
-        static let screenTitle: LocalizedStringResource = "Yolum"
-        static let readyNote: LocalizedStringResource = "Bugünün adımı hazır."
-        static let loading: LocalizedStringResource = "Yolun açılıyor."
+        static let currentLocation: LocalizedStringResource = .pathCurrentLocation
+        static let expandDetails: LocalizedStringResource = .pathExpandDetails
+        static let collapseDetails: LocalizedStringResource = .pathCollapseDetails
+        static let detailsExpanded: LocalizedStringResource = .pathDetailsExpanded
+        static let detailsCollapsed: LocalizedStringResource = .pathDetailsCollapsed
+        static let screenTitle: LocalizedStringResource = .pathScreenTitle
+        static let readyNote: LocalizedStringResource = .pathReadyNote
+        static let loading: LocalizedStringResource = .pathLoading
         /// Adım satırının başlığı. Sayaç değil, adımın kendi adı yanında duran
         /// sade bir işaret.
-        static func stepLabel(day: Int) -> LocalizedStringResource { "\(day). adım" }
+        static func stepLabel(day: Int) -> LocalizedStringResource { .pathStepLabel(day) }
         /// Sıradaki adım hazır. "Devam et" değil — ürünün kendi kelimesi.
-        static let continueCTA: LocalizedStringResource = "Kaldığın yerden"
-        static let startCTA: LocalizedStringResource = "Yola çık"
+        static let continueCTA: LocalizedStringResource = .pathContinueCTA
+        static let startCTA: LocalizedStringResource = .pathStartCTA
         /// Yolun sonu. Kutlama değil, bilgi: sonuç ekranı ayrı bir iş.
-        static let finishedHeadline: LocalizedStringResource = "Yolun tamamlandı."
+        static let finishedHeadline: LocalizedStringResource = .pathFinishedHeadline
         static let finishedBody: LocalizedStringResource =
-            "Ölçümünü ve bundan sonrasını birlikte bakacağız."
+            .pathFinishedBody
         static let loadError: LocalizedStringResource =
-            "Yolun kaybolmadı, senin yüzünden değil. Bağlantını kontrol edip yeniden deneyebilirsin."
-        static let retry: LocalizedStringResource = "Yeniden dene"
+            .pathLoadError
+        static let retry: LocalizedStringResource = .pathRetry
         /// Adım bitti, ekran kapanıyor.
-        static let doneCTA: LocalizedStringResource = "Kapat"
+        static let doneCTA: LocalizedStringResource = .pathDoneCTA
         /// Sırası gelmemiş adım. **Ceza dili yok**: kapalı olan şey adımın
         /// kendisi değil, bugün dinlenebilmesi.
-        static let lockedHint: LocalizedStringResource = "Sırası gelince açılacak."
-        static let lockedAccessibility: LocalizedStringResource = "Henüz açılmadı"
+        static let lockedHint: LocalizedStringResource = .pathLockedHint
+        static let lockedAccessibility: LocalizedStringResource = .pathLockedAccessibility
         /// Tamamlanmış adım yeniden dinlenebilir — bitmiş bir şeyi tekrar
         /// açmak bir şeyi geri almaz.
-        static let replayCTA: LocalizedStringResource = "Yeniden dinle"
-        static let completedNote: LocalizedStringResource = "Tamamlandı"
-        static let measurementNote: LocalizedStringResource = "Ölçüm günü"
+        static let replayCTA: LocalizedStringResource = .pathReplayCTA
+        static let completedNote: LocalizedStringResource = .pathCompletedNote
+        static let measurementNote: LocalizedStringResource = .pathMeasurementNote
         /// Ölçüm gününün kartında, adımdan sonra ne olacağını önceden söyleyen
         /// satır. Sürpriz bir anket, ölçümü bir tuzağa çevirirdi.
         static let measurementNotice: LocalizedStringResource =
-            "Bu adımdan sonra kısa bir ölçüm var. İlk günkü cevaplarınla karşılaştırılacak."
+            .pathMeasurementNotice
     }
 
     /// Her ölçüm ekranının altında sabit (PRD §8.1).
     static let clinicalDisclaimer: LocalizedStringResource =
-        "Bu bir klinik değerlendirme değildir."
+        .clinicalDisclaimer
 
     /// Bildirim metinleri (Ton eki §5.2).
     ///
     /// **Asla** path adını veya sorunu içermez. Kullanıcının telefonuna bakan biri,
     /// onun neyle uğraştığını öğrenmemeli.
     enum Notification {
-        static let dailyStep: LocalizedStringResource = "Bugünün adımı hazır."
-        static let missedOneDay: LocalizedStringResource = "Bugün devam edelim mi?"
+        static let dailyStep: LocalizedStringResource = .notificationDailyStep
+        static let missedOneDay: LocalizedStringResource = .notificationMissedOneDay
         static let missedFewDays: LocalizedStringResource =
-            "Buradayız. Kaldığın yerden devam edebilirsin."
+            .notificationMissedFewDays
         static let microOffer: LocalizedStringResource =
-            "İstersen bugün sadece 2 dakikalık bir versiyon var."
-        static let pathWaiting: LocalizedStringResource = "Yolun duruyor, kaybolmadı."
+            .notificationMicroOffer
+        static let pathWaiting: LocalizedStringResource = .notificationPathWaiting
     }
 }

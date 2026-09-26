@@ -1,9 +1,9 @@
+import GoogleSignIn
 import SwiftUI
 import SwiftData
 
 @main
 struct PatikaApp: App {
-    @State private var paletteController = PaletteController()
     @State private var appState = AppState()
     @State private var services = AppServices.live()
     @State private var discoverLibrary = DiscoverLibrary()
@@ -17,6 +17,14 @@ struct PatikaApp: App {
     private static var opensRootDirectly: Bool {
         #if DEBUG
         DebugDirectEntry.opensRoot
+        #else
+        false
+        #endif
+    }
+
+    private static var opensOnboardingStepDirectly: Bool {
+        #if DEBUG
+        DebugDirectEntry.opensOnboardingStep
         #else
         false
         #endif
@@ -52,18 +60,17 @@ struct PatikaApp: App {
             Group {
                 if !isEntryPrepared || !isOnboardingStateResolved {
                     ZStack {
-                        Palette.neutral.background.color.ignoresSafeArea()
+                        WoodlandStyle.background.ignoresSafeArea()
                         ProgressView().tint(Theme.textPrimary.color)
                     }
                 } else if appState.hasCompletedOnboarding || Self.opensRootDirectly {
                     RootView()
                 } else {
-                    OnboardingContainerView(palette: paletteController, services: services) {
+                    OnboardingContainerView(services: services) {
                         appState.hasCompletedOnboarding = true
                     }
                 }
             }
-            .environment(paletteController)
             .environment(appState)
             .environment(services)
             .environment(discoverLibrary)
@@ -71,24 +78,30 @@ struct PatikaApp: App {
             // interpolasyonu öngörülemeyen ara tonlar üretiyor; meditasyon
             // ürünü için de doğru karar.
             .preferredColorScheme(.dark)
+            // Google Sign-In'in sistem tarayıcısından döndüğü OAuth geri çağırması
+            // (reversed client ID URL scheme) burada tamamlanır; GoogleSignIn SDK'sı
+            // bunu kendi bekleyen giriş isteğine eşler.
+            .onOpenURL { url in
+                _ = GIDSignIn.sharedInstance.handle(url)
+            }
             #if DEBUG
             .modifier(PathPreviewEnvironment())
             #endif
             // DEBUG'ta `-patika-debug-step yolum` doğrudan kabuğu açar ve
             // gerekirse gerçek path üretimini tetikler. Release'te bu blok yok.
             .task {
-                if !appState.hasCompletedOnboarding, !Self.opensRootDirectly {
+                // RevenueCat identity is always the Supabase UUID, including
+                // anonymous sessions. Account linking preserves that UUID.
+                if let _ = try? await services.auth.validAccessToken(),
+                   let userID = services.auth.session?.userID {
+                    try? await services.purchases.configure(for: userID)
+                }
+                if !appState.hasCompletedOnboarding, !Self.opensRootDirectly, !Self.opensOnboardingStepDirectly {
                     await adoptExistingPathIfAny()
                 }
                 isOnboardingStateResolved = true
-                // Palet uygulama yeniden açıldığında nötre düşüyordu: kategori ve
-                // ruh hâli yalnızca onboarding belleğinde duruyordu.
-                if let record = services.profile.record, !record.categories.isEmpty {
-                    paletteController.select(record.categories)
-                    paletteController.setMood(record.mood)
-                }
                 #if DEBUG
-                await DebugDirectEntry.prepareIfNeeded(services: services, palette: paletteController)
+                await DebugDirectEntry.prepareIfNeeded(services: services)
                 isEntryPrepared = true
                 #endif
             }

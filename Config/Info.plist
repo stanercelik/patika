@@ -2,17 +2,25 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!--
-	  Uretilen Info.plist'in tabani. Diger anahtarlarin tamami hala
-	  GENERATE_INFOPLIST_FILE ile build ayarlarindan uretiliyor; burada yalnizca
-	  uretecin desteklemedigi anahtar duruyor.
-
-	  UIBackgroundModes: oturum sesi uygulama arka plana gidince de devam etmeli
-	  (PRD SS13.3). INFOPLIST_KEY_UIBackgroundModes diye bir build ayari yok —
-	  Xcode'un ureteci bu anahtari tanimiyor.
-	-->
-	<key>NSFaceIDUsageDescription</key>
-	<string>Kaydını yalnızca senin açabilmen için.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.497996763293-lmjj5qco7qbrtvpmbkbo3udae8me8d4c</string>
+			</array>
+		</dict>
+	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>POSTHOG_ENVIRONMENT</key>
+	<string>$(POSTHOG_ENVIRONMENT)</string>
+	<key>POSTHOG_PROJECT_TOKEN</key>
+	<string>$(POSTHOG_PROJECT_TOKEN)</string>
+	<key>POSTHOG_RELEASE_APPROVED</key>
+	<string>$(POSTHOG_RELEASE_APPROVED)</string>
+	<key>REVENUECAT_IOS_API_KEY</key>
+	<string>$(REVENUECAT_IOS_API_KEY)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

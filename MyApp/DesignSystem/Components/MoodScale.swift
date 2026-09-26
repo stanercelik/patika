@@ -2,13 +2,22 @@ import SwiftUI
 
 /// B6 ve günlük ön kontrolün ölçeği — beş kademe, tek dokunuş.
 ///
-/// Emoji yerine monokrom SF Symbols (bkz. `MoodLevel`). İkonun altında **yalnızca
-/// seçili kademenin etiketi** yazar: beş etiketi birden göstermek satırı okunmaz
-/// hâle getiriyor, hiç göstermemek ise anlamı renk/ikona bırakıyordu — ikisi de
-/// erişilebilirlik açısından kötü.
+/// Beş ayrı hava kartı, sahnedeki değişimin küçük bir haritası gibi çalışır.
+/// Altında yalnızca seçili kademenin etiketi yazar; ekran kalabalıklaşmadan
+/// seçimin anlamı metinle de açık kalır.
+///
+/// ## Sürükleyerek de seçilir
+///
+/// B6'da cevap arka planı **doğrudan** değiştiriyor (`previewCurrentMood`): parmağı
+/// beş kademe boyunca sürüklemek, ekranın rengini parmağın altında canlı değiştiriyor;
+/// karşılığı hemen görünüyor. Dokunuş aynen çalışıyor (sürükleme eşiği 6 pt, altı
+/// düğmeye gider), düğmeler VoiceOver ve Switch Control için yerinde: sürükleme onlara
+/// ek, onların yerine değil.
 struct MoodScale: View {
     let selection: MoodLevel?
     let onSelect: (MoodLevel) -> Void
+
+    @State private var rowWidth: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 14) {
@@ -21,6 +30,11 @@ struct MoodScale: View {
                     )
                 }
             }
+            .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { rowWidth = $0 }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 6, coordinateSpace: .local)
+                    .onChanged { value in dragged(to: value.location.x) }
+            )
 
             // Yer her zaman ayrılır: seçim yapıldığında satır zıplamaz.
             Text(selection?.label ?? " ")
@@ -43,23 +57,31 @@ private struct MoodButton: View {
             Theme.softHaptic()
             action()
         } label: {
-            Image(systemName: level.icon)
-                .font(.system(size: 24, weight: Theme.Weight.emphasis))
-                .symbolRenderingMode(.monochrome)
-                .foregroundStyle(Theme.textPrimary.color.opacity(isSelected ? 1.0 : 0.72))
-                .frame(maxWidth: .infinity)
-                .frame(height: 62)
-                .background {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.white.opacity(isSelected ? 0.16 : 0.07))
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Theme.textPrimary.color.opacity(isSelected ? 0.94 : 0.16))
+
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(
+                        Theme.textPrimary.color.opacity(isSelected ? 1 : 0.38),
+                        lineWidth: isSelected ? 2 : Theme.Line.border
+                    )
+
+                Image(systemName: level.sceneSymbol)
+                    .font(.title3.weight(Theme.Weight.emphasis))
+                    .symbolRenderingMode(.monochrome)
+                    .foregroundStyle(isSelected ? WoodlandStyle.ink : Theme.textPrimary.color)
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption2.weight(Theme.Weight.action))
+                        .foregroundStyle(WoodlandStyle.ink)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                        .padding(6)
                 }
-                .overlay {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .strokeBorder(
-                            Theme.textPrimary.color.opacity(isSelected ? 0.55 : 0.0),
-                            lineWidth: Theme.Line.border
-                        )
-                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 64)
         }
         .buttonStyle(.calm)
         .animation(Theme.Motion.crossFade, value: isSelected)
@@ -68,9 +90,22 @@ private struct MoodButton: View {
     }
 }
 
+extension MoodScale {
+    /// Parmağın altındaki kademe. Kademe değişince haptik ve seçim; aynı kademede sessiz.
+    fileprivate func dragged(to x: CGFloat) {
+        guard rowWidth > 0 else { return }
+        let levels = MoodLevel.allCases
+        let ratio = min(max(x / rowWidth, 0), 0.999)
+        let level = levels[Int(ratio * CGFloat(levels.count))]
+        guard level != selection else { return }
+        Theme.softHaptic()
+        onSelect(level)
+    }
+}
+
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: .neutral, safeY: 0.40)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(spacing: 40) {
             MoodScale(selection: nil) { _ in }
             MoodScale(selection: .middling) { _ in }

@@ -1,5 +1,25 @@
 import SwiftUI
 
+enum OnboardingHeightClass: Sendable {
+    case comfortable
+    case compact
+    case scrollRequired
+
+    static func resolve(availableHeight: CGFloat, accessibility: Bool) -> Self {
+        if accessibility || availableHeight < Theme.OnboardingLayout.compactMinimumHeight {
+            return .scrollRequired
+        }
+        if availableHeight < Theme.OnboardingLayout.comfortableMinimumHeight {
+            return .compact
+        }
+        return .comfortable
+    }
+}
+
+extension EnvironmentValues {
+    @Entry var onboardingHeightClass: OnboardingHeightClass = .comfortable
+}
+
 /// Onboarding soru ekranlarının ortak iskeleti (B, D, E bölümleri).
 ///
 /// Üst çubuk burada **yok** — o kabuğa ait ve adım değişirken yerinde kalıyor.
@@ -11,17 +31,34 @@ import SwiftUI
 struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
     private let headline: LocalizedStringResource
     private let hint: LocalizedStringResource?
+    private let usesScenePlate: Bool
+    private let sceneContentTopSpacing: CGFloat
+    private let isFooterHidden: Bool
+    private let autoScrollTarget: String?
     private let content: Content
     private let footer: Footer
+
+    /// Adımın malzemesi kabuktan gelir; varsayılan `.ground` olduğu için bunu hiç
+    /// kurmayan çağıranlar (`PathSessionView`) değişmez.
+    @Environment(\.onboardingSurface) private var surface
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     init(
         headline: LocalizedStringResource,
         hint: LocalizedStringResource? = nil,
+        usesScenePlate: Bool = false,
+        sceneContentTopSpacing: CGFloat = 0,
+        isFooterHidden: Bool = false,
+        autoScrollTarget: String? = nil,
         @ViewBuilder content: () -> Content,
         @ViewBuilder footer: () -> Footer
     ) {
         self.headline = headline
         self.hint = hint
+        self.usesScenePlate = usesScenePlate
+        self.sceneContentTopSpacing = sceneContentTopSpacing
+        self.isFooterHidden = isFooterHidden
+        self.autoScrollTarget = autoScrollTarget
         self.content = content()
         self.footer = footer()
     }
@@ -36,34 +73,106 @@ struct OnboardingQuestionLayout<Content: View, Footer: View>: View {
     private var questionToAnswerGap: CGFloat { 24 }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Varsayılan punto sığar; ScrollView yalnızca büyük Dynamic Type
-            // boyutlarında devreye girer — AX5'te hiçbir ekran kırılmaz (Ton eki §7).
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    DisplayText(headline, size: 30)
+        // Varsayılan punto sığar; ScrollView yalnızca büyük Dynamic Type
+        // boyutlarında devreye girer — AX5'te hiçbir ekran kırılmaz (Ton eki §7).
+        //
+        // Normal boyutlarda alt bölge `safeAreaInset` ile sabit kalır; klavye ve footer
+        // aynı güvenli bölge mekanizmasıyla toplanır. AX boyutlarında dev bir sabit
+        // buton içeriği örtmesin diye footer belgenin sonuna akar ve kullanıcı ona kaydırır.
+        GeometryReader { proxy in
+            let heightClass = OnboardingHeightClass.resolve(
+                availableHeight: proxy.size.height,
+                accessibility: dynamicTypeSize.isAccessibilitySize
+            )
+            // Keyboard height must not change the identity of the focused input.
+            let usesFlowingFooter = dynamicTypeSize.isAccessibilitySize
 
-                    if let hint {
-                        BodyText(hint)
+            Group {
+                if usesFlowingFooter {
+                    ScrollViewReader { reader in
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                questionBlock(heightClass: heightClass)
+                                if !isFooterHidden {
+                                    footer
+                                        .padding(.top, 12)
+                                        .padding(.horizontal, Theme.Spacing.screenMargin)
+                                        .padding(.bottom, 12)
+                                }
+                            }
+                        }
+                        .onChange(of: autoScrollTarget) { _, target in
+                            guard let target else { return }
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                reader.scrollTo(target, anchor: .center)
+                            }
+                        }
                     }
-
-                    content
-                        .padding(.top, questionToAnswerGap)
+                } else {
+                    ScrollViewReader { reader in
+                        ScrollView {
+                            questionBlock(heightClass: heightClass)
+                        }
+                        .onChange(of: autoScrollTarget) { _, target in
+                            guard let target else { return }
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                reader.scrollTo(target, anchor: .center)
+                            }
+                        }
+                    }
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        if !isFooterHidden {
+                            footer
+                                .padding(.top, 12)
+                                .padding(.horizontal, Theme.Spacing.screenMargin)
+                                .padding(.bottom, 12)
+                                .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        }
+                    }
+                    .animation(.easeOut(duration: 0.2), value: isFooterHidden)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Theme.Spacing.screenMargin)
-                .padding(.top, 14)
-                .padding(.bottom, 16)
             }
             .scrollIndicators(.hidden)
             .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
             .scrollEdgeEffectStyle(.soft, for: .bottom)
+            .environment(\.onboardingHeightClass, heightClass)
+        }
+    }
 
-            footer
-                .padding(.top, 12)
-                .padding(.horizontal, Theme.Spacing.screenMargin)
-                .padding(.bottom, 12)
+    private func questionBlock(heightClass: OnboardingHeightClass) -> some View {
+        Group {
+            if usesScenePlate {
+                SceneContentPlate { questionContent(heightClass: heightClass) }
+            } else {
+                questionContent(heightClass: heightClass)
+                    .onboardingSurfaceCard(surface)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, Theme.Spacing.screenMargin)
+        .padding(.top, (heightClass == .comfortable ? 14 : 8) + resolvedSceneSpacing(for: heightClass))
+        .padding(.bottom, 16)
+    }
+
+    private func resolvedSceneSpacing(for heightClass: OnboardingHeightClass) -> CGFloat {
+        switch heightClass {
+        case .comfortable: sceneContentTopSpacing
+        case .compact: min(sceneContentTopSpacing, 80)
+        case .scrollRequired: 0
+        }
+    }
+
+    private func questionContent(heightClass: OnboardingHeightClass) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            DisplayText(headline, size: 30)
+
+            if let hint {
+                BodyText(hint)
+            }
+
+            content
+                .padding(.top, heightClass == .compact ? 14 : questionToAnswerGap)
         }
     }
 }

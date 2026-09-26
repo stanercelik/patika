@@ -11,14 +11,24 @@ import Observation
 @MainActor
 final class PreviousAttemptsViewModel {
     private(set) var selection: [PreviousAttempt] = []
+    var otherText: String
+    private(set) var showsOtherRequired = false
 
     let options = PreviousAttempt.allCases
 
-    private let flow: OnboardingFlowViewModel
+    private let commit: ([PreviousAttempt], String?) -> Void
+    private let flagCrisis: () -> Void
 
-    init(flow: OnboardingFlowViewModel) {
-        self.flow = flow
-        self.selection = flow.draft.previousAttempts
+    init(
+        selection: [PreviousAttempt],
+        otherText: String,
+        commit: @escaping ([PreviousAttempt], String?) -> Void,
+        flagCrisis: @escaping () -> Void
+    ) {
+        self.selection = selection
+        self.otherText = otherText
+        self.commit = commit
+        self.flagCrisis = flagCrisis
     }
 
     func isSelected(_ option: PreviousAttempt) -> Bool {
@@ -38,6 +48,7 @@ final class PreviousAttemptsViewModel {
     func toggle(_ option: PreviousAttempt) {
         if let index = selection.firstIndex(of: option) {
             selection.remove(at: index)
+            if option == .other { otherText = "" }
             return
         }
 
@@ -51,11 +62,21 @@ final class PreviousAttemptsViewModel {
 
     func continueTapped() {
         guard canContinue else { return }
-        flow.commitPreviousAttempts(selection)
+        let trimmed = otherText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if selection.contains(.other) && trimmed.isEmpty {
+            showsOtherRequired = true
+            return
+        }
+        showsOtherRequired = false
+        if selection.contains(.other), CrisisClassifier.evaluate(trimmed).hasSignal {
+            flagCrisis()
+            return
+        }
+        commit(selection, selection.contains(.other) ? trimmed : nil)
     }
 
     /// Atlarsa boş liste gider: C3 gösterilmez, terapi tonu tetiklenmez.
     func skipTapped() {
-        flow.commitPreviousAttempts([])
+        commit([], nil)
     }
 }

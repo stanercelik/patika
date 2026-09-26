@@ -103,6 +103,8 @@ final class ProblemStatement {
     var avoidanceText: String?
     /// B5 — daha önce ne denedi. C3'ün koşulu ve segmentasyon sinyali.
     var previousAttempts: [PreviousAttempt]
+    /// "Diğer" açıklaması yalnızca cihazda tutulur; üretim/analitik yüküne girmez.
+    var previousAttemptOtherText: String?
     /// B6 — onboarding anındaki ruh hali. Baseline **değil** (o D bölümünden
     /// gelir), yalnızca ilk oturumun tonunu ayarlayan ısınma sinyali.
     var initialMood: MoodLevel?
@@ -119,6 +121,7 @@ final class ProblemStatement {
         timing: ProblemTiming? = nil,
         avoidanceText: String? = nil,
         previousAttempts: [PreviousAttempt] = [],
+        previousAttemptOtherText: String? = nil,
         initialMood: MoodLevel? = nil,
         crisisFlag: Bool = false,
         createdAt: Date = .now
@@ -129,6 +132,7 @@ final class ProblemStatement {
         self.timing = timing
         self.avoidanceText = avoidanceText
         self.previousAttempts = previousAttempts
+        self.previousAttemptOtherText = previousAttemptOtherText
         self.initialMood = initialMood
         self.crisisFlag = crisisFlag
         self.createdAt = createdAt
@@ -148,6 +152,7 @@ final class ProblemStatement {
             timing: draft.timing,
             avoidanceText: draft.avoidanceText,
             previousAttempts: draft.previousAttempts,
+            previousAttemptOtherText: draft.previousAttemptOtherText,
             initialMood: draft.currentMood,
             crisisFlag: draft.crisisDetected
         )

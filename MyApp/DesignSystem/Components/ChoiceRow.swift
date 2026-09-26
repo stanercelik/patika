@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Tek ya da çoklu seçim satırı (B2, B3, B5, E bölümü).
+/// Tek ya da çoklu seçim satırı (B2, B3, B5).
 ///
 /// Seçili durum **üç sinyalle birden** anlatılır — dolgu, kenarlık ve metin
 /// ağırlığı. Renk tek başına anlam taşımaz (Ton eki §7); renk körü bir kullanıcı
@@ -10,12 +10,24 @@ struct ChoiceRow: View {
     let isSelected: Bool
     let action: () -> Void
 
+    /// Kartın içindeyse (`patikaInk == .ink`) kâğıt ikizine devreder; koyu yüzeyde
+    /// ve `PathSessionView`da ortam varsayılanı `.light` olduğu için değişmez.
+    @Environment(\.patikaInk) private var ink
+
     var body: some View {
+        if ink == .ink {
+            PaperChoiceRow(label: label, isSelected: isSelected, action: action)
+        } else {
+            darkRow
+        }
+    }
+
+    private var darkRow: some View {
         Button {
             Theme.softHaptic()
             action()
         } label: {
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 Text(label)
                     .font(
                         .body.weight(isSelected ? Theme.Weight.action : Theme.Weight.emphasis)
@@ -29,7 +41,7 @@ struct ChoiceRow: View {
                 SelectionMark(isSelected: isSelected)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .padding(.vertical, 15)
             .background { CalmSurface(isEmphasized: isSelected) }
         }
@@ -41,7 +53,7 @@ struct ChoiceRow: View {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: .neutral, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(spacing: 10) {
             ChoiceRow(label: "Birkaç gündür", isSelected: false) {}
             ChoiceRow(label: "Aylardır", isSelected: true) {}

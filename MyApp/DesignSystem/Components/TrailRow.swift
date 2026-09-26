@@ -32,6 +32,9 @@ struct TrailRow<Content: View>: View {
     let node: TrailNode
     var showsLineAbove: Bool = true
     var showsLineBelow: Bool = true
+    /// Aktif düğümün nefes genliği. F1'de bekleyiş genliği (`.generation`),
+    /// F2/Yolum'da ortam genliği (`.ambient`, varsayılan).
+    var activeAmplitude: Double = BreathAmplitude.ambient
     @ViewBuilder var content: Content
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -63,18 +66,23 @@ struct TrailRow<Content: View>: View {
                 segment(isVisible: showsLineBelow)
             }
 
-            TrailNodeDot(node: node)
+            TrailNodeDot(node: node, amplitude: activeAmplitude)
                 .offset(y: nodeCenterOffset - TrailNodeDot.size(for: node) / 2)
         }
         .frame(width: railWidth)
         .accessibilityHidden(true)
     }
 
+    /// Görünür olduğunda yukarıdan aşağı **büyüyerek** çiziliyormuş gibi belirir
+    /// (üstten sabitli `scaleEffect`); yalnızca soluklaşma değil, gerçek bir çizim
+    /// hareketi. F1'de her yeni aşama tamamlandığında komşu segment bu şekilde uzar.
     private func segment(isVisible: Bool) -> some View {
         Rectangle()
-            .fill(Theme.textPrimary.color.opacity(isVisible ? 0.16 : 0))
+            .fill(Theme.textPrimary.color.opacity(0.16))
             .frame(width: lineWidth)
             .frame(maxWidth: .infinity)
+            .scaleEffect(y: isVisible ? 1 : 0.001, anchor: .top)
+            .opacity(isVisible ? 1 : 0)
     }
 
 }
@@ -87,6 +95,7 @@ struct TrailRow<Content: View>: View {
 /// ikiye bölerdi.
 struct TrailNodeDot: View {
     let node: TrailNode
+    var amplitude: Double = BreathAmplitude.ambient
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -113,7 +122,7 @@ struct TrailNodeDot: View {
         case .active:
             // Nefes döngüsüyle aynı ritimde soluk alır: bekleyiş boyunca ekranda
             // hareket eden tek şey bu ve kullanıcının nefesiyle aynı hızda.
-            BreathingDot(isAnimated: !reduceMotion)
+            BreathingDot(isAnimated: !reduceMotion, amplitude: amplitude)
 
         case .done:
             Circle().fill(Theme.textPrimary.color.opacity(0.92))
@@ -133,13 +142,14 @@ struct TrailNodeDot: View {
 /// Nefes döngüsünün 10 saniyelik ritmini taşıyan tek nokta.
 private struct BreathingDot: View {
     let isAnimated: Bool
+    var amplitude: Double = BreathAmplitude.ambient
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !isAnimated)) { timeline in
             let breath = isAnimated
                 ? BreathCycle.value(
                     at: timeline.date.timeIntervalSinceReferenceDate,
-                    amplitude: BreathAmplitude.ambient
+                    amplitude: amplitude
                 )
                 : 0.5
 
@@ -152,7 +162,7 @@ private struct BreathingDot: View {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: Palette.all["sleep"]!, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(alignment: .leading, spacing: 0) {
             TrailRow(node: .done, showsLineAbove: false) {
                 Text(verbatim: "Yazdıklarını okudum").padding(.bottom, 18)

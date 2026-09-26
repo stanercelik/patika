@@ -5,21 +5,38 @@ struct PreviousAttemptsView: View {
     @State private var viewModel: PreviousAttemptsViewModel
 
     init(flow: OnboardingFlowViewModel) {
-        self._viewModel = State(initialValue: PreviousAttemptsViewModel(flow: flow))
+        self._viewModel = State(initialValue: PreviousAttemptsViewModel(
+            selection: flow.draft.previousAttempts,
+            otherText: flow.draft.previousAttemptOtherText ?? "",
+            commit: { flow.commitPreviousAttempts($0, otherText: $1) },
+            flagCrisis: { flow.flagCrisis() }
+        ))
     }
 
     var body: some View {
         OnboardingQuestionLayout(
             headline: Copy.Onboarding.attemptsHeadline,
-            hint: Copy.Onboarding.attemptsHint
+            hint: Copy.Onboarding.attemptsHint,
+            autoScrollTarget: viewModel.isSelected(.other) ? "other-attempt" : nil
         ) {
             VStack(alignment: .leading, spacing: 10) {
-                ForEach(viewModel.options) { option in
-                    ChoiceRow(
-                        label: option.label,
-                        isSelected: viewModel.isSelected(option)
-                    ) {
-                        viewModel.toggle(option)
+                AdaptiveChoiceGrid(
+                    options: viewModel.options,
+                    isSelected: { viewModel.isSelected($0) },
+                    onSelect: { viewModel.toggle($0) }
+                )
+
+                if viewModel.isSelected(.other) {
+                    OnboardingTextInput(
+                        text: $viewModel.otherText,
+                        placeholder: Copy.Onboarding.attemptsOtherPlaceholder,
+                        lineRange: 1...1
+                    )
+                    .id("other-attempt")
+                    if viewModel.showsOtherRequired {
+                        Text(Copy.Onboarding.attemptsOtherRequired)
+                            .font(.footnote.weight(Theme.Weight.body))
+                            .inkStyle(.secondary)
                     }
                 }
 
@@ -46,15 +63,17 @@ struct PreviousAttemptsView: View {
 /// süsleme değil; kullanıcının en olası endişesine ("bunu bırakmam mı gerekiyor?")
 /// sorulmadan verilen cevap.
 private struct TherapyNote: View {
+    @Environment(\.patikaInk) private var ink
+
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "info.circle")
                 .font(.footnote.weight(Theme.Weight.action))
-                .foregroundStyle(Theme.textSecondary.color)
+                .foregroundStyle(ink.secondary)
 
             Text(Copy.Onboarding.attemptsTherapyNote)
                 .font(.footnote.weight(Theme.Weight.body))
-                .foregroundStyle(Theme.textSecondary.color)
+                .foregroundStyle(ink.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.top, 2)

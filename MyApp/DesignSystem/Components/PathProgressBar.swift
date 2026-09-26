@@ -35,14 +35,14 @@ struct PathProgressBar: View {
         .frame(height: Theme.Line.progressTrack)
         .animation(reduceMotion ? nil : Theme.Motion.progress, value: clamped)
         .accessibilityElement()
-        .accessibilityLabel("İlerleme")
-        .accessibilityValue(Text("yüzde \(Int(clamped * 100))"))
+        .accessibilityLabel(.commonProgress)
+        .accessibilityValue(Text(.commonPercent(Int(clamped * 100))))
     }
 }
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: .neutral)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(spacing: 40) {
             PathProgressBar(progress: 0.0)
             PathProgressBar(progress: 1.0 / 7.0)

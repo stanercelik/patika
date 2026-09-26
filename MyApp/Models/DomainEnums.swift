@@ -36,16 +36,16 @@ enum ProblemCategory: String, CaseIterable, Codable, Sendable, Identifiable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .anxiety: "Kaygı, huzursuzluk"
-        case .sleep: "Uyuyamamak"
-        case .burnout: "Tükenmişlik, bitkinlik"
-        case .focus: "Odaklanamamak"
-        case .anger: "Öfke, sinirlilik"
-        case .selfcrit: "Kendime sert davranmak"
-        case .social: "Sosyal ortamlar"
-        case .exam: "Sınav, performans baskısı"
-        case .grief: "Ayrılık, kayıp"
-        case .unnamed: "Tam adını koyamıyorum"
+        case .anxiety: .problemCategoryLabelAnxiety
+        case .sleep: .problemCategoryLabelSleep
+        case .burnout: .problemCategoryLabelBurnout
+        case .focus: .problemCategoryLabelFocus
+        case .anger: .problemCategoryLabelAnger
+        case .selfcrit: .problemCategoryLabelSelfcrit
+        case .social: .problemCategoryLabelSocial
+        case .exam: .problemCategoryLabelExam
+        case .grief: .problemCategoryLabelGrief
+        case .unnamed: .problemCategoryLabelUnnamed
         }
     }
 
@@ -53,16 +53,16 @@ enum ProblemCategory: String, CaseIterable, Codable, Sendable, Identifiable {
     /// (PRD-Ek Onboarding §3.1) — doldurma oranını ciddi artıran detay.
     var textPlaceholder: LocalizedStringResource {
         switch self {
-        case .sleep: "Akşamları yatağa girince zihnim durmuyor..."
-        case .burnout: "Sabah kalktığımda zaten yorgunum..."
-        case .exam: "Sınav yaklaştıkça çalışmaktan kaçıyorum..."
-        case .social: "Kalabalık ortamlara girmeden önce..."
-        case .anger: "Küçük şeylere aşırı tepki veriyorum..."
-        case .grief: "Aklımdan çıkmıyor ve..."
-        case .selfcrit: "Kendime sürekli kızıyorum..."
-        case .focus: "Bir işe başlıyorum ama..."
-        case .anxiety: "İçimde sürekli bir tedirginlik var..."
-        case .unnamed: "Tam olarak ne olduğunu bilmiyorum ama..."
+        case .sleep: .problemCategoryTextPlaceholderSleep
+        case .burnout: .problemCategoryTextPlaceholderBurnout
+        case .exam: .problemCategoryTextPlaceholderExam
+        case .social: .problemCategoryTextPlaceholderSocial
+        case .anger: .problemCategoryTextPlaceholderAnger
+        case .grief: .problemCategoryTextPlaceholderGrief
+        case .selfcrit: .problemCategoryTextPlaceholderSelfcrit
+        case .focus: .problemCategoryTextPlaceholderFocus
+        case .anxiety: .problemCategoryTextPlaceholderAnxiety
+        case .unnamed: .problemCategoryTextPlaceholderUnnamed
         }
     }
 
@@ -75,16 +75,16 @@ enum ProblemCategory: String, CaseIterable, Codable, Sendable, Identifiable {
     /// **çevrimdışı yedek** olarak kalır.
     var provisionalPathTitle: LocalizedStringResource {
         switch self {
-        case .anxiety: "Tedirginliği yavaşlatma"
-        case .sleep: "Zihni akşam yavaşlatma"
-        case .burnout: "Enerjiyi geri toplama"
-        case .focus: "Dikkati toparlama"
-        case .anger: "Tepkiyle araya mesafe koyma"
-        case .selfcrit: "Kendine yumuşak davranma"
-        case .social: "Kalabalıkta rahatlama"
-        case .exam: "Baskı altında sakin kalma"
-        case .grief: "Kayıpla birlikte yürüme"
-        case .unnamed: "Adı konmamışla başlama"
+        case .anxiety: .problemCategoryProvisionalPathTitleAnxiety
+        case .sleep: .problemCategoryProvisionalPathTitleSleep
+        case .burnout: .problemCategoryProvisionalPathTitleBurnout
+        case .focus: .problemCategoryProvisionalPathTitleFocus
+        case .anger: .problemCategoryProvisionalPathTitleAnger
+        case .selfcrit: .problemCategoryProvisionalPathTitleSelfcrit
+        case .social: .problemCategoryProvisionalPathTitleSocial
+        case .exam: .problemCategoryProvisionalPathTitleExam
+        case .grief: .problemCategoryProvisionalPathTitleGrief
+        case .unnamed: .problemCategoryProvisionalPathTitleUnnamed
         }
     }
 
@@ -94,16 +94,16 @@ enum ProblemCategory: String, CaseIterable, Codable, Sendable, Identifiable {
     /// Zaman ifadesinden sonra gelir: "Yatağa girdiğinde **zihnin durmuyor.**"
     var mirrorPhrase: LocalizedStringResource {
         switch self {
-        case .anxiety: "içindeki tedirginlik yükseliyor"
-        case .sleep: "zihnin durmuyor"
-        case .burnout: "enerjin bitmiş oluyor"
-        case .focus: "dikkatin dağılıyor"
-        case .anger: "tepkilerin sertleşiyor"
-        case .selfcrit: "kendine sert davranıyorsun"
-        case .social: "insanların arasında zorlanıyorsun"
-        case .exam: "baskıyı üstünde hissediyorsun"
-        case .grief: "aklından çıkmıyor"
-        case .unnamed: "kendini iyi hissetmiyorsun"
+        case .anxiety: .problemCategoryMirrorPhraseAnxiety
+        case .sleep: .problemCategoryMirrorPhraseSleep
+        case .burnout: .problemCategoryMirrorPhraseBurnout
+        case .focus: .problemCategoryMirrorPhraseFocus
+        case .anger: .problemCategoryMirrorPhraseAnger
+        case .selfcrit: .problemCategoryMirrorPhraseSelfcrit
+        case .social: .problemCategoryMirrorPhraseSocial
+        case .exam: .problemCategoryMirrorPhraseExam
+        case .grief: .problemCategoryMirrorPhraseGrief
+        case .unnamed: .problemCategoryMirrorPhraseUnnamed
         }
     }
 
@@ -116,16 +116,16 @@ enum ProblemCategory: String, CaseIterable, Codable, Sendable, Identifiable {
     /// epidemiyolojik kaynak bulunduğunda eklenir — ikisi de henüz yok.
     var commonalityLine: LocalizedStringResource {
         switch self {
-        case .anxiety: "Kaygı, yetişkinlerin en sık yaşadığı zorlanma biçimlerinden biri."
-        case .sleep: "Uykuya dalmakta zorlanmak, çoğu insanın hayatının bir döneminde yaşadığı bir şey."
-        case .burnout: "Tükenmişlik, uzun süre yüksek tempoda kalan hemen herkesin karşılaştığı bir hâl."
-        case .focus: "Dikkatin dağılması, sürekli bölünen bir zihnin olağan tepkisi."
-        case .anger: "Öfkenin kolay tetiklenmesi, uzun süre baskı altında kalan insanlarda sık görülür."
-        case .selfcrit: "Kendine sert davranmak, en yaygın ve en az konuşulan zorlanmalardan biri."
-        case .social: "Sosyal ortamlarda zorlanmak, insanların büyük bölümünün tanıdığı bir his."
-        case .exam: "Sınav ve performans baskısı altında zorlanmak, bu süreçten geçen herkesin bildiği bir şey."
-        case .grief: "Bir kaybın ardından böyle hissetmek olağan — herkesin geçtiği bir yol."
-        case .unnamed: "Adını koyamamak çok yaygın. Zorlanmanın en sık hâli, isimsiz olanı."
+        case .anxiety: .problemCategoryCommonalityLineAnxiety
+        case .sleep: .problemCategoryCommonalityLineSleep
+        case .burnout: .problemCategoryCommonalityLineBurnout
+        case .focus: .problemCategoryCommonalityLineFocus
+        case .anger: .problemCategoryCommonalityLineAnger
+        case .selfcrit: .problemCategoryCommonalityLineSelfcrit
+        case .social: .problemCategoryCommonalityLineSocial
+        case .exam: .problemCategoryCommonalityLineExam
+        case .grief: .problemCategoryCommonalityLineGrief
+        case .unnamed: .problemCategoryCommonalityLineUnnamed
         }
     }
 }
@@ -148,10 +148,10 @@ enum Gender: String, CaseIterable, Codable, Sendable, Identifiable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .woman: "Kadın"
-        case .man: "Erkek"
-        case .other: "Başka şekilde tanımlıyorum"
-        case .undisclosed: "Belirtmek istemiyorum"
+        case .woman: .genderLabelWoman
+        case .man: .genderLabelMan
+        case .other: .genderLabelOther
+        case .undisclosed: .genderLabelUndisclosed
         }
     }
 }
@@ -171,12 +171,12 @@ enum AgeRange: String, CaseIterable, Codable, Sendable, Identifiable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .eighteenToTwentyFour: "18–24"
-        case .twentyFiveToThirtyFour: "25–34"
-        case .thirtyFiveToFortyFour: "35–44"
-        case .fortyFiveToFiftyFour: "45–54"
-        case .fiftyFivePlus: "55 ve üzeri"
-        case .undisclosed: "Belirtmek istemiyorum"
+        case .eighteenToTwentyFour: .ageRangeLabelEighteenToTwentyFour
+        case .twentyFiveToThirtyFour: .ageRangeLabelTwentyFiveToThirtyFour
+        case .thirtyFiveToFortyFour: .ageRangeLabelThirtyFiveToFortyFour
+        case .fortyFiveToFiftyFour: .ageRangeLabelFortyFiveToFiftyFour
+        case .fiftyFivePlus: .ageRangeLabelFiftyFivePlus
+        case .undisclosed: .ageRangeLabelUndisclosed
         }
     }
 }
@@ -195,11 +195,11 @@ enum ProblemDuration: String, CaseIterable, Codable, Sendable, Identifiable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .fewDays: "Birkaç gündür"
-        case .fewWeeks: "Birkaç haftadır"
-        case .months: "Aylardır"
-        case .years: "Yıllardır"
-        case .unsure: "Emin değilim"
+        case .fewDays: .problemDurationLabelFewDays
+        case .fewWeeks: .problemDurationLabelFewWeeks
+        case .months: .problemDurationLabelMonths
+        case .years: .problemDurationLabelYears
+        case .unsure: .problemDurationLabelUnsure
         }
     }
 
@@ -213,10 +213,10 @@ enum ProblemDuration: String, CaseIterable, Codable, Sendable, Identifiable {
     /// `unsure` için nil — bilmediğini söyleyen kullanıcıya süre atfetmeyiz.
     var mirrorPhrase: LocalizedStringResource? {
         switch self {
-        case .fewDays: "birkaç gündür"
-        case .fewWeeks: "birkaç haftadır"
-        case .months: "aylardır"
-        case .years: "yıllardır"
+        case .fewDays: .problemDurationMirrorPhraseFewDays
+        case .fewWeeks: .problemDurationMirrorPhraseFewWeeks
+        case .months: .problemDurationMirrorPhraseMonths
+        case .years: .problemDurationMirrorPhraseYears
         case .unsure: nil
         }
     }
@@ -234,11 +234,11 @@ enum ProblemTiming: String, CaseIterable, Codable, Sendable, Identifiable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .morning: "Sabah uyanınca"
-        case .daytime: "Gün içinde"
-        case .evening: "Akşama doğru"
-        case .bedtime: "Yatağa girince"
-        case .noPattern: "Belli bir zamanı yok"
+        case .morning: .problemTimingLabelMorning
+        case .daytime: .problemTimingLabelDaytime
+        case .evening: .problemTimingLabelEvening
+        case .bedtime: .problemTimingLabelBedtime
+        case .noPattern: .problemTimingLabelNoPattern
         }
     }
 
@@ -263,11 +263,11 @@ enum ProblemTiming: String, CaseIterable, Codable, Sendable, Identifiable {
     /// oluyor (PRD-Ek Onboarding §6, E1).
     var reminderReason: LocalizedStringResource {
         switch self {
-        case .morning: "\"Sabah uyanınca\" demiştin — güne başlamadan önce iyi çalışıyor."
-        case .daytime: "\"Gün içinde\" demiştin — öğle sonrası, yoğunluk dağılmadan."
-        case .evening: "\"Akşama doğru\" demiştin — gün kapanmadan biraz önce."
-        case .bedtime: "\"Yatağa girince\" demiştin — yatmadan biraz önce iyi çalışıyor."
-        case .noPattern: "Belli bir saat söylememiştin; akşam saati çoğu kişide oturuyor."
+        case .morning: .problemTimingReminderReasonMorning
+        case .daytime: .problemTimingReminderReasonDaytime
+        case .evening: .problemTimingReminderReasonEvening
+        case .bedtime: .problemTimingReminderReasonBedtime
+        case .noPattern: .problemTimingReminderReasonNoPattern
         }
     }
 
@@ -275,11 +275,11 @@ enum ProblemTiming: String, CaseIterable, Codable, Sendable, Identifiable {
     /// "**Yatağa girdiğinde** zihnin durmuyor."
     var mirrorPhrase: LocalizedStringResource {
         switch self {
-        case .morning: "sabah uyandığında"
-        case .daytime: "gün içinde"
-        case .evening: "akşama doğru"
-        case .bedtime: "yatağa girdiğinde"
-        case .noPattern: "belli bir saate bağlı olmadan"
+        case .morning: .problemTimingMirrorPhraseMorning
+        case .daytime: .problemTimingMirrorPhraseDaytime
+        case .evening: .problemTimingMirrorPhraseEvening
+        case .bedtime: .problemTimingMirrorPhraseBedtime
+        case .noPattern: .problemTimingMirrorPhraseNoPattern
         }
     }
 }
@@ -295,13 +295,13 @@ enum PreviousAttempt: String, CaseIterable, Codable, Sendable, Identifiable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .otherApps: "Başka meditasyon uygulamaları"
-        case .youtube: "YouTube videoları"
-        case .therapyOngoing: "Terapi (şu an devam ediyor)"
-        case .therapyPast: "Terapi (geçmişte)"
-        case .breathing: "Nefes egzersizleri"
-        case .nothing: "Hiçbir şey"
-        case .other: "Diğer"
+        case .otherApps: .previousAttemptLabelOtherApps
+        case .youtube: .previousAttemptLabelYoutube
+        case .therapyOngoing: .previousAttemptLabelTherapyOngoing
+        case .therapyPast: .previousAttemptLabelTherapyPast
+        case .breathing: .previousAttemptLabelBreathing
+        case .nothing: .previousAttemptLabelNothing
+        case .other: .previousAttemptLabelOther
         }
     }
 
@@ -342,7 +342,19 @@ enum MoodLevel: Int, CaseIterable, Codable, Sendable, Identifiable {
 
     var id: Int { rawValue }
 
-    var icon: String {
+    var label: LocalizedStringResource {
+        switch self {
+        case .veryHeavy: .moodLevelLabelVeryHeavy
+        case .heavy: .moodLevelLabelHeavy
+        case .middling: .moodLevelLabelMiddling
+        case .okay: .moodLevelLabelOkay
+        case .calm: .moodLevelLabelCalm
+        }
+    }
+
+    /// Beş kademe aynı kontrol içinde şekil olarak da ayrışır; renk tek başına
+    /// seçimi veya ağırlığı anlatmaz.
+    var sceneSymbol: String {
         switch self {
         case .veryHeavy: "cloud.heavyrain"
         case .heavy: "cloud.rain"
@@ -352,21 +364,18 @@ enum MoodLevel: Int, CaseIterable, Codable, Sendable, Identifiable {
         }
     }
 
-    var label: LocalizedStringResource {
-        switch self {
-        case .veryHeavy: "Çok ağır"
-        case .heavy: "Ağır"
-        case .middling: "Ortalarda"
-        case .okay: "Fena değil"
-        case .calm: "Sakin"
-        }
-    }
-
     /// Onboarding'in ilk oturumu (G1) düşük ruh haliyle gelen kullanıcıda daha
     /// kısa ve daha yönlendirici başlar. Ölçüm değil, ısınma sinyali —
     /// baseline skoru D bölümünden gelir (PRD §8.6).
     var suggestsGentlerStart: Bool {
         rawValue <= 2
+    }
+
+    /// B6'nın arka plan karşılığı (gradyan kalktı, 2026-09-22): sahne perdesi ağır
+    /// kademede koyulaşır, sakin kademede açılır. Önceden bu iş palet tonlamasıydı
+    /// (sarı↔lacivert ekseni); artık tek değişken düz bir karartma oranı.
+    var sceneDimming: Double {
+        0.50 - Double(rawValue - 1) * 0.06
     }
 }
 
@@ -400,11 +409,11 @@ enum PathPhase: String, Codable, Sendable, CaseIterable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .relief: "Rahatlama"
-        case .awareness: "Farkındalık"
-        case .skill: "Beceri"
-        case .behavior: "Davranış"
-        case .closing: "Kapanış"
+        case .relief: .pathPhaseLabelRelief
+        case .awareness: .pathPhaseLabelAwareness
+        case .skill: .pathPhaseLabelSkill
+        case .behavior: .pathPhaseLabelBehavior
+        case .closing: .pathPhaseLabelClosing
         }
     }
 
@@ -418,11 +427,11 @@ enum PathPhase: String, Codable, Sendable, CaseIterable {
     /// görünür.
     var roadmapDescription: LocalizedStringResource {
         switch self {
-        case .relief: "Yükü hafifleten temel teknikler"
-        case .awareness: "Neyin tetiklediğine birlikte bakacağız"
-        case .skill: "İşe yarayanı tekrar edilebilir hâle getiriyoruz"
-        case .behavior: "Kaçındığın şeye küçük adımlarla yaklaşıyoruz"
-        case .closing: "Kapanış ve son ölçüm"
+        case .relief: .pathPhaseRoadmapDescriptionRelief
+        case .awareness: .pathPhaseRoadmapDescriptionAwareness
+        case .skill: .pathPhaseRoadmapDescriptionSkill
+        case .behavior: .pathPhaseRoadmapDescriptionBehavior
+        case .closing: .pathPhaseRoadmapDescriptionClosing
         }
     }
 }
@@ -479,9 +488,9 @@ enum MeasurementLayer: String, Codable, Sendable, CaseIterable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .emotion: "Duygu şiddeti"
-        case .behavior: "Davranış"
-        case .selfEfficacy: "Öz-yeterlik"
+        case .emotion: .measurementLayerLabelEmotion
+        case .behavior: .measurementLayerLabelBehavior
+        case .selfEfficacy: .measurementLayerLabelSelfEfficacy
         }
     }
 }
@@ -539,9 +548,9 @@ enum SessionFeedback: String, Codable, Sendable, CaseIterable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .helped: "İyi geldi"
-        case .struggled: "Zorlandım"
-        case .couldNotFocus: "Odaklanamadım"
+        case .helped: .sessionFeedbackLabelHelped
+        case .struggled: .sessionFeedbackLabelStruggled
+        case .couldNotFocus: .sessionFeedbackLabelCouldNotFocus
         }
     }
 
@@ -567,14 +576,6 @@ enum SessionLength: Int, CaseIterable, Codable, Sendable, Identifiable {
     /// Önerilen seçenek E2'de önceden seçili gelir. Varsayılan yanlılığı burada
     /// serbest; **ödeme ve abonelik kararlarında** yasak (PRD-Ek 5.6).
     var isRecommended: Bool { self == .standard }
-
-    var label: LocalizedStringResource {
-        switch self {
-        case .short: "5 dakika · kısa ve öz"
-        case .standard: "10 dakika · önerilen"
-        case .deep: "15 dakika · derin"
-        }
-    }
 }
 
 /// E4 — rehber sesin kimliği (ürün sahibi kararı, 2026-09-09).
@@ -602,13 +603,6 @@ enum VoicePreference: String, Codable, Sendable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var label: LocalizedStringResource {
-        switch self {
-        case .feminine: "Ses A"
-        case .masculine: "Ses B"
-        }
-    }
-
     /// Önizleme dosyasının uygulama paketindeki adı. Dile göre değişir —
     /// aynı ses iki dilde farklı duyuluyor ve kullanıcı kendi dilinde
     /// duymadığı bir sesi seçemez.
@@ -624,24 +618,20 @@ enum VoicePreference: String, Codable, Sendable, CaseIterable, Identifiable {
     }
 }
 
-/// Ürünün taşıdığı diller (v1: TR + EN).
+/// Ürünün konuştuğu diller.
 ///
-/// **Yalnızca sesin ve blok metinlerinin dilini** belirler. Arayüz metinleri
-/// hâlâ `Copy.swift` içinde sabit Türkçe; arayüz yerelleştirmesi String Catalog
-/// ile ayrı bir iş (CLAUDE.md "henüz yok" listesi).
-///
-/// Varsayılan İngilizce, cihaz Türkçeye ya da Türkiye bölgesine ayarlıysa
-/// Türkçe (ürün sahibi kararı, 2026-09-09).
+/// **MVP yalnızca İngilizce** (ürün sahibi kararı, 2026-09-21): arayüz metinleri
+/// `Localizable.xcstrings`te, ses ve blok metinleri sunucuda İngilizce. `.turkish`
+/// durur çünkü sunucu ve eski kayıtlar onu tanıyor; yeniden açmak `current`i
+/// cihaz diline bağlamak ve kataloğa `tr` eklemek demek.
 enum AppLocale: String, Codable, Sendable, CaseIterable {
     case turkish = "tr"
     case english = "en"
 
-    static var current: AppLocale {
-        let locale = Locale.current
-        if locale.language.languageCode?.identifier == "tr" { return .turkish }
-        if locale.region?.identifier == "TR" { return .turkish }
-        return .english
-    }
+    /// **MVP: uygulama yalnızca İngilizce** (ürün sahibi kararı, 2026-09-21). Arayüz,
+    /// Keşfet, ses ve sunucuya giden dil tek bu noktadan geçiyor; ikinci bir dil
+    /// açılırken burası cihaz diline bakacak, başka hiçbir yer değişmeyecek.
+    static var current: AppLocale { .english }
 
     /// Sunucuya gönderilen tam tanımlayıcı.
     var identifier: String {
@@ -659,9 +649,9 @@ enum TonePreference: String, Codable, Sendable, CaseIterable, Identifiable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .calmAndShort: "Sakin ve kısa"
-        case .moreGuiding: "Biraz daha yönlendirici"
-        case .infoOnly: "Sadece bilgi, yorum yok"
+        case .calmAndShort: .tonePreferenceLabelCalmAndShort
+        case .moreGuiding: .tonePreferenceLabelMoreGuiding
+        case .infoOnly: .tonePreferenceLabelInfoOnly
         }
     }
 }
@@ -672,10 +662,10 @@ enum ReminderFrequency: String, Codable, Sendable, CaseIterable {
 
     var label: LocalizedStringResource {
         switch self {
-        case .daily: "Her gün"
-        case .onlyWhenMissed: "Sadece kaçırdığımda"
-        case .weekly: "Haftada bir"
-        case .never: "Hiç hatırlatma"
+        case .daily: .reminderFrequencyLabelDaily
+        case .onlyWhenMissed: .reminderFrequencyLabelOnlyWhenMissed
+        case .weekly: .reminderFrequencyLabelWeekly
+        case .never: .reminderFrequencyLabelNever
         }
     }
 }

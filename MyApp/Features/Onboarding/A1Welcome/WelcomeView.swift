@@ -3,6 +3,7 @@ import SwiftUI
 struct WelcomeView: View {
     @Environment(AppServices.self) private var services
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var viewModel: WelcomeViewModel
     private let flow: OnboardingFlowViewModel
 
@@ -11,19 +12,21 @@ struct WelcomeView: View {
         self._viewModel = State(initialValue: WelcomeViewModel(flow: flow))
     }
 
+    /// Karşılama sahnesi çizilecek mi? Kabuk aynı koşulu kullanır (`showsScene`).
+    private var usesScene: Bool {
+        OnboardingArtwork.threshold.isAvailable && !reduceTransparency && !dynamicTypeSize.isAccessibilitySize
+    }
+
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    // Üstte kelime markası yok: marka kimliği yol animasyonunun kendisi.
-                    // Logo hazır olduğunda animasyonun kapanış karesine yerleşecek.
-                    Spacer(minLength: 24)
-
-                    PathDrawAnimation()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : min(300, geometry.size.height * 0.40))
-
-                    Spacer(minLength: 24)
+                    // Üstte kelime markası yok: marka kimliği açılış manzarasının kendisi.
+                    // Sahne varsa üst yarı manzaraya bırakılır ve başlık ile düğme alt %40'a
+                    // oturur. Sahne yoksa (Reduce Transparency, erişilebilirlik boyutu ya da
+                    // görsel eksik) çıplak mesh üstünde başlık ve düğme kalır: yol animasyonu
+                    // (`PathDrawAnimation`) silindi, `onboarding-threshold` onun yerini aldı.
+                    Spacer(minLength: usesScene ? geometry.size.height * 0.56 : 24)
 
                     VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
                         DisplayText(viewModel.headline)

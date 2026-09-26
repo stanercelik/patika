@@ -76,6 +76,25 @@ final class PathSessionViewModel {
     /// Hazır patika: ses gerçekten çalmaya başladı mı. Tamamlanma yalnızca
     /// duyulmuş bir kayıttan yazılır.
     private var preparedAudioStarted = false
+    private var didTrackSessionStart = false
+    private var didTrackSessionCompletion = false
+
+    private var analyticsSource: AnalyticsSessionSource {
+        if case .prepared = source { return .prepared }
+        return .personal
+    }
+
+    private func trackSessionStarted() {
+        guard !didTrackSessionStart else { return }
+        didTrackSessionStart = true
+        services.observability.capture(.sessionStarted(source: analyticsSource))
+    }
+
+    private func trackSessionCompleted() {
+        guard !didTrackSessionCompletion else { return }
+        didTrackSessionCompletion = true
+        services.observability.capture(.sessionCompleted(source: analyticsSource))
+    }
 
     init(services: AppServices, path: ActivePath, step: PathStepRecord) {
         self.services = services
@@ -169,6 +188,7 @@ final class PathSessionViewModel {
             return
         }
         phase = .running
+        trackSessionStarted()
         runner.begin(
             segments: SessionScript.build(
                 step: step.generatedStep,
@@ -213,6 +233,7 @@ final class PathSessionViewModel {
             return
         }
         phase = .running
+        trackSessionStarted()
         let segments = SessionScript.build(from: playback.manifest)
         let offset = SessionAudioPlayer.resumeOffset(for: playback.manifest.stepID)
         runner.begin(segments: segments) { [weak self] reachedEnd in
@@ -243,6 +264,7 @@ final class PathSessionViewModel {
             if reachedEnd, preparedAudioStarted {
                 runner.audio.clearCheckpoint()
                 library.complete(step, in: path)
+                trackSessionCompleted()
             }
             phase = .finished
             return
@@ -291,6 +313,7 @@ final class PathSessionViewModel {
                 ) {
                 case .completed:
                     runner.audio.clearCheckpoint()
+                    trackSessionCompleted()
                     services.profile.clearCrisisSignal()
                     services.profile.appendCompletedStepDate()
                     pendingCompletion = nil

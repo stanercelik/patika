@@ -45,6 +45,9 @@ final class AuthSessionStore {
             _ = try await validAccessToken()
             return true
         } catch {
+            #if DEBUG
+            print("⚠️ AuthSessionStore.ensureAnonymousSession — validAccessToken threw: \(error)")
+            #endif
             errorMessage = Copy.Auth.failed
             return false
         }
@@ -141,6 +144,9 @@ final class AuthSessionStore {
             errorMessage = Copy.Auth.identityAlreadyLinked
             return false
         } catch {
+            #if DEBUG
+            print("⚠️ AuthSessionStore.perform — operation threw: \(error)")
+            #endif
             errorMessage = Copy.Auth.failed
             return false
         }

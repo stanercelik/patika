@@ -21,7 +21,19 @@ struct TimingView: View {
             headline: Copy.Onboarding.timingHeadline,
             hint: Copy.Onboarding.timingHint
         ) {
-            ChoiceList(viewModel: viewModel)
+            VStack(spacing: 12) {
+                AdaptiveChoiceGrid(
+                    options: ProblemTiming.allCases.filter { $0 != .noPattern },
+                    isSelected: { viewModel.isSelected($0) },
+                    onSelect: { viewModel.select($0) }
+                )
+                ChoiceRow(
+                    label: ProblemTiming.noPattern.label,
+                    isSelected: viewModel.isSelected(.noPattern)
+                ) {
+                    viewModel.select(.noPattern)
+                }
+            }
         } footer: {
             OnboardingQuestionFooter(
                 primaryTitle: Copy.Button.next,

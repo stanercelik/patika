@@ -9,6 +9,19 @@ enum WoodlandStyle {
     static let secondaryInk = RGB(hex: 0x4A6058).color
     static let apricot = RGB(hex: 0xE9BA8F).color
     static let sage = RGB(hex: 0x9BAE9B).color
+    static let scenePlate = RGB(hex: 0x15211F)
+    static let scenePlateSecondary = RGB(hex: 0xB9C4BF)
+    static let scenePlateBorder = RGB(hex: 0x60716B)
+    static let timeMorningTint = RGB(hex: 0xD9A978)
+    static let timeDayTint = RGB(hex: 0xA8BCA1)
+    static let timeEveningTint = RGB(hex: 0xB97858)
+    static let timeNightTint = RGB(hex: 0x314B63)
+    static let timeNeutralTint = RGB(hex: 0x667773)
+    static let moodVeiledTint = RGB(hex: 0x293D45)
+    static let moodQuietTint = RGB(hex: 0x40595B)
+    static let moodBalancedTint = RGB(hex: 0x65786B)
+    static let moodOpeningTint = RGB(hex: 0x8D9671)
+    static let moodClearTint = RGB(hex: 0xB49B69)
 
 }
 

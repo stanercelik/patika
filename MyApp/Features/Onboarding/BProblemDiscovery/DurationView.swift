@@ -1,6 +1,9 @@
 import SwiftUI
 
 /// B2 — "Bu ne kadar zamandır böyle?" (PRD-Ek Onboarding §3.2)
+///
+/// Four direct duration choices avoid hiding the answer behind a ruler gesture.
+/// "Emin değilim" remains a full-width honest escape below them.
 struct DurationView: View {
     @State private var viewModel: SingleChoiceStepViewModel<ProblemDuration>
 
@@ -13,9 +16,23 @@ struct DurationView: View {
         )
     }
 
+    private var ordered: [ProblemDuration] { ProblemDuration.allCases.filter { $0 != .unsure } }
+
     var body: some View {
         OnboardingQuestionLayout(headline: Copy.Onboarding.durationHeadline) {
-            ChoiceList(viewModel: viewModel)
+            VStack(spacing: 22) {
+                AdaptiveChoiceGrid(
+                    options: ordered,
+                    isSelected: { viewModel.isSelected($0) },
+                    onSelect: { viewModel.select($0) }
+                )
+                ChoiceRow(
+                    label: ProblemDuration.unsure.label,
+                    isSelected: viewModel.isSelected(.unsure)
+                ) {
+                    viewModel.select(.unsure)
+                }
+            }
         } footer: {
             OnboardingQuestionFooter(
                 primaryTitle: Copy.Button.next,
@@ -27,7 +44,7 @@ struct DurationView: View {
     }
 }
 
-/// Tek seçimlik cevap listesi. Üç ekran (B2, B3 ve sonra E bölümü) aynı yerleşimi
+/// Tek seçimlik cevap listesi. Üç ekran (B3 ve E bölümü) aynı yerleşimi
 /// paylaşıyor; ayrı ayrı yazmak üçünün zamanla birbirinden ayrışması demek.
 struct ChoiceList<Option: OnboardingChoice>: View {
     let viewModel: SingleChoiceStepViewModel<Option>

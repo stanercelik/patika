@@ -7,6 +7,7 @@ struct DisplayText: View {
     var size: CGFloat
 
     @ScaledMetric(relativeTo: .largeTitle) private var scaledSize: CGFloat = 38
+    @Environment(\.patikaInk) private var ink
 
     init(_ text: LocalizedStringResource, size: CGFloat = 38) {
         self.text = text
@@ -17,7 +18,7 @@ struct DisplayText: View {
     var body: some View {
         Text(text)
             .font(.system(size: scaledSize, weight: Theme.Weight.display, design: .rounded))
-            .foregroundStyle(Theme.textPrimary.color)
+            .foregroundStyle(ink.primary)
             // Ağırlık bir kademe arttığında harfler birbirine yaklaşır; kerning
             // eskisi kadar sıkı kalırsa iri puntoda harfler yapışıyor.
             .kerning(-0.3)
@@ -29,13 +30,14 @@ struct DisplayText: View {
 /// Başlık altı açıklama metni.
 struct BodyText: View {
     let text: LocalizedStringResource
+    @Environment(\.patikaInk) private var ink
 
     init(_ text: LocalizedStringResource) { self.text = text }
 
     var body: some View {
         Text(text)
             .font(Theme.TypeFace.product(.body, Theme.Weight.body))
-            .foregroundStyle(Theme.textSecondary.color)
+            .foregroundStyle(ink.secondary)
             .lineSpacing(3)
             .fixedSize(horizontal: false, vertical: true)
     }

@@ -29,6 +29,7 @@ struct OnboardingDraft: Equatable, Sendable {
     var timing: ProblemTiming?
     var avoidanceText: String?
     var previousAttempts: [PreviousAttempt] = []
+    var previousAttemptOtherText: String?
     var currentMood: MoodLevel?
 
     // MARK: - D · Baseline ölçüm
@@ -52,6 +53,7 @@ struct OnboardingDraft: Equatable, Sendable {
     var voicePreference: VoicePreference?
     var reminderHour: Int = 22
     var reminderMinute: Int = 30
+    var reminderEnabled = false
     var sessionLength: SessionLength = .standard
 
     // MARK: - Güvenlik

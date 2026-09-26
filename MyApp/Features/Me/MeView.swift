@@ -41,7 +41,6 @@ struct MeView: View {
     @Binding var path: [MeRoute]
 
     @Environment(AppServices.self) private var services
-    @Environment(PaletteController.self) private var palette
     @Namespace private var zoomNamespace
 
     @State private var viewModel: MeViewModel?
@@ -49,14 +48,6 @@ struct MeView: View {
     var body: some View {
         ZStack {
             WoodlandStyle.background.ignoresSafeArea()
-            BreathingMeshBackground(
-                palette: palette.current,
-                safeY: 0.12,
-                breathAmplitude: viewModel?.isInCrisisMode == true ? BreathAmplitude.crisis : BreathAmplitude.measurement
-            )
-            .opacity(0.16)
-            .ignoresSafeArea()
-
             if let viewModel {
                 MeContent(viewModel: viewModel, path: $path, zoomNamespace: zoomNamespace)
             }
@@ -102,11 +93,15 @@ private struct MeContent: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var sheet: MeSheet?
     @State private var isShowingSupport = false
+    /// Teklif önce yüklenir, kaplama ancak sonra açılır: arada ekran yok.
+    @State private var purchaseOffer: PathPaywallViewModel?
+    @State private var isOpeningOffer = false
     @State private var isChangeRevealed = true
     @State private var scrollOffset: CGFloat = 0
-    @State private var isShowingPhotoDialog = false
+    @State private var isShowingPhotoViewer = false
     @State private var isShowingPhotoPicker = false
     @State private var pickedPhoto: PhotosPickerItem?
+    @State private var editablePhoto: EditableProfilePhoto?
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -124,7 +119,13 @@ private struct MeContent: View {
                             rhythm: viewModel.weeklyRhythm,
                             summaryAccessibility: viewModel.identityAccessibility,
                             canEditPhoto: !viewModel.isInCrisisMode,
-                            onPhoto: { isShowingPhotoDialog = true },
+                            onPhoto: {
+                                if viewModel.services.avatar.hasImage {
+                                    isShowingPhotoViewer = true
+                                } else {
+                                    isShowingPhotoPicker = true
+                                }
+                            },
                             onSettings: { sheet = .settings }
                         )
                         .id(MeAnchor.identity)
@@ -134,6 +135,14 @@ private struct MeContent: View {
                         if viewModel.supportPlacement == .top {
                             supportRow
                                 .woodlandReveal(1, enabled: !viewModel.isInCrisisMode)
+                        }
+
+                        if viewModel.showsContinuePathRow {
+                            ContinuePathCard(
+                                walked: viewModel.walkedStepCount,
+                                total: viewModel.totalStepCount
+                            ) { Task { await openPurchaseOffer() } }
+                            .woodlandReveal(1)
                         }
 
                         // Kriz modunda anonim hesap çağrısı da gösterilmez.
@@ -195,6 +204,7 @@ private struct MeContent: View {
                         case "change": sheet = .change
                         case "settings": sheet = .settings
                         case "support": isShowingSupport = true
+                        case "account": sheet = .account
                         default: break
                         }
                     }
@@ -220,34 +230,44 @@ private struct MeContent: View {
             case .account: AccountLinkSheet(viewModel: viewModel)
             }
         }
+        .sheet(isPresented: $isShowingPhotoViewer) {
+            if let image = viewModel.services.avatar.image {
+                ProfilePhotoViewer(
+                    image: image,
+                    onChoose: {
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .milliseconds(350))
+                            isShowingPhotoPicker = true
+                        }
+                    },
+                    onRemove: { Task { await viewModel.removePhoto() } }
+                )
+            }
+        }
         .fullScreenCover(isPresented: $isShowingSupport) {
             SupportView()
         }
-        .confirmationDialog(
-            Text(Copy.Me.photoTitle),
-            isPresented: $isShowingPhotoDialog,
-            titleVisibility: .visible
-        ) {
-            Button { isShowingPhotoPicker = true } label: { Text(Copy.Me.photoChoose) }
-            if viewModel.services.avatar.hasImage {
-                Button(role: .destructive) {
-                    Task { await viewModel.removePhoto() }
-                } label: {
-                    Text(Copy.Me.photoRemove)
-                }
+        .fullScreenCover(item: $purchaseOffer, onDismiss: {
+            Task { await viewModel.load() }
+        }) { offer in
+            PathPurchaseOfferView(viewModel: offer) { purchaseOffer = nil }
+        }
+        .fullScreenCover(item: $editablePhoto) { photo in
+            ProfilePhotoEditor(photo: photo) { data in
+                Task { await viewModel.setPhoto(data) }
             }
-            Button(role: .cancel) {} label: { Text(Copy.Button.cancel) }
         }
         .photosPicker(isPresented: $isShowingPhotoPicker, selection: $pickedPhoto, matching: .images)
         .onChange(of: pickedPhoto) { _, item in
             guard let item else { return }
             Task {
                 defer { pickedPhoto = nil }
-                guard let data = try? await item.loadTransferable(type: Data.self) else {
+                guard let data = try? await item.loadTransferable(type: Data.self),
+                      let image = UIImage(data: data) else {
                     viewModel.actionError = Copy.Me.photoFailed
                     return
                 }
-                await viewModel.setPhoto(data)
+                editablePhoto = EditableProfilePhoto(image: image)
             }
         }
         .alert(
@@ -266,6 +286,27 @@ private struct MeContent: View {
 
     /// Kriz sinyalinde ya da üç katman birden kötüleştiğinde destek yukarı çıkar;
     /// orada tek başına durduğu için kendi kartını alır.
+    /// Teklifi yükler, sonra açar. Yükleme sürerken ekran değişmez.
+    private func openPurchaseOffer() async {
+        guard purchaseOffer == nil, !isOpeningOffer, let path = viewModel.activePath else { return }
+        isOpeningOffer = true
+        defer { isOpeningOffer = false }
+        let offer = PathPaywallViewModel(
+            services: viewModel.services,
+            pathID: path.id,
+            days: path.steps.count,
+            context: .return,
+            reminderTime: nil
+        )
+        await offer.load()
+        // Zaten açılmışsa (hak az önce yazıldı) teklif yok: kart yenilenip kaybolur.
+        if case .unlocked = offer.state {
+            await viewModel.load()
+            return
+        }
+        purchaseOffer = offer
+    }
+
     private var supportRow: some View {
         ProfileCard(padding: 0) {
             MeEntryRow(

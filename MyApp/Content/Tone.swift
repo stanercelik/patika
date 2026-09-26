@@ -43,7 +43,22 @@ enum ToneTier: Int, Comparable, Sendable, CaseIterable {
 /// Test hedefi eklendiğinde `String Catalog` içeriğini tarayan bir lint testi bunu
 /// otomatikleştirmeli.
 enum BannedPhrases {
-    static let all: [String] = [
+    /// MVP yalnızca İngilizce (2026-09-21): İngilizce liste asıl liste, Türkçe liste
+    /// dil yeniden açılınca hazır dursun diye korunuyor.
+    static let all: [String] = english + turkish
+
+    static let english: [String] = [
+        "great job",        // abartılı övgü → sahte hissettirir
+        "well done",
+        "streak",           // kayıp kaçınması — PRD karar #5
+        "we miss you",      // suçluluk üretir
+        "don't worry",      // kaygılı kişiye söylenecek en işe yaramaz cümle
+        "calm down",
+        "you failed",       // PRD karar #2
+        "clinically proven", // tıbbi iddia — mağaza reddi ve düzenleyici risk
+    ]
+
+    static let turkish: [String] = [
         "harika iş",           // abartılı övgü → sahte hissettirir
         "tebrikler",
         "seni özledik",        // suçluluk üretir
@@ -66,7 +81,8 @@ enum BannedPhrases {
     /// Ses testi (Ton eki §1.1): "Yazdığın cümleyi, gece 2'de uyuyamayan ve kendini
     /// kötü hisseden birine yüksek sesle söyleyebiliyor musun?"
     static func check(_ text: String) -> [String] {
-        let lowered = text.lowercased()
+        // Akıllı kesme işareti düz yazılır ("don’t" ve "don't" aynı ifade).
+        let lowered = text.lowercased().replacingOccurrences(of: "\u{2019}", with: "'")
         return all.filter { lowered.contains($0) }
     }
 }

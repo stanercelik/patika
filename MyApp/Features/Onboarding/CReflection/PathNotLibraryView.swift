@@ -22,6 +22,9 @@ struct PathNotLibraryView: View {
             // bir sonuç eğrisi gibi okunuyordu ve altındaki "bu bir vaat değil"
             // notu ekranın en uzun cümlesiydi. Sütunlar aynı farkı tek bakışta,
             // hiçbir sayı ima etmeden gösteriyor.
+            OnboardingArtworkView(artwork: .fork, height: 180)
+                .statementReveal(1)
+
             ComparisonColumns(
                 theirsTitle: Copy.Onboarding.libraryComparisonTheirsTitle,
                 oursTitle: Copy.Onboarding.libraryComparisonOursTitle,
@@ -32,7 +35,7 @@ struct PathNotLibraryView: View {
             .padding(.top, 4)
 
             StatementParagraph(Copy.Onboarding.libraryComparisonClosing)
-                .sequentialReveal(1 + Copy.Onboarding.libraryComparisonTheirs.count + 1)
+                .statementReveal(5)
                 .padding(.top, 6)
         }
     }

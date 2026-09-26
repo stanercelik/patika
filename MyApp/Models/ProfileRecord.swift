@@ -21,6 +21,8 @@ struct ProfileRecord: Codable, Equatable, Sendable {
     var categories: [ProblemCategory]
     var mood: MoodLevel?
     var timing: ProblemTiming?
+    /// B5 "Other" answer. Device-only and excluded from backend/observability payloads.
+    var previousAttemptOtherText: String? = nil
     var reminder: ReminderSetting
     /// Üçü de yolun kurulduğu tercih; bilinmiyorsa nil ve satırı çizilmez
     /// (hazır patikada kişiselleştirme bağlamı yok).
@@ -61,7 +63,7 @@ struct ProfileRecord: Codable, Equatable, Sendable {
     /// okur. Cihazda duran eski `record.json` bu alanlar olmadan yazıldı; sentezlenen
     /// çözücü eksik anahtarda hata verip kaydın **tamamını** düşürürdü.
     enum CodingKeys: String, CodingKey {
-        case displayName, categories, mood, timing, reminder, sessionLength, tone, voice
+        case displayName, categories, mood, timing, previousAttemptOtherText, reminder, sessionLength, tone, voice
         case journal, notes, earnedBadges, completedStepDates, avatarURL
         case measurements, pathArchive, privacy, crisisSignalAt, revealedMeasurementID
         case anonymousCardHiddenUntil, startedAt
@@ -75,6 +77,7 @@ extension ProfileRecord {
         categories = try container.decode([ProblemCategory].self, forKey: .categories)
         mood = try container.decodeIfPresent(MoodLevel.self, forKey: .mood)
         timing = try container.decodeIfPresent(ProblemTiming.self, forKey: .timing)
+        previousAttemptOtherText = try container.decodeIfPresent(String.self, forKey: .previousAttemptOtherText)
         reminder = try container.decode(ReminderSetting.self, forKey: .reminder)
         sessionLength = try container.decodeIfPresent(SessionLength.self, forKey: .sessionLength)
         tone = try container.decodeIfPresent(TonePreference.self, forKey: .tone)

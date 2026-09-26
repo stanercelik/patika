@@ -30,18 +30,24 @@ struct RootView: View {
 
     var body: some View {
         TabView(selection: $selection) {
-            Tab("Yolum", systemImage: "point.topleft.down.to.point.bottomright.curvepath", value: RootTab.path) {
+            Tab(.tabPath, systemImage: "point.topleft.down.to.point.bottomright.curvepath", value: RootTab.path) {
                 MyPathView()
             }
-            Tab("Keşfet", systemImage: "square.grid.2x2", value: RootTab.discover) {
+            Tab(.tabDiscover, systemImage: "square.grid.2x2", value: RootTab.discover) {
                 DiscoverView { selection = .path }
             }
-            Tab("Ben", systemImage: "person", value: RootTab.me) {
+            Tab(.tabMe, systemImage: "person", value: RootTab.me) {
                 MeTab()
             }
         }
         .tint(Theme.textPrimary.color)
         .overlay { privacyLayer }
+        .onChange(of: selection, initial: true) { _, tab in
+            if !services.appLock.isLocked { captureScreen(tab) }
+        }
+        .onChange(of: services.appLock.isLocked) { wasLocked, isLocked in
+            if wasLocked && !isLocked { captureScreen(selection) }
+        }
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
             case .active:
@@ -53,6 +59,15 @@ struct RootView: View {
                 break
             }
         }
+    }
+
+    private func captureScreen(_ tab: RootTab) {
+        let screen: AnalyticsScreen = switch tab {
+        case .path: .path
+        case .discover: .discover
+        case .me: .me
+        }
+        services.observability.capture(.appScreenViewed(screen))
     }
 
     @ViewBuilder
@@ -93,7 +108,6 @@ struct ScreenPlaceholder: View {
 
 #Preview {
     RootView()
-        .environment(PaletteController())
         .environment(AppServices.live())
         .environment(DiscoverLibrary())
         .preferredColorScheme(.dark)

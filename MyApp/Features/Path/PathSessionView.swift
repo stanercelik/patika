@@ -9,11 +9,11 @@ import SwiftUI
 /// Keşfet'in hazır patikaları da bu ekranı kullanır (`init(services:preparedPath:step:library:)`):
 /// aynı sahne, aynı kontroller, aynı ses motoru. Onlarda soru, ölçüm ve rozet yok.
 struct PathSessionView: View {
-    @Environment(PaletteController.self) private var palette
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: PathSessionViewModel
     @State private var celebration: BadgeCelebrationItem?
+    @State private var reflectionAnswer = ""
 
     init(services: AppServices, path: ActivePath, step: PathStepRecord) {
         _viewModel = State(initialValue: PathSessionViewModel(services: services, path: path, step: step))
@@ -30,13 +30,19 @@ struct PathSessionView: View {
 
     var body: some View {
         ZStack {
-            BreathingMeshBackground(
-                palette: palette.current,
-                safeY: 0.5,
-                breathAmplitude: viewModel.breathAmplitude,
-                voiceEnergy: viewModel.runner.audio.audioEnergy
-            )
-            .ignoresSafeArea()
+            // Kriz ekranında dekoratif sahne yok; kalanında `bg-session` — G1'le aynı
+            // sahne, aynı motor (docs/onboarding-redesign.md, Faz 7).
+            if viewModel.phase == .crisis {
+                WoodlandStyle.background.ignoresSafeArea()
+            } else {
+                OnboardingSceneLayer(artwork: .session)
+                // Yalnızca hazırlanırken: `.running`da faz görseli zaten nefesle ölçekleniyor
+                // (`SessionArtworkView`), ikisi aynı anda ekrandaysa iki ayrı nefes hareketi
+                // çakışıyordu (G1'de simülatörde ölçüldü, bkz. `FirstSessionView`).
+                if viewModel.phase == .preparing {
+                    BreathOrb(amplitude: viewModel.breathAmplitude, voiceEnergy: viewModel.runner.audio.audioEnergy)
+                }
+            }
 
             content
         }
@@ -74,6 +80,7 @@ struct PathSessionView: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.stack) {
                 Spacer()
                 AdaptiveQuestionView(
+                    answer: $reflectionAnswer,
                     question: viewModel.question ?? "",
                     isSubmitting: viewModel.isSubmitting,
                     showsError: viewModel.showsError,
@@ -216,31 +223,22 @@ private struct PathMeasurementQuestionView: View {
 
     var body: some View {
         OnboardingQuestionLayout(headline: question.prompt, hint: question.hint) {
-            VStack(alignment: .leading, spacing: 20) {
-                if question.usesIntensityScale {
-                    IntensityScale(selection: question.value) { question.select($0) }
-                        .padding(.top, 4)
-                } else {
-                    VStack(spacing: 10) {
-                        ForEach(question.options) { option in
-                            ChoiceRow(label: option.label, isSelected: question.isSelected(option)) {
-                                question.select(option.value)
-                            }
-                        }
-                    }
-                }
+            SceneContentPlate {
+                VStack(alignment: .leading, spacing: 20) {
+                    MeasurementAnswerView(question: question)
 
-                if session.showsError {
-                    Text(Copy.PathMeasurement.saveError)
-                        .font(.footnote.weight(Theme.Weight.body))
-                        .foregroundStyle(Theme.textSecondary.color)
+                    if session.showsError {
+                        Text(Copy.PathMeasurement.saveError)
+                            .font(.footnote.weight(Theme.Weight.body))
+                            .foregroundStyle(WoodlandStyle.scenePlateSecondary.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Text(Copy.clinicalDisclaimer)
+                        .font(.caption.weight(Theme.Weight.body))
+                        .foregroundStyle(WoodlandStyle.scenePlateSecondary.color)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-
-                Text(Copy.clinicalDisclaimer)
-                    .font(.caption.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textPrimary.color.opacity(0.5))
-                    .fixedSize(horizontal: false, vertical: true)
             }
         } footer: {
             OnboardingQuestionFooter(

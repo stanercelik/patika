@@ -18,10 +18,12 @@ struct HonestExpectationView: View {
             ctaTitle: Copy.Button.understood,
             action: { flow.finishHonestExpectation() }
         ) {
+            OnboardingArtworkView(artwork: .horizon, height: 100)
+                .statementReveal(1)
             StatementParagraph(Copy.Onboarding.honestExpectationEarlyDays)
-                .sequentialReveal(1)
+                .statementReveal(1)
             StatementParagraph(Copy.Onboarding.honestExpectationTimeline)
-                .sequentialReveal(2)
+                .statementReveal(2)
 
             // Raster görsel yerine sürecin kendisi çizilir: önce diğer
             // uygulamalar, ardından ilk günlerde sakin başlayıp 8. günden sonra
@@ -29,11 +31,11 @@ struct HonestExpectationView: View {
             // Grafiğin üstünde ve altında cümlelerin arasından belirgin olarak
             // daha geniş bir boşluk var: grafik bir paragraf değil, ayrı bir
             // nesne — aynı ritimde dizilince metne yapışık okunuyordu.
-            ExpectationCurveChart(startDelay: Theme.Motion.revealDelay(3))
+            ExpectationCurveChart(startsImmediately: true)
                 .padding(.vertical, 14)
 
             StatementParagraph(Copy.Onboarding.honestExpectationMeasurement)
-                .sequentialReveal(6)
+                .statementReveal(6)
         }
     }
 }

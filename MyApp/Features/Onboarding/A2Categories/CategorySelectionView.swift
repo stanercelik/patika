@@ -8,21 +8,20 @@ struct CategorySelectionView: View {
         self._viewModel = State(initialValue: CategorySelectionViewModel(flow: flow))
     }
 
-    // Aralık ve kart yoğunluğu, 10 seçeneğin ortak alt bölge yüksekliğiyle birlikte
-    // kaydırmadan sığmasına göre ayarlı. Alt bölge değişirse burası da değişmeli.
-    private var columns: [GridItem] { dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [
-        GridItem(.flexible(), spacing: 8),
-        GridItem(.flexible(), spacing: 8),
-    ] }
-
     var body: some View {
-        // Varsayılan metin boyutunda 10 seçeneğin tamamı kaydırmadan görünür;
-        // ScrollView yalnızca büyük Dynamic Type boyutlarında devreye girer.
+        // İki eşit sütun hızlı taranır; ortak iskelet daha kısa ekranlarda ve
+        // büyük Dynamic Type'ta doğal olarak kaydırır.
         OnboardingQuestionLayout(
             headline: Copy.Onboarding.categoriesHeadline,
             hint: Copy.Onboarding.categoriesHint
         ) {
-            LazyVGrid(columns: columns, spacing: 8) {
+            LazyVGrid(
+                columns: Array(
+                    repeating: GridItem(.flexible(), spacing: 10),
+                    count: dynamicTypeSize.isAccessibilitySize ? 1 : 2
+                ),
+                spacing: 10
+            ) {
                 ForEach(viewModel.categories) { category in
                     CategoryCard(
                         category: category,
@@ -55,6 +54,7 @@ struct CategoryCard: View {
     let isSelected: Bool
     let isDimmed: Bool
     let action: () -> Void
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         Button {
@@ -62,32 +62,32 @@ struct CategoryCard: View {
             action()
         } label: {
             VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .top) {
+                HStack {
                     Image(systemName: category.icon)
                         .font(.title3)
                         .symbolRenderingMode(.monochrome)
-                        .foregroundStyle(
-                            Theme.textPrimary.color.opacity(isSelected ? 1.0 : 0.72)
-                        )
-                    Spacer(minLength: 0)
+                        .accessibilityHidden(true)
+                    Spacer(minLength: 8)
                     SelectionMark(isSelected: isSelected)
                 }
 
-                Spacer(minLength: 2)
-
                 Text(category.label)
-                    .font(
-                        .subheadline.weight(
-                            isSelected ? Theme.Weight.action : Theme.Weight.emphasis
-                        )
-                    )
-                    .foregroundStyle(Theme.textPrimary.color)
+                    .font(.body.weight(isSelected ? Theme.Weight.action : Theme.Weight.body))
                     .multilineTextAlignment(.leading)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 3)
                     .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: 0)
             }
-            .frame(maxWidth: .infinity, minHeight: 56, alignment: .topLeading)
-            .padding(.horizontal, 13)
-            .padding(.vertical, 9)
+            .foregroundStyle(Theme.textPrimary.color)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(
+                maxWidth: .infinity,
+                minHeight: dynamicTypeSize.isAccessibilitySize ? 260 : 148,
+                maxHeight: dynamicTypeSize.isAccessibilitySize ? nil : 148,
+                alignment: .leading
+            )
             .background { CalmSurface(isEmphasized: isSelected) }
             .opacity(isDimmed ? 0.62 : 1.0)
         }

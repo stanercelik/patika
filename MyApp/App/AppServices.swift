@@ -6,11 +6,14 @@ import Observation
 final class AppServices {
     let auth: AuthSessionStore
     let backend: any BackendClient
+    let purchaseBackend: PathPurchaseBackend
+    let purchases: RevenueCatPurchaseService
     let observability: Observability
     /// Cihazdaki kişisel kayıt — "Ben" sekmesinin kaynağı.
     let profile: ProfileStore
     /// Profil fotoğrafının cihazdaki kopyası.
     let avatar: AvatarStore
+    let promiseSignature: PromiseSignatureStore
     let appLock: AppLockController
 
     init(
@@ -18,13 +21,17 @@ final class AppServices {
         backend: any BackendClient,
         observability: Observability,
         profile: ProfileStore,
-        avatar: AvatarStore
+        avatar: AvatarStore,
+        promiseSignature: PromiseSignatureStore
     ) {
         self.auth = auth
         self.backend = backend
+        self.purchaseBackend = PathPurchaseBackend()
+        self.purchases = RevenueCatPurchaseService()
         self.observability = observability
         self.profile = profile
         self.avatar = avatar
+        self.promiseSignature = promiseSignature
         self.appLock = AppLockController(store: profile)
     }
 
@@ -39,7 +46,8 @@ final class AppServices {
             backend: SupabaseBackendClient(),
             observability: .live(),
             profile: makeProfileStore(),
-            avatar: makeAvatarStore()
+            avatar: makeAvatarStore(),
+            promiseSignature: .live()
         )
     }
 

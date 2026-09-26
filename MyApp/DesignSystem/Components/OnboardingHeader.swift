@@ -65,6 +65,6 @@ struct OnboardingBackButton: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.calm)
-        .accessibilityLabel("Geri")
+        .accessibilityLabel(.commonBack)
     }
 }

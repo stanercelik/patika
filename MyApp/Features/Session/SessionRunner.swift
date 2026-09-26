@@ -109,6 +109,14 @@ final class SessionRunner {
     /// duraklattıysa ses de duraklamış başlar — dokunduğu düğme ne diyorsa o.
     func audioDidStart() {
         guard audio.state == .playing else { return }
+        // Ses dosyaları ölçüldükten sonra kurulan çizelge asıl kaynak: ekranın
+        // sahneleri **aynı** sayılardan türetilir. Manifestin `durationMs`i yalnızca
+        // ses gelmeden çizilen ilk sahneler içindi; dosya beyan edilenden uzunsa
+        // ekranın cümlesi sesin gerisinde ya da önünde kalırdı.
+        if let resolved = audio.resolvedTimeline {
+            let scenes = SessionScript.build(from: resolved)
+            if !scenes.isEmpty { segments = scenes }
+        }
         audio.onSkip = { [weak self] delta in self?.skip(by: delta) }
         if manualPause { audio.pause() }
         manualPause = false

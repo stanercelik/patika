@@ -15,6 +15,8 @@ struct OnboardingStatementLayout<Content: View>: View {
     private let ctaTitle: LocalizedStringResource
     private let action: () -> Void
 
+    @Environment(\.onboardingSurface) private var surface
+
     init(
         headline: LocalizedStringResource,
         ctaTitle: LocalizedStringResource = Copy.Button.next,
@@ -28,21 +30,24 @@ struct OnboardingStatementLayout<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    DisplayText(headline, size: 30)
-                        .sequentialReveal(0)
-                    content
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Theme.Spacing.screenMargin)
-                .padding(.top, 14)
-                .padding(.bottom, 16)
+        // Footer `safeAreaInset` ile veriliyor — bkz. `OnboardingQuestionLayout` (2026-09-22
+        // klavye/taşma düzeltmesi, docs/onboarding-redesign.md Faz 5). C ekranlarında metin
+        // alanı yok ama aynı yapı korunuyor: B6'dan C1'e geçerken CTA aynı yükseklikte kalmalı.
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                DisplayText(headline, size: 30)
+                    .statementReveal(0)
+                content
             }
-            .scrollIndicators(.hidden)
-            .scrollBounceBehavior(.basedOnSize)
-
+            .onboardingSurfaceCard(surface)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Theme.Spacing.screenMargin)
+            .padding(.top, 14)
+            .padding(.bottom, 16)
+        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             OnboardingQuestionFooter(
                 primaryTitle: ctaTitle,
                 primaryAction: action
@@ -58,6 +63,7 @@ struct OnboardingStatementLayout<Content: View>: View {
 /// ekranlarda paragraf ikincil bir açıklama değil, ekranın kendisi.
 struct StatementParagraph: View {
     private let text: AttributedString
+    @Environment(\.patikaInk) private var ink
 
     init(_ text: AttributedString) {
         self.text = text
@@ -70,7 +76,7 @@ struct StatementParagraph: View {
     var body: some View {
         Text(text)
             .font(.body.weight(Theme.Weight.body))
-            .foregroundStyle(Theme.textPrimary.color.opacity(0.92))
+            .foregroundStyle(ink.primary.opacity(0.92))
             .lineSpacing(5)
             .fixedSize(horizontal: false, vertical: true)
     }

@@ -22,8 +22,8 @@ struct IntensityScale: View {
     let selection: Double?
     let onSelect: (Double) -> Void
 
-    var lowLabel: LocalizedStringResource = "Hiç yok"
-    var highLabel: LocalizedStringResource = "Çok güçlü"
+    var lowLabel: LocalizedStringResource = .intensityScaleLow
+    var highLabel: LocalizedStringResource = .intensityScaleHigh
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .body) private var maximumBarHeight: CGFloat = 56
@@ -41,6 +41,7 @@ struct IntensityScale: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .padding(.horizontal, 8)
                 .contentShape(Rectangle())
                 .gesture(
                     // `minimumDistance: 0` sayesinde tek dokunuş da sürükleme de
@@ -58,7 +59,7 @@ struct IntensityScale: View {
                 Text(highLabel)
             }
             .font(.caption.weight(Theme.Weight.emphasis))
-            .foregroundStyle(Theme.textPrimary.color.opacity(0.52))
+            .foregroundStyle(WoodlandStyle.scenePlateSecondary.color)
 
             // Yer her zaman ayrılır: cevap verildiğinde satır zıplamasın.
             Text(selectedStep.map { "\($0)" } ?? " ")
@@ -68,8 +69,8 @@ struct IntensityScale: View {
                 .animation(reduceMotion ? nil : Theme.Motion.crossFade, value: selectedStep)
         }
         .accessibilityElement()
-        .accessibilityLabel("Şiddet ölçeği, sıfırdan ona")
-        .accessibilityValue(selectedStep.map { Text(verbatim: "\($0)") } ?? Text("seçilmedi"))
+        .accessibilityLabel(.intensityScaleAccessibility)
+        .accessibilityValue(selectedStep.map { Text(verbatim: "\($0)") } ?? Text(.intensityScaleNotSelected))
         .accessibilityAdjustableAction { direction in
             let current = selectedStep ?? 0
             switch direction {
@@ -103,9 +104,7 @@ struct IntensityScale: View {
     }
 
     private func select(at x: CGFloat, width: CGFloat) {
-        guard width > 0 else { return }
-        let ratio = min(max(x / width, 0), 1)
-        let step = Int((ratio * CGFloat(steps.count - 1)).rounded())
+        let step = IntensityScaleModel.step(at: x, width: width)
         guard Double(step) != selection else { return }
         Theme.softHaptic()
         onSelect(Double(step))
@@ -114,7 +113,7 @@ struct IntensityScale: View {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: .neutral, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         VStack(spacing: 48) {
             IntensityScale(selection: nil) { _ in }
             IntensityScale(selection: 7) { _ in }

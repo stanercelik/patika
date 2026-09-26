@@ -17,6 +17,7 @@ struct ExpectationCurveChart: View {
     var startsImmediately = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.patikaInk) private var ink
     @ScaledMetric(relativeTo: .caption) private var chartHeight: CGFloat = 132
 
     @State private var delayElapsed = false
@@ -45,7 +46,7 @@ struct ExpectationCurveChart: View {
                     ExpectationLineShape(points: ExpectationCurveModel.otherApps)
                         .trim(from: 0, to: otherAppsProgress)
                         .stroke(
-                            Theme.textPrimary.color.opacity(0.38),
+                            ink.primary.opacity(0.38),
                             style: StrokeStyle(
                                 lineWidth: 2,
                                 lineCap: .round,
@@ -59,10 +60,10 @@ struct ExpectationCurveChart: View {
                     ExpectationLineShape(points: ExpectationCurveModel.patika)
                         .trim(from: 0, to: patikaProgress)
                         .stroke(
-                            Theme.textPrimary.color.opacity(0.96),
+                            ink.primary.opacity(0.96),
                             style: StrokeStyle(lineWidth: 3.5, lineCap: .round, lineJoin: .round)
                         )
-                        .shadow(color: Theme.textPrimary.color.opacity(0.22), radius: 7)
+                        .shadow(color: ink.primary.opacity(0.22), radius: 7)
                         .frame(width: plot.width, height: plot.height)
                         .offset(x: plot.minX, y: plot.minY)
 
@@ -131,7 +132,7 @@ struct ExpectationCurveChart: View {
 
             Text(label)
                 .font(.caption2.weight(isPrimary ? Theme.Weight.action : Theme.Weight.emphasis))
-                .foregroundStyle(Theme.textPrimary.color.opacity(isPrimary ? 0.96 : 0.58))
+                .foregroundStyle(ink.primary.opacity(isPrimary ? 0.96 : 0.58))
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
         }
@@ -147,7 +148,7 @@ struct ExpectationCurveChart: View {
             Text(Copy.Onboarding.expectationEndCaption)
         }
         .font(.caption2.weight(Theme.Weight.emphasis))
-        .foregroundStyle(Theme.textPrimary.color.opacity(0.48))
+        .foregroundStyle(ink.primary.opacity(0.48))
     }
 
     private func baseline(in plot: CGRect) -> some View {
@@ -155,7 +156,7 @@ struct ExpectationCurveChart: View {
             path.move(to: CGPoint(x: plot.minX, y: plot.maxY))
             path.addLine(to: CGPoint(x: plot.maxX, y: plot.maxY))
         }
-        .stroke(Theme.textPrimary.color.opacity(0.14), lineWidth: 1)
+        .stroke(ink.primary.opacity(0.14), lineWidth: 1)
     }
 
     private func turningGuide(in plot: CGRect) -> some View {
@@ -168,7 +169,7 @@ struct ExpectationCurveChart: View {
             path.addLine(to: CGPoint(x: x, y: plot.maxY))
         }
         .stroke(
-            Theme.textPrimary.color.opacity(0.16),
+            ink.primary.opacity(0.16),
             style: StrokeStyle(lineWidth: 1, dash: [3, 6])
         )
     }
@@ -185,10 +186,10 @@ struct ExpectationCurveChart: View {
         let size: CGFloat = isPrimary ? 10 : 8
 
         return Circle()
-            .fill(Theme.textPrimary.color.opacity(isPrimary ? 1 : 0.42))
+            .fill(ink.primary.opacity(isPrimary ? 1 : 0.42))
             .frame(width: size, height: size)
             .shadow(
-                color: Theme.textPrimary.color.opacity(isPrimary ? 0.45 : 0),
+                color: ink.primary.opacity(isPrimary ? 0.45 : 0),
                 radius: isPrimary ? 8 : 0
             )
             .position(x: x, y: y)
@@ -247,6 +248,7 @@ struct ExpectationCurveChart: View {
 }
 
 private struct LegendLine: View {
+    @Environment(\.patikaInk) private var ink
     let isPrimary: Bool
 
     var body: some View {
@@ -256,7 +258,7 @@ private struct LegendLine: View {
                 path.addLine(to: CGPoint(x: geometry.size.width, y: geometry.size.height / 2))
             }
             .stroke(
-                Theme.textPrimary.color.opacity(isPrimary ? 0.96 : 0.42),
+                ink.primary.opacity(isPrimary ? 0.96 : 0.42),
                 style: StrokeStyle(
                     lineWidth: isPrimary ? 3.5 : 2,
                     lineCap: .round,
@@ -307,7 +309,7 @@ private struct ExpectationLineShape: Shape {
 
 #Preview {
     ZStack {
-        BreathingMeshBackground(palette: Palette.all["sleep"]!, safeY: 0.30)
+        WoodlandStyle.background.ignoresSafeArea()
         ExpectationCurveChart(startsImmediately: true)
             .padding(.horizontal, Theme.Spacing.screenMargin)
     }

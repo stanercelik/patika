@@ -493,10 +493,10 @@ private struct JourneyMapPreviewRow: View {
             disablesMotion: disablesMotion
         ) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Gün \(index + 1)")
+                Text(Copy.Path.stepLabel(day: index + 1))
                     .font(.caption.weight(Theme.Weight.body))
                     .foregroundStyle(Theme.textSecondary.color)
-                Text(index == 1 ? "Düşünceyle arana küçük bir mesafe koy" : "Bugünün kişisel adımı")
+                Text(verbatim: index == 1 ? "Düşünceyle arana küçük bir mesafe koy" : "Bugünün kişisel adımı")
                     .font(.body.weight(Theme.Weight.emphasis))
                     .foregroundStyle(Theme.textPrimary.color)
                     .fixedSize(horizontal: false, vertical: true)

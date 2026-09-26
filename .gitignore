@@ -17,6 +17,7 @@ DerivedData/
 # Swift Package Manager
 .build/
 .swiftpm/
+.worktrees/
 
 # Ortam degiskenleri — gercek anahtarlar asla depoya girmez.
 # Supabase secret'lari `supabase secrets set ...` ile sunucuda durur:
@@ -29,3 +30,6 @@ supabase/.branches/
 
 # Ses örnekleri ikili dosya; scripts/render-voice-previews.sh ile üretilir.
 MyApp/Resources/*.mp3
+
+# Python bayt kodu
+__pycache__/

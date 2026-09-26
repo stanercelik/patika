@@ -33,13 +33,15 @@ struct MeasurementQuestionView: View {
             headline: viewModel.prompt,
             hint: viewModel.hint
         ) {
-            VStack(alignment: .leading, spacing: 20) {
-                answerArea
+            SceneContentPlate {
+                VStack(alignment: .leading, spacing: 20) {
+                    MeasurementAnswerView(question: viewModel)
 
-                Text(Copy.clinicalDisclaimer)
-                    .font(.caption.weight(Theme.Weight.body))
-                    .foregroundStyle(Theme.textSecondary.color)
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text(Copy.clinicalDisclaimer)
+                        .font(.caption.weight(Theme.Weight.body))
+                        .foregroundStyle(WoodlandStyle.scenePlateSecondary.color)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         } footer: {
             // Bu bölüm atlanamaz: ikincil satır boş kalıyor ama yeri yine de
@@ -52,25 +54,6 @@ struct MeasurementQuestionView: View {
                 isPrimaryEnabled: viewModel.canContinue,
                 primaryAction: { viewModel.submit() }
             )
-        }
-    }
-
-    @ViewBuilder
-    private var answerArea: some View {
-        if viewModel.usesIntensityScale {
-            IntensityScale(selection: viewModel.value) { viewModel.select($0) }
-                .padding(.top, 4)
-        } else {
-            VStack(spacing: 10) {
-                ForEach(viewModel.options) { option in
-                    ChoiceRow(
-                        label: option.label,
-                        isSelected: viewModel.isSelected(option)
-                    ) {
-                        viewModel.select(option.value)
-                    }
-                }
-            }
         }
     }
 }

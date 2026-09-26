@@ -27,6 +27,8 @@
 // `ELEVENLABS_BASE_URL` ile AB uç noktasına dönmek tek secret'lık iş; plan
 // yükseldiğinde kod değişmiyor.
 
+import { mp3DurationMs } from "./mp3.ts";
+
 export type VoicePreference = "feminine" | "masculine";
 export type SpeechProsody = "neutral" | "soft" | "whisper";
 
@@ -48,14 +50,25 @@ export type SpeechResult = {
   bytes: ArrayBuffer;
   contentType: string;
   modelId: string;
+  /// Dosyanın gerçek çözülmüş uzunluğu (`mp3DurationMs`). Bir **planlama** değeri:
+  /// istemci zamanlamayı yüklediği dosyanın kendi ölçümüne göre yapar.
   durationMs: number;
+  /// Sağlayıcının konuşmadan önce bıraktığı sessizlik. Hizalamanın ilk karakter
+  /// başlangıcından. Oturum motoru bunu bağlantı boşluğundan düşer: dolgu
+  /// planlanan boşluğun **üstüne binmek** yerine içinde soğurulur.
+  leadSilenceMs: number;
+  /// Son karakterden dosyanın sonuna kadar olan sessizlik.
+  tailSilenceMs: number;
 };
 
 const DEFAULT_BASE_URL = "https://api.elevenlabs.io";
 // v3: v2 multilingual ile aynı fiyat, belirgin şekilde daha iyi ve
 // `language_code` destekliyor (multilingual_v2 desteklemiyor).
 export const DEFAULT_TTS_MODEL = "eleven_v3";
-export const TTS_POLICY_VERSION = "patika-v3-natural-2026-09-09";
+// Baytları değiştirebilecek her karar burada sürümlenir; rendition anahtarı bunu
+// içeriyor, yani sürüm artınca önbelleğin tamamı doğru şekilde ıskalar.
+// v3-paced: yerel son işlem (kırpma + -16 LUFS + 15 ms declick) ve gerçek süre.
+export const TTS_POLICY_VERSION = "patika-v3-paced-2026-09-21";
 
 const PROSODY_TAGS: Readonly<Record<SpeechProsody, string | null>> = {
   neutral: null,
@@ -125,6 +138,41 @@ export function languageCode(locale: string): string {
   return locale.toLowerCase().startsWith("tr") ? "tr" : "en";
 }
 
+/// Sağlayıcıya giden gövde. `eleven_v3` istek dikişini (`previous_text` / `next_text`)
+/// **desteklemiyor** ve `400 unsupported_model` dönüyor (canlıda ölçüldü, 2026-09-21):
+/// kişisel slot sesi bu yüzden hiç üretilemiyordu. v3'te komşu bağlam gönderilmez;
+/// parça sınırındaki ton tutarlılığı ses kimliği + sabit ayarlarla sağlanıyor.
+/// Desteklemeyen bir model (ör. `eleven_multilingual_v2`) seçilirse bağlam gider.
+export function speechRequestBody(input: {
+  text: string;
+  modelId: string;
+  locale: string;
+  previousText?: string | null;
+  nextText?: string | null;
+}) {
+  const stitching = !input.modelId.startsWith("eleven_v3");
+  return {
+    text: input.text,
+    model_id: input.modelId,
+    language_code: languageCode(input.locale),
+    previous_text: stitching ? sanitizeSpeechText(input.previousText ?? "") || undefined : undefined,
+    next_text: stitching ? sanitizeSpeechText(input.nextText ?? "") || undefined : undefined,
+    voice_settings: {
+      // v3 kararlılığı üç kademe: 0.0 Creative, 0.5 Natural, 1.0 Robust.
+      // Meditasyonda Creative eleniyor (halüsinasyon riski), Robust ise
+      // sesi düzleştiriyor. Natural, orijinal kayda en yakın olan.
+      stability: 0.5,
+      similarity_boost: 0.8,
+      // Abartı yok (Ton eki §2). Meditasyonda üslup vurgusu istemiyoruz.
+      style: 0.0,
+      use_speaker_boost: true,
+    },
+    // Sayı ve kısaltmalar sesli okunsun: "22:30" ekranda böyle yazılıyor
+    // ama kulakta "yirmi iki otuz" olmalı.
+    apply_text_normalization: "auto",
+  };
+}
+
 export async function synthesize(request: SpeechRequest): Promise<SpeechResult> {
   if (!ttsConfigured()) throw new Error("provider_configuration_required");
   const key = Deno.env.get("ELEVENLABS_API_KEY")!;
@@ -150,26 +198,13 @@ export async function synthesize(request: SpeechRequest): Promise<SpeechResult> 
           "Content-Type": "application/json",
           "Accept": "application/json",
         },
-        body: JSON.stringify({
+        body: JSON.stringify(speechRequestBody({
           text,
-          model_id: modelId,
-          language_code: languageCode(request.locale),
-          previous_text: sanitizeSpeechText(request.previousText ?? "") || undefined,
-          next_text: sanitizeSpeechText(request.nextText ?? "") || undefined,
-          voice_settings: {
-            // v3 kararlılığı üç kademe: 0.0 Creative, 0.5 Natural, 1.0 Robust.
-            // Meditasyonda Creative eleniyor (halüsinasyon riski), Robust ise
-            // sesi düzleştiriyor. Natural, orijinal kayda en yakın olan.
-            stability: 0.5,
-            similarity_boost: 0.8,
-            // Abartı yok (Ton eki §2). Meditasyonda üslup vurgusu istemiyoruz.
-            style: 0.0,
-            use_speaker_boost: true,
-          },
-          // Sayı ve kısaltmalar sesli okunsun: "22:30" ekranda böyle yazılıyor
-          // ama kulakta "yirmi iki otuz" olmalı.
-          apply_text_normalization: "auto",
-        }),
+          modelId,
+          locale: request.locale,
+          previousText: request.previousText,
+          nextText: request.nextText,
+        })),
       },
     );
 
@@ -179,22 +214,28 @@ export async function synthesize(request: SpeechRequest): Promise<SpeechResult> 
       const providerStatus = errorPayload?.detail?.status?.replace(/[^a-z0-9_]/gi, "_").slice(0, 80);
       throw new Error(`tts_request_failed_${response.status}${providerStatus ? `_${providerStatus}` : ""}`);
     }
+    type Alignment = { character_start_times_seconds?: number[]; character_end_times_seconds?: number[] };
     const payload = await response.json() as {
       audio_base64?: string;
-      alignment?: { character_end_times_seconds?: number[] };
-      normalized_alignment?: { character_end_times_seconds?: number[] };
+      alignment?: Alignment;
+      normalized_alignment?: Alignment;
     };
     if (!payload.audio_base64) throw new Error("tts_request_failed");
     const bytes = decodeBase64(payload.audio_base64);
     if (bytes.byteLength === 0) throw new Error("tts_request_failed");
-    const endTimes = payload.normalized_alignment?.character_end_times_seconds ??
-      payload.alignment?.character_end_times_seconds ?? [];
-    const durationMs = Math.max(1, Math.round((endTimes.at(-1) ?? 0.001) * 1_000));
+    const alignment = payload.normalized_alignment ?? payload.alignment;
+    const startTimes = alignment?.character_start_times_seconds ?? [];
+    const endTimes = alignment?.character_end_times_seconds ?? [];
+    const spokenEndMs = Math.round((endTimes.at(-1) ?? 0.001) * 1_000);
+    // Gerçek uzunluk dosyadan; hizalama yalnızca çözülemeyen dosya için yedek.
+    const durationMs = Math.max(1, mp3DurationMs(bytes) || spokenEndMs);
     return {
       bytes,
       contentType: "audio/mpeg",
       modelId,
       durationMs,
+      leadSilenceMs: Math.max(0, Math.round((startTimes[0] ?? 0) * 1_000)),
+      tailSilenceMs: Math.max(0, durationMs - spokenEndMs),
     };
   } finally {
     clearTimeout(timeout);

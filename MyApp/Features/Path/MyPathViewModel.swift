@@ -31,6 +31,7 @@ final class MyPathViewModel {
     /// Açık duran adım. Varsayılan olarak sıradaki adım: ekran açıldığında
     /// kullanıcının yapacağı şey zaten açık duruyor, bir dokunuş kazanılıyor.
     private(set) var expandedStepID: UUID?
+    private(set) var pathUnlocked = false
     #if DEBUG
     private(set) var isDesignPreview = false
 
@@ -94,6 +95,14 @@ final class MyPathViewModel {
             }
 
             state = .ready(path)
+            if path.kind == .prepared {
+                pathUnlocked = true
+            } else {
+                pathUnlocked = (try? await services.purchaseBackend.isUnlocked(
+                    pathID: path.id,
+                    accessToken: token
+                )) ?? false
+            }
             expandedStepID = path.nextStep?.id
             #if DEBUG
             if let day = DebugDirectEntry.expandedDay {
@@ -140,6 +149,30 @@ final class MyPathViewModel {
     }
 
     func isCompleted(_ step: PathStepRecord) -> Bool { step.completedAt != nil }
+
+    func requiresPurchase(_ step: PathStepRecord) -> Bool {
+        path?.kind == .personalized && step.day > 1 && !pathUnlocked
+    }
+
+    /// Paywall'ın "1. adım tekrarı" dönüş noktası (docs/paywall-stratejisi.md §2).
+    ///
+    /// Kullanıcı ödenmemiş bir patikada 1. adımı yeniden dinleyip oturumu kapattıysa
+    /// teklif bir kez açılır, **günde en fazla bir kez**: her dinlemede aynı ekranı
+    /// göstermek dinlemeyi satışın bedeli yapar. Kriz sinyali varken hiç açılmaz.
+    func consumeReplayOffer(finishedDay: Int, now: Date = .now, calendar: Calendar = .current) -> Bool {
+        guard finishedDay == 1,
+              let next = path?.steps.first(where: { $0.day == 2 }),
+              requiresPurchase(next),
+              services.profile.record?.crisisSignalAt == nil
+        else { return false }
+        let defaults = UserDefaults.standard
+        let key = "patika.paywall.replayOfferDate"
+        if let last = defaults.object(forKey: key) as? Date, calendar.isDate(last, inSameDayAs: now) {
+            return false
+        }
+        defaults.set(now, forKey: key)
+        return true
+    }
 
     func isMeasurementDay(_ step: PathStepRecord) -> Bool {
         measurementDays.contains(step.day)

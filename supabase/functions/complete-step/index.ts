@@ -3,6 +3,7 @@ import { authenticate } from "../_shared/auth.ts";
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { encryptSensitiveText } from "../_shared/encryption.ts";
 import { crisisSignalForText } from "../_shared/crisis.ts";
+import { canAccessStep } from "../_shared/path-access.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -23,6 +24,7 @@ Deno.serve(async (req) => {
       .select("id,path_id,day,step_question,completed_at")
       .eq("id", body.pathStepId).eq("user_id", user.id).maybeSingle();
     if (!current) return json({ code: "not_found" }, 404);
+    if (!await canAccessStep(adminClient, user.id, current)) return json({ code: "purchase_required" }, 403);
     const [{ data: path }, { data: next }, { data: profile }] = await Promise.all([
       adminClient.from("program_paths").select("id,kind").eq("id", current.path_id).eq("user_id", user.id).single(),
       adminClient.from("path_steps").select("id,title,slot_copy")
@@ -107,4 +109,3 @@ Deno.serve(async (req) => {
     return json({ code: "server_error" }, 500);
   }
 });
-

@@ -82,16 +82,6 @@ enum StepCompletionOutcome: Equatable, Sendable {
     case crisis
 }
 
-/// `path_steps.audio_status` sütunuyla birebir.
-enum AudioStatus: String, Decodable, Sendable {
-    case pending, processing, ready, failed
-    /// Sunucu yeni bir değer eklerse istemci çökmez, sesi olmayan oturuma düşer.
-    init(from decoder: any Decoder) throws {
-        let raw = try decoder.singleValueContainer().decode(String.self)
-        self = AudioStatus(rawValue: raw) ?? .failed
-    }
-}
-
 /// `generate-audio` çağrısının sonucu.
 enum AudioRequestOutcome: Equatable, Sendable {
     case ready
@@ -124,9 +114,6 @@ protocol BackendClient: Sendable {
         idempotencyKey: UUID
     ) async throws -> AudioRequestOutcome
     func audioStatus(pathStepId: UUID, accessToken: String) async throws -> AudioStatus
-    /// Adımı tamamlanmış işaretler (G2). Yalnızca `completed_at` yazılır —
-    /// sütun bazlı yetki, istemcinin planın kendisine dokunmasını engelliyor.
-    func markStepCompleted(pathStepId: UUID, at date: Date, accessToken: String) async throws
     /// Hazır sesin imzalı indirme adresi. Kova özel; imza kullanıcının kendi
     /// JWT'siyle alınır, servis anahtarı istemciye hiç girmez.
     func signedAudioURL(pathStepId: UUID, accessToken: String) async throws -> URL?

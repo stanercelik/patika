@@ -16,13 +16,15 @@ import SwiftUI
 /// Kaçırılan gün hiçbir şeyi geri almıyor: ekranda ne seri, ne "bugün de kaçtı",
 /// ne yüzde. Tek söylenen, sıradaki adımın hazır olduğu.
 struct MyPathView: View {
-    @Environment(PaletteController.self) private var palette
     @Environment(AppServices.self) private var services
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var viewModel: MyPathViewModel?
     @State private var runningStep: PathStepRecord?
+    /// Teklif önce yüklenir, kaplama ancak sonra açılır: arada ekran yok.
+    @State private var purchaseOffer: PathPaywallViewModel?
+    @State private var isOpeningOffer = false
     @State private var isCreatingPath = false
     @State private var headerHeight: CGFloat = 150
     @State private var headerHidden = false
@@ -30,14 +32,6 @@ struct MyPathView: View {
     var body: some View {
         ZStack {
             WoodlandStyle.background.ignoresSafeArea()
-            BreathingMeshBackground(
-                palette: palette.current,
-                safeY: 0.12,
-                breathAmplitude: BreathAmplitude.measurement
-            )
-            .opacity(0.20)
-            .ignoresSafeArea()
-            .accessibilityHidden(true)
             content
         }
         .task {
@@ -47,7 +41,7 @@ struct MyPathView: View {
         .fullScreenCover(isPresented: $isCreatingPath, onDismiss: {
             Task { await viewModel?.load() }
         }) {
-            OnboardingContainerView(palette: palette, services: services) {
+            OnboardingContainerView(services: services) {
                 isCreatingPath = false
             }
             .safeAreaInset(edge: .top, alignment: .leading, spacing: 0) {
@@ -62,13 +56,23 @@ struct MyPathView: View {
         .fullScreenCover(item: $runningStep) { step in
             if let path = viewModel?.path {
                 PathSessionView(services: services, path: path, step: step)
-                    .environment(palette)
             }
+        }
+        // Tam ekran ve doğrudan RevenueCat paywall'ı (teklif önceden yüklendi).
+        .fullScreenCover(item: $purchaseOffer, onDismiss: {
+            Task { await viewModel?.load() }
+        }) { offer in
+            PathPurchaseOfferView(viewModel: offer) { purchaseOffer = nil }
         }
         .onChange(of: runningStep) { old, new in
             // Oturum kapandı: tamamlanma sunucuda, ekran yeniden okuyor.
-            guard old != nil, new == nil else { return }
-            Task { await viewModel?.load() }
+            guard let old, new == nil else { return }
+            Task {
+                await viewModel?.load()
+                if viewModel?.consumeReplayOffer(finishedDay: old.day) == true {
+                    await openPurchaseOffer()
+                }
+            }
         }
         .onChange(of: viewModel?.recentlyCompletedStepID) { _, completedID in
             guard completedID != nil, !reduceMotion else { return }
@@ -90,14 +94,14 @@ struct MyPathView: View {
             )
             #if DEBUG
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                Button("Tasarım önizlemesi · örnek patika") {
+                Button("Design preview · sample path") {
                     viewModel?.showDesignPreview()
                 }
                 .font(.caption.weight(Theme.Weight.emphasis))
                 .foregroundStyle(Theme.textSecondary.color)
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .padding(.vertical, 4)
-                .background(Palette.neutral.background.color)
+                .background(WoodlandStyle.background)
             }
             #endif
         case .failed:
@@ -122,7 +126,7 @@ struct MyPathView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     #if DEBUG
                     if viewModel?.isDesignPreview == true {
-                        Text("Tasarım önizlemesi · örnek veriler")
+                        Text("Design preview · sample data")
                             .font(.caption.weight(Theme.Weight.emphasis))
                             .foregroundStyle(Theme.textSecondary.color)
                     }
@@ -191,8 +195,36 @@ struct MyPathView: View {
         #if DEBUG
         if PathPreviewFixture.isEnabled || viewModel.isDesignPreview { return }
         #endif
-        runningStep = step
+        if viewModel.requiresPurchase(step) {
+            Task { await openPurchaseOffer() }
+        } else {
+            runningStep = step
+        }
     }
 }
 
 extension PathStepRecord: Identifiable {}
+
+extension MyPathView {
+    /// Teklifi yükler, sonra açar. Yükleme sürerken ekran değişmez.
+    @MainActor
+    private func openPurchaseOffer() async {
+        guard purchaseOffer == nil, !isOpeningOffer, let path = viewModel?.path else { return }
+        isOpeningOffer = true
+        defer { isOpeningOffer = false }
+        let offer = PathPaywallViewModel(
+            services: services,
+            pathID: path.id,
+            days: path.steps.count,
+            context: .return,
+            reminderTime: nil
+        )
+        await offer.load()
+        // Zaten açılmışsa (hak az önce yazıldı) teklif yok: ekran yenilenir, adım açılır.
+        if case .unlocked = offer.state {
+            await viewModel?.load()
+            return
+        }
+        purchaseOffer = offer
+    }
+}

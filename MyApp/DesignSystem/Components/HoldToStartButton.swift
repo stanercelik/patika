@@ -1,11 +1,11 @@
 import SwiftUI
 import UIKit
 
-/// Basılı tutularak tetiklenen birincil buton — F2'nin "Yola çık"ı.
+/// Basılı tutularak tetiklenen birincil eşik butonu.
 ///
 /// ## Neden basılı tutma
 ///
-/// Bu dokunuş onboarding'in sonu ve ilk oturumun başı; tek bir yanlış dokunuşla
+/// Taahhütten ilk oturuma geçiş tek bir yanlış dokunuşla
 /// geçilecek bir eşik değil. Ürün bu kalıbı zaten tanıyor: SOS butonu da basılı
 /// tutulunca büyür ve bırakılınca çalışır (Ton eki §2.2) — kaza koruması ve
 /// fiziksel rahatlama aynı anda.
@@ -16,20 +16,18 @@ import UIKit
 /// ## Buton ekranı kaplar (ürün sahibi kararı, 2026-09-09)
 ///
 /// Basılı tutuldukça buton bir kapsülden başlayıp **tüm ekranı dolduran** bir
-/// alana büyür ve dolgusu paletin kendi rengiyle gradyanlıdır. İki iş birden
+/// alana büyür ve dolgusu düz kırık beyazdır. İki iş birden
 /// yapıyor:
 ///
 /// - **Geri sayım görünür oluyor.** Önceki hâlde buton yalnızca %14 büyüyordu;
 ///   bekleme süresinin nerede olduğunu yalnızca haptik söylüyordu ve parmağını
 ///   erken çeken kullanıcı bir şey olmadığını sanıyordu.
-/// - **Geçişin örtüsü oluyor.** Dolgu tamamlandığında ekran zaten kaplı; F2'den
-///   G1'e geçiş bu ışığın altında oluyor, iki ekran arasında boşluk görünmüyor.
+/// - **Geçişin örtüsü oluyor.** Dolgu tamamlandığında ekran zaten kaplı;
+///   sahibi kısa bir eşik cümlesi gösterip sonraki adıma geçebilir.
 ///
-/// Gradyan arka planın **akrabası ama aynısı değil**: paletin en parlak noktası
-/// kırık beyazla karıştırılıyor, yani ton kategoriden geliyor ama luminans yukarı
-/// çıkıyor. Koyu arka planın üstünde açık bir alan olarak ayrılıyor ve siyah
-/// buton metni büyüme boyunca okunur kalıyor — kontrast kilidinin (Görsel Sistem
-/// eki §3.4) buradaki karşılığı bu.
+/// Dolgu düz kırık beyazdır (`Theme.textPrimary`): koyu zeminde açık bir alan olarak
+/// ayrılıyor ve siyah buton metni büyüme boyunca okunur kalıyor. Önceden paletin en
+/// parlak noktasından gradyanlıydı; palet ve gradyan 2026-09-22'de kaldırıldı.
 ///
 /// ## Haptik tek kademe kalır
 ///
@@ -45,16 +43,9 @@ import UIKit
 /// dolgu soldan sağa ilerler — bekleme yine var, ekranı yutan hareket yok.
 struct HoldToStartButton: View {
     let title: LocalizedStringResource
-    /// Butonun altında duran tek satırlık kullanım ipucu. Jest görünmez olduğu
-    /// için yazıyla söylenmek zorunda.
-    let hint: LocalizedStringResource
+    var holdDuration: TimeInterval = 1.2
     let action: () -> Void
 
-    /// Tetiklenme için gereken süre. 1.4 sn: kazayla tutulacak kadar kısa değil,
-    /// beklerken sıkıcı olacak kadar uzun değil.
-    private let holdDuration: TimeInterval = 1.4
-
-    @Environment(PaletteController.self) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var progress: Double = 0
@@ -67,34 +58,25 @@ struct HoldToStartButton: View {
     @State private var buttonFrame: CGRect = .zero
 
     var body: some View {
-        VStack(spacing: 10) {
-            label
-                .background {
-                    GeometryReader { geo in
-                        Color.clear
-                            .onAppear { buttonFrame = geo.frame(in: .global) }
-                            .onChange(of: geo.frame(in: .global)) { _, new in
-                                buttonFrame = new
-                            }
+        label
+            .background {
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { buttonFrame = geo.frame(in: .global) }
+                        .onChange(of: geo.frame(in: .global)) { _, new in
+                            buttonFrame = new
+                        }
                     }
-                }
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { _ in beginHold() }
-                        .onEnded { _ in cancelHold() }
-                )
-                // Yardımcı teknolojiler için düz bir buton gibi davranır.
-                .accessibilityElement()
-                .accessibilityLabel(Text(title))
-                .accessibilityHint(Text(hint))
-                .accessibilityAddTraits(.isButton)
-                .accessibilityAction { complete() }
-
-            Text(hint)
-                .font(.footnote.weight(Theme.Weight.emphasis))
-                .foregroundStyle(Theme.textPrimary.color.opacity(hintOpacity))
-                .accessibilityHidden(true)
-        }
+            }
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in beginHold() }
+                    .onEnded { _ in cancelHold() }
+            )
+            .accessibilityElement()
+            .accessibilityLabel(Text(title))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { complete() }
         .onDisappear { holdTask?.cancel() }
     }
 
@@ -109,6 +91,8 @@ struct HoldToStartButton: View {
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(alignment: .center) { fill }
+            .scaleEffect(isHolding && !reduceMotion ? 0.97 : 1)
+            .opacity(isHolding ? 0.90 : 1)
             .contentShape(Capsule())
     }
 
@@ -121,7 +105,7 @@ struct HoldToStartButton: View {
     private var fill: some View {
         if reduceMotion {
             ZStack {
-                Capsule().fill(gradient)
+                Capsule().fill(fillColor)
                 // Reduce Motion'da büyümenin yerini alan sinyal: mürekkep
                 // soldan sağa doluyor, buton yerinde duruyor.
                 GeometryReader { geo in
@@ -139,7 +123,7 @@ struct HoldToStartButton: View {
                 let height = rest.height + (expanded - rest.height) * eased
 
                 RoundedRectangle(cornerRadius: height / 2, style: .continuous)
-                    .fill(gradient)
+                    .fill(fillColor)
                     .frame(width: width, height: height)
                     .offset(y: centerOffset * eased)
                     .position(x: rest.width / 2, y: rest.height / 2)
@@ -147,21 +131,10 @@ struct HoldToStartButton: View {
         }
     }
 
-    /// Paletin en parlak noktası kırık beyaza karıştırılıyor: ton kategoriden,
-    /// luminans metin renginden. Arka planla akraba, arka plandan ayrık.
-    private var gradient: LinearGradient {
-        let base = Theme.textPrimary
-        let accent = palette.current.spots.max(by: { $0.relativeLuminance < $1.relativeLuminance })
-            ?? Theme.textPrimary
-        return LinearGradient(
-            colors: [
-                base.mixed(with: accent, amount: 0.14).color,
-                base.mixed(with: accent, amount: 0.58).color,
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
+    /// Düz kırık beyaz dolgu (gradyan kalktı, 2026-09-22): ışık artık paletten değil,
+    /// oturum oynat düğmesiyle aynı malzemeden geliyor. Koyu zeminde açık bir alan olarak
+    /// ayrılır ve siyah buton metni büyüme boyunca okunur.
+    private var fillColor: Color { Theme.textPrimary.color }
 
     // MARK: - Geometri
 
@@ -191,10 +164,6 @@ struct HoldToStartButton: View {
         return progress < 0.72 ? 1 : max(0, 1 - (progress - 0.72) / 0.28)
     }
 
-    private var hintOpacity: Double {
-        0.55 * max(0, 1 - progress * 2.2)
-    }
-
     @MainActor
     private static var screenSize: CGSize {
         UIApplication.shared.connectedScenes
@@ -208,6 +177,7 @@ struct HoldToStartButton: View {
     private func beginHold() {
         guard !isHolding, !isCompleted else { return }
         isHolding = true
+        Theme.softHaptic(intensity: 0.65)
 
         holdTask = Task { @MainActor in
             let step: TimeInterval = 1.0 / 60.0
@@ -263,21 +233,16 @@ struct HoldToStartButton: View {
 }
 
 #Preview {
-    @Previewable @State var palette = PaletteController()
-
-    return ZStack {
-        BreathingMeshBackground(palette: Palette.all["sleep"]!, safeY: 0.80)
+    ZStack {
+        WoodlandStyle.background.ignoresSafeArea()
         VStack {
             Spacer()
             HoldToStartButton(
-                title: Copy.Button.start,
-                hint: Copy.Onboarding.holdToStartHint
+                title: Copy.Onboarding.commitmentHoldToStart
             ) {}
             .padding(.horizontal, Theme.Spacing.screenMargin)
             .padding(.bottom, 24)
         }
     }
-    .environment(palette)
     .preferredColorScheme(.dark)
-    .task { palette.select([.sleep]) }
 }

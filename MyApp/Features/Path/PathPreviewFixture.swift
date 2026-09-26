@@ -33,11 +33,11 @@ enum PathPreviewFixture {
         let titles = [
             "Nefesle yere inmek",
             "Zihnin sesini fark etmek",
-            "Düşünceyle arana küçük bir mesafe koymak",
-            "Bedeninde olanlara yavaşça yer açmak",
-            "Günün içinde kendine dönebildiğin küçük bir alan",
+            "Putting a small distance between you and the thought",
+            "Slowly making room for what is in your body",
+            "A small space in the day where you can return to yourself",
             "Kendi ritmini bulmak",
-            "Başladığın yere yeniden bakmak"
+            "Looking again at where you started"
         ]
         let steps = (0..<length).map { index in
             PathStepRecord(
@@ -46,17 +46,25 @@ enum PathPreviewFixture {
                 question: nil, completedAt: index < completed ? Date(timeIntervalSince1970: 1) : nil
             )
         }
-        return ActivePath(id: UUID(), kind: .personalized, title: "Kendine dönen bir yol", steps: steps)
+        return ActivePath(id: UUID(), kind: .personalized, title: "A path back to yourself", steps: steps)
     }()
 }
 
 struct PathPreviewEnvironment: ViewModifier {
     @Environment(\.dynamicTypeSize) private var typeSize
 
+    // iOS 26/27 SDK: `EnvironmentValues.accessibilityReduceMotion` and
+    // `.accessibilityReduceTransparency` are now get-only (`KeyPath`, not
+    // `WritableKeyPath`) — they always mirror the real system setting and can no
+    // longer be overridden via `.environment(_:_:)`. The `-patika-debug-reduce-
+    // motion`/`-reduce-transparency` launch flags this used to honor are no
+    // longer possible to simulate this way; toggle the real simulator
+    // Accessibility setting instead. `dynamicTypeSize` is still writable.
     func body(content: Content) -> some View {
         let arguments = ProcessInfo.processInfo.arguments
+        let resolvedTypeSize: DynamicTypeSize = (arguments.contains("-patika-debug-ax5") || (PathPreviewFixture.isEnabled && arguments.contains("-patika-debug-path-ax5"))) ? .accessibility5 : typeSize
         content
-            .environment(\.dynamicTypeSize, (arguments.contains("-patika-debug-ax5") || (PathPreviewFixture.isEnabled && arguments.contains("-patika-debug-path-ax5"))) ? .accessibility5 : typeSize)
+            .environment(\.dynamicTypeSize, resolvedTypeSize)
     }
 }
 #endif

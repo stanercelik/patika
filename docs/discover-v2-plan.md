@@ -1,6 +1,6 @@
 # Keşfet v2 — ortak guaj diline geçiş, dinamik keşif ekranı, 10 patikalık kütüphane
 
-## Uygulama durumu (20 Eylül 2026)
+## Uygulama durumu (20 Eylül 2026, aşama 5 doğrulaması 21 Eylül 2026)
 
 **Aşama 0–8 tamam.** Aşama 7'nin metinleri yazıldı ve kataloğa girdi, ama **klinik gözden
 geçirme beklemeden yayına alınmaz** (aşağıya bak). Aşama 8'de görseller imageset oldu ve
@@ -14,7 +14,7 @@ senaryoları ve VoiceOver hâlâ açık.
 | 2 Ortak dil | Tamam | `DiscoverStyle` silindi, `Theme.TypeFace`, `PatikaArt.exists` |
 | 3 Ana ekran | Tamam | `DiscoverView`, `DiscoverCards`, paylaşılan `ScrollHidesHeader` ve `PathLandscapeScene` |
 | 4 Detay | Tamam | push + zoom, `DiscoverTrailMap`, paylaşılan `SignpostRoute`, hero |
-| 5 Oturum birleştirme | Tamam | `PathSessionViewModel.Source`, `DiscoverSessionView/ViewModel` silindi |
+| 5 Oturum birleştirme | Tamam | `PathSessionViewModel.Source`, `DiscoverSessionView/ViewModel` silindi; 21 Eyl'de derleme + test doğrulandı |
 | 6 Katılım Keşfet'te | Tamam | Yolum devralması kalktı, çoklu katılım, `recency` sırası |
 | 7 İçerik: 7 yeni patika | Tamam | Katalog 10 patika, 70 adım; klinik inceleme açık |
 | 8 Görseller + doğrulama | Tamam | 12 görsel JPEG imageset, derlenmiş pakette 6,4 MB; görsel sadeleştirme yapıldı |
@@ -259,13 +259,16 @@ oturum da `SessionRunner` + `SessionStageView` üzerinden çalışır.
   zamanla ayrışması demekti.
 - [x] Hero görsel `MeBackdrop` fade/parallax matematiğiyle.
 
-### Aşama 5 — Oturum birleştirme (yapıldı)
+### Aşama 5 — Oturum birleştirme (yapıldı; 21 Eylül 2026'da doğrulandı)
 - [x] `DiscoverSessionView.swift` ve `DiscoverSessionViewModel.swift` silinir.
 - [x] `PathSessionViewModel`'e hazır patika girişi: `DiscoverLibrary.playback(for:in:)`'ten
   gelen `SessionPlayback` doğrudan verilir (ağ isteği, ölçüm, rozet, `completeStep`
   dalları `pathKind == .prepared` ile atlanır); tamamlanınca
   `library.complete(step, in: path)`.
 - [x] `SessionArtwork` faz eşlemesi yalnızca görsel için (yukarıdaki sınır).
+- [x] *Doğrulama (21 Eylül 2026):* `bash scripts/run-swift-tests.sh` — 11/11 test
+  geçti (DiscoverLibrary dahil); `xcodebuild -project patika.xcodeproj -scheme MyApp
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build` — BUILD SUCCEEDED.
 
 ### Aşama 6 — Katılım Keşfet'te kalır (yapıldı)
 - [x] `RootView.MyPathTab` sadeleşir → `MyPathView()`. `DiscoverView`'ın `onOpenPath`

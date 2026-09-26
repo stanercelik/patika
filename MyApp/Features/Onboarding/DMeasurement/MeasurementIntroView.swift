@@ -23,15 +23,18 @@ struct MeasurementIntroView: View {
             action: { flow.startMeasurement() }
         ) {
             StatementParagraph(Copy.Onboarding.measurementIntroPurpose)
-                .sequentialReveal(1)
+                .statementReveal(1)
             StatementParagraph(Copy.Onboarding.measurementIntroEffort)
-                .sequentialReveal(2)
+                .statementReveal(2)
+
+            OnboardingArtworkView(artwork: .stillPool, height: 160)
+                .statementReveal(3)
 
             Text(Copy.clinicalDisclaimer)
                 .font(.caption.weight(Theme.Weight.body))
-                .foregroundStyle(Theme.textPrimary.color.opacity(0.5))
+                .inkStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-                .sequentialReveal(3)
+                .statementReveal(4)
                 .padding(.top, 4)
         }
     }

@@ -1,30 +1,6 @@
 import Foundation
 import Observation
 
-/// Oturumdaki tek bir sahne.
-///
-/// Metin `String`, `LocalizedStringResource` değil: içeriğin bir kısmı sunucudan
-/// (kişiselleştirilmiş yuvalar) ve bir kısmı kullanıcının kendi cümlesinden
-/// geliyor. Sabit metinler `Copy`den okunup burada çözülüyor.
-struct SessionSegment: Identifiable, Equatable {
-    enum Kind: Equatable {
-        /// Kişiselleştirilmiş açılış — seslendirilen kısım.
-        case opening
-        /// Kullanıcının kendi cümlesi. Aha momenti (PRD-Ek Onboarding §8).
-        case ownWords
-        /// Blok kütüphanesinden gelen sabit teknik.
-        case technique
-        /// Sunucudan gelen geçiş cümlesi.
-        case bridge
-        case closing
-    }
-
-    let id: String
-    let text: String
-    let kind: Kind
-    var duration: TimeInterval
-}
-
 /// G1 — ilk oturum (PRD-Ek Onboarding §8).
 ///
 /// ## Bu ekran akışın amacı
@@ -60,6 +36,7 @@ final class FirstSessionViewModel {
     private let flow: OnboardingFlowViewModel
     private var audioTask: Task<Void, Never>?
     private var stepId: UUID?
+    private var didTrackSessionStart = false
 
     init(flow: OnboardingFlowViewModel) {
         self.flow = flow
@@ -90,6 +67,10 @@ final class FirstSessionViewModel {
             )
             stepTitle = step?.title ?? String(localized: Copy.Session.fallbackStepTitle)
             runner.begin(segments: segments) { _ in }
+            if !didTrackSessionStart {
+                didTrackSessionStart = true
+                flow.services.observability.capture(.sessionStarted(source: .first))
+            }
             beginAudio()
         }
     }
@@ -115,35 +96,35 @@ final class FirstSessionViewModel {
         audioTask = Task { @MainActor in
             guard let stepId else { return }
             let services = flow.services
-            let deadline = Date.now.addingTimeInterval(45)
             do {
                 var token = try await services.auth.validAccessToken()
-                while Date.now < deadline, !Task.isCancelled {
-                    let status = try await services.backend.audioStatus(
-                        pathStepId: stepId,
-                        accessToken: token
-                    )
-                    if status == .ready {
-                        guard let playback = try await services.backend.sessionPlayback(
-                            pathStepId: stepId,
-                            accessToken: token
-                        ) else { return }
-                        // Uygulama oturumun ortasında kapandıysa oradan devam
-                        // eder; baştan başlamak kesintiyi ikinci kez yaşatıyordu.
-                        let offset = SessionAudioPlayer.resumeOffset(for: playback.manifest.stepID)
-                        runner.replaceSegments(SessionScript.build(from: playback.manifest), startingAt: offset)
-                        await audio.play(
-                            playback: playback,
-                            title: stepTitle,
-                            startingAt: offset
-                        ) {}
-                        runner.audioDidStart()
-                        return
-                    }
-                    if status == .failed || status == .pending { return }
-                    try await Task.sleep(for: .seconds(2))
-                    token = try await services.auth.validAccessToken()
-                }
+                let outcome = try await AudioReadiness.wait(
+                    status: {
+                        token = try await services.auth.validAccessToken()
+                        return try await services.backend.audioStatus(pathStepId: stepId, accessToken: token)
+                    },
+                    // F1'in isteği henüz ulaşmadıysa adım `pending` kalır; bu bir
+                    // bitiş değil, beklenecek ya da kendimizin isteyeceği bir durum
+                    // (Part 6 — docs/onboarding-redesign.md).
+                    requestIfNeeded: { await flow.requestFirstStepAudioIfStillPending(stepId: stepId) },
+                    isUnavailable: { flow.isFirstStepAudioUnavailable }
+                )
+                guard outcome == .ready,
+                      let playback = try await services.backend.sessionPlayback(
+                          pathStepId: stepId,
+                          accessToken: token
+                      )
+                else { return }
+                // Uygulama oturumun ortasında kapandıysa oradan devam
+                // eder; baştan başlamak kesintiyi ikinci kez yaşatıyordu.
+                let offset = SessionAudioPlayer.resumeOffset(for: playback.manifest.stepID)
+                runner.replaceSegments(SessionScript.build(from: playback.manifest), startingAt: offset)
+                await audio.play(
+                    playback: playback,
+                    title: stepTitle,
+                    startingAt: offset
+                ) {}
+                runner.audioDidStart()
             } catch {
                 services.observability.capture(.audioGeneration)
             }
